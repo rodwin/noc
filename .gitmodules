@@ -1,0 +1,3 @@
+[submodule "themes/adminlte"]
+	path = themes/adminlte
+	url = https://github.com/almasaeed2010/AdminLTE.git
