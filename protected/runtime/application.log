@@ -1,0 +1,11 @@
+2014/05/20 13:48:38 [error] [php] Object of class CTheme could not be converted to string (/var/www/html/noc/protected/controllers/SiteController.php:32)
+Stack trace:
+#0 /var/www/html/yii/framework/web/CController.php(286): SiteController->runAction()
+#1 /var/www/html/yii/framework/web/CController.php(265): SiteController->runActionWithFilters()
+#2 /var/www/html/yii/framework/web/CWebApplication.php(282): SiteController->run()
+#3 /var/www/html/yii/framework/web/CWebApplication.php(141): CWebApplication->runController()
+#4 /var/www/html/yii/framework/base/CApplication.php(180): CWebApplication->processRequest()
+#5 /var/www/html/noc/index.php(13): CWebApplication->run()
+REQUEST_URI=/noc/index.php
+in /var/www/html/noc/protected/controllers/SiteController.php (32)
+in /var/www/html/noc/index.php (13)
