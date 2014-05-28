@@ -1,0 +1,10 @@
+.error
+{
+	border-color: #C00;
+}
+
+.errorMessage
+{
+	color: red;
+	font-size: 0.9em;
+}
