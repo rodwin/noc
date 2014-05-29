@@ -2,11 +2,6 @@
 
 class UserController extends Controller
 {
-	/**
-	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
-	 * using two-column layout. See 'protected/views/layouts/column2.php'.
-	 */
-	public $layout='//layouts/column2';
 
 	/**
 	 * @return array action filters
@@ -47,9 +42,11 @@ class UserController extends Controller
         
         public function actionData(){
             
+            //pr($_GET);
+            
             User::model()->search_string = $_GET['search']['value'] != "" ? $_GET['search']['value']:null;
             
-            $dataProvider = User::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start']);
+            $dataProvider = User::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'],$_GET['columns']);
             
             $count = User::model()->count();
                 
@@ -93,6 +90,9 @@ class UserController extends Controller
 	 */
 	public function actionCreate()
 	{
+                $this->layout = "column2";
+                $this->pageTitle = 'Create User';
+            
 		$model=new User;
 
 		// Uncomment the following line if AJAX validation is needed
@@ -164,6 +164,9 @@ class UserController extends Controller
 	 */
 	public function actionAdmin()
 	{
+                $this->pageTitle = 'Manage User';
+//                $this->layout = "main";
+                
 		$model=new User('search');
 		$model->unsetAttributes();  // clear any default values
 		if(isset($_GET['User']))

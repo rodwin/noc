@@ -1,100 +1,53 @@
-<?php
-/* @var $this UserController */
-/* @var $model User */
-/* @var $form CActiveForm */
-?>
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-primary">
+            <div class="box-body">
+            <form class="form-horizontal" role="form">
+                
+                <div class="form-group">
+                    <label for="User_id" class="col-sm-2 control-label">ID</label>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" id="User_id" placeholder="ID" name="User[id]">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="User_user_type_id" class="col-sm-2 control-label">User Type</label>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" id="User_user_type_id" placeholder="User Type" name="User[user_type_id]">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="User_user_name" class="col-sm-2 control-label">User Name</label>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" id="User_user_name" placeholder="User Name" name="User[user_name]">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="User_first_name" class="col-sm-2 control-label">First Name</label>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" id="User_first_name" placeholder="First Name" name="User[first_name]">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="User_last_name" class="col-sm-2 control-label">Last Name</label>
+                    <div class="col-sm-3">
+                        <input type="email" class="form-control" id="User_last_name" placeholder="Last Name" name="User[last_name]">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="User_status" class="col-sm-2 control-label">Status</label>
+                    <div class="col-sm-3">
+                        <input type="email" class="form-control" id="User_status" placeholder="Status" name="User[status]">
+                    </div>
+                </div>
 
-<div class="wide form">
-
-<?php $form=$this->beginWidget('CActiveForm', array(
-	'action'=>Yii::app()->createUrl($this->route),
-	'method'=>'get',
-)); ?>
-
-	<div class="row">
-		<?php echo $form->label($model,'id'); ?>
-		<?php echo $form->textField($model,'id'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'user_type_id'); ?>
-		<?php echo $form->textField($model,'user_type_id',array('size'=>60,'maxlength'=>200)); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'user_name'); ?>
-		<?php echo $form->textField($model,'user_name',array('size'=>60,'maxlength'=>100)); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'first_name'); ?>
-		<?php echo $form->textField($model,'first_name',array('size'=>60,'maxlength'=>100)); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'last_name'); ?>
-		<?php echo $form->textField($model,'last_name',array('size'=>60,'maxlength'=>100)); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'email'); ?>
-		<?php echo $form->textField($model,'email',array('size'=>60,'maxlength'=>100)); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'telephone'); ?>
-		<?php echo $form->textField($model,'telephone',array('size'=>45,'maxlength'=>45)); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'address'); ?>
-		<?php echo $form->textField($model,'address',array('size'=>60,'maxlength'=>200)); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'added_when'); ?>
-		<?php echo $form->textField($model,'added_when'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'added_by'); ?>
-		<?php echo $form->textField($model,'added_by',array('size'=>45,'maxlength'=>45)); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'updated_when'); ?>
-		<?php echo $form->textField($model,'updated_when'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'updated_by'); ?>
-		<?php echo $form->textField($model,'updated_by',array('size'=>45,'maxlength'=>45)); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'deleted_when'); ?>
-		<?php echo $form->textField($model,'deleted_when'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'deleted_by'); ?>
-		<?php echo $form->textField($model,'deleted_by',array('size'=>45,'maxlength'=>45)); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'deleted'); ?>
-		<?php echo $form->textField($model,'deleted'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model,'status'); ?>
-		<?php echo $form->textField($model,'status'); ?>
-	</div>
-
-	<div class="row buttons">
-		<?php echo CHtml::submitButton('Search'); ?>
-	</div>
-
-<?php $this->endWidget(); ?>
-
-</div><!-- search-form -->
+                <div class="form-group">
+                  <div class="col-sm-offset-2 col-sm-10">
+                      <button type="button" id="btnSearch" class="btn btn-primary btn-flat">Search</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+        </div>
+    </div>
+</div>

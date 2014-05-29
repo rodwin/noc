@@ -134,7 +134,7 @@ class User extends CActiveRecord
 		));
 	}
         
-	public function data($col, $order_dir,$limit,$offset)
+	public function data($col, $order_dir,$limit,$offset,$columns)
 	{
                 switch($col){
                     case '1':
@@ -158,13 +158,12 @@ class User extends CActiveRecord
                 }
 
 		$criteria=new CDbCriteria;
-		$criteria->compare('id',$this->id);
-		$criteria->compare('user_type_id',$this->user_type_id,true);
-		$criteria->compare('user_name',$this->user_name,true);
-		$criteria->compare('password',$this->password,true);
-		$criteria->compare('first_name',$this->first_name,true);
-		$criteria->compare('last_name',$this->last_name,true);
-		$criteria->compare('status',$this->status);
+		$criteria->compare('id',$columns[0]['search']['value']);
+		$criteria->compare('user_type_id',$columns[1]['search']['value'],true);
+		$criteria->compare('user_name',$columns[2]['search']['value'],true);
+		$criteria->compare('first_name',$columns[3]['search']['value'],true);
+		$criteria->compare('last_name',$columns[4]['search']['value'],true);
+		$criteria->compare('status',$columns[5]['search']['value']);
                 $criteria->order = "$sort_column $order_dir";
                 $criteria->limit = $limit;
                 $criteria->offset = $offset;
