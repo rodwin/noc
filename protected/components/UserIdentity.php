@@ -7,27 +7,47 @@
  */
 class UserIdentity extends CUserIdentity
 {
-	/**
-	 * Authenticates a user.
-	 * The example implementation makes sure if the username and password
-	 * are both 'demo'.
-	 * In practical applications, this should be changed to authenticate
-	 * against some persistent user identity storage (e.g. database).
-	 * @return boolean whether authentication succeeds.
-	 */
-	public function authenticate()
-	{
-		$users=array(
-			// username => password
-			'demo'=>'demo',
-			'admin'=>'admin',
-		);
-		if(!isset($users[$this->username]))
-			$this->errorCode=self::ERROR_USERNAME_INVALID;
-		elseif($users[$this->username]!==$this->password)
-			$this->errorCode=self::ERROR_PASSWORD_INVALID;
-		else
-			$this->errorCode=self::ERROR_NONE;
-		return !$this->errorCode;
-	}
+    private $_id;
+
+    public function authenticate()
+    {
+        $user=User::model()->findByAttributes(array('user_name'=>$this->username));
+        
+        if($user===null){
+            $this->errorCode=  UserIdentity::ERROR_USERNAME_INVALID;
+            
+        }else if(!CPasswordHelper::verifyPassword($this->password, $user->password)){
+            $this->errorCode= UserIdentity::ERROR_PASSWORD_INVALID;
+            
+        }else{
+            if($user->deleted == 1){
+
+                $this->errorMessage="Your account is currently deleted. Please contact System Administrator";
+            }elseif($user->status == 20){
+
+                $this->errorMessage="Your account is currently disabled. Please contact System Administrator";
+            }else{
+                $this->setState('userObj', $user);
+                
+//                $role = Authitem::model()->findByPk($user->role);
+//                $more_actions = unserialize($role->data);
+//                $this->setState('MoreActions', is_null($more_actions)? "":$more_actions);
+                
+                $this->_id=$user->user_id;
+                $this->errorCode=self::ERROR_NONE;
+                
+//                $auth=Yii::app()->authManager;
+//                if(!$auth->isAssigned($user->role,$this->_id))
+//                {
+//                    $auth->assign($user->role,$this->_id);
+//                }
+            }
+        }
+        return !$this->errorCode;
+    }
+
+    public function getId()
+    {
+        return $this->_id;
+    }
 }

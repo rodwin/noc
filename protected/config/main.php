@@ -76,6 +76,7 @@ return array(
                     'password' => 'winrod',
                     'enableProfiling'=>true,
                     'enableParamLogging' => true,
+                    'charset'=>'utf8'
 
                 ),
 		'errorHandler'=>array(
@@ -90,11 +91,11 @@ return array(
 					'levels'=>'error, warning',
 				),
 				// uncomment the following to show log messages on web pages
-				
+				/*
 				array(
 					'class'=>'CWebLogRoute',
 				),
-				
+				*/
 			),
 		),
 	),

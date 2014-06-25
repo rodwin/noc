@@ -73,13 +73,9 @@ class SiteController extends Controller
 //            $pass = 'winrod';
 //            $hash = CPasswordHelper::hashPassword($pass);
 //            pr($hash);
-            
-            
-//            $hash = md5($pass);
-//            pr($hash);
-//            $hash = sha1($pass);
-//            pr($hash);
-            
+//            
+//            
+//            
 //            if (CPasswordHelper::verifyPassword($pass, $hash)){
 //                pr('pasok');
 //            }else{

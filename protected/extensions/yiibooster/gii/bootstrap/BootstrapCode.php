@@ -31,9 +31,9 @@ class BootstrapCode extends CrudCode {
 
 			if ($column->type !== 'string' || $column->size === null) {
 				if($column->dbType == 'date') {
-					return "\$form->datePickerGroup(\$model,'{$column->name}',array('widgetOptions'=>array('options'=>array(),'htmlOptions'=>array('class'=>'span5')), 'prepend'=>'<i class=\"glyphicon glyphicon-calendar\"></i>', 'append'=>'Click on Month/Year to select a different Month/Year.'))";
+					return "\$form->datePickerGroup(\$model,'{$column->name}',array('widgetOptions'=>array('options'=>array(),'htmlOptions'=>array('class'=>'form-control')), 'prepend'=>'<i class=\"glyphicon glyphicon-calendar\"></i>', 'append'=>'Click on Month/Year to select a different Month/Year.'))";
 				} else {
-					return "\$form->{$inputField}(\$model,'{$column->name}',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5'))))";
+					return "\$form->{$inputField}(\$model,'{$column->name}',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'form-control'))))";
 				}
 			} else {
 				if (strpos ( $column->dbType, 'enum(' ) !== false) {
@@ -46,9 +46,9 @@ class BootstrapCode extends CrudCode {
 						$dropdown_options .= "\"$option\"=>\"$option\",";
 					}
 					$dropdown_options .= ")";
-					return "\$form->dropDownListGroup(\$model,'{$column->name}', array('widgetOptions'=>array('data'=>{$dropdown_options}, 'htmlOptions'=>array('class'=>'input-large'))))";
+					return "\$form->dropDownListGroup(\$model,'{$column->name}', array('widgetOptions'=>array('data'=>{$dropdown_options}, 'htmlOptions'=>array('class'=>'input-large form-control'))))";
 				} else {
-					return "\$form->{$inputField}(\$model,'{$column->name}',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>$column->size))))";
+					return "\$form->{$inputField}(\$model,'{$column->name}',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'form-control','maxlength'=>$column->size))))";
 				}
 			}
 		}

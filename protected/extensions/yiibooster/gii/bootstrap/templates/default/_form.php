@@ -15,12 +15,12 @@
 	'enableAjaxValidation'=>false,
 )); ?>\n"; ?>
 
- <?php echo "<?php if(\$form->errorSummary(\$model)){?>";?>
+ <?php echo "<?php /*if(\$form->errorSummary(\$model)){?>";?>
 <div class="alert alert-danger alert-dismissable">
     <i class="fa fa-ban"></i>
     <?php echo "<?php echo \$form->errorSummary(\$model); ?>";?>
 </div>
-<?php echo "<?php } ?>";?>
+<?php echo "*/ ?>";?>
         
 
 <?php
@@ -28,12 +28,32 @@ foreach ($this->tableSchema->columns as $column) {
 	if ($column->autoIncrement) {
 		continue;
 	}
+        
+        if (strpos($column->name,'created_date') !== false) 
+		continue;
+        
+	if (strpos($column->name,'created_by') !== false) 
+		continue;
+        
+        if (strpos($column->name,'updated_date') !== false) 
+		continue;
+        
+        if (strpos($column->name,'updated_by') !== false) 
+		continue;
+        
+        if (strpos($column->name,'deleted_date') !== false) 
+		continue;
+        
+        if (strpos($column->name,'deleted_by') !== false) 
+		continue;
+        
+        if (strpos($column->name,'deleted') !== false) 
+		continue;
+        
 	?>
-	<?php //echo "<?php echo " . $this->generateActiveGroup($this->modelClass, $column) . ";?>
+	
 	<div class="form-group">
-		<?php echo "<?php echo ".$this->generateActiveLabel($this->modelClass,$column)."; ?>\n"; ?>
-		<?php echo "<?php echo ".$this->generateActiveField($this->modelClass,$column)."; ?>\n"; ?>
-		<?php echo "<?php echo \$form->error(\$model,'{$column->name}'); ?>\n"; ?>
+		<?php echo "<?php echo " . $this->generateActiveGroup($this->modelClass, $column) . "; ?>\n"; ?>
 	</div>
 
 <?php
