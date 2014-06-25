@@ -9,16 +9,17 @@ echo "<?php\n";
 $nameColumn = $this->guessNameColumn($this->tableSchema->columns);
 $label = $this->pluralize($this->class2name($this->modelClass));
 echo "\$this->breadcrumbs=array(
-	'$label'=>array('index'),
+	'$label'=>array('admin'),
 	\$model->{$nameColumn},
 );\n";
 ?>
 
 ?>
 
-
+<div class="row">
 <?php echo "<?php"; ?> $this->widget('booster.widgets.TbDetailView',array(
 'data'=>$model,
+'type' => 'bordered condensed',
 'attributes'=>array(
 <?php
 foreach ($this->tableSchema->columns as $column) {
@@ -27,3 +28,4 @@ foreach ($this->tableSchema->columns as $column) {
 ?>
 ),
 )); ?>
+</div>

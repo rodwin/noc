@@ -14,6 +14,7 @@
     <?php echo $form->errorSummary($model); ?></div>
 <?php } ?>        
 
+
 		<div class="form-group">
 		<?php echo $form->labelEx($model,'status_id'); ?>
 		<?php echo $form->textField($model,'status_id',array('class'=>'form-control')); ?>
@@ -21,15 +22,21 @@
 	</div>
 
 		<div class="form-group">
-		<?php echo $form->labelEx($model,'name'); ?>
-		<?php echo $form->textField($model,'name',array('class'=>'form-control','size'=>60,'maxlength'=>150)); ?>
-		<?php echo $form->error($model,'name'); ?>
+		<?php echo $form->labelEx($model,'industry'); ?>
+		<?php echo $form->textField($model,'industry',array('class'=>'form-control','size'=>60,'maxlength'=>200)); ?>
+		<?php echo $form->error($model,'industry'); ?>
 	</div>
 
 		<div class="form-group">
-		<?php echo $form->labelEx($model,'short_name'); ?>
-		<?php echo $form->textField($model,'short_name',array('class'=>'form-control','size'=>50,'maxlength'=>50)); ?>
-		<?php echo $form->error($model,'short_name'); ?>
+		<?php echo $form->labelEx($model,'code'); ?>
+		<?php echo $form->textField($model,'code',array('class'=>'form-control','size'=>60,'maxlength'=>200)); ?>
+		<?php echo $form->error($model,'code'); ?>
+	</div>
+
+		<div class="form-group">
+		<?php echo $form->labelEx($model,'name'); ?>
+		<?php echo $form->textField($model,'name',array('class'=>'form-control','size'=>60,'maxlength'=>150)); ?>
+		<?php echo $form->error($model,'name'); ?>
 	</div>
 
 		<div class="form-group">
@@ -45,27 +52,15 @@
 	</div>
 
 		<div class="form-group">
-		<?php echo $form->labelEx($model,'barangay_id'); ?>
-		<?php echo $form->textField($model,'barangay_id',array('class'=>'form-control','size'=>50,'maxlength'=>50)); ?>
-		<?php echo $form->error($model,'barangay_id'); ?>
+		<?php echo $form->labelEx($model,'city'); ?>
+		<?php echo $form->textField($model,'city',array('class'=>'form-control','size'=>60,'maxlength'=>250)); ?>
+		<?php echo $form->error($model,'city'); ?>
 	</div>
 
 		<div class="form-group">
-		<?php echo $form->labelEx($model,'municipal_id'); ?>
-		<?php echo $form->textField($model,'municipal_id',array('class'=>'form-control','size'=>50,'maxlength'=>50)); ?>
-		<?php echo $form->error($model,'municipal_id'); ?>
-	</div>
-
-		<div class="form-group">
-		<?php echo $form->labelEx($model,'province_id'); ?>
-		<?php echo $form->textField($model,'province_id',array('class'=>'form-control','size'=>50,'maxlength'=>50)); ?>
-		<?php echo $form->error($model,'province_id'); ?>
-	</div>
-
-		<div class="form-group">
-		<?php echo $form->labelEx($model,'region_id'); ?>
-		<?php echo $form->textField($model,'region_id',array('class'=>'form-control','size'=>50,'maxlength'=>50)); ?>
-		<?php echo $form->error($model,'region_id'); ?>
+		<?php echo $form->labelEx($model,'province'); ?>
+		<?php echo $form->textField($model,'province',array('class'=>'form-control')); ?>
+		<?php echo $form->error($model,'province'); ?>
 	</div>
 
 		<div class="form-group">
@@ -87,46 +82,11 @@
 	</div>
 
 		<div class="form-group">
-		<?php echo $form->labelEx($model,'created_date'); ?>
-		<?php echo $form->textField($model,'created_date',array('class'=>'form-control')); ?>
-		<?php echo $form->error($model,'created_date'); ?>
+		<?php echo $form->labelEx($model,'zip_code'); ?>
+		<?php echo $form->textField($model,'zip_code',array('class'=>'form-control','size'=>50,'maxlength'=>50)); ?>
+		<?php echo $form->error($model,'zip_code'); ?>
 	</div>
 
-		<div class="form-group">
-		<?php echo $form->labelEx($model,'created_by'); ?>
-		<?php echo $form->textField($model,'created_by',array('class'=>'form-control')); ?>
-		<?php echo $form->error($model,'created_by'); ?>
-	</div>
-
-		<div class="form-group">
-		<?php echo $form->labelEx($model,'updated_date'); ?>
-		<?php echo $form->textField($model,'updated_date',array('class'=>'form-control')); ?>
-		<?php echo $form->error($model,'updated_date'); ?>
-	</div>
-
-		<div class="form-group">
-		<?php echo $form->labelEx($model,'updated_by'); ?>
-		<?php echo $form->textField($model,'updated_by',array('class'=>'form-control')); ?>
-		<?php echo $form->error($model,'updated_by'); ?>
-	</div>
-
-		<div class="form-group">
-		<?php echo $form->labelEx($model,'deleted_date'); ?>
-		<?php echo $form->textField($model,'deleted_date',array('class'=>'form-control')); ?>
-		<?php echo $form->error($model,'deleted_date'); ?>
-	</div>
-
-		<div class="form-group">
-		<?php echo $form->labelEx($model,'deleted_by'); ?>
-		<?php echo $form->textField($model,'deleted_by',array('class'=>'form-control')); ?>
-		<?php echo $form->error($model,'deleted_by'); ?>
-	</div>
-
-		<div class="form-group">
-		<?php echo $form->labelEx($model,'deleted'); ?>
-		<?php echo $form->textField($model,'deleted',array('class'=>'form-control')); ?>
-		<?php echo $form->error($model,'deleted'); ?>
-	</div>
 
 
 <div class="form-group">

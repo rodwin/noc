@@ -8,12 +8,16 @@
 	<?php echo CHtml::encode($data->status_id); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('name')); ?>:</b>
-	<?php echo CHtml::encode($data->name); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('industry')); ?>:</b>
+	<?php echo CHtml::encode($data->industry); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('short_name')); ?>:</b>
-	<?php echo CHtml::encode($data->short_name); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('code')); ?>:</b>
+	<?php echo CHtml::encode($data->code); ?>
+	<br />
+
+	<b><?php echo CHtml::encode($data->getAttributeLabel('name')); ?>:</b>
+	<?php echo CHtml::encode($data->name); ?>
 	<br />
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('address1')); ?>:</b>
@@ -24,21 +28,13 @@
 	<?php echo CHtml::encode($data->address2); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('barangay_id')); ?>:</b>
-	<?php echo CHtml::encode($data->barangay_id); ?>
-	<br />
-
 	<?php /*
-	<b><?php echo CHtml::encode($data->getAttributeLabel('municipal_id')); ?>:</b>
-	<?php echo CHtml::encode($data->municipal_id); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('city')); ?>:</b>
+	<?php echo CHtml::encode($data->city); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('province_id')); ?>:</b>
-	<?php echo CHtml::encode($data->province_id); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('region_id')); ?>:</b>
-	<?php echo CHtml::encode($data->region_id); ?>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('province')); ?>:</b>
+	<?php echo CHtml::encode($data->province); ?>
 	<br />
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('country')); ?>:</b>
@@ -51,6 +47,10 @@
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('fax')); ?>:</b>
 	<?php echo CHtml::encode($data->fax); ?>
+	<br />
+
+	<b><?php echo CHtml::encode($data->getAttributeLabel('zip_code')); ?>:</b>
+	<?php echo CHtml::encode($data->zip_code); ?>
 	<br />
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('created_date')); ?>:</b>

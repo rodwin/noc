@@ -36,7 +36,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
         return array(
             array('allow',  // allow all users to perform 'index' and 'view' actions
                 'actions'=>array('index','view'),
-                'users'=>array('*'),
+                'users'=>array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions'=>array('create','update','data'),
@@ -83,9 +83,9 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
             $url .= "/".strtolower($this->modelClass);
             ?>
             
-            $row['links']= '<a class="view" title="View" rel="tooltip" href="'.$this->createUrl('<?php echo $url;?>/view',array('id'=>$value-><?php echo $this->tableSchema->primaryKey; ?>)).'" data-original-title="View"><i class="fa fa-eye"></i></a>'
-                        . '&nbsp;<a class="update" title="Update" rel="tooltip" href="'.$this->createUrl('<?php echo $url;?>/update',array('id'=>$value-><?php echo $this->tableSchema->primaryKey; ?>)).'" data-original-title="View"><i class="fa fa-pencil"></i></a>'
-                        . '&nbsp;<a class="delete" title="Delete" rel="tooltip" href="'.$this->createUrl('<?php echo $url;?>/delete',array('id'=>$value-><?php echo $this->tableSchema->primaryKey; ?>)).'" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
+            $row['links']= '<a class="view" title="View" data-toggle="tooltip" href="'.$this->createUrl('<?php echo $url;?>/view',array('id'=>$value-><?php echo $this->tableSchema->primaryKey; ?>)).'" data-original-title="View"><i class="fa fa-eye"></i></a>'
+                        . '&nbsp;<a class="update" title="Update" data-toggle="tooltip" href="'.$this->createUrl('<?php echo $url;?>/update',array('id'=>$value-><?php echo $this->tableSchema->primaryKey; ?>)).'" data-original-title="View"><i class="fa fa-pencil"></i></a>'
+                        . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="'.$this->createUrl('<?php echo $url;?>/delete',array('id'=>$value-><?php echo $this->tableSchema->primaryKey; ?>)).'" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
 
             $output['data'][] = $row;
         }
@@ -101,7 +101,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View <?php echo $this->modelClass;?> #'.$model->id;
+        $this->pageTitle = 'View <?php echo $this->modelClass;?> '.$model-><?php echo $this->tableSchema->primaryKey; ?>;
 
         $this->menu=array(
                 array('label'=>'Create <?php echo $this->modelClass; ?>', 'url'=>array('create')),
@@ -132,7 +132,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
                 array('label'=>'Help', 'url' => '#'),
         );
     
-        $model=new <?php echo $this->modelClass; ?>;
+        $model=new <?php echo $this->modelClass; ?>('create');
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);

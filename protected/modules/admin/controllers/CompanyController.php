@@ -29,7 +29,7 @@ class CompanyController extends Controller
         return array(
             array('allow',  // allow all users to perform 'index' and 'view' actions
                 'actions'=>array('index','view'),
-                'users'=>array('*'),
+                'users'=>array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions'=>array('create','update','data'),
@@ -66,17 +66,17 @@ class CompanyController extends Controller
             $row = array();
                         $row['company_id']= $value->company_id;
                         $row['status_id']= $value->status_id;
+                        $row['industry']= $value->industry;
+                        $row['code']= $value->code;
                         $row['name']= $value->name;
-                        $row['short_name']= $value->short_name;
                         $row['address1']= $value->address1;
                         $row['address2']= $value->address2;
-                        $row['barangay_id']= $value->barangay_id;
-                        $row['municipal_id']= $value->municipal_id;
-                        $row['province_id']= $value->province_id;
-                        $row['region_id']= $value->region_id;
+                        $row['city']= $value->city;
+                        $row['province']= $value->province;
                         $row['country']= $value->country;
                         $row['phone']= $value->phone;
                         $row['fax']= $value->fax;
+                        $row['zip_code']= $value->zip_code;
                         $row['created_date']= $value->created_date;
                         $row['created_by']= $value->created_by;
                         $row['updated_date']= $value->updated_date;
@@ -86,9 +86,9 @@ class CompanyController extends Controller
                         $row['deleted']= $value->deleted;
                         
                         
-            $row['links']= '<a class="view" title="View" rel="tooltip" href="'.$this->createUrl('/admin/company/view',array('id'=>$value->company_id)).'" data-original-title="View"><i class="fa fa-eye"></i></a>'
-                        . '&nbsp;<a class="update" title="Update" rel="tooltip" href="'.$this->createUrl('/admin/company/update',array('id'=>$value->company_id)).'" data-original-title="View"><i class="fa fa-pencil"></i></a>'
-                        . '&nbsp;<a class="delete" title="Delete" rel="tooltip" href="'.$this->createUrl('/admin/company/delete',array('id'=>$value->company_id)).'" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
+            $row['links']= '<a class="view" title="View" data-toggle="tooltip" href="'.$this->createUrl('/admin/company/view',array('id'=>$value->company_id)).'" data-original-title="View"><i class="fa fa-eye"></i></a>'
+                        . '&nbsp;<a class="update" title="Update" data-toggle="tooltip" href="'.$this->createUrl('/admin/company/update',array('id'=>$value->company_id)).'" data-original-title="View"><i class="fa fa-pencil"></i></a>'
+                        . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="'.$this->createUrl('/admin/company/delete',array('id'=>$value->company_id)).'" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
 
             $output['data'][] = $row;
         }
@@ -104,7 +104,7 @@ class CompanyController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View Company #'.$model->id;
+        $this->pageTitle = 'View Company '.$model->name;
 
         $this->menu=array(
                 array('label'=>'Create Company', 'url'=>array('create')),
@@ -135,7 +135,7 @@ class CompanyController extends Controller
                 array('label'=>'Help', 'url' => '#'),
         );
     
-        $model=new Company;
+        $model=new Company('create');
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
@@ -170,7 +170,7 @@ class CompanyController extends Controller
                 array('label'=>'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update Company '.$model->company_id;
+        $this->pageTitle = 'Update Company '.$model->name;
         
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);

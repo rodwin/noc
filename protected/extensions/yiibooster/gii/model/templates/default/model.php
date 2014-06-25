@@ -77,6 +77,24 @@ class <?php echo $modelClass; ?> extends <?php echo $this->baseClass."\n"; ?>
 			array('<?php echo implode(', ', array_keys($columns)); ?>', 'safe', 'on'=>'search'),
 		);
 	}
+        
+        public function beforeValidate() {
+            if ($this->scenario == 'create') {
+                $this->created_date = date('Y-m-d H:i:s');
+                $this->created_by = Yii::app()->user->id;
+            } else {
+                if ($this->deleted == 0) {
+                    $this->updated_date = date('Y-m-d H:i:s');
+                    $this->updated_by = Yii::app()->user->id;
+                    $this->deleted_date = null;
+                    $this->deleted_by = null;
+                } else {
+                    $this->deleted_date = date('Y-m-d H:i:s');
+                    $this->deleted_by = Yii::app()->user->id;
+                }
+            }
+            return parent::beforeValidate();
+        }
 
 	/**
 	 * @return array relational rules.

@@ -8,7 +8,7 @@
 echo "<?php\n";
 $label = $this->pluralize($this->class2name($this->modelClass));
 echo "\$this->breadcrumbs=array(
-	'$label'=>array('index'),
+	'$label'=>array('admin'),
 	'Manage',
 );\n";
 ?>
@@ -85,7 +85,7 @@ $(function() {
                 }
                 
             ?>
-            { "name": "links","data": "links"}
+            { "name": "links","data": "links", 'sortable': false}
                ]
         });
 

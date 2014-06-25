@@ -8,7 +8,7 @@
 echo "<?php\n";
 $label = $this->pluralize($this->class2name($this->modelClass));
 echo "\$this->breadcrumbs=array(
-	'$label'=>array('index'),
+	'$label'=>array('admin'),
 	'Create',
 );\n";
 ?>

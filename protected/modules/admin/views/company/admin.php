@@ -1,6 +1,6 @@
 <?php
 $this->breadcrumbs=array(
-	'Companies'=>array('index'),
+	'Companies'=>array('admin'),
 	'Manage',
 );
 
@@ -36,11 +36,11 @@ return false;
             <tr>
                 <th>company_id</th>
 <th>status_id</th>
+<th>industry</th>
+<th>code</th>
 <th>name</th>
-<th>short_name</th>
 <th>address1</th>
 <th>address2</th>
-<th>barangay_id</th>
                 <th>Actions</th>
                 
             </tr>
@@ -58,13 +58,13 @@ $(function() {
         "bAutoWidth": false,
         "ajax": "<?php echo Yii::app()->createUrl($this->module->id.'/company/data');?>",
         "columns": [
-            { "name": "company_id","data": "company_id"},{ "name": "status_id","data": "status_id"},{ "name": "name","data": "name"},{ "name": "short_name","data": "short_name"},{ "name": "address1","data": "address1"},{ "name": "address2","data": "address2"},{ "name": "barangay_id","data": "barangay_id"},            { "name": "links","data": "links"}
+            { "name": "company_id","data": "company_id"},{ "name": "status_id","data": "status_id"},{ "name": "industry","data": "industry"},{ "name": "code","data": "code"},{ "name": "name","data": "name"},{ "name": "address1","data": "address1"},{ "name": "address2","data": "address2"},            { "name": "links","data": "links", 'sortable': false}
                ]
         });
 
         $('#btnSearch').click(function(){
             table.fnMultiFilter( { 
-                "company_id": $("#Company_company_id").val(),"status_id": $("#Company_status_id").val(),"name": $("#Company_name").val(),"short_name": $("#Company_short_name").val(),"address1": $("#Company_address1").val(),"address2": $("#Company_address2").val(),"barangay_id": $("#Company_barangay_id").val(),            } );
+                "company_id": $("#Company_company_id").val(),"status_id": $("#Company_status_id").val(),"industry": $("#Company_industry").val(),"code": $("#Company_code").val(),"name": $("#Company_name").val(),"address1": $("#Company_address1").val(),"address2": $("#Company_address2").val(),            } );
         });
         
         

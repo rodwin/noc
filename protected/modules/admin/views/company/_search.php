@@ -19,16 +19,23 @@
         </div>
 	                
         <div class="form-group">
-            <label for="Company_name" class="col-sm-2 control-label">name</label>
+            <label for="Company_industry" class="col-sm-2 control-label">industry</label>
             <div class="col-sm-3">
-                <input type="text" class="form-control" id="Company_name" placeholder="name" name="Company[name]">
+                <input type="text" class="form-control" id="Company_industry" placeholder="industry" name="Company[industry]">
             </div>
         </div>
 	                
         <div class="form-group">
-            <label for="Company_short_name" class="col-sm-2 control-label">short_name</label>
+            <label for="Company_code" class="col-sm-2 control-label">code</label>
             <div class="col-sm-3">
-                <input type="text" class="form-control" id="Company_short_name" placeholder="short_name" name="Company[short_name]">
+                <input type="text" class="form-control" id="Company_code" placeholder="code" name="Company[code]">
+            </div>
+        </div>
+	                
+        <div class="form-group">
+            <label for="Company_name" class="col-sm-2 control-label">name</label>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" id="Company_name" placeholder="name" name="Company[name]">
             </div>
         </div>
 	                
@@ -47,30 +54,16 @@
         </div>
 	                
         <div class="form-group">
-            <label for="Company_barangay_id" class="col-sm-2 control-label">barangay_id</label>
+            <label for="Company_city" class="col-sm-2 control-label">city</label>
             <div class="col-sm-3">
-                <input type="text" class="form-control" id="Company_barangay_id" placeholder="barangay_id" name="Company[barangay_id]">
+                <input type="text" class="form-control" id="Company_city" placeholder="city" name="Company[city]">
             </div>
         </div>
 	                
         <div class="form-group">
-            <label for="Company_municipal_id" class="col-sm-2 control-label">municipal_id</label>
+            <label for="Company_province" class="col-sm-2 control-label">province</label>
             <div class="col-sm-3">
-                <input type="text" class="form-control" id="Company_municipal_id" placeholder="municipal_id" name="Company[municipal_id]">
-            </div>
-        </div>
-	                
-        <div class="form-group">
-            <label for="Company_province_id" class="col-sm-2 control-label">province_id</label>
-            <div class="col-sm-3">
-                <input type="text" class="form-control" id="Company_province_id" placeholder="province_id" name="Company[province_id]">
-            </div>
-        </div>
-	                
-        <div class="form-group">
-            <label for="Company_region_id" class="col-sm-2 control-label">region_id</label>
-            <div class="col-sm-3">
-                <input type="text" class="form-control" id="Company_region_id" placeholder="region_id" name="Company[region_id]">
+                <input type="text" class="form-control" id="Company_province" placeholder="province" name="Company[province]">
             </div>
         </div>
 	                
@@ -92,6 +85,13 @@
             <label for="Company_fax" class="col-sm-2 control-label">fax</label>
             <div class="col-sm-3">
                 <input type="text" class="form-control" id="Company_fax" placeholder="fax" name="Company[fax]">
+            </div>
+        </div>
+	                
+        <div class="form-group">
+            <label for="Company_zip_code" class="col-sm-2 control-label">zip_code</label>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" id="Company_zip_code" placeholder="zip_code" name="Company[zip_code]">
             </div>
         </div>
 	                

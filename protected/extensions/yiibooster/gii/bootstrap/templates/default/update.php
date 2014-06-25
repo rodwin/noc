@@ -9,7 +9,7 @@ echo "<?php\n";
 $nameColumn = $this->guessNameColumn($this->tableSchema->columns);
 $label = $this->pluralize($this->class2name($this->modelClass));
 echo "\$this->breadcrumbs=array(
-	'$label'=>array('index'),
+	'$label'=>array('admin'),
 	\$model->{$nameColumn}=>array('view','id'=>\$model->{$this->tableSchema->primaryKey}),
 	'Update',
 );\n";
