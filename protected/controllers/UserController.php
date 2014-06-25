@@ -32,7 +32,7 @@ class UserController extends Controller
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
 				'actions'=>array('admin','delete'),
-				'users'=>array('admin'),
+				'users'=>array('@'),
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),
@@ -42,7 +42,7 @@ class UserController extends Controller
         
         public function actionData(){
             
-            //pr($_GET);
+//            pr($_GET);
             
             User::model()->search_string = $_GET['search']['value'] != "" ? $_GET['search']['value']:null;
             
@@ -56,7 +56,7 @@ class UserController extends Controller
                     "recordsFiltered" => $dataProvider->totalItemCount,
                     "data" => array()
             );
-
+            
             foreach ($dataProvider->getData() as $key => $value) {
                 $row = array();
                 $row['id']= $value->id;
@@ -66,6 +66,9 @@ class UserController extends Controller
                 $row['last_name']= $value->last_name;
                 $row['email']= $value->email;
                 $row['status']= $value->status;
+                $row['links']= '<a class="view" title="View" rel="tooltip" href="'.$this->createUrl('user/view',array('id'=>$value->id)).'" data-original-title="View"><i class="fa fa-eye"></i></a>'
+                        . '&nbsp;<a class="update" title="Update" rel="tooltip" href="'.$this->createUrl('user/update',array('id'=>$value->id)).'" data-original-title="View"><i class="fa fa-pencil"></i></a>'
+                        . '&nbsp;<a class="delete" title="Delete" rel="tooltip" href="'.$this->createUrl('user/delete',array('id'=>$value->id)).'" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
 
                 $output['data'][] = $row;
             }
@@ -79,8 +82,23 @@ class UserController extends Controller
 	 */
 	public function actionView($id)
 	{
+                $this->layout = "column2";
+            
+                $model=$this->loadModel($id);
+                
+                $this->pageTitle = 'View User #'.$model->id;
+                
+                $this->menu=array(
+                        array('label'=>'Create User', 'url'=>array('create')),
+                        array('label'=>'Update User', 'url'=>array('update', 'id'=>$model->id)),
+                        array('label'=>'Delete User', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->id),'confirm'=>'Are you sure you want to delete this item?')),
+                        array('label'=>'Manage User', 'url'=>array('admin')),
+                        '',
+                        array('label'=>'Help', 'url' => '#'),
+                );
+                
 		$this->render('view',array(
-			'model'=>$this->loadModel($id),
+			'model'=>$model,
 		));
 	}
 
@@ -92,6 +110,12 @@ class UserController extends Controller
 	{
                 $this->layout = "column2";
                 $this->pageTitle = 'Create User';
+                
+                $this->menu=array(
+                        array('label'=>'Manage User', 'url'=>array('admin')),
+                        '',
+                        array('label'=>'Help', 'url' => '#'),
+                );
             
 		$model=new User;
 
@@ -117,7 +141,19 @@ class UserController extends Controller
 	 */
 	public function actionUpdate($id)
 	{
-		$model=$this->loadModel($id);
+                $model=$this->loadModel($id);
+            
+                $this->layout = "column2";
+                
+                $this->menu=array(
+                        array('label'=>'Create User', 'url'=>array('create')),
+                        array('label'=>'View User', 'url'=>array('view', 'id'=>$model->id)),
+                        array('label'=>'Manage User', 'url'=>array('admin')),
+                        '',
+                        array('label'=>'Help', 'url' => '#'),
+                );
+                
+                $this->pageTitle = 'Update User '.$model->id;
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
@@ -144,8 +180,14 @@ class UserController extends Controller
 		$this->loadModel($id)->delete();
 
 		// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-		if(!isset($_GET['ajax']))
+		if(!isset($_GET['ajax'])){
 			$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                }else{
+                    
+                    echo "Successfully deleted";
+                    exit;
+                    
+                }
 	}
 
 	/**
@@ -165,7 +207,6 @@ class UserController extends Controller
 	public function actionAdmin()
 	{
                 $this->pageTitle = 'Manage User';
-//                $this->layout = "main";
                 
 		$model=new User('search');
 		$model->unsetAttributes();  // clear any default values

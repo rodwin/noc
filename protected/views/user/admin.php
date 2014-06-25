@@ -44,6 +44,7 @@ $('.search-form form').submit(function(){
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
         </thead>
         
@@ -55,13 +56,14 @@ $('.search-form form').submit(function(){
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
         </tfoot>
         </table>
 </div>
 <script type="text/javascript">
 $(function() {
-
+    
     var table = $('#user_table').dataTable({
         "filter": false,
         "processing": true,
@@ -69,12 +71,13 @@ $(function() {
         "bAutoWidth": false,
         "ajax": "<?php echo Yii::app()->createUrl("user/data"); ?>",
         "columns": [
-            { "name": "id","data": "id"},
+            { "name": "id","data": "id","width": "20px"},
             { "name": "user_type_id","data": "user_type_id"},
             { "name": "user_name","data": "user_name"},
             { "name": "first_name","data": "first_name"},
-                { "name": "last_name","data": "last_name"},
-                { "name": "status","data": "status"},
+            { "name": "last_name","data": "last_name"},
+            { "name": "status","data": "status"},
+            { "name": "links","data": "links"}
                ]
         });
 
@@ -88,6 +91,29 @@ $(function() {
                 "last_name": $('#User_last_name').val(),
                 "status": $('#User_status').val(),
             } );
-        })
+        });
+        
+        
+        
+        jQuery(document).on('click','#user_table a.delete',function() {
+            if(!confirm('Are you sure you want to delete this item?')) return false;
+            $.ajax({
+                'url':jQuery(this).attr('href')+'&ajax=1',
+                'type':'POST',
+                'dataType': 'text',
+                'success':function(data) {
+                   $.growl( { 
+                        icon: 'glyphicon glyphicon-info-sign', 
+                        message: data 
+                    });
+                    
+                    table.fnMultiFilter();
+                },
+                error: function(jqXHR, exception) {
+                    alert('An error occured: '+ exception);
+                }
+            });  
+            return false;
+        });
     });
 </script>

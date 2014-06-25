@@ -21,7 +21,7 @@ return array(
 	'name'=>'NOC',
 
 	// preloading 'log' component
-	'preload'=>array('log'),
+	'preload'=>array('log','booster'),
         'theme'=>'AdminLTE',
 	// autoloading model and component classes
 	'import'=>array(
@@ -37,7 +37,11 @@ return array(
 			'password'=>'winrod',
 			// If removed, Gii defaults to localhost only. Edit carefully to taste.
 			'ipFilters'=>array('127.0.0.1','::1'),
+                        'generatorPaths' => array(
+                            'booster.gii'
+                         ),
 		),
+                'admin',
 		
 	),
 
@@ -47,6 +51,13 @@ return array(
 			// enable cookie-based authentication
 			'allowAutoLogin'=>true,
 		),
+                'booster' => array(
+                    'class' => 'ext.yiibooster.components.Booster',
+                    'coreCss' => false,
+                    'responsiveCss' => false,
+                    'enableJS' => false,
+                    'enableNotifierJS' => false,
+                ),
 		// uncomment the following to enable URLs in path-format
 		/*
 		'urlManager'=>array(
@@ -59,13 +70,14 @@ return array(
 		),
 		*/
 		'db'=>array(
-			'connectionString' => 'mysql:host=localhost;dbname=noc',
-			'emulatePrepare' => true,
-                        'enableParamLogging' => true,
-			'username' => 'rodwin',
-			'password' => 'winrod',
-			'charset' => 'utf8',
-		),
+                    'connectionString' => 'sqlsrv:server=RODWIN-PC\MSSQLSERVER2012;database=noc',
+//                    'connectionString' => 'mysql:host=localhost;dbname=noc',
+                    'username' => 'rodwin',
+                    'password' => 'winrod',
+                    'enableProfiling'=>true,
+                    'enableParamLogging' => true,
+
+                ),
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors
 			'errorAction'=>'site/error',

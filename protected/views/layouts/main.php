@@ -28,7 +28,7 @@
         <header class="header">
             <a href="index.html" class="logo">
                 <!-- Add the class icon to your logo image or logo icon to add the margining -->
-                AdminLTE
+                NOC
             </a>
             <!-- Header Navbar: style can be found in header.less -->
             <nav class="navbar navbar-static-top" role="navigation">
@@ -245,7 +245,7 @@
                                     </p>
                                 </li>
                                 <!-- Menu Body -->
-                                <li class="user-body">
+<!--                                <li class="user-body">
                                     <div class="col-xs-4 text-center">
                                         <a href="#">Followers</a>
                                     </div>
@@ -255,14 +255,14 @@
                                     <div class="col-xs-4 text-center">
                                         <a href="#">Friends</a>
                                     </div>
-                                </li>
+                                </li>-->
                                 <!-- Menu Footer-->
                                 <li class="user-footer">
                                     <div class="pull-left">
                                         <a href="#" class="btn btn-default btn-flat">Profile</a>
                                     </div>
                                     <div class="pull-right">
-                                        <a href="#" class="btn btn-default btn-flat">Sign out</a>
+                                        <a href="<?php echo Yii::app()->createUrl('/site/logout');?>" class="btn btn-default btn-flat">Sign out</a>
                                     </div>
                                 </li>
                             </ul>
@@ -442,6 +442,7 @@
         <!-- AdminLTE App -->
         <script src="<?php echo Yii::app()->theme->baseUrl;?>/js/AdminLTE/app.js" type="text/javascript"></script>
         <script src="<?php echo Yii::app()->theme->baseUrl;?>/js/AdminLTE/demo.js" type="text/javascript"></script>
+        <script src="<?php echo Yii::app()->baseUrl;?>/js/bootstrap-growl.min.js" type="text/javascript"></script>
         
         
 

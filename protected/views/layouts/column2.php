@@ -6,17 +6,26 @@
 	</div><!-- content -->
 </div>
 <div class="col-md-3">
+        <div class="box box-solid box-primary">
+                                <div class="box-header">
+                                    <div class="box-title">Operations</div>
+                                </div>
+                                <div class="box-body">
+                                    <?php
+                                    $this->widget(
+                                        'booster.widgets.TbMenu',
+                                        array(
+                                            'type' => 'list',
+                                            'items' => $this->menu,
+                                        )
+                                    );
+
+                                    ?>
+                                    
+                                </div><!-- /.box-body -->
+                            </div>
 	<div id="sidebar">
-	<?php
-		$this->beginWidget('zii.widgets.CPortlet', array(
-			'title'=>'Operations',
-		));
-		$this->widget('zii.widgets.CMenu', array(
-			'items'=>$this->menu,
-			'htmlOptions'=>array('class'=>'operations'),
-		));
-		$this->endWidget();
-	?>
+	
 	</div><!-- sidebar -->
 </div>
 <?php $this->endContent(); ?>

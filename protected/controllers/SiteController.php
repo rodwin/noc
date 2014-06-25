@@ -2,6 +2,34 @@
 
 class SiteController extends Controller
 {
+        public function filters() {
+            return array(
+                'accessControl', // perform access control for CRUD operations
+            );
+        }
+        
+        /**
+        * Specifies the access control rules.
+        * This method is used by the 'accessControl' filter.
+        * @return array access control rules
+        */
+       public function accessRules()
+        {
+            return array(
+                array('allow', // allow readers only access to the view file
+                    'actions'=>array('index', 'logout'),
+                    'users'=>array('@')),
+                array('allow', 
+                    'actions'=>array('login','error'),
+                    'users'=>array('*'),
+                ),
+                array('deny',  // deny all users
+                    'users'=>array('*'),
+                ),
+                
+              
+            );
+        }
 	/**
 	 * Declares class-based actions.
 	 */
@@ -27,9 +55,39 @@ class SiteController extends Controller
 	 */
 	public function actionIndex()
 	{
-		// renders the view file 'protected/views/site/index.php'
-		// using the default layout 'protected/views/layouts/main.php'
-		$this->render('index');
+//            pr(Yii::app()->securityManager->encrypt('rodwin'));
+//            pr(sha1('rodwin'));
+            /*
+            $var = 'helloWorld';
+            echo 'NoT ENCRYPTED: '. $var . '<br />';
+
+            $var = Yii::app()->securityManager->encrypt($var);
+            echo 'ENCRYPTED: '. $var . '<br />';
+//
+            $var = Yii::app()->securityManager->decrypt($var);
+            
+            echo 'DeCRYPTED: '. $var . '<br /><br /><br />';
+            */
+//            $pass = 'winrod';
+//            $hash = CPasswordHelper::hashPassword($pass);
+//            pr($hash);
+            
+            
+//            $hash = md5($pass);
+//            pr($hash);
+//            $hash = sha1($pass);
+//            pr($hash);
+            
+//            if (CPasswordHelper::verifyPassword($pass, $hash)){
+//                pr('pasok');
+//            }else{
+//                pr('no');
+//            }
+//            exit;
+            // renders the view file 'protected/views/site/index.php'
+            // using the default layout 'protected/views/layouts/main.php'
+            
+            $this->render('index');
 	}
 
 	/**
@@ -77,6 +135,7 @@ class SiteController extends Controller
 	 */
 	public function actionLogin()
 	{
+                $this->layout = 'login';
 		$model=new LoginForm;
 
 		// if it is ajax validation request
