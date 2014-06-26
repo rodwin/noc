@@ -80,17 +80,20 @@ class <?php echo $modelClass; ?> extends <?php echo $this->baseClass."\n"; ?>
         
         public function beforeValidate() {
             if ($this->scenario == 'create') {
+            
+                $this->company_id = Yii::app()->user->company_id;
+            
                 $this->created_date = date('Y-m-d H:i:s');
-                $this->created_by = Yii::app()->user->id;
+                $this->created_by = Yii::app()->user->userObj->user_name;
             } else {
                 if ($this->deleted == 0) {
                     $this->updated_date = date('Y-m-d H:i:s');
-                    $this->updated_by = Yii::app()->user->id;
+                    $this->updated_by = Yii::app()->user->userObj->user_name;
                     $this->deleted_date = null;
                     $this->deleted_by = null;
                 } else {
                     $this->deleted_date = date('Y-m-d H:i:s');
-                    $this->deleted_by = Yii::app()->user->id;
+                    $this->deleted_by = Yii::app()->user->userObj->user_name;
                 }
             }
             return parent::beforeValidate();
@@ -145,7 +148,11 @@ foreach($columns as $name=>$column)
 {
 	if($column->type==='string')
 	{
-		echo "\t\t\$criteria->compare('$name',\$this->$name,true);\n";
+            if($name=='company_id'){
+                echo "\t\t\$criteria->compare('$name',Yii::app()->user->company_id);\n";
+            }else{
+                echo "\t\t\$criteria->compare('$name',\$this->$name,true);\n";
+            }
 	}
 	else
 	{
@@ -166,6 +173,9 @@ foreach($columns as $name=>$column)
                 $count = 0;
                 foreach($columns as $name=>$column)
                 {
+                        if($name=='company_id'){
+                            continue;
+                        }
                         if ($count >6) {
                                 continue;
                         }
@@ -180,22 +190,28 @@ foreach($columns as $name=>$column)
         
 
                 $criteria=new CDbCriteria;
+                $criteria->compare('company_id',Yii::app()->user->company_id);
                 <?php
                 $count = 0;
                 foreach($columns as $name=>$column)
                 {
+                        if($name=='company_id'){
+                            continue;
+                        }
                         if ($count >6) {
                                 continue;
                         }
                         if($column->type==='string')
                         {
-                                echo "\t\t\$criteria->compare('$name',\$columns[$count]['search']['value'],true);\n";
+                            echo "\t\t\$criteria->compare('$name',\$columns[$count]['search']['value'],true);\n";
+                            $count++;
                         }
                         else
                         {
                                 echo "\t\t\$criteria->compare('$name',\$columns[$count]['search']['value']);\n";
+                                $count++;
                         }
-                        $count++;
+                        
                 }
                 ?>
                 $criteria->order = "$sort_column $order_dir";

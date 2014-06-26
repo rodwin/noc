@@ -1,6 +1,6 @@
 <?php
 
-class UserController extends Controller
+class BrandController extends Controller
 {
     /**
     * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
@@ -47,11 +47,11 @@ class UserController extends Controller
     
     public function actionData(){
             
-        User::model()->search_string = $_GET['search']['value'] != "" ? $_GET['search']['value']:null;
+        Brand::model()->search_string = $_GET['search']['value'] != "" ? $_GET['search']['value']:null;
 
-        $dataProvider = User::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'],$_GET['columns']);
+        $dataProvider = Brand::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'],$_GET['columns']);
 
-        $count = User::model()->countByAttributes(array('company_id'=>Yii::app()->user->company_id,'deleted'=> 0));
+        $count = Brand::model()->countByAttributes(array('company_id'=>Yii::app()->user->company_id,'deleted'=> 0));
 
         $output = array(
                 "draw" => intval($_GET['draw']),
@@ -64,29 +64,20 @@ class UserController extends Controller
         
         foreach ($dataProvider->getData() as $key => $value) {
             $row = array();
-                        $row['user_id']= $value->user_id;
-                        $row['user_type_id']= $value->user_type_id;
-                        $row['user_name']= $value->user_name;
-                        $row['password']= $value->password;
-                        $row['status']= $value->status;
-                        $row['first_name']= $value->first_name;
-                        $row['last_name']= $value->last_name;
-                        $row['email']= $value->email;
-                        $row['position']= $value->position;
-                        $row['telephone']= $value->telephone;
-                        $row['address']= $value->address;
+                        $row['brand_code']= $value->brand_code;
+                        $row['brand_name']= $value->brand_name;
                         $row['created_date']= $value->created_date;
                         $row['created_by']= $value->created_by;
-                        $row['updated_by']= $value->updated_by;
                         $row['updated_date']= $value->updated_date;
+                        $row['updated_by']= $value->updated_by;
                         $row['deleted_date']= $value->deleted_date;
                         $row['deleted_by']= $value->deleted_by;
                         $row['deleted']= $value->deleted;
                         
                         
-            $row['links']= '<a class="view" title="View" data-toggle="tooltip" href="'.$this->createUrl('/admin/user/view',array('id'=>$value->user_id)).'" data-original-title="View"><i class="fa fa-eye"></i></a>'
-                        . '&nbsp;<a class="update" title="Update" data-toggle="tooltip" href="'.$this->createUrl('/admin/user/update',array('id'=>$value->user_id)).'" data-original-title="View"><i class="fa fa-pencil"></i></a>'
-                        . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="'.$this->createUrl('/admin/user/delete',array('id'=>$value->user_id)).'" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
+            $row['links']= '<a class="view" title="View" data-toggle="tooltip" href="'.$this->createUrl('/admin/brand/view',array('id'=>$value->brand_code)).'" data-original-title="View"><i class="fa fa-eye"></i></a>'
+                        . '&nbsp;<a class="update" title="Update" data-toggle="tooltip" href="'.$this->createUrl('/admin/brand/update',array('id'=>$value->brand_code)).'" data-original-title="View"><i class="fa fa-pencil"></i></a>'
+                        . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="'.$this->createUrl('/admin/brand/delete',array('id'=>$value->brand_code)).'" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
 
             $output['data'][] = $row;
         }
@@ -102,13 +93,13 @@ class UserController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View User '.$model->user_id;
+        $this->pageTitle = 'View Brand '.$model->brand_code;
 
         $this->menu=array(
-                array('label'=>'Create User', 'url'=>array('create')),
-                array('label'=>'Update User', 'url'=>array('update', 'id'=>$model->user_id)),
-                array('label'=>'Delete User', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->user_id),'confirm'=>'Are you sure you want to delete this item?')),
-                array('label'=>'Manage User', 'url'=>array('admin')),
+                array('label'=>'Create Brand', 'url'=>array('create')),
+                array('label'=>'Update Brand', 'url'=>array('update', 'id'=>$model->brand_code)),
+                array('label'=>'Delete Brand', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->brand_code),'confirm'=>'Are you sure you want to delete this item?')),
+                array('label'=>'Manage Brand', 'url'=>array('admin')),
                 '',
                 array('label'=>'Help', 'url' => '#'),
         );
@@ -124,36 +115,30 @@ class UserController extends Controller
     */
     public function actionCreate()
     {
-        $CompanyObj=new Company('search');
-        $CompanyObj->unsetAttributes();  // clear any default values
-        $CompanyObj->deleted = 0;
-        $companies = $CompanyObj->search();
-        $listCompanies = CHtml::listData($companies->getData(), 'company_id', 'name');
         
-        $this->pageTitle = 'Create User';
+        $this->pageTitle = 'Create Brand';
 
         $this->menu=array(
-                array('label'=>'Manage User', 'url'=>array('admin')),
+                array('label'=>'Manage Brand', 'url'=>array('admin')),
                 '',
                 array('label'=>'Help', 'url' => '#'),
         );
     
-        $model=new User('create');
+        $model=new Brand('create');
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
-        if(isset($_POST['User']))
+        if(isset($_POST['Brand']))
         {
-            $model->attributes=$_POST['User'];
+            $model->attributes=$_POST['Brand'];
             if($model->save()){
-                $this->redirect(array('view','id'=>$model->user_id));
+                $this->redirect(array('view','id'=>$model->brand_code));
             }
         }
 
         $this->render('create',array(
             'model'=>$model,
-            'listCompanies'=>$listCompanies,
         ));
     }
 
@@ -167,35 +152,28 @@ class UserController extends Controller
         $model=$this->loadModel($id);
             
         $this->menu=array(
-                array('label'=>'Create User', 'url'=>array('create')),
-                array('label'=>'View User', 'url'=>array('view', 'id'=>$model->user_id)),
-                array('label'=>'Manage User', 'url'=>array('admin')),
+                array('label'=>'Create Brand', 'url'=>array('create')),
+                array('label'=>'View Brand', 'url'=>array('view', 'id'=>$model->brand_code)),
+                array('label'=>'Manage Brand', 'url'=>array('admin')),
                 '',
                 array('label'=>'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update User '.$model->user_id;
+        $this->pageTitle = 'Update Brand '.$model->brand_code;
         
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
-        
-        $CompanyObj=new Company('search');
-        $CompanyObj->unsetAttributes();  // clear any default values
-        $CompanyObj->deleted = 0;
-        $companies = $CompanyObj->search();
-        $listCompanies = CHtml::listData($companies->getData(), 'company_id', 'name');
 
-        if(isset($_POST['User']))
+        if(isset($_POST['Brand']))
         {
-            $model->attributes=$_POST['User'];
+            $model->attributes=$_POST['Brand'];
             if($model->save()){
-                $this->redirect(array('view','id'=>$model->user_id));
+                $this->redirect(array('view','id'=>$model->brand_code));
             }
         }
 
         $this->render('update',array(
             'model'=>$model,
-            'listCompanies'=>$listCompanies,
         ));
     }
 
@@ -230,7 +208,7 @@ class UserController extends Controller
     */
     public function actionIndex()
     {
-        $dataProvider=new CActiveDataProvider('User');
+        $dataProvider=new CActiveDataProvider('Brand');
         
         $this->render('index',array(
             'dataProvider'=>$dataProvider,
@@ -243,12 +221,12 @@ class UserController extends Controller
     public function actionAdmin()
     {
         $this->layout='//layouts/column1';
-        $this->pageTitle = 'Manage User';
+        $this->pageTitle = 'Manage Brand';
         
-        $model=new User('search');
+        $model=new Brand('search');
         $model->unsetAttributes();  // clear any default values
-        if(isset($_GET['User']))
-            $model->attributes=$_GET['User'];
+        if(isset($_GET['Brand']))
+            $model->attributes=$_GET['Brand'];
 
         $this->render('admin',array(
             'model'=>$model,
@@ -262,7 +240,7 @@ class UserController extends Controller
     */
     public function loadModel($id)
     {
-        $model=User::model()->findByAttributes(array('user_id'=>$id,'company_id'=>Yii::app()->user->company_id));
+        $model=Brand::model()->findByAttributes(array('brand_code'=>$id,'company_id'=>Yii::app()->user->company_id));
         if($model===null)
             throw new CHttpException(404,'The requested page does not exist.');
 
@@ -275,7 +253,7 @@ class UserController extends Controller
     */
     protected function performAjaxValidation($model)
     {
-        if(isset($_POST['ajax']) && $_POST['ajax']==='user-form')
+        if(isset($_POST['ajax']) && $_POST['ajax']==='brand-form')
         {
             echo CActiveForm::validate($model);
             Yii::app()->end();

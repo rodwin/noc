@@ -26,7 +26,7 @@
     <body class="skin-blue">
         <!-- header logo: style can be found in header.less -->
         <header class="header">
-            <a href="index.html" class="logo">
+            <a href="index.php" class="logo">
                 <!-- Add the class icon to your logo image or logo icon to add the margining -->
                 NOC
             </a>
@@ -233,15 +233,16 @@
                         <li class="dropdown user user-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="glyphicon glyphicon-user"></i>
-                                <span>Jane Doe <i class="caret"></i></span>
+                                <span><?php echo ucfirst(Yii::app()->user->userObj->first_name);?> <?php echo ucfirst(Yii::app()->user->userObj->last_name);?> <i class="caret"></i></span>
                             </a>
                             <ul class="dropdown-menu">
                                 <!-- User image -->
                                 <li class="user-header bg-light-blue">
-                                    <img src="<?php echo Yii::app()->theme->baseUrl;?>/img/avatar3.png" class="img-circle" alt="User Image" />
+<!--                                    <img src="<?php echo Yii::app()->theme->baseUrl;?>/img/avatar3.png" class="img-circle" alt="User Image" />-->
+                                    <img src="<?php echo Globals::get_gravatar(Yii::app()->user->userObj->email)?>" class="img-circle" alt="User Image" />
                                     <p>
-                                        Jane Doe - Web Developer
-                                        <small>Member since Nov. 2012</small>
+                                        <?php echo ucfirst(Yii::app()->user->userObj->first_name);?> <?php echo ucfirst(Yii::app()->user->userObj->last_name);?> - <?php echo ucfirst(Yii::app()->user->userObj->position);?>
+                                        <small>Member since <?php echo date('M Y',strtotime(Yii::app()->user->userObj->created_date))?></small>
                                     </p>
                                 </li>
                                 <!-- Menu Body -->
@@ -279,10 +280,10 @@
                     <!-- Sidebar user panel -->
                     <div class="user-panel">
                         <div class="pull-left image">
-                            <img src="<?php echo Yii::app()->theme->baseUrl;?>/img/avatar3.png" class="img-circle" alt="User Image" />
+                            <img src="<?php echo Globals::get_gravatar(Yii::app()->user->userObj->email)?>" class="img-circle" alt="User Image" />
                         </div>
                         <div class="pull-left info">
-                            <p>Hello, Jane</p>
+                            <p>Hello, <?php echo ucfirst(Yii::app()->user->userObj->first_name);?></p>
 
                             <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
                         </div>
@@ -369,8 +370,13 @@
                             </a>
                         </li>
                         <li>
-                            <a href="<?php echo Yii::app()->createUrl("user/admin") ?>">
+                            <a href="<?php echo Yii::app()->createUrl("/admin/user/admin") ?>">
                                 <i class="fa fa-users"></i> <span>Users</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="<?php echo Yii::app()->createUrl("/admin/company/update",array('id'=>Yii::app()->user->company_id)) ?>">
+                                <i class="fa fa-user"></i> <span>Company</span>
                             </a>
                         </li>
                         <li class="treeview">

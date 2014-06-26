@@ -23,7 +23,11 @@ echo "\$this->breadcrumbs=array(
 'attributes'=>array(
 <?php
 foreach ($this->tableSchema->columns as $column) {
-	echo "\t\t'" . $column->name . "',\n";
+        if($column->name == 'company_id'){
+            echo "\t\t'company.name',\n";
+        }else{
+            echo "\t\t'" . $column->name . "',\n";
+        }
 }
 ?>
 ),

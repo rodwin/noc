@@ -16,60 +16,56 @@
 
 	
 	<div class="form-group">
-		<?php echo $form->dropDownListGroup($model,'company_id',array('widgetOptions'=>array('data'=>$listCompanies,'htmlOptions'=>array('class'=>'form-control','maxlength'=>50)))); ?>
+		<?php echo $form->textFieldGroup($model,'user_type_id',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
 	</div>
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'user_type_id',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'form-control','maxlength'=>50)))); ?>
+		<?php echo $form->textFieldGroup($model,'user_name',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
 	</div>
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'user_name',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'form-control','maxlength'=>50)))); ?>
+		<?php echo $form->passwordFieldGroup($model,'password',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>100)))); ?>
 	</div>
-
-	
-	<div class="form-group">
-		<?php echo $form->passwordFieldGroup($model,'password',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'form-control','maxlength'=>100)))); ?>
-	</div>
-	<div class="form-group">
+        
+        <div class="form-group">
 		<?php echo $form->passwordFieldGroup($model,'password2',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'form-control','maxlength'=>100)))); ?>
 	</div>
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'status',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'form-control')))); ?>
+		<?php echo $form->textFieldGroup($model,'status',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5')))); ?>
 	</div>
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'first_name',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'form-control','maxlength'=>50)))); ?>
+		<?php echo $form->textFieldGroup($model,'first_name',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
 	</div>
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'last_name',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'form-control','maxlength'=>50)))); ?>
+		<?php echo $form->textFieldGroup($model,'last_name',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
 	</div>
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'email',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'form-control','maxlength'=>50)))); ?>
+		<?php echo $form->textFieldGroup($model,'email',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
 	</div>
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'position',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'form-control','maxlength'=>50)))); ?>
+		<?php echo $form->textFieldGroup($model,'position',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
 	</div>
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'telephone',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'form-control','maxlength'=>50)))); ?>
+		<?php echo $form->textFieldGroup($model,'telephone',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
 	</div>
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'address',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'form-control','maxlength'=>250)))); ?>
+		<?php echo $form->textFieldGroup($model,'address',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>250)))); ?>
 	</div>
 
 

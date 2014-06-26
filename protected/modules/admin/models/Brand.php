@@ -1,25 +1,16 @@
 <?php
 
 /**
- * This is the model class for table "user".
+ * This is the model class for table "brand".
  *
- * The followings are the available columns in table 'user':
- * @property integer $user_id
+ * The followings are the available columns in table 'brand':
+ * @property string $brand_code
  * @property string $company_id
- * @property string $user_type_id
- * @property string $user_name
- * @property string $password
- * @property integer $status
- * @property string $first_name
- * @property string $last_name
- * @property string $email
- * @property string $position
- * @property string $telephone
- * @property string $address
+ * @property string $brand_name
  * @property string $created_date
  * @property string $created_by
- * @property string $updated_by
  * @property string $updated_date
+ * @property string $updated_by
  * @property string $deleted_date
  * @property string $deleted_by
  * @property integer $deleted
@@ -27,16 +18,15 @@
  * The followings are the available model relations:
  * @property Company $company
  */
-class User extends CActiveRecord
+class Brand extends CActiveRecord
 {
         public $search_string;
-        public $password2;
 	/**
 	 * @return string the associated database table name
 	 */
 	public function tableName()
 	{
-		return 'user';
+		return 'brand';
 	}
 
 	/**
@@ -47,25 +37,17 @@ class User extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('company_id, user_type_id, user_name, password, first_name, last_name, email', 'required'),
-			array('status, deleted', 'numerical', 'integerOnly'=>true),
-			array('company_id, user_type_id, user_name, first_name, last_name, email, position, telephone, created_by, updated_by, deleted_by', 'length', 'max'=>50),
-			array('password', 'length', 'max' => 64, 'min' => 5),
-                        array('password', 'required','on' => 'create'),
-                        array('password2','safe'),
-                        array('password', 'compare', 'compareAttribute'=>'password2'),
-			array('address', 'length', 'max'=>250),
+			array('brand_code, company_id, brand_name', 'required'),
+			array('deleted', 'numerical', 'integerOnly'=>true),
+			array('brand_code, company_id, created_by, updated_by, deleted_by', 'length', 'max'=>50),
+			array('brand_name', 'length', 'max'=>250),
+			array('brand_code', 'unique'),
 			array('created_date, updated_date, deleted_date', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('user_id, company_id, user_type_id, user_name, password, status, first_name, last_name, email, position, telephone, address, created_date, created_by, updated_by, updated_date, deleted_date, deleted_by, deleted', 'safe', 'on'=>'search'),
+			array('brand_code, company_id, brand_name, created_date, created_by, updated_date, updated_by, deleted_date, deleted_by, deleted', 'safe', 'on'=>'search'),
 		);
 	}
-        
-        public function encryptPassword()
-        {
-            $this->password = CPasswordHelper::hashPassword($this->password);
-        }
         
         public function beforeValidate() {
             if ($this->scenario == 'create') {
@@ -87,18 +69,6 @@ class User extends CActiveRecord
             }
             return parent::beforeValidate();
         }
-        
-        public function beforeSave() {
-            
-            if($this->password != ""){
-                $this->encryptPassword();
-            }else{
-                unset($this->password);
-            }
-            
-            return parent::beforeSave();
-            
-        }
 
 	/**
 	 * @return array relational rules.
@@ -118,23 +88,13 @@ class User extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'user_id' => 'User',
+			'brand_code' => 'Brand Code',
 			'company_id' => 'Company',
-			'user_type_id' => 'User Type',
-			'user_name' => 'User Name',
-			'password' => 'Password',
-			'password2' => 'Confirm Password',
-			'status' => 'Status',
-			'first_name' => 'First Name',
-			'last_name' => 'Last Name',
-			'email' => 'Email',
-			'position' => 'Position',
-			'telephone' => 'Telephone',
-			'address' => 'Address',
+			'brand_name' => 'Brand Name',
 			'created_date' => 'Created Date',
 			'created_by' => 'Created By',
-			'updated_by' => 'Updated By',
 			'updated_date' => 'Updated Date',
+			'updated_by' => 'Updated By',
 			'deleted_date' => 'Deleted Date',
 			'deleted_by' => 'Deleted By',
 			'deleted' => 'Deleted',
@@ -159,22 +119,13 @@ class User extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('user_id',$this->user_id);
+		$criteria->compare('brand_code',$this->brand_code,true);
 		$criteria->compare('company_id',Yii::app()->user->company_id);
-		$criteria->compare('user_type_id',$this->user_type_id,true);
-		$criteria->compare('user_name',$this->user_name,true);
-		$criteria->compare('password',$this->password,true);
-		$criteria->compare('status',$this->status);
-		$criteria->compare('first_name',$this->first_name,true);
-		$criteria->compare('last_name',$this->last_name,true);
-		$criteria->compare('email',$this->email,true);
-		$criteria->compare('position',$this->position,true);
-		$criteria->compare('telephone',$this->telephone,true);
-		$criteria->compare('address',$this->address,true);
+		$criteria->compare('brand_name',$this->brand_name,true);
 		$criteria->compare('created_date',$this->created_date,true);
 		$criteria->compare('created_by',$this->created_by,true);
-		$criteria->compare('updated_by',$this->updated_by,true);
 		$criteria->compare('updated_date',$this->updated_date,true);
+		$criteria->compare('updated_by',$this->updated_by,true);
 		$criteria->compare('deleted_date',$this->deleted_date,true);
 		$criteria->compare('deleted_by',$this->deleted_by,true);
 		$criteria->compare('deleted',$this->deleted);
@@ -189,40 +140,44 @@ class User extends CActiveRecord
                 switch($col){
                                         
                         case 0:
-                        $sort_column = 'user_id';
+                        $sort_column = 'brand_code';
                         break;
                                         
                         case 1:
-                        $sort_column = 'user_type_id';
+                        $sort_column = 'brand_name';
                         break;
                                         
                         case 2:
-                        $sort_column = 'user_name';
+                        $sort_column = 'created_date';
                         break;
                                         
                         case 3:
-                        $sort_column = 'status';
+                        $sort_column = 'created_by';
                         break;
                                         
                         case 4:
-                        $sort_column = 'first_name';
+                        $sort_column = 'updated_date';
                         break;
                                         
                         case 5:
-                        $sort_column = 'last_name';
+                        $sort_column = 'updated_by';
+                        break;
+                                        
+                        case 6:
+                        $sort_column = 'deleted_date';
                         break;
                                 }
         
 
                 $criteria=new CDbCriteria;
                 $criteria->compare('company_id',Yii::app()->user->company_id);
-                $criteria->compare('user_id',$columns[0]['search']['value']);
-		$criteria->compare('user_type_id',$columns[1]['search']['value'],true);
-		$criteria->compare('user_name',$columns[2]['search']['value'],true);
-		$criteria->compare('password',$columns[3]['search']['value'],true);
-		$criteria->compare('status',$columns[4]['search']['value']);
-		$criteria->compare('first_name',$columns[5]['search']['value'],true);
-		$criteria->compare('last_name',$columns[6]['search']['value'],true);
+                		$criteria->compare('brand_code',$columns[0]['search']['value'],true);
+		$criteria->compare('brand_name',$columns[1]['search']['value'],true);
+		$criteria->compare('created_date',$columns[2]['search']['value'],true);
+		$criteria->compare('created_by',$columns[3]['search']['value'],true);
+		$criteria->compare('updated_date',$columns[4]['search']['value'],true);
+		$criteria->compare('updated_by',$columns[5]['search']['value'],true);
+		$criteria->compare('deleted_date',$columns[6]['search']['value'],true);
                 $criteria->order = "$sort_column $order_dir";
                 $criteria->limit = $limit;
                 $criteria->offset = $offset;
@@ -237,7 +192,7 @@ class User extends CActiveRecord
 	 * Returns the static model of the specified AR class.
 	 * Please note that you should have this exact method in all your CActiveRecord descendants!
 	 * @param string $className active record class name.
-	 * @return User the static model class
+	 * @return Brand the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{

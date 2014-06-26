@@ -34,7 +34,6 @@ return false;
     <table id="company_table" class="table table-bordered table-striped">
         <thead>
             <tr>
-                <th>company_id</th>
 <th>status_id</th>
 <th>industry</th>
 <th>code</th>
@@ -58,13 +57,13 @@ $(function() {
         "bAutoWidth": false,
         "ajax": "<?php echo Yii::app()->createUrl($this->module->id.'/company/data');?>",
         "columns": [
-            { "name": "company_id","data": "company_id"},{ "name": "status_id","data": "status_id"},{ "name": "industry","data": "industry"},{ "name": "code","data": "code"},{ "name": "name","data": "name"},{ "name": "address1","data": "address1"},{ "name": "address2","data": "address2"},            { "name": "links","data": "links", 'sortable': false}
+           { "name": "status_id","data": "status_id"},{ "name": "industry","data": "industry"},{ "name": "code","data": "code"},{ "name": "name","data": "name"},{ "name": "address1","data": "address1"},{ "name": "address2","data": "address2"},            { "name": "links","data": "links", 'sortable': false}
                ]
         });
 
         $('#btnSearch').click(function(){
             table.fnMultiFilter( { 
-                "company_id": $("#Company_company_id").val(),"status_id": $("#Company_status_id").val(),"industry": $("#Company_industry").val(),"code": $("#Company_code").val(),"name": $("#Company_name").val(),"address1": $("#Company_address1").val(),"address2": $("#Company_address2").val(),            } );
+                "status_id": $("#Company_status_id").val(),"industry": $("#Company_industry").val(),"code": $("#Company_code").val(),"name": $("#Company_name").val(),"address1": $("#Company_address1").val(),"address2": $("#Company_address2").val(),            } );
         });
         
         

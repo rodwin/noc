@@ -1,7 +1,7 @@
 <?php
 $this->breadcrumbs=array(
-	'Users'=>array('admin'),
-	$model->user_id,
+	'Brands'=>array('admin'),
+	$model->brand_code,
 );
 
 ?>
@@ -11,21 +11,13 @@ $this->breadcrumbs=array(
 'data'=>$model,
 'type' => 'bordered condensed',
 'attributes'=>array(
-		'user_id',
+		'brand_code',
 		'company.name',
-		'user_type_id',
-		'user_name',
-		'status',
-		'first_name',
-		'last_name',
-		'email',
-		'position',
-		'telephone',
-		'address',
+		'brand_name',
 		'created_date',
 		'created_by',
-		'updated_by',
 		'updated_date',
+		'updated_by',
 		'deleted_date',
 		'deleted_by',
 		'deleted',

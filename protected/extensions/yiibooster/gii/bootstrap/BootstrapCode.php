@@ -31,9 +31,9 @@ class BootstrapCode extends CrudCode {
 
 			if ($column->type !== 'string' || $column->size === null) {
 				if($column->dbType == 'date') {
-					return "\$form->datePickerGroup(\$model,'{$column->name}',array('widgetOptions'=>array('options'=>array(),'htmlOptions'=>array('class'=>'form-control')), 'prepend'=>'<i class=\"glyphicon glyphicon-calendar\"></i>', 'append'=>'Click on Month/Year to select a different Month/Year.'))";
+					return "\$form->datePickerGroup(\$model,'{$column->name}',array('widgetOptions'=>array('options'=>array(),'htmlOptions'=>array('class'=>'span5')), 'prepend'=>'<i class=\"glyphicon glyphicon-calendar\"></i>', 'append'=>'Click on Month/Year to select a different Month/Year.'))";
 				} else {
-					return "\$form->{$inputField}(\$model,'{$column->name}',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'form-control'))))";
+					return "\$form->{$inputField}(\$model,'{$column->name}',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5'))))";
 				}
 			} else {
 				if (strpos ( $column->dbType, 'enum(' ) !== false) {
@@ -46,36 +46,11 @@ class BootstrapCode extends CrudCode {
 						$dropdown_options .= "\"$option\"=>\"$option\",";
 					}
 					$dropdown_options .= ")";
-					return "\$form->dropDownListGroup(\$model,'{$column->name}', array('widgetOptions'=>array('data'=>{$dropdown_options}, 'htmlOptions'=>array('class'=>'input-large form-control'))))";
+					return "\$form->dropDownListGroup(\$model,'{$column->name}', array('widgetOptions'=>array('data'=>{$dropdown_options}, 'htmlOptions'=>array('class'=>'input-large'))))";
 				} else {
-					return "\$form->{$inputField}(\$model,'{$column->name}',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'form-control','maxlength'=>$column->size))))";
+					return "\$form->{$inputField}(\$model,'{$column->name}',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>$column->size))))";
 				}
 			}
 		}
 	}
-        
-        public function generateActiveField($modelClass,$column)
-	{
-		if($column->type==='boolean')
-			return "\$form->checkBox(\$model,'{$column->name}')";
-		elseif(stripos($column->dbType,'text')!==false)
-			return "\$form->textArea(\$model,'{$column->name}',array('class'=>'form-control','rows'=>6, 'cols'=>50))";
-		else
-		{
-			if(preg_match('/^(password|pass|passwd|passcode)$/i',$column->name))
-				$inputField='passwordField';
-			else
-				$inputField='textField';
-
-			if($column->type!=='string' || $column->size===null)
-				return "\$form->{$inputField}(\$model,'{$column->name}',array('class'=>'form-control'))";
-			else
-			{
-				if(($size=$maxLength=$column->size)>60)
-					$size=60;
-				return "\$form->{$inputField}(\$model,'{$column->name}',array('class'=>'form-control','size'=>$size,'maxlength'=>$maxLength))";
-			}
-		}
-	}
-        
 }

@@ -58,7 +58,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 
         $dataProvider = <?php echo $this->modelClass; ?>::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'],$_GET['columns']);
 
-        $count = <?php echo $this->modelClass; ?>::model()->count();
+        $count = <?php echo $this->modelClass; ?>::model()->countByAttributes(array('company_id'=>Yii::app()->user->company_id,'deleted'=> 0));
 
         $output = array(
                 "draw" => intval($_GET['draw']),
@@ -71,7 +71,11 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
         
         foreach ($dataProvider->getData() as $key => $value) {
             $row = array();
-            <?php foreach ($this->tableSchema->columns as $column) {?>
+            <?php foreach ($this->tableSchema->columns as $column) {
+                if($column->name == 'company_id'){
+                    continue;
+                }
+            ?>
             $row['<?php echo $column->name?>']= $value-><?php echo $column->name?>;
             <?php } ?>
             
@@ -248,7 +252,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
     */
     public function loadModel($id)
     {
-        $model=<?php echo $this->modelClass; ?>::model()->findByPk($id);
+        $model=<?php echo $this->modelClass; ?>::model()->findByAttributes(array('<?php echo $this->tableSchema->primaryKey; ?>'=>$id,'company_id'=>Yii::app()->user->company_id));
         if($model===null)
             throw new CHttpException(404,'The requested page does not exist.');
 

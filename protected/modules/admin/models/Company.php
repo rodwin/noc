@@ -77,16 +77,16 @@ class Company extends CActiveRecord
                 }
                 
                 $this->created_date = date('Y-m-d H:i:s');
-                $this->created_by = Yii::app()->user->id;
+                $this->created_by = Yii::app()->user->userObj->user_name;
             } else {
                 if ($this->deleted == 0) {
                     $this->updated_date = date('Y-m-d H:i:s');
-                    $this->updated_by = Yii::app()->user->id;
+                    $this->updated_by = Yii::app()->user->userObj->user_name;
                     $this->deleted_date = null;
                     $this->deleted_by = null;
                 } else {
                     $this->deleted_date = date('Y-m-d H:i:s');
-                    $this->deleted_by = Yii::app()->user->id;
+                    $this->deleted_by = Yii::app()->user->userObj->user_name;
                 }
             }
             return parent::beforeValidate();
@@ -113,7 +113,7 @@ class Company extends CActiveRecord
 			'status_id' => 'Status',
 			'industry' => 'Industry',
 			'code' => 'Code',
-			'name' => 'Name',
+			'name' => 'Company Name',
 			'address1' => 'Address1',
 			'address2' => 'Address2',
 			'city' => 'City',
@@ -150,7 +150,7 @@ class Company extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('company_id',$this->company_id,true);
+		$criteria->compare('company_id',Yii::app()->user->company_id);
 		$criteria->compare('status_id',$this->status_id);
 		$criteria->compare('industry',$this->industry,true);
 		$criteria->compare('code',$this->code,true);
@@ -170,7 +170,7 @@ class Company extends CActiveRecord
 		$criteria->compare('deleted_date',$this->deleted_date,true);
 		$criteria->compare('deleted_by',$this->deleted_by,true);
 		$criteria->compare('deleted',$this->deleted);
-
+                
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
@@ -181,43 +181,39 @@ class Company extends CActiveRecord
                 switch($col){
                                         
                         case 0:
-                        $sort_column = 'company_id';
-                        break;
-                                        
-                        case 1:
                         $sort_column = 'status_id';
                         break;
                                         
-                        case 2:
+                        case 1:
                         $sort_column = 'industry';
                         break;
                                         
-                        case 3:
+                        case 2:
                         $sort_column = 'code';
                         break;
                                         
-                        case 4:
+                        case 3:
                         $sort_column = 'name';
                         break;
                                         
-                        case 5:
+                        case 4:
                         $sort_column = 'address1';
                         break;
                                         
-                        case 6:
+                        case 5:
                         $sort_column = 'address2';
                         break;
                                 }
         
 
                 $criteria=new CDbCriteria;
-                		$criteria->compare('company_id',$columns[0]['search']['value'],true);
-		$criteria->compare('status_id',$columns[1]['search']['value']);
-		$criteria->compare('industry',$columns[2]['search']['value'],true);
-		$criteria->compare('code',$columns[3]['search']['value'],true);
-		$criteria->compare('name',$columns[4]['search']['value'],true);
-		$criteria->compare('address1',$columns[5]['search']['value'],true);
-		$criteria->compare('address2',$columns[6]['search']['value'],true);
+                $criteria->compare('company_id',Yii::app()->user->company_id);
+		$criteria->compare('status_id',$columns[0]['search']['value']);
+		$criteria->compare('industry',$columns[1]['search']['value'],true);
+		$criteria->compare('code',$columns[2]['search']['value'],true);
+		$criteria->compare('name',$columns[3]['search']['value'],true);
+		$criteria->compare('address1',$columns[4]['search']['value'],true);
+		$criteria->compare('address2',$columns[5]['search']['value'],true);
                 $criteria->order = "$sort_column $order_dir";
                 $criteria->limit = $limit;
                 $criteria->offset = $offset;

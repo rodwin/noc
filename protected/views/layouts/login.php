@@ -26,11 +26,10 @@
             <div class="container-fluid">
                             <div class="text-center">
                 <p class="help muted">
+                    <strong>NOC</strong> 
                     © <?php echo date('Y')?>
-                    In1go Technologies, Inc.<span>|</span>
-                    <strong>NOC</strong> <span>|</span>
-                    DB:Production 
-                    V:1
+                    In1go Technologies, Inc.
+                    
                 </p>
                </div>
             </div>

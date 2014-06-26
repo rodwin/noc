@@ -10,6 +10,7 @@ class LoginForm extends CFormModel
 	public $username;
 	public $password;
 	public $rememberMe;
+	public $company;
 
 	private $_identity;
 
@@ -22,7 +23,7 @@ class LoginForm extends CFormModel
 	{
 		return array(
 			// username and password are required
-			array('username, password', 'required'),
+			array('company, username, password', 'required'),
 			// rememberMe needs to be a boolean
 			array('rememberMe', 'boolean'),
 			// password needs to be authenticated
@@ -37,6 +38,9 @@ class LoginForm extends CFormModel
 	{
 		return array(
 			'rememberMe'=>'Remember me next time',
+			'company'=>'Account Name',
+			'username'=>'Username',
+			'password'=>'Password',
 		);
 	}
 
@@ -48,17 +52,22 @@ class LoginForm extends CFormModel
 	{
 		if(!$this->hasErrors())
 		{
-			$this->_identity=new UserIdentity($this->username,$this->password);
-			if(!$this->_identity->authenticate()){
+			$this->_identity=new UserIdentity($this->company,$this->username,$this->password);
+			if($this->_identity->authenticate() != 0){
+                            
                             if($this->_identity->errorCode===UserIdentity::ERROR_USERNAME_INVALID)
                             {
-                                $this->addError($this->_identity->errorMessage,'username');
+                                $this->addError('username',$this->_identity->errorMessage);
                             }elseif ($this->_identity->errorCode===UserIdentity::ERROR_PASSWORD_INVALID) {
-                                $this->addError($this->_identity->errorMessage,'password');
+                                $this->addError('password',$this->_identity->errorMessage);
+                            }elseif($this->_identity->errorCode===UserIdentity::ERROR_UNKNOWN_IDENTITY){
+                                $this->addError('company',$this->_identity->errorMessage);
+                            }else{
+                                $this->addError('password',$this->_identity->errorMessage);
                             }
-                    
-				
                         }
+                        
+                        
 		}
 	}
 
@@ -70,7 +79,7 @@ class LoginForm extends CFormModel
 	{
 		if($this->_identity===null)
 		{
-			$this->_identity=new UserIdentity($this->username,$this->password);
+			$this->_identity=new UserIdentity($this->company,$this->username,$this->password);
 			$this->_identity->authenticate();
 		}
 		if($this->_identity->errorCode===UserIdentity::ERROR_NONE)

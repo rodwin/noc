@@ -42,7 +42,7 @@ return false;
 
 
 <div class="box-body table-responsive">
-    <table id="<?php echo $this->class2id($this->modelClass); ?>_table" class="table table-bordered table-striped">
+    <table id="<?php echo $this->class2id($this->modelClass); ?>_table" class="table table-bordered">
         <thead>
             <tr>
                 <?php
@@ -51,6 +51,11 @@ return false;
                         if ($count >6) {
                                 continue;
                         }
+                        
+                        if($column->name == 'company_id'){
+                            continue;
+                        }
+                        
                         echo "<th>$column->name</th>\n";
                         $count++;
                 }
@@ -80,6 +85,9 @@ $(function() {
                         if ($count >6) {
                                 continue;
                         }
+                        if($column->name == 'company_id'){
+                            continue;
+                        }
                         echo '{ "name": "'. $column->name.'","data": "'. $column->name.'"},';
                         $count++;
                 }
@@ -96,6 +104,9 @@ $(function() {
                 foreach ($this->tableSchema->columns as $column) {
                         if ($count >6) {
                                 continue;
+                        }
+                        if($column->name == 'company_id'){
+                            continue;
                         }
                         echo '"'.$column->name.'": $("#'.$this->modelClass.'_'.$column->name.'").val(),';
                         $count++;

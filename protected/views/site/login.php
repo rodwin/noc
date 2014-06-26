@@ -10,7 +10,7 @@ $this->breadcrumbs=array(
 ?>
 
 <div class="form-box" id="login-box">
-    <div class="header">Sign In</div>
+    <div class="header">Sign In - NOC</div>
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'login-form',
 	'enableClientValidation'=>true,
@@ -19,13 +19,22 @@ $this->breadcrumbs=array(
 	),
 )); ?>
 
-    <div class="body bg-gray ">
+    <div class="panel-body bg-gray ">
+        
 	<div class="form-group">
+		<?php echo $form->labelEx($model,'company'); ?>
+		<?php echo $form->textField($model,'company',array('class'=>'form-control')); ?>
+		<?php echo $form->error($model,'company'); ?>
+	</div>
+        
+	<div class="form-group">
+                <?php echo $form->labelEx($model,'username'); ?>
 		<?php echo $form->textField($model,'username',array('class'=>'form-control')); ?>
 		<?php echo $form->error($model,'username'); ?>
 	</div>
 
 	<div class="form-group">
+                <?php echo $form->labelEx($model,'password'); ?>
 		<?php echo $form->passwordField($model,'password',array('class'=>'form-control')); ?>
 		<?php echo $form->error($model,'password'); ?>
 	</div>

@@ -9,6 +9,9 @@
 	if (strpos($field, 'password') !== false) {
 		continue;
 	}
+	if (strpos($field, 'company_id') !== false) {
+		continue;
+	}
 	?>
                 
         <div class="form-group">

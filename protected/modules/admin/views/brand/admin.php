@@ -1,6 +1,6 @@
 <?php
 $this->breadcrumbs=array(
-	'Users'=>array('admin'),
+	'Brands'=>array('admin'),
 	'Manage',
 );
 
@@ -11,7 +11,7 @@ $('.search-form').toggle();
 return false;
 });
 $('.search-form form').submit(function(){
-$.fn.yiiGridView.update('user-grid', {
+$.fn.yiiGridView.update('brand-grid', {
 data: $(this).serialize()
 });
 return false;
@@ -20,7 +20,7 @@ return false;
 ?>
 
 <?php echo CHtml::link('Advanced Search','#',array('class'=>'search-button btn btn-primary btn-flat')); ?>&nbsp;
-<?php echo CHtml::link('Create',array('user/create'),array('class'=>'btn btn-primary btn-flat')); ?><br/>
+<?php echo CHtml::link('Create',array('brand/create'),array('class'=>'btn btn-primary btn-flat')); ?><br/>
 <br/>
 
 <div class="search-form" style="display:none">
@@ -31,15 +31,16 @@ return false;
 
 
 <div class="box-body table-responsive">
-    <table id="user_table" class="table table-bordered">
+    <table id="brand_table" class="table table-bordered">
         <thead>
             <tr>
-                <th>user_id</th>
-<th>user_type_id</th>
-<th>user_name</th>
-<th>status</th>
-<th>first_name</th>
-<th>last_name</th>
+                <th>brand_code</th>
+<th>brand_name</th>
+<th>created_date</th>
+<th>created_by</th>
+<th>updated_date</th>
+<th>updated_by</th>
+<th>deleted_date</th>
                 <th>Actions</th>
                 
             </tr>
@@ -50,25 +51,25 @@ return false;
 
 <script type="text/javascript">
 $(function() {
-    var table = $('#user_table').dataTable({
+    var table = $('#brand_table').dataTable({
         "filter": false,
         "processing": true,
         "serverSide": true,
         "bAutoWidth": false,
-        "ajax": "<?php echo Yii::app()->createUrl($this->module->id.'/user/data');?>",
+        "ajax": "<?php echo Yii::app()->createUrl($this->module->id.'/brand/data');?>",
         "columns": [
-            { "name": "user_id","data": "user_id"},{ "name": "user_type_id","data": "user_type_id"},{ "name": "user_name","data": "user_name"},{ "name": "status","data": "status"},{ "name": "first_name","data": "first_name"},{ "name": "last_name","data": "last_name"},            { "name": "links","data": "links", 'sortable': false}
+            { "name": "brand_code","data": "brand_code"},{ "name": "brand_name","data": "brand_name"},{ "name": "created_date","data": "created_date"},{ "name": "created_by","data": "created_by"},{ "name": "updated_date","data": "updated_date"},{ "name": "updated_by","data": "updated_by"},{ "name": "deleted_date","data": "deleted_date"},            { "name": "links","data": "links", 'sortable': false}
                ]
         });
 
         $('#btnSearch').click(function(){
             table.fnMultiFilter( { 
-                "user_id": $("#User_user_id").val(),"user_type_id": $("#User_user_type_id").val(),"user_name": $("#User_user_name").val(),"status": $("#User_status").val(),"first_name": $("#User_first_name").val(),"last_name": $("#User_last_name").val(),            } );
+                "brand_code": $("#Brand_brand_code").val(),"brand_name": $("#Brand_brand_name").val(),"created_date": $("#Brand_created_date").val(),"created_by": $("#Brand_created_by").val(),"updated_date": $("#Brand_updated_date").val(),"updated_by": $("#Brand_updated_by").val(),"deleted_date": $("#Brand_deleted_date").val(),            } );
         });
         
         
         
-        jQuery(document).on('click','#user_table a.delete',function() {
+        jQuery(document).on('click','#brand_table a.delete',function() {
             if(!confirm('Are you sure you want to delete this item?')) return false;
             $.ajax({
                 'url':jQuery(this).attr('href')+'&ajax=1',

@@ -50,8 +50,8 @@ class CompanyController extends Controller
         Company::model()->search_string = $_GET['search']['value'] != "" ? $_GET['search']['value']:null;
 
         $dataProvider = Company::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'],$_GET['columns']);
-
-        $count = Company::model()->count();
+        
+        $count = Company::model()->countByAttributes(array('company_id'=>Yii::app()->user->company_id));
 
         $output = array(
                 "draw" => intval($_GET['draw']),
@@ -107,10 +107,10 @@ class CompanyController extends Controller
         $this->pageTitle = 'View Company '.$model->name;
 
         $this->menu=array(
-                array('label'=>'Create Company', 'url'=>array('create')),
+//                array('label'=>'Create Company', 'url'=>array('create')),
                 array('label'=>'Update Company', 'url'=>array('update', 'id'=>$model->company_id)),
-                array('label'=>'Delete Company', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->company_id),'confirm'=>'Are you sure you want to delete this item?')),
-                array('label'=>'Manage Company', 'url'=>array('admin')),
+//                array('label'=>'Delete Company', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->company_id),'confirm'=>'Are you sure you want to delete this item?')),
+//                array('label'=>'Manage Company', 'url'=>array('admin')),
                 '',
                 array('label'=>'Help', 'url' => '#'),
         );
@@ -163,9 +163,9 @@ class CompanyController extends Controller
         $model=$this->loadModel($id);
             
         $this->menu=array(
-                array('label'=>'Create Company', 'url'=>array('create')),
+//                array('label'=>'Create Company', 'url'=>array('create')),
                 array('label'=>'View Company', 'url'=>array('view', 'id'=>$model->company_id)),
-                array('label'=>'Manage Company', 'url'=>array('admin')),
+//                array('label'=>'Manage Company', 'url'=>array('admin')),
                 '',
                 array('label'=>'Help', 'url' => '#'),
         );

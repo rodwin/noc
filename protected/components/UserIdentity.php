@@ -8,26 +8,46 @@
 class UserIdentity extends CUserIdentity
 {
     private $_id;
+    protected $company;
+    
+    const ERROR_USER_DISABLED = 3;
+    const ERROR_USER_DELETED = 4;
+
+    public function __construct($company,$username, $password) {
+        parent::__construct($username, $password);
+        $this->company = $company;
+    }
 
     public function authenticate()
     {
-        $user=User::model()->findByAttributes(array('user_name'=>$this->username));
+        $companyObj = Company::model()->findByAttributes(array('code'=>$this->company));
+        if($companyObj){
+            $user=User::model()->findByAttributes(array('user_name'=>$this->username,'company_id'=> $companyObj->company_id));
+        }else{
+            $user=null;
+        }
         
-        if($user===null){
+        
+        if($companyObj == null){
+            $this->errorCode=  UserIdentity::ERROR_UNKNOWN_IDENTITY;
+            $this->errorMessage="Account Name not found!";
+        }elseif($user===null){
             $this->errorCode=  UserIdentity::ERROR_USERNAME_INVALID;
-            
+            $this->errorMessage="Username not found!";
         }else if(!CPasswordHelper::verifyPassword($this->password, $user->password)){
             $this->errorCode= UserIdentity::ERROR_PASSWORD_INVALID;
-            
+            $this->errorMessage="Invalid password!";
         }else{
+            
             if($user->deleted == 1){
-
-                $this->errorMessage="Your account is currently deleted. Please contact System Administrator";
-            }elseif($user->status == 20){
-
-                $this->errorMessage="Your account is currently disabled. Please contact System Administrator";
+                $this->errorCode=self::ERROR_USER_DELETED;
+                $this->errorMessage="Your user account is currently deleted. Please contact System Administrator";
+            }elseif($user->status == 2){
+                $this->errorCode=self::ERROR_USER_DISABLED;
+                $this->errorMessage="Your user account is currently disabled. Please contact System Administrator";
             }else{
                 $this->setState('userObj', $user);
+                $this->setState('company_id', $companyObj->company_id);
                 
 //                $role = Authitem::model()->findByPk($user->role);
 //                $more_actions = unserialize($role->data);
@@ -43,7 +63,7 @@ class UserIdentity extends CUserIdentity
 //                }
             }
         }
-        return !$this->errorCode;
+        return $this->errorCode;
     }
 
     public function getId()

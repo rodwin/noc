@@ -10,14 +10,7 @@
                 <input type="text" class="form-control" id="User_user_id" placeholder="user_id" name="User[user_id]">
             </div>
         </div>
-	                
-        <div class="form-group">
-            <label for="User_company_id" class="col-sm-2 control-label">company_id</label>
-            <div class="col-sm-3">
-                <input type="text" class="form-control" id="User_company_id" placeholder="company_id" name="User[company_id]">
-            </div>
-        </div>
-	                
+		                
         <div class="form-group">
             <label for="User_user_type_id" class="col-sm-2 control-label">user_type_id</label>
             <div class="col-sm-3">

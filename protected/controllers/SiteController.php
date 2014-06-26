@@ -84,6 +84,7 @@ class SiteController extends Controller
 //            exit;
             // renders the view file 'protected/views/site/index.php'
             // using the default layout 'protected/views/layouts/main.php'
+            $this->pageTitle = 'Dashboard';
             
             $this->render('index');
 	}
@@ -134,7 +135,7 @@ class SiteController extends Controller
 	public function actionLogin()
 	{
                 $this->layout = 'login';
-		$model=new LoginForm;
+		$model=new LoginForm();
 
 		// if it is ajax validation request
 		if(isset($_POST['ajax']) && $_POST['ajax']==='login-form')

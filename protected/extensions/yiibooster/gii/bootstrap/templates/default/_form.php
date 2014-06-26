@@ -29,6 +29,9 @@ foreach ($this->tableSchema->columns as $column) {
 		continue;
 	}
         
+        if (strpos($column->name,'company_id') !== false) 
+		continue;
+        
         if (strpos($column->name,'created_date') !== false) 
 		continue;
         

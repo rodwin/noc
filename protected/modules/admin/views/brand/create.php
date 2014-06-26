@@ -1,12 +1,8 @@
 <?php
-/* @var $this UserController */
-/* @var $model User */
-
 $this->breadcrumbs=array(
-	'Users'=>array('admin'),
+	'Brands'=>array('admin'),
 	'Create',
 );
-
 
 ?>
 
