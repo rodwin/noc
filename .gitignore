@@ -1,5 +1,4 @@
 
 protected/runtime
-assets
 protected/vendor
 protected/composer.lock
