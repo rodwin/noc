@@ -1,5 +1,5 @@
 
-protected/runtime
+protected/runtime/
 vendor
 composer.lock
-protected/config
+protected/config/
