@@ -40,6 +40,7 @@ return false;
 )); ?>\n"; ?>
 </div><!-- search-form -->
 
+<?php echo "<?php \$fields = ".$this->modelClass."::model()->attributeLabels(); ?>";?>
 
 <div class="box-body table-responsive">
     <table id="<?php echo $this->class2id($this->modelClass); ?>_table" class="table table-bordered">
@@ -56,7 +57,7 @@ return false;
                             continue;
                         }
                         
-                        echo "<th>$column->name</th>\n";
+                        echo "<th><?php echo \$fields['".$column->name."']; ?></th>\n";
                         $count++;
                 }
                 

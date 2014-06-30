@@ -29,17 +29,18 @@ return false;
 )); ?>
 </div><!-- search-form -->
 
+<?php $fields = User::model()->attributeLabels(); ?>
 
 <div class="box-body table-responsive">
     <table id="user_table" class="table table-bordered">
         <thead>
             <tr>
-                <th>user_id</th>
-<th>user_type_id</th>
-<th>user_name</th>
-<th>status</th>
-<th>first_name</th>
-<th>last_name</th>
+                <th><?php echo $fields['user_id']; ?></th>
+                <th><?php echo $fields['user_type_id']; ?></th>
+                <th><?php echo $fields['user_name']; ?></th>
+                <th><?php echo $fields['status']; ?></th>
+                <th><?php echo $fields['first_name']; ?></th>
+                <th><?php echo $fields['last_name']; ?></th>
                 <th>Actions</th>
                 
             </tr>
