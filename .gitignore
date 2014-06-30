@@ -1,4 +1,5 @@
 
 protected/runtime
-protected/vendor
-protected/composer.lock
+vendor
+composer.lock
+protected/config

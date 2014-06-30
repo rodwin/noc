@@ -1,6 +1,3 @@
-[submodule "adminlte"]
-	path = adminlte
-	url = https://github.com/almasaeed2010/AdminLTE.git
 [submodule "themes/AdminLTE"]
 	path = themes/AdminLTE
 	url = https://github.com/almasaeed2010/AdminLTE.git

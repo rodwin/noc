@@ -1,0 +1,13 @@
+{
+    "name": "in1go/noc",
+    "description": "National Operation Center",
+    "authors": [
+        {
+            "name": "rodwin",
+            "email": "rodwinlising@gmail.com"
+        }
+    ],
+    "require": {
+        "rhumsaa/uuid": "~2.7"
+    }
+}
