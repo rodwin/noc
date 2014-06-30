@@ -3,6 +3,7 @@
         <div class="box box-primary">
             <div class="box-body">
             <form class="form-horizontal" role="form">
+<?php echo "<?php \$fields = ".$this->modelClass."::model()->attributeLabels(); ?>";?>
 <?php foreach ($this->tableSchema->columns as $column): ?>
 	<?php
 	$field = $this->generateInputField($this->modelClass, $column);
@@ -15,9 +16,9 @@
 	?>
                 
         <div class="form-group">
-            <label for="<?php echo $this->modelClass;?>_<?php echo $column->name;?>" class="col-sm-2 control-label"><?php echo $column->name;?></label>
+            <label for="<?php echo $this->modelClass;?>_<?php echo $column->name;?>" class="col-sm-2 control-label"><?php echo "<?php echo \$fields['";?><?php echo $column->name;?><?php echo "'];?>";?></label>
             <div class="col-sm-3">
-                <input type="text" class="form-control" id="<?php echo $this->modelClass;?>_<?php echo $column->name;?>" placeholder="<?php echo $column->name;?>" name="<?php echo $this->modelClass;?>[<?php echo $column->name;?>]">
+                <input type="text" class="form-control" id="<?php echo $this->modelClass;?>_<?php echo $column->name;?>" placeholder="<?php echo "<?php echo \$fields['";?><?php echo $column->name;?><?php echo "'];?>";?>" name="<?php echo $this->modelClass;?>[<?php echo $column->name;?>]">
             </div>
         </div>
 <?php endforeach; ?>

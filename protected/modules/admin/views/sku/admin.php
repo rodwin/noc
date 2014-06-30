@@ -22,7 +22,6 @@ return false;
 <?php echo CHtml::link('<i class="fa fa-search"> Advanced Search</i>','#',array('class'=>'search-button btn btn-primary btn-flat')); ?>&nbsp;
 <?php echo CHtml::link('<i class="fa fa-plus"> Create</i>',array('sku/create'),array('class'=>'btn btn-primary btn-flat')); ?>
 
-
 <div class="btn-group">
     <button type="button" class="btn btn-info btn-flat">More Options</button>
     <button type="button" class="btn btn-info btn-flat dropdown-toggle" data-toggle="dropdown">
