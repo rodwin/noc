@@ -19,8 +19,24 @@ return false;
 ");
 ?>
 
-<?php echo CHtml::link('Advanced Search','#',array('class'=>'search-button btn btn-primary btn-flat')); ?>&nbsp;
-<?php echo CHtml::link('Create',array('sku/create'),array('class'=>'btn btn-primary btn-flat')); ?><br/>
+<?php echo CHtml::link('<i class="fa fa-search"> Advanced Search</i>','#',array('class'=>'search-button btn btn-primary btn-flat')); ?>&nbsp;
+<?php echo CHtml::link('<i class="fa fa-plus"> Create</i>',array('sku/create'),array('class'=>'btn btn-primary btn-flat')); ?>
+
+
+<div class="btn-group">
+    <button type="button" class="btn btn-info btn-flat">More Options</button>
+    <button type="button" class="btn btn-info btn-flat dropdown-toggle" data-toggle="dropdown">
+        <span class="caret"></span>
+        <span class="sr-only">Toggle Dropdown</span>
+    </button>
+    <ul class="dropdown-menu" role="menu">
+        <li><a href="#">Download All Records</a></li>
+        <li><a href="#">Download All Filtered Records</a></li>
+        <li><a href="#">Upload</a></li>
+    </ul>
+</div>
+
+<br/>
 <br/>
 
 <div class="search-form" style="display:none">
