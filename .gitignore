@@ -2,4 +2,3 @@
 protected/runtime/
 vendor
 composer.lock
-protected/config/
