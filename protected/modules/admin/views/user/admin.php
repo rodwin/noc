@@ -64,7 +64,7 @@ $(function() {
 
         $('#btnSearch').click(function(){
             table.fnMultiFilter( { 
-                "user_id": $("#User_user_id").val(),"user_type_id": $("#User_user_type_id").val(),"user_name": $("#User_user_name").val(),"status": $("#User_status").val(),"first_name": $("#User_first_name").val(),"last_name": $("#User_last_name").val(),            } );
+                "user_id": $("#User_user_id").val(),"user_type_id": $("#User_user_type_id").val(),"user_name": $("#User_user_name").val(),"status": $("#User_status").val(),"first_name": $("#User_first_name").val(),"last_name": $("#User_last_name").val()            } );
         });
         
         
@@ -76,9 +76,9 @@ $(function() {
                 'type':'POST',
                 'dataType': 'text',
                 'success':function(data) {
-                   $.growl( { 
+                   $.growl( data,{ 
                         icon: 'glyphicon glyphicon-info-sign', 
-                        message: data 
+                        type: 'success' 
                     });
                     
                     table.fnMultiFilter();

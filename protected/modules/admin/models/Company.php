@@ -21,13 +21,7 @@
  * @property string $created_by
  * @property string $updated_date
  * @property string $updated_by
- * @property string $deleted_date
- * @property string $deleted_by
- * @property integer $deleted
  */
-
-use Rhumsaa\Uuid\Uuid;
-use Rhumsaa\Uuid\Exception\UnsatisfiedDependencyException;
 
 class Company extends CActiveRecord
 {
@@ -49,13 +43,13 @@ class Company extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('company_id, status_id, code, name', 'required'),
-			array('status_id, province, deleted', 'numerical', 'integerOnly'=>true),
-			array('company_id, country, phone, fax, zip_code, created_by, updated_by, deleted_by', 'length', 'max'=>50),
+			array('status_id, province', 'numerical', 'integerOnly'=>true),
+			array('company_id, country, phone, fax, zip_code, created_by, updated_by', 'length', 'max'=>50),
 			array('industry, code', 'length', 'max'=>200),
 			array('name', 'length', 'max'=>150),
 			array('code', 'unique'),
 			array('address1, address2, city', 'length', 'max'=>250),
-			array('created_date, updated_date, deleted_date', 'safe'),
+			array('created_date, updated_date', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('company_id, status_id, industry, code, name, address1, address2, city, province, country, phone, fax, zip_code, created_date, created_by, updated_date, updated_by, deleted_date, deleted_by, deleted', 'safe', 'on'=>'search'),
@@ -65,29 +59,13 @@ class Company extends CActiveRecord
         public function beforeValidate() {
             if ($this->scenario == 'create') {
                 
-                try {
-                    // Generate a version 4 (random) UUID
-                    $this->company_id  = Uuid::uuid4();
-
-                } catch (UnsatisfiedDependencyException $e) {
-                    // Some dependency was not met. Either the method cannot be called on a
-                    // 32-bit system, or it can, but it relies on Moontoast\Math to be present.
-                    echo 'Caught exception: ' . $e->getMessage() . "\n";
-                    exit;
-                }
+                $this->company_id  = Globals::generateV4UUID();
                 
                 $this->created_date = date('Y-m-d H:i:s');
                 $this->created_by = Yii::app()->user->userObj->user_name;
             } else {
-                if ($this->deleted == 0) {
-                    $this->updated_date = date('Y-m-d H:i:s');
-                    $this->updated_by = Yii::app()->user->userObj->user_name;
-                    $this->deleted_date = null;
-                    $this->deleted_by = null;
-                } else {
-                    $this->deleted_date = date('Y-m-d H:i:s');
-                    $this->deleted_by = Yii::app()->user->userObj->user_name;
-                }
+                $this->updated_date = date('Y-m-d H:i:s');
+                $this->updated_by = Yii::app()->user->userObj->user_name;
             }
             return parent::beforeValidate();
         }
@@ -126,9 +104,6 @@ class Company extends CActiveRecord
 			'created_by' => 'Created By',
 			'updated_date' => 'Updated Date',
 			'updated_by' => 'Updated By',
-			'deleted_date' => 'Deleted Date',
-			'deleted_by' => 'Deleted By',
-			'deleted' => 'Deleted',
 		);
 	}
 
@@ -167,9 +142,6 @@ class Company extends CActiveRecord
 		$criteria->compare('created_by',$this->created_by,true);
 		$criteria->compare('updated_date',$this->updated_date,true);
 		$criteria->compare('updated_by',$this->updated_by,true);
-		$criteria->compare('deleted_date',$this->deleted_date,true);
-		$criteria->compare('deleted_by',$this->deleted_by,true);
-		$criteria->compare('deleted',$this->deleted);
                 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

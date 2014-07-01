@@ -51,7 +51,7 @@ class UserController extends Controller
 
         $dataProvider = User::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'],$_GET['columns']);
 
-        $count = User::model()->countByAttributes(array('company_id'=>Yii::app()->user->company_id,'deleted'=> 0));
+        $count = User::model()->countByAttributes(array('company_id'=>Yii::app()->user->company_id));
 
         $output = array(
                 "draw" => intval($_GET['draw']),
@@ -79,9 +79,6 @@ class UserController extends Controller
                         $row['created_by']= $value->created_by;
                         $row['updated_by']= $value->updated_by;
                         $row['updated_date']= $value->updated_date;
-                        $row['deleted_date']= $value->deleted_date;
-                        $row['deleted_by']= $value->deleted_by;
-                        $row['deleted']= $value->deleted;
                         
                         
             $row['links']= '<a class="view" title="View" data-toggle="tooltip" href="'.$this->createUrl('/admin/user/view',array('id'=>$value->user_id)).'" data-original-title="View"><i class="fa fa-eye"></i></a>'
@@ -102,7 +99,7 @@ class UserController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View User '.$model->user_id;
+        $this->pageTitle = 'View User '.$model->user_name;
 
         $this->menu=array(
                 array('label'=>'Create User', 'url'=>array('create')),
@@ -126,7 +123,6 @@ class UserController extends Controller
     {
         $CompanyObj=new Company('search');
         $CompanyObj->unsetAttributes();  // clear any default values
-        $CompanyObj->deleted = 0;
         $companies = $CompanyObj->search();
         $listCompanies = CHtml::listData($companies->getData(), 'company_id', 'name');
         
@@ -147,6 +143,7 @@ class UserController extends Controller
         {
             $model->attributes=$_POST['User'];
             if($model->save()){
+                Yii::app()->user->setFlash('success',"Successfully created");
                 $this->redirect(array('view','id'=>$model->user_id));
             }
         }
@@ -181,7 +178,6 @@ class UserController extends Controller
         
         $CompanyObj=new Company('search');
         $CompanyObj->unsetAttributes();  // clear any default values
-        $CompanyObj->deleted = 0;
         $companies = $CompanyObj->search();
         $listCompanies = CHtml::listData($companies->getData(), 'company_id', 'name');
 
@@ -189,6 +185,7 @@ class UserController extends Controller
         {
             $model->attributes=$_POST['User'];
             if($model->save()){
+                Yii::app()->user->setFlash('success',"Successfully updated");
                 $this->redirect(array('view','id'=>$model->user_id));
             }
         }
@@ -213,6 +210,7 @@ class UserController extends Controller
 
             // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
             if(!isset($_GET['ajax'])){
+                Yii::app()->user->setFlash('success',"Successfully deleted");
                 $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
             }else{
 

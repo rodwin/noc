@@ -28,9 +28,9 @@ return false;
 ");
 ?>
 
-<?php echo "<?php echo CHtml::link('<i class=\"fa fa-search\"> Advanced Search</i>','#',array('class'=>'search-button btn btn-primary btn-flat')); ?>"; ?>
+<?php echo "<?php echo CHtml::link('Advanced Search','#',array('class'=>'search-button btn btn-primary btn-flat')); ?>"; ?>
 &nbsp;
-<?php echo "<?php echo CHtml::link('<i class=\"fa fa-plus\"> Create</i>',array('";?><?php echo $this->class2id($this->modelClass); ?><?php echo "/create'),array('class'=>'btn btn-primary btn-flat')); ?>\n";?>
+<?php echo "<?php echo CHtml::link('Create',array('";?><?php echo $this->class2id($this->modelClass); ?><?php echo "/create'),array('class'=>'btn btn-primary btn-flat')); ?>\n";?>
 
 <div class="btn-group">
     <button type="button" class="btn btn-info btn-flat">More Options</button>
@@ -139,9 +139,9 @@ $(function() {
                 'type':'POST',
                 'dataType': 'text',
                 'success':function(data) {
-                   $.growl( { 
+                   $.growl( data, { 
                         icon: 'glyphicon glyphicon-info-sign', 
-                        message: data 
+                        type: 'success'
                     });
                     
                     table.fnMultiFilter();

@@ -43,6 +43,7 @@ return array(
                          ),
 		),
                 'admin',
+                'library',
 		
 	),
 
@@ -71,10 +72,7 @@ return array(
 		),
 		*/
 		'db'=>array(
-                    'connectionString' => 'sqlsrv:server=RODWIN-LAPTOP;database=noc',
-//                    'connectionString' => 'mysql:host=localhost;dbname=noc',
-//                    'username' => 'rodwin',
-//                    'password' => 'winrod',
+                    'connectionString' => 'sqlsrv:server=RODWIN-PC\MSSQLSERVER2012;database=noc',
                     'enableProfiling'=>true,
                     'enableParamLogging' => true,
                     'charset'=>'utf8'

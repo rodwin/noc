@@ -39,10 +39,7 @@ class UserIdentity extends CUserIdentity
             $this->errorMessage="Invalid password!";
         }else{
             
-            if($user->deleted == 1){
-                $this->errorCode=self::ERROR_USER_DELETED;
-                $this->errorMessage="Your user account is currently deleted. Please contact System Administrator";
-            }elseif($user->status == 2){
+            if($user->status == 2){
                 $this->errorCode=self::ERROR_USER_DISABLED;
                 $this->errorMessage="Your user account is currently disabled. Please contact System Administrator";
             }else{

@@ -82,19 +82,22 @@ class <?php echo $modelClass; ?> extends <?php echo $this->baseClass."\n"; ?>
             if ($this->scenario == 'create') {
             
                 $this->company_id = Yii::app()->user->company_id;
-            
+                
+                <?php
+                foreach($columns as $name=>$column)
+                {
+                        if($column->isPrimaryKey){
+                            echo '$this->'.$column->name.' = Globals::generateV4UUID();';
+                            continue;
+                        }
+                }
+                ?>
+                
                 $this->created_date = date('Y-m-d H:i:s');
                 $this->created_by = Yii::app()->user->userObj->user_name;
             } else {
-                if ($this->deleted == 0) {
-                    $this->updated_date = date('Y-m-d H:i:s');
-                    $this->updated_by = Yii::app()->user->userObj->user_name;
-                    $this->deleted_date = null;
-                    $this->deleted_by = null;
-                } else {
-                    $this->deleted_date = date('Y-m-d H:i:s');
-                    $this->deleted_by = Yii::app()->user->userObj->user_name;
-                }
+                $this->updated_date = date('Y-m-d H:i:s');
+                $this->updated_by = Yii::app()->user->userObj->user_name;
             }
             return parent::beforeValidate();
         }

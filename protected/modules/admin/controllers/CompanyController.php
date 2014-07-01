@@ -81,9 +81,6 @@ class CompanyController extends Controller
                         $row['created_by']= $value->created_by;
                         $row['updated_date']= $value->updated_date;
                         $row['updated_by']= $value->updated_by;
-                        $row['deleted_date']= $value->deleted_date;
-                        $row['deleted_by']= $value->deleted_by;
-                        $row['deleted']= $value->deleted;
                         
                         
             $row['links']= '<a class="view" title="View" data-toggle="tooltip" href="'.$this->createUrl('/admin/company/view',array('id'=>$value->company_id)).'" data-original-title="View"><i class="fa fa-eye"></i></a>'
@@ -144,6 +141,7 @@ class CompanyController extends Controller
         {
             $model->attributes=$_POST['Company'];
             if($model->save()){
+                Yii::app()->user->setFlash('success',"Successfully created");
                 $this->redirect(array('view','id'=>$model->company_id));
             }
         }
@@ -179,6 +177,7 @@ class CompanyController extends Controller
         {
             $model->attributes=$_POST['Company'];
             if($model->save()){
+                Yii::app()->user->setFlash('success',"Successfully updated");
                 $this->redirect(array('view','id'=>$model->company_id));
             }
         }
@@ -202,6 +201,7 @@ class CompanyController extends Controller
 
             // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
             if(!isset($_GET['ajax'])){
+                Yii::app()->user->setFlash('success',"Successfully deleted");
                 $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
             }else{
 

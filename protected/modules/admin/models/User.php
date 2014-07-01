@@ -20,9 +20,6 @@
  * @property string $created_by
  * @property string $updated_by
  * @property string $updated_date
- * @property string $deleted_date
- * @property string $deleted_by
- * @property integer $deleted
  *
  * The followings are the available model relations:
  * @property Company $company
@@ -47,20 +44,31 @@ class User extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('company_id, user_type_id, user_name, password, first_name, last_name, email', 'required'),
-			array('status, deleted', 'numerical', 'integerOnly'=>true),
-			array('company_id, user_type_id, user_name, first_name, last_name, email, position, telephone, created_by, updated_by, deleted_by', 'length', 'max'=>50),
+			array('company_id, user_type_id, user_name, first_name, last_name, email', 'required'),
+			array('status', 'numerical', 'integerOnly'=>true),
+			array('company_id, user_type_id, user_name, first_name, last_name, email, position, telephone, created_by, updated_by', 'length', 'max'=>50),
 			array('password', 'length', 'max' => 64, 'min' => 5),
                         array('password', 'required','on' => 'create'),
+                        array('user_name','uniqueuser'),
                         array('password2','safe'),
                         array('password', 'compare', 'compareAttribute'=>'password2'),
 			array('address', 'length', 'max'=>250),
-			array('created_date, updated_date, deleted_date', 'safe'),
+			array('created_date, updated_date', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
 			array('user_id, company_id, user_type_id, user_name, password, status, first_name, last_name, email, position, telephone, address, created_date, created_by, updated_by, updated_date, deleted_date, deleted_by, deleted', 'safe', 'on'=>'search'),
 		);
 	}
+        
+        public function uniqueuser($attribute,$params){
+            
+            $model = User::model()->findByAttributes(array('company_id'=> Yii::app()->user->company_id,'user_name'=> $this->$attribute));
+            
+            if($model && $model->user_id != $this->user_id){
+                $this->addError($attribute, 'User name selected already taken');
+            }
+            return;
+        }
         
         public function encryptPassword()
         {
@@ -69,21 +77,16 @@ class User extends CActiveRecord
         
         public function beforeValidate() {
             if ($this->scenario == 'create') {
-            
+                
+                $this->user_id = Globals::generateV4UUID();
+                
                 $this->company_id = Yii::app()->user->company_id;
             
                 $this->created_date = date('Y-m-d H:i:s');
                 $this->created_by = Yii::app()->user->userObj->user_name;
             } else {
-                if ($this->deleted == 0) {
-                    $this->updated_date = date('Y-m-d H:i:s');
-                    $this->updated_by = Yii::app()->user->userObj->user_name;
-                    $this->deleted_date = null;
-                    $this->deleted_by = null;
-                } else {
-                    $this->deleted_date = date('Y-m-d H:i:s');
-                    $this->deleted_by = Yii::app()->user->userObj->user_name;
-                }
+                $this->updated_date = date('Y-m-d H:i:s');
+                $this->updated_by = Yii::app()->user->userObj->user_name;
             }
             return parent::beforeValidate();
         }
@@ -175,9 +178,6 @@ class User extends CActiveRecord
 		$criteria->compare('created_by',$this->created_by,true);
 		$criteria->compare('updated_by',$this->updated_by,true);
 		$criteria->compare('updated_date',$this->updated_date,true);
-		$criteria->compare('deleted_date',$this->deleted_date,true);
-		$criteria->compare('deleted_by',$this->deleted_by,true);
-		$criteria->compare('deleted',$this->deleted);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

@@ -25,7 +25,11 @@
 
 <?php
 foreach ($this->tableSchema->columns as $column) {
-	if ($column->autoIncrement) {
+//	if ($column->autoIncrement) {
+//		continue;
+//	}
+    
+	if ($this->tableSchema->primaryKey == $column->name) {
 		continue;
 	}
         

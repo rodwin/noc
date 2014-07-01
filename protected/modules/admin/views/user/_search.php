@@ -102,26 +102,6 @@
             </div>
         </div>
 	                
-        <div class="form-group">
-            <label for="User_deleted_date" class="col-sm-2 control-label">deleted_date</label>
-            <div class="col-sm-3">
-                <input type="text" class="form-control" id="User_deleted_date" placeholder="deleted_date" name="User[deleted_date]">
-            </div>
-        </div>
-	                
-        <div class="form-group">
-            <label for="User_deleted_by" class="col-sm-2 control-label">deleted_by</label>
-            <div class="col-sm-3">
-                <input type="text" class="form-control" id="User_deleted_by" placeholder="deleted_by" name="User[deleted_by]">
-            </div>
-        </div>
-	                
-        <div class="form-group">
-            <label for="User_deleted" class="col-sm-2 control-label">deleted</label>
-            <div class="col-sm-3">
-                <input type="text" class="form-control" id="User_deleted" placeholder="deleted" name="User[deleted]">
-            </div>
-        </div>
 	<div class="form-group">
                   <div class="col-sm-offset-2 col-sm-10">
                       <button type="button" id="btnSearch" class="btn btn-primary btn-flat">Search</button>

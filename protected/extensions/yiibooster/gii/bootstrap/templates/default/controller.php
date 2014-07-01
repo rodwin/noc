@@ -58,7 +58,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 
         $dataProvider = <?php echo $this->modelClass; ?>::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'],$_GET['columns']);
 
-        $count = <?php echo $this->modelClass; ?>::model()->countByAttributes(array('company_id'=>Yii::app()->user->company_id,'deleted'=> 0));
+        $count = <?php echo $this->modelClass; ?>::model()->countByAttributes(array('company_id'=>Yii::app()->user->company_id));
 
         $output = array(
                 "draw" => intval($_GET['draw']),
@@ -145,6 +145,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
         {
             $model->attributes=$_POST['<?php echo $this->modelClass; ?>'];
             if($model->save()){
+                Yii::app()->user->setFlash('success',"Successfully created");
                 $this->redirect(array('view','id'=>$model-><?php echo $this->tableSchema->primaryKey; ?>));
             }
         }
@@ -180,6 +181,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
         {
             $model->attributes=$_POST['<?php echo $this->modelClass; ?>'];
             if($model->save()){
+                Yii::app()->user->setFlash('success',"Successfully updated");
                 $this->redirect(array('view','id'=>$model-><?php echo $this->tableSchema->primaryKey; ?>));
             }
         }
@@ -203,6 +205,7 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
 
             // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
             if(!isset($_GET['ajax'])){
+                Yii::app()->user->setFlash('success',"Successfully deleted");
                 $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
             }else{
 
