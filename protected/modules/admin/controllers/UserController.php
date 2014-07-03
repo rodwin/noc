@@ -36,7 +36,7 @@ class UserController extends Controller
                 'users'=>array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions'=>array('admin','delete'),
+                'actions'=>array('admin','delete','profile'),
                 'users'=>array('@'),
             ),
             array('deny',  // deny all users
@@ -89,6 +89,38 @@ class UserController extends Controller
         }
 
         echo json_encode( $output );
+    }
+    
+    public function actionProfile($id){
+        
+        $this->layout='//layouts/column1';
+        
+        $model=$this->loadModel($id);
+            
+        $this->pageTitle = 'Update Profile';
+        
+        // Uncomment the following line if AJAX validation is needed
+        // $this->performAjaxValidation($model);
+        
+        $CompanyObj=new Company('search');
+        $CompanyObj->unsetAttributes();  // clear any default values
+        $companies = $CompanyObj->search();
+        $listCompanies = CHtml::listData($companies->getData(), 'company_id', 'name');
+
+        if(isset($_POST['User']))
+        {
+            $model->attributes=$_POST['User'];
+            if($model->save()){
+                Yii::app()->user->setFlash('success',"Successfully updated");
+                $this->redirect(array('view','id'=>$model->user_id));
+            }
+        }
+
+        $this->render('profile',array(
+            'model'=>$model,
+            'listCompanies'=>$listCompanies,
+        ));
+        
     }
 
     /**

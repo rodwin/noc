@@ -50,6 +50,7 @@ class User extends CActiveRecord
 			array('password', 'length', 'max' => 64, 'min' => 5),
                         array('password', 'required','on' => 'create'),
                         array('user_name','uniqueuser'),
+                        array('email','email'),
                         array('password2','safe'),
                         array('password', 'compare', 'compareAttribute'=>'password2'),
 			array('address', 'length', 'max'=>250),
