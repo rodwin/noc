@@ -1,7 +1,7 @@
 <?php
 $this->breadcrumbs=array(
 	'Brand Categories'=>array('admin'),
-	$model->category_id,
+	$model->brand_category_id,
 );
 
 ?>
@@ -11,7 +11,7 @@ $this->breadcrumbs=array(
 'data'=>$model,
 'type' => 'bordered condensed',
 'attributes'=>array(
-		'category_id',
+		'brand_category_id',
 		'company.name',
 		'category_name',
 		'created_date',

@@ -1,7 +1,7 @@
 <div class="view">
 
-		<b><?php echo CHtml::encode($data->getAttributeLabel('category_id')); ?>:</b>
-	<?php echo CHtml::link(CHtml::encode($data->category_id),array('view','id'=>$data->category_id)); ?>
+		<b><?php echo CHtml::encode($data->getAttributeLabel('brand_category_id')); ?>:</b>
+	<?php echo CHtml::link(CHtml::encode($data->brand_category_id),array('view','id'=>$data->brand_category_id)); ?>
 	<br />
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('company_id')); ?>:</b>

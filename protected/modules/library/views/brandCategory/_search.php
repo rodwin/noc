@@ -5,9 +5,9 @@
             <form class="form-horizontal" role="form">
 <?php $fields = BrandCategory::model()->attributeLabels(); ?>	                
         <div class="form-group">
-            <label for="BrandCategory_category_id" class="col-sm-2 control-label"><?php echo $fields['category_id'];?></label>
+            <label for="BrandCategory_brand_category_id" class="col-sm-2 control-label"><?php echo $fields['brand_category_id'];?></label>
             <div class="col-sm-3">
-                <input type="text" class="form-control" id="BrandCategory_category_id" placeholder="<?php echo $fields['category_id'];?>" name="BrandCategory[category_id]">
+                <input type="text" class="form-control" id="BrandCategory_brand_category_id" placeholder="<?php echo $fields['brand_category_id'];?>" name="BrandCategory[brand_category_id]">
             </div>
         </div>
 		                

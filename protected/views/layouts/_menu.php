@@ -31,7 +31,7 @@ $main_menu = array(
     </li>
     <li class="">
         <a href="#">
-            <i class="fa fa-list-alt"></i> <span>Reports</span>
+            <i class="fa fa-list-alt"></i> <span>Inventory</span>
         </a>
     </li>
     <li class="treeview">
@@ -41,6 +41,50 @@ $main_menu = array(
         </a>
         <ul class="treeview-menu">
             <li>
+                <a href="<?php echo Yii::app()->createUrl("/library/distributor/admin") ?>">
+                    <i class="fa fa-angle-double-right"></i> <span>Distributor</span>
+                </a>
+            </li>
+            <li>
+                <a href="<?php echo Yii::app()->createUrl("/library/salesoffice/admin") ?>">
+                    <i class="fa fa-angle-double-right"></i> <span>Sales Office</span>
+                </a>
+            </li>
+            <li>
+                <a href="<?php echo Yii::app()->createUrl("/library/zone/admin") ?>">
+                    <i class="fa fa-angle-double-right"></i> <span>Zone</span>
+                </a>
+            </li>
+            <li>
+                <a href="<?php echo Yii::app()->createUrl("/library/salesman/admin") ?>">
+                    <i class="fa fa-angle-double-right"></i> <span>Salesman</span>
+                </a>
+            </li>
+            <li>
+                <a href="<?php echo Yii::app()->createUrl("/library/poicategory/admin") ?>">
+                    <i class="fa fa-angle-double-right"></i> <span>POI Category</span>
+                </a>
+            </li>
+            <li>
+                <a href="<?php echo Yii::app()->createUrl("/library/poisubcategory/admin") ?>">
+                    <i class="fa fa-angle-double-right"></i> <span>POI Sub Category</span>
+                </a>
+            </li>
+            <li>
+                <a href="<?php echo Yii::app()->createUrl("/library/poi/admin") ?>">
+                    <i class="fa fa-angle-double-right"></i> <span>POI</span>
+                </a>
+            </li>
+            
+            <li>
+                <hr/>
+            </li>
+            <li>
+                <a href="<?php echo Yii::app()->createUrl("/library/brandcategory/admin") ?>">
+                    <i class="fa fa-angle-double-right"></i> <span>Brand Category</span>
+                </a>
+            </li>
+            <li>
                 <a href="<?php echo Yii::app()->createUrl("/library/brand/admin") ?>">
                     <i class="fa fa-angle-double-right"></i> <span>Brand</span>
                 </a>
@@ -48,6 +92,16 @@ $main_menu = array(
             <li>
                 <a href="<?php echo Yii::app()->createUrl("/library/uom/admin") ?>">
                     <i class="fa fa-angle-double-right"></i> <span>UOM</span>
+                </a>
+            </li>
+            <li>
+                <a href="<?php echo Yii::app()->createUrl("/library/skustatus/admin") ?>">
+                    <i class="fa fa-angle-double-right"></i> <span>SKU Status</span>
+                </a>
+            </li>
+            <li>
+                <a href="<?php echo Yii::app()->createUrl("/library/sku/admin") ?>">
+                    <i class="fa fa-angle-double-right"></i> <span>SKU</span>
                 </a>
             </li>
         </ul>

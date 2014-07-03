@@ -64,7 +64,7 @@ class BrandCategoryController extends Controller
         
         foreach ($dataProvider->getData() as $key => $value) {
             $row = array();
-                        $row['category_id']= $value->category_id;
+                        $row['brand_category_id']= $value->brand_category_id;
                         $row['category_name']= $value->category_name;
                         $row['created_date']= $value->created_date;
                         $row['created_by']= $value->created_by;
@@ -72,9 +72,9 @@ class BrandCategoryController extends Controller
                         $row['updated_date']= $value->updated_date;
                         
                         
-            $row['links']= '<a class="view" title="View" data-toggle="tooltip" href="'.$this->createUrl('/library/brandcategory/view',array('id'=>$value->category_id)).'" data-original-title="View"><i class="fa fa-eye"></i></a>'
-                        . '&nbsp;<a class="update" title="Update" data-toggle="tooltip" href="'.$this->createUrl('/library/brandcategory/update',array('id'=>$value->category_id)).'" data-original-title="View"><i class="fa fa-pencil"></i></a>'
-                        . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="'.$this->createUrl('/library/brandcategory/delete',array('id'=>$value->category_id)).'" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
+            $row['links']= '<a class="view" title="View" data-toggle="tooltip" href="'.$this->createUrl('/library/brandcategory/view',array('id'=>$value->brand_category_id)).'" data-original-title="View"><i class="fa fa-eye"></i></a>'
+                        . '&nbsp;<a class="update" title="Update" data-toggle="tooltip" href="'.$this->createUrl('/library/brandcategory/update',array('id'=>$value->brand_category_id)).'" data-original-title="View"><i class="fa fa-pencil"></i></a>'
+                        . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="'.$this->createUrl('/library/brandcategory/delete',array('id'=>$value->brand_category_id)).'" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
 
             $output['data'][] = $row;
         }
@@ -90,12 +90,12 @@ class BrandCategoryController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View BrandCategory '.$model->category_id;
+        $this->pageTitle = 'View BrandCategory '.$model->brand_category_id;
 
         $this->menu=array(
                 array('label'=>'Create BrandCategory', 'url'=>array('create')),
-                array('label'=>'Update BrandCategory', 'url'=>array('update', 'id'=>$model->category_id)),
-                array('label'=>'Delete BrandCategory', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->category_id),'confirm'=>'Are you sure you want to delete this item?')),
+                array('label'=>'Update BrandCategory', 'url'=>array('update', 'id'=>$model->brand_category_id)),
+                array('label'=>'Delete BrandCategory', 'url'=>'#', 'linkOptions'=>array('submit'=>array('delete','id'=>$model->brand_category_id),'confirm'=>'Are you sure you want to delete this item?')),
                 array('label'=>'Manage BrandCategory', 'url'=>array('admin')),
                 '',
                 array('label'=>'Help', 'url' => '#'),
@@ -131,7 +131,7 @@ class BrandCategoryController extends Controller
             $model->attributes=$_POST['BrandCategory'];
             if($model->save()){
                 Yii::app()->user->setFlash('success',"Successfully created");
-                $this->redirect(array('view','id'=>$model->category_id));
+                $this->redirect(array('view','id'=>$model->brand_category_id));
             }
         }
 
@@ -151,13 +151,13 @@ class BrandCategoryController extends Controller
             
         $this->menu=array(
                 array('label'=>'Create BrandCategory', 'url'=>array('create')),
-                array('label'=>'View BrandCategory', 'url'=>array('view', 'id'=>$model->category_id)),
+                array('label'=>'View BrandCategory', 'url'=>array('view', 'id'=>$model->brand_category_id)),
                 array('label'=>'Manage BrandCategory', 'url'=>array('admin')),
                 '',
                 array('label'=>'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update BrandCategory '.$model->category_id;
+        $this->pageTitle = 'Update BrandCategory '.$model->brand_category_id;
         
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
@@ -167,7 +167,7 @@ class BrandCategoryController extends Controller
             $model->attributes=$_POST['BrandCategory'];
             if($model->save()){
                 Yii::app()->user->setFlash('success',"Successfully updated");
-                $this->redirect(array('view','id'=>$model->category_id));
+                $this->redirect(array('view','id'=>$model->brand_category_id));
             }
         }
 
@@ -240,7 +240,7 @@ class BrandCategoryController extends Controller
     */
     public function loadModel($id)
     {
-        $model=BrandCategory::model()->findByAttributes(array('category_id'=>$id,'company_id'=>Yii::app()->user->company_id));
+        $model=BrandCategory::model()->findByAttributes(array('brand_category_id'=>$id,'company_id'=>Yii::app()->user->company_id));
         if($model===null)
             throw new CHttpException(404,'The requested page does not exist.');
 

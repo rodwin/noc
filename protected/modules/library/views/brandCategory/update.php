@@ -1,7 +1,7 @@
 <?php
 $this->breadcrumbs=array(
 	'Brand Categories'=>array('admin'),
-	$model->category_id=>array('view','id'=>$model->category_id),
+	$model->brand_category_id=>array('view','id'=>$model->brand_category_id),
 	'Update',
 );
 

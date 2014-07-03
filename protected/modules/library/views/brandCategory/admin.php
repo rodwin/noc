@@ -49,7 +49,7 @@ return false;
     <table id="brand-category_table" class="table table-bordered">
         <thead>
             <tr>
-                <th><?php echo $fields['category_id']; ?></th>
+                <th><?php echo $fields['brand_category_id']; ?></th>
 <th><?php echo $fields['category_name']; ?></th>
 <th><?php echo $fields['created_date']; ?></th>
 <th><?php echo $fields['created_by']; ?></th>
@@ -72,13 +72,13 @@ $(function() {
         "bAutoWidth": false,
         "ajax": "<?php echo Yii::app()->createUrl($this->module->id.'/BrandCategory/data');?>",
         "columns": [
-            { "name": "category_id","data": "category_id"},{ "name": "category_name","data": "category_name"},{ "name": "created_date","data": "created_date"},{ "name": "created_by","data": "created_by"},{ "name": "updated_by","data": "updated_by"},{ "name": "updated_date","data": "updated_date"},            { "name": "links","data": "links", 'sortable': false}
+            { "name": "brand_category_id","data": "brand_category_id"},{ "name": "category_name","data": "category_name"},{ "name": "created_date","data": "created_date"},{ "name": "created_by","data": "created_by"},{ "name": "updated_by","data": "updated_by"},{ "name": "updated_date","data": "updated_date"},            { "name": "links","data": "links", 'sortable': false}
                ]
         });
 
         $('#btnSearch').click(function(){
             table.fnMultiFilter( { 
-                "category_id": $("#BrandCategory_category_id").val(),"category_name": $("#BrandCategory_category_name").val(),"created_date": $("#BrandCategory_created_date").val(),"created_by": $("#BrandCategory_created_by").val(),"updated_by": $("#BrandCategory_updated_by").val(),"updated_date": $("#BrandCategory_updated_date").val(),            } );
+                "brand_category_id": $("#BrandCategory_brand_category_id").val(),"category_name": $("#BrandCategory_category_name").val(),"created_date": $("#BrandCategory_created_date").val(),"created_by": $("#BrandCategory_created_by").val(),"updated_by": $("#BrandCategory_updated_by").val(),"updated_date": $("#BrandCategory_updated_date").val(),            } );
         });
         
         
