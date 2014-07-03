@@ -30,7 +30,7 @@ return false;
 
 <?php echo "<?php echo CHtml::link('Advanced Search','#',array('class'=>'search-button btn btn-primary btn-flat')); ?>"; ?>
 &nbsp;
-<?php echo "<?php echo CHtml::link('Create',array('";?><?php echo $this->class2id($this->modelClass); ?><?php echo "/create'),array('class'=>'btn btn-primary btn-flat')); ?>\n";?>
+<?php echo "<?php echo CHtml::link('Create',array('";?><?php echo $this->modelClass; ?><?php echo "/create'),array('class'=>'btn btn-primary btn-flat')); ?>\n";?>
 
 <div class="btn-group">
     <button type="button" class="btn btn-info btn-flat">More Options</button>
@@ -91,7 +91,7 @@ $(function() {
         "processing": true,
         "serverSide": true,
         "bAutoWidth": false,
-        "ajax": "<?php echo "<?php echo Yii::app()->createUrl(\$this->module->id."?>'/<?php echo $this->class2id($this->modelClass); ?>/data');?>",
+        "ajax": "<?php echo "<?php echo Yii::app()->createUrl(\$this->module->id."?>'/<?php echo $this->modelClass; ?>/data');?>",
         "columns": [
             <?php
                 $count = 0;

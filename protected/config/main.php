@@ -44,6 +44,7 @@ return array(
 		),
                 'admin',
                 'library',
+                'inventory',
 		
 	),
 

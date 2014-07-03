@@ -29,6 +29,11 @@ $main_menu = array(
             <i class="fa fa-dashboard"></i> <span>Dashboard</span>
         </a>
     </li>
+    <li class="">
+        <a href="#">
+            <i class="fa fa-list-alt"></i> <span>Reports</span>
+        </a>
+    </li>
     <li class="treeview">
         <a href="#">
             <i class="fa fa-book"></i> <span>Library</span>

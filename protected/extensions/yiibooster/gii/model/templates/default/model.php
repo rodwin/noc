@@ -93,7 +93,7 @@ class <?php echo $modelClass; ?> extends <?php echo $this->baseClass."\n"; ?>
                 }
                 ?>
                 
-                $this->created_date = date('Y-m-d H:i:s');
+                unset($this->created_date);
                 $this->created_by = Yii::app()->user->userObj->user_name;
             } else {
                 $this->updated_date = date('Y-m-d H:i:s');
