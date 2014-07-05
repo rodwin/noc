@@ -129,6 +129,11 @@ class BrandCategoryController extends Controller
         if(isset($_POST['BrandCategory']))
         {
             $model->attributes=$_POST['BrandCategory'];
+            $model->company_id = Yii::app()->user->company_id;
+            $model->created_by = Yii::app()->user->name;
+            unset($model->created_date);
+            $model->brand_category_id = Globals::generateV4UUID();
+            
             if($model->save()){
                 Yii::app()->user->setFlash('success',"Successfully created");
                 $this->redirect(array('view','id'=>$model->brand_category_id));
@@ -165,6 +170,9 @@ class BrandCategoryController extends Controller
         if(isset($_POST['BrandCategory']))
         {
             $model->attributes=$_POST['BrandCategory'];
+            $model->updated_by = Yii::app()->user->name;
+            $model->updated_date = date('Y-m-d H:i:s');
+            
             if($model->save()){
                 Yii::app()->user->setFlash('success',"Successfully updated");
                 $this->redirect(array('view','id'=>$model->brand_category_id));

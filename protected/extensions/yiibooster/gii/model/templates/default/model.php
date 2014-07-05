@@ -79,26 +79,6 @@ class <?php echo $modelClass; ?> extends <?php echo $this->baseClass."\n"; ?>
 	}
         
         public function beforeValidate() {
-            if ($this->scenario == 'create') {
-            
-                $this->company_id = Yii::app()->user->company_id;
-                
-                <?php
-                foreach($columns as $name=>$column)
-                {
-                        if($column->isPrimaryKey){
-                            echo '$this->'.$column->name.' = Globals::generateV4UUID();';
-                            continue;
-                        }
-                }
-                ?>
-                
-                unset($this->created_date);
-                $this->created_by = Yii::app()->user->userObj->user_name;
-            } else {
-                $this->updated_date = date('Y-m-d H:i:s');
-                $this->updated_by = Yii::app()->user->userObj->user_name;
-            }
             return parent::beforeValidate();
         }
 

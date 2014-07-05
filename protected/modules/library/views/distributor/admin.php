@@ -20,7 +20,7 @@ return false;
 ?>
 
 <?php echo CHtml::link('Advanced Search','#',array('class'=>'search-button btn btn-primary btn-flat')); ?>&nbsp;
-<?php echo CHtml::link('Create',array('distributor/create'),array('class'=>'btn btn-primary btn-flat')); ?>
+<?php echo CHtml::link('Create',array('Distributor/create'),array('class'=>'btn btn-primary btn-flat')); ?>
 
 <div class="btn-group">
     <button type="button" class="btn btn-info btn-flat">More Options</button>
@@ -71,7 +71,7 @@ $(function() {
         "processing": true,
         "serverSide": true,
         "bAutoWidth": false,
-        "ajax": "<?php echo Yii::app()->createUrl($this->module->id.'/distributor/data');?>",
+        "ajax": "<?php echo Yii::app()->createUrl($this->module->id.'/Distributor/data');?>",
         "columns": [
             { "name": "distributor_id","data": "distributor_id"},{ "name": "distributor_code","data": "distributor_code"},{ "name": "distributor_name","data": "distributor_name"},{ "name": "created_date","data": "created_date"},{ "name": "created_by","data": "created_by"},{ "name": "updated_date","data": "updated_date"},{ "name": "updated_by","data": "updated_by"},            { "name": "links","data": "links", 'sortable': false}
                ]

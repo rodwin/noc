@@ -59,25 +59,6 @@ class SalesOffice extends CActiveRecord
 	}
         
         public function beforeValidate() {
-            
-            if($this->latitude == ""){
-                $this->latitude = null;
-            }
-            if($this->longitude == ""){
-                $this->longitude = null;
-            }
-            
-            if ($this->scenario == 'create') {
-            
-                $this->company_id = Yii::app()->user->company_id;
-                
-                $this->sales_office_id = Globals::generateV4UUID();                
-                unset($this->created_date);
-                $this->created_by = Yii::app()->user->userObj->user_name;
-            } else {
-                $this->updated_date = date('Y-m-d H:i:s');
-                $this->updated_by = Yii::app()->user->userObj->user_name;
-            }
             return parent::beforeValidate();
         }
 

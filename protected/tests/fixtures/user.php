@@ -1,0 +1,40 @@
+<?php
+/*
+ * place this in the fixture folder for this to be executed
+ * add more user if needed
+ */
+return array(
+	array(
+		'user_id'=>Globals::generateV4UUID(),
+		'company_id'=>'166374e5-cffe-42c6-95b3-41590826effd',
+		'user_type_id'=>'none',
+		'user_name'=>'rodwin',
+		'password'=>CPasswordHelper::hashPassword('winrod'),
+		'status'=>'1',
+		'first_name'=>'rodwin',
+		'last_name'=>'lising',
+		'email'=>'rblising@vitalink.com.ph',
+	),
+	array(
+		'user_id'=>Globals::generateV4UUID(),
+		'company_id'=>'166374e5-cffe-42c6-95b3-41590826effd',
+		'user_type_id'=>'none',
+		'user_name'=>'rodwintest',
+		'password'=>CPasswordHelper::hashPassword('winrod'),
+		'status'=>'1',
+		'first_name'=>'rodwin',
+		'last_name'=>'lising',
+		'email'=>'rblising@vitalink.com.ph',
+	),
+	array(
+		'user_id'=>Globals::generateV4UUID(),
+		'company_id'=>'166374e5-cffe-42c6-95b3-41590826effd',
+		'user_type_id'=>'none',
+		'user_name'=>'anothertest',
+		'password'=>CPasswordHelper::hashPassword('winrod'),
+		'status'=>'1',
+		'first_name'=>'rodwin',
+		'last_name'=>'lising',
+		'email'=>'rblising@vitalink.com.ph',
+	),
+);

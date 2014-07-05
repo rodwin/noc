@@ -139,6 +139,11 @@ class SalesOfficeController extends Controller
         if(isset($_POST['SalesOffice']))
         {
             $model->attributes=$_POST['SalesOffice'];
+            $model->company_id = Yii::app()->user->company_id;
+            $model->created_by = Yii::app()->user->name;
+            unset($model->created_date);
+            $model->sales_office_id = Globals::generateV4UUID();
+            
             if($model->save()){
                 Yii::app()->user->setFlash('success',"Successfully created");
                 $this->redirect(array('view','id'=>$model->sales_office_id));
@@ -175,6 +180,9 @@ class SalesOfficeController extends Controller
         if(isset($_POST['SalesOffice']))
         {
             $model->attributes=$_POST['SalesOffice'];
+            $model->updated_by = Yii::app()->user->name;
+            $model->updated_date = date('Y-m-d H:i:s');
+            
             if($model->save()){
                 Yii::app()->user->setFlash('success',"Successfully updated");
                 $this->redirect(array('view','id'=>$model->sales_office_id));

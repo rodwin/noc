@@ -174,6 +174,11 @@ class UserController extends Controller
         if(isset($_POST['User']))
         {
             $model->attributes=$_POST['User'];
+            $model->user_id = Globals::generateV4UUID();
+            $model->company_id = Yii::app()->user->company_id;
+            unset($this->created_date);
+            $model->created_by = Yii::app()->user->name;
+            
             if($model->save()){
                 Yii::app()->user->setFlash('success',"Successfully created");
                 $this->redirect(array('view','id'=>$model->user_id));
@@ -216,6 +221,9 @@ class UserController extends Controller
         if(isset($_POST['User']))
         {
             $model->attributes=$_POST['User'];
+            $model->updated_date = date('Y-m-d H:i:s');
+            $model->updated_by = Yii::app()->user->name;
+                
             if($model->save()){
                 Yii::app()->user->setFlash('success',"Successfully updated");
                 $this->redirect(array('view','id'=>$model->user_id));

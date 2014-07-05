@@ -130,6 +130,11 @@ class DistributorController extends Controller
         if(isset($_POST['Distributor']))
         {
             $model->attributes=$_POST['Distributor'];
+            $model->company_id = Yii::app()->user->company_id;
+            $model->created_by = Yii::app()->user->name;
+            unset($model->created_date);
+            $model->distributor_id = Globals::generateV4UUID();
+            
             if($model->save()){
                 Yii::app()->user->setFlash('success',"Successfully created");
                 $this->redirect(array('view','id'=>$model->distributor_id));
@@ -166,6 +171,9 @@ class DistributorController extends Controller
         if(isset($_POST['Distributor']))
         {
             $model->attributes=$_POST['Distributor'];
+            $model->updated_by = Yii::app()->user->name;
+            $model->updated_date = date('Y-m-d H:i:s');
+            
             if($model->save()){
                 Yii::app()->user->setFlash('success',"Successfully updated");
                 $this->redirect(array('view','id'=>$model->distributor_id));

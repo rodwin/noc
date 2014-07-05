@@ -47,17 +47,6 @@ class Distributor extends CActiveRecord
 	}
         
         public function beforeValidate() {
-            if ($this->scenario == 'create') {
-            
-                $this->company_id = Yii::app()->user->company_id;
-                
-                $this->distributor_id = Globals::generateV4UUID();                
-                $this->created_date = date('Y-m-d H:i:s');
-                $this->created_by = Yii::app()->user->userObj->user_name;
-            } else {
-                $this->updated_date = date('Y-m-d H:i:s');
-                $this->updated_by = Yii::app()->user->userObj->user_name;
-            }
             return parent::beforeValidate();
         }
 

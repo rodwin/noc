@@ -50,10 +50,9 @@ return array(
 
 	// application components
 	'components'=>array(
-		'user'=>array(
-			// enable cookie-based authentication
-			'allowAutoLogin'=>true,
-		),
+                'user' => array(
+                    'allowAutoLogin' => true,
+                ),
                 'booster' => array(
                     'class' => 'ext.yiibooster.components.Booster',
                     'coreCss' => false,
@@ -78,6 +77,9 @@ return array(
                     'enableParamLogging' => true,
                     'charset'=>'utf8'
 
+                ),
+                'session' => array(
+                        'timeout' => 3600,
                 ),
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors

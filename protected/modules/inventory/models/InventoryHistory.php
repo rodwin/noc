@@ -57,10 +57,10 @@ class InventoryHistory extends CActiveRecord
                 
                 $this->inventory_history_id = Globals::generateV4UUID();                
                 unset($this->created_date);
-                $this->created_by = Yii::app()->user->userObj->user_name;
+                $this->created_by = Yii::app()->user->name;
             } else {
                 $this->updated_date = date('Y-m-d H:i:s');
-                $this->updated_by = Yii::app()->user->userObj->user_name;
+                $this->updated_by = Yii::app()->user->name;
             }
             return parent::beforeValidate();
         }

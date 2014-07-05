@@ -27,7 +27,7 @@ class Globals {
             //echo $uuid3 . "\n"; // 11a38b9a-b3da-360f-9353-a5a725514269
             
             // Generate a version 4 (random) UUID
-            return Uuid::uuid4();
+            return Uuid::uuid4()->tostring();
             
             // Generate a version 5 (name-based and hashed with SHA1) UUID
             //$uuid5 = Uuid::uuid5(Uuid::NAMESPACE_DNS, 'php.net');
@@ -40,6 +40,15 @@ class Globals {
             exit;
         }
         
+    }
+    
+    static function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, strlen($characters) - 1)];
+        }
+        return $randomString;
     }
     
     /**

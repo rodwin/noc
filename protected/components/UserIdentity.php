@@ -20,13 +20,14 @@ class UserIdentity extends CUserIdentity
 
     public function authenticate()
     {
+        
         $companyObj = Company::model()->findByAttributes(array('code'=>$this->company));
+        
         if($companyObj){
             $user=User::model()->findByAttributes(array('user_name'=>$this->username,'company_id'=> $companyObj->company_id));
         }else{
             $user=null;
         }
-        
         
         if($companyObj == null){
             $this->errorCode=  UserIdentity::ERROR_UNKNOWN_IDENTITY;
@@ -45,7 +46,6 @@ class UserIdentity extends CUserIdentity
             }else{
                 $this->setState('userObj', $user);
                 $this->setState('company_id', $companyObj->company_id);
-                
 //                $role = Authitem::model()->findByPk($user->role);
 //                $more_actions = unserialize($role->data);
 //                $this->setState('MoreActions', is_null($more_actions)? "":$more_actions);

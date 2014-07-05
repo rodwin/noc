@@ -140,6 +140,10 @@ class CompanyController extends Controller
         if(isset($_POST['Company']))
         {
             $model->attributes=$_POST['Company'];
+            $model->company_id  = Globals::generateV4UUID();
+            unset($this->created_date);
+            $model->created_by = Yii::app()->user->name;
+            
             if($model->save()){
                 Yii::app()->user->setFlash('success',"Successfully created");
                 $this->redirect(array('view','id'=>$model->company_id));
@@ -176,6 +180,9 @@ class CompanyController extends Controller
         if(isset($_POST['Company']))
         {
             $model->attributes=$_POST['Company'];
+            $model->updated_date = date('Y-m-d H:i:s');
+            $model->updated_by = Yii::app()->user->name;
+                
             if($model->save()){
                 Yii::app()->user->setFlash('success',"Successfully updated");
                 $this->redirect(array('view','id'=>$model->company_id));

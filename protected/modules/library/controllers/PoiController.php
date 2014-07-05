@@ -150,6 +150,8 @@ class PoiController extends Controller
         if(isset($_POST['Poi']))
         {
             $model->attributes=$_POST['Poi'];
+            $model->company_id = Yii::app()->user->company_id;
+            $model->created_by = Yii::app()->user->name;
             if($model->save()){
                 Yii::app()->user->setFlash('success',"Successfully created");
                 $this->redirect(array('view','id'=>$model->poi_id));

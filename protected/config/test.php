@@ -12,6 +12,13 @@ return CMap::mergeArray(
 				'connectionString'=>'DSN for test database',
 			),
 			*/
+                        'db'=>array(
+                            'connectionString' => 'sqlsrv:server=RODWIN-PC\MSSQLSERVER2012;database=noc',
+                            'enableProfiling'=>true,
+                            'enableParamLogging' => true,
+                            'charset'=>'utf8'
+
+                        ),
 		),
 	)
 );

@@ -57,6 +57,31 @@ class SiteController extends Controller
 	 */
 	public function actionIndex()
 	{
+//            pre(Globals::generateV4UUID()->tostring());
+            /*
+            $companyObj = Company::model()->findByAttributes(array('code'=>'vlink'));
+            $data = array(
+                    'user_id'=>  Globals::generateV4UUID(),
+                    'company_id'=>  $companyObj->company_id,
+                    'user_type_id'=>'none',
+                    'user_name'=>'rodwin1',
+                    'password'=>'winrod1',
+                    'status'=>'1',
+                    'first_name'=>'rodwin1',
+                    'last_name'=>'lising1',
+                    'email'=>'rblising@vitalink.com.ph',
+                    'created_by'=>'rodwin',
+            );
+            
+            $model = new User();
+            $model->attributes = $data;
+            if($model->validate()){
+                $model->save();
+            }else{
+                pre($model->getErrors());
+            }
+             */
+            
 //            pr(Yii::app()->securityManager->encrypt('rodwin'));
 //            pr(sha1('rodwin'));
             /*
@@ -85,7 +110,7 @@ class SiteController extends Controller
             // renders the view file 'protected/views/site/index.php'
             // using the default layout 'protected/views/layouts/main.php'
             $this->pageTitle = 'Welcome to '.CHtml::encode(Yii::app()->name);
-            
+//            pre(Yii::app()->user->name);
             $this->render('index');
 	}
 
@@ -149,8 +174,10 @@ class SiteController extends Controller
 		{
 			$model->attributes=$_POST['LoginForm'];
 			// validate user input and redirect to the previous page if valid
-			if($model->validate() && $model->login())
+			if($model->validate() && $model->login()){
 				$this->redirect(Yii::app()->user->returnUrl);
+//                                $this->redirect(array('site/index'));
+                        }
 		}
 		// display the login form
 		$this->render('login',array('model'=>$model));
@@ -161,7 +188,9 @@ class SiteController extends Controller
 	 */
 	public function actionLogout()
 	{
-		Yii::app()->user->logout();
+                Yii::app()->user->logout();
+                Yii::app()->session->clear();
+                Yii::app()->session->destroy();
 		$this->redirect(Yii::app()->homeUrl);
 	}
 }

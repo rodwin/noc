@@ -144,6 +144,12 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
         if(isset($_POST['<?php echo $this->modelClass; ?>']))
         {
             $model->attributes=$_POST['<?php echo $this->modelClass; ?>'];
+            $model->company_id = Yii::app()->user->company_id;
+            $model->created_by = Yii::app()->user->name;
+            unset($model->created_date);
+            
+            $model-><?php echo $this->tableSchema->primaryKey; ?> = Globals::generateV4UUID();
+            
             if($model->save()){
                 Yii::app()->user->setFlash('success',"Successfully created");
                 $this->redirect(array('view','id'=>$model-><?php echo $this->tableSchema->primaryKey; ?>));
@@ -180,6 +186,9 @@ class <?php echo $this->controllerClass; ?> extends <?php echo $this->baseContro
         if(isset($_POST['<?php echo $this->modelClass; ?>']))
         {
             $model->attributes=$_POST['<?php echo $this->modelClass; ?>'];
+            $model->updated_by = Yii::app()->user->name;
+            $model->updated_date = date('Y-m-d H:i:s');
+            
             if($model->save()){
                 Yii::app()->user->setFlash('success',"Successfully updated");
                 $this->redirect(array('view','id'=>$model-><?php echo $this->tableSchema->primaryKey; ?>));
