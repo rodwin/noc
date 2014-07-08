@@ -41,12 +41,10 @@
    <fileset dir="${basedir}/protected">
     <include name="**/*.php" />
     <modified />
+	<exclude name="${basedir}/vendor/**" /> <!-- Exclude vendor directory -->
+	<exclude name="${basedir}/protected/extensions/**" /> 
    </fileset>
 
-   <fileset dir="${basedir}/protected/tests">
-    <include name="**/*.php" />
-    <modified />
-   </fileset>
   </apply>
  </target>
 
