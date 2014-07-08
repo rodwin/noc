@@ -72,14 +72,21 @@ return array(
 		),
 		*/
 		'db'=>array(
-                    'connectionString' => 'sqlsrv:server=RODWIN-PC\MSSQLSERVER2012;database=noc',
+                    'connectionString' => 'mysql:host=192.168.254.105;dbname=noc',
+                    'username'=>'rodwin',
+                    'password'=>'winrod',
                     'enableProfiling'=>true,
                     'enableParamLogging' => true,
                     'charset'=>'utf8'
 
                 ),
                 'session' => array(
-                        'timeout' => 3600,
+                    'class' => 'CDbHttpSession',
+                    'connectionID' => 'db',
+                    'sessionName' => 'noc_',
+                    'sessionTableName' => 'session',
+                    'autoCreateSessionTable' => false,
+                    'timeout' => 3600,
                 ),
 		'errorHandler'=>array(
 			// use 'site/error' action to display errors

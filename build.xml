@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="PHP-CI Test" default="build">
+    <target name="build"
+            depends="prepare,phpunit"/>
+
+    <target name="build-parallel"
+            depends="prepare,phpunit"/>
+
+   
+
+    <target name="clean" description="Cleanup build artifacts">
+        <delete dir="${basedir}/build/api"/>
+        <delete dir="${basedir}/build/coverage"/>
+        <delete dir="${basedir}/build/logs"/>
+        <delete dir="${basedir}/build/pdepend"/>
+    </target>
+
+    <target name="prepare" depends="clean" description="Prepare for build">
+        <mkdir dir="${basedir}/build/api"/>
+        <mkdir dir="${basedir}/build/coverage"/>
+        <mkdir dir="${basedir}/build/logs"/>
+        <mkdir dir="${basedir}/build/pdepend"/>
+        <mkdir dir="${basedir}/build/phpdox"/>
+    </target>
+
+    <target name="phpunit" description="Run unit tests using PHPUnit and generates junit.xml and clover.xml">
+        <exec executable="/usr/local/bin/phpunit" failonerror="true">
+            <arg line="--configuration ${basedir}/protected/tests/phpunit.xml" />
+            <arg line="--log-junit ${basedir}/build/logs/junit.xml" />
+            <arg line="--coverage-clover ${basedir}/build/logs/clover.xml" />
+            <arg line="${basedir}/protected/tests/unit" />
+        </exec>
+    </target>
+</project>
