@@ -14,7 +14,8 @@
             <blacklist>
                 <directory suffix=".php">/var/lib/jenkins/jobs/noc/yii</directory>
                 <directory suffix=".php">/var/lib/jenkins/jobs/noc/workspace/vendor</directory>
-                <directory suffix=".php">/var/lib/jenkins/jobs/noc/workspace/config</directory>
+                <directory suffix=".php">/var/lib/jenkins/jobs/noc/workspace/protected/config</directory>
+                <directory suffix=".php">/var/lib/jenkins/jobs/noc/workspace/protected/extensions</directory>
             </blacklist>
         </filter>
 
