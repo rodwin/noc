@@ -8,5 +8,12 @@
 	<selenium>
 		<browser name="Firefox" browser="*firefox" />
 	</selenium>
+        
+        
+        <filter>
+            <blacklist>
+                <directory suffix=".php">/var/lib/jenkins/jobs/noc/yii</directory>
+            </blacklist>
+        </filter>
 
 </phpunit>
