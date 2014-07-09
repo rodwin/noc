@@ -3,3 +3,5 @@ protected/runtime/
 vendor
 composer.lock
 protected/config/
+protected/data/noc.mwb
+protected/data/noc.mwb.bak
