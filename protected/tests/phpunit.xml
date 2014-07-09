@@ -8,5 +8,15 @@
 	<selenium>
 		<browser name="Firefox" browser="*firefox" />
 	</selenium>
+        
+        
+        <filter>
+            <blacklist>
+                <directory suffix=".php">/var/lib/jenkins/jobs/noc2/yii</directory>
+                <directory suffix=".php">/var/lib/jenkins/jobs/noc2/workspace/vendor</directory>
+                <directory suffix=".php">/var/lib/jenkins/jobs/noc2/workspace/protected/config</directory>
+                <directory suffix=".php">/var/lib/jenkins/jobs/noc2/workspace/protected/extensions</directory>
+            </blacklist>
+        </filter>
 
 </phpunit>

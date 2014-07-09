@@ -25,6 +25,9 @@
 
 class Company extends CActiveRecord
 {
+        const STATUS_ACTIVE = 1;
+        const STATUS_INACTIVE = 0;
+    
         public $search_string;
 	/**
 	 * @return string the associated database table name
