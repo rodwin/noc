@@ -1,14 +1,7 @@
 test
-<<<<<<< HEAD
-fdfdfdf
-df
-df
-d
-fd
-f
-df
-=======
 asd
 asd
 ad
->>>>>>> crazy-experiment
+asda
+dad
+ddddd
