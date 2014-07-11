@@ -39,6 +39,24 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </a>
+               
+                <div class="navbar-left">
+                    <ul class="nav navbar-nav">
+                        <!-- Messages: style can be found in dropdown.less-->
+                        <li class="dropdown messages-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                Inventory
+                            </a>
+                            
+                        </li>
+                        <!-- Notifications: style can be found in dropdown.less -->
+                        <li class="dropdown notifications-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                Admin
+                            </a>
+                        </li>
+                    </ul>
+                </div>
                 <div class="navbar-right">
                     <ul class="nav navbar-nav">
                         <!-- Messages: style can be found in dropdown.less-->
