@@ -163,9 +163,6 @@ class PoiController extends Controller
 
             $poi_sub_category = CHtml::listData(PoiSubCategory::model()->findAll($criteria), 'poi_sub_category_id', 'sub_category_name');
 
-//            $model->validate();
-//            pre($model->getErrors());
-
             if ($model->save()) {
                 Yii::app()->user->setFlash('success', "Successfully created");
                 $this->redirect(array('view', 'id' => $model->poi_id));
