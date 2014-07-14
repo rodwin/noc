@@ -1,4 +1,5 @@
 
+.idea
 protected/runtime/
 vendor
 composer.lock
