@@ -66,7 +66,7 @@ class PoiSubCategoryController extends Controller
             $row = array();
                         $row['poi_sub_category_id']= $value->poi_sub_category_id;
                         $row['poi_category_id']= $value->poi_category_id;
-                        $row['poi_category_name']= $value->category_name;;
+                        $row['poi_category_name']= $value->category_name;
                         $row['sub_category_name']= $value->sub_category_name;
                         $row['description']= $value->description;
                         $row['created_date']= $value->created_date;

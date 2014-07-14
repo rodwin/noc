@@ -7,6 +7,7 @@ class PoiController extends Controller
     * using two-column layout. See 'protected/views/layouts/column2.php'.
     */
     //public $layout='//layouts/column2';
+    public $category;
 
     /**
     * @return array action filters
@@ -28,7 +29,7 @@ class PoiController extends Controller
     {
         return array(
             array('allow',  // allow all users to perform 'index' and 'view' actions
-                'actions'=>array('index','view', 'getAllSubCategoryByCategoryID'),
+                'actions'=>array('index','view', 'getAllSubCategoryByCategoryID', 'getAllCustomDataByCategoryID'),
                 'users'=>array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -157,18 +158,23 @@ class PoiController extends Controller
             $model->edited_date = null;
             $model->verified_date = null;
 
-            $criteria = new CDbCriteria;
-            $criteria->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND poi_category_id = "' . $model->poi_category_id . '"';
-            $criteria->order = "t.sub_category_name ASC";
+            $criteria1 = new CDbCriteria;
+            $criteria1->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND poi_category_id = "' . $model->poi_category_id . '"';
+            $criteria1->order = "t.sub_category_name ASC";
+            $poi_sub_category = CHtml::listData(PoiSubCategory::model()->findAll($criteria1), 'poi_sub_category_id', 'sub_category_name');
 
-            $poi_sub_category = CHtml::listData(PoiSubCategory::model()->findAll($criteria), 'poi_sub_category_id', 'sub_category_name');
-
+            $criteria2 = new CDbCriteria;
+            $criteria2->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND type = "'. $model->poi_category_id . '"';
+            $criteria2->order = "t.sort_order ASC";
+            $custom_datas = PoiCustomData::model()->findAll($criteria2);
+            
             if ($model->save()) {
                 Yii::app()->user->setFlash('success', "Successfully created");
                 $this->redirect(array('view', 'id' => $model->poi_id));
             }
         } else {
             $poi_sub_category = array();
+            $custom_datas = array();
         }
 
         $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'poi_category_id', 'category_name');
@@ -177,6 +183,7 @@ class PoiController extends Controller
             'model' => $model,
             'poi_category' => $poi_category,
             'poi_sub_category' => $poi_sub_category,
+            'custom_datas' => $custom_datas,
         ));
     }
 
@@ -316,16 +323,30 @@ class PoiController extends Controller
     }
     
     public function actionGetAllSubCategoryByCategoryID() {
-        
+
         $criteria = new CDbCriteria;
-        $criteria->condition = 'company_id = "'.Yii::app()->user->company_id.'" AND poi_category_id = "'.$_POST['poi_category_id'].'"';
+        $criteria->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND poi_category_id = "' . $_POST['poi_category_id'] . '"';
         $criteria->order = "t.sub_category_name ASC";
-        
+
         echo "<option value=''>Select Sub Category</option>";
         $data = CHtml::listData(PoiSubCategory::model()->findAll($criteria), 'poi_sub_category_id', 'sub_category_name');
-        
+
         foreach ($data as $value => $sub_category_name)
             echo CHtml::tag('option', array('value' => $value), CHtml::encode($sub_category_name), true);
 
     }
+    
+    public function actionGetAllCustomDataByCategoryID() {
+        
+        $criteria = new CDbCriteria;
+        $criteria->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND type = "' . $_POST['category_id'] . '"';
+        $criteria->order = "t.sort_order ASC";
+        
+        $custom_datas = PoiCustomData::model()->findAll($criteria);
+        
+        $this->renderPartial('_customItems', array('custom_datas' => $custom_datas,));
+        
+        
+    }
+
 }

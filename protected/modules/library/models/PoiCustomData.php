@@ -25,6 +25,7 @@
 class PoiCustomData extends CActiveRecord
 {
         public $search_string;
+        public $category_name;
 	/**
 	 * @return string the associated database table name
 	 */
@@ -135,47 +136,49 @@ class PoiCustomData extends CActiveRecord
                 switch($col){
                                         
                         case 0:
-                        $sort_column = 'custom_data_id';
+                        $sort_column = 't.custom_data_id';
                         break;
                                         
                         case 1:
-                        $sort_column = 'name';
+                        $sort_column = 't.name';
                         break;
                                         
                         case 2:
-                        $sort_column = 'type';
+                        $sort_column = 'category_name';
                         break;
                                         
                         case 3:
-                        $sort_column = 'data_type';
+                        $sort_column = 't.data_type';
                         break;
                                         
                         case 4:
-                        $sort_column = 'description';
+                        $sort_column = 't.description';
                         break;
                                         
                         case 5:
-                        $sort_column = 'required';
+                        $sort_column = 't.required';
                         break;
                                         
                         case 6:
-                        $sort_column = 'sort_order';
+                        $sort_column = 't.sort_order';
                         break;
                                 }
         
 
                 $criteria=new CDbCriteria;
-                $criteria->compare('company_id',Yii::app()->user->company_id);
-                		$criteria->compare('custom_data_id',$columns[0]['search']['value'],true);
-		$criteria->compare('name',$columns[1]['search']['value'],true);
-		$criteria->compare('type',$columns[2]['search']['value']);
-		$criteria->compare('data_type',$columns[3]['search']['value'],true);
-		$criteria->compare('description',$columns[4]['search']['value'],true);
-		$criteria->compare('required',$columns[5]['search']['value'],true);
-		$criteria->compare('sort_order',$columns[6]['search']['value']);
+                $criteria->select = 't.custom_data_id, t.name, t.data_type, t.description, t.required, t.sort_order, poi_category.category_name as category_name';
+                $criteria->compare('t.company_id',Yii::app()->user->company_id);
+                $criteria->compare('t.custom_data_id',$columns[0]['search']['value'],true);
+		$criteria->compare('t.name',$columns[1]['search']['value'],true);
+		$criteria->compare('category_name',$columns[2]['search']['value']);
+		$criteria->compare('t.data_type',$columns[3]['search']['value'],true);
+		$criteria->compare('t.description',$columns[4]['search']['value'],true);
+		$criteria->compare('t.required',$columns[5]['search']['value'],true);
+		$criteria->compare('t.sort_order',$columns[6]['search']['value']);
                 $criteria->order = "$sort_column $order_dir";
                 $criteria->limit = $limit;
                 $criteria->offset = $offset;
+                $criteria->join = 'INNER JOIN poi_category ON poi_category.poi_category_id = t.type';
                 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

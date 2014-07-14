@@ -67,6 +67,7 @@ class PoiCustomDataController extends Controller
                         $row['custom_data_id']= $value->custom_data_id;
                         $row['name']= $value->name;
                         $row['type']= $value->type;
+                        $row['poi_category_name']= $value->category_name;
                         $row['data_type']= $value->data_type;
                         $row['description']= $value->description;
                         $row['required']= $value->required;
@@ -317,8 +318,11 @@ class PoiCustomDataController extends Controller
         if(isset($_GET['PoiCustomData']))
             $model->attributes=$_GET['PoiCustomData'];
 
+        $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'category_name', 'category_name');
+
         $this->render('admin',array(
             'model'=>$model,
+            'poi_category' => $poi_category,
         ));
     }
 

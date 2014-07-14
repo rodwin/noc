@@ -11,5 +11,6 @@ $this->breadcrumbs = array(
 echo $this->renderPartial('_form', array(
     'model' => $model,
     'poi_category' => $poi_category,
-    'poi_sub_category' => $poi_sub_category,));
+    'poi_sub_category' => $poi_sub_category,
+    'custom_datas' => $custom_datas,));
 ?>
