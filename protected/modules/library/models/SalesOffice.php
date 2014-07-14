@@ -50,7 +50,7 @@ class SalesOffice extends CActiveRecord
 			array('barangay_id, municipal_id, province_id, region_id', 'numerical', 'integerOnly'=>true),
 			array('sales_office_id, distributor_id, company_id, sales_office_code, created_by, updated_by', 'length', 'max'=>50),
 			array('sales_office_name, address1, address2', 'length', 'max'=>200),
-			array('latitude, longitude', 'length', 'max'=>9),
+			array('latitude, longitude', 'length', 'max'=>15),
 			array('created_date, updated_date', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
@@ -148,47 +148,48 @@ class SalesOffice extends CActiveRecord
                 switch($col){
                                         
                         case 0:
-                        $sort_column = 'sales_office_id';
+                        $sort_column = 't.sales_office_id';
                         break;
                                         
                         case 1:
-                        $sort_column = 'distributor_id';
+                        $sort_column = 'distributor.distributor_name';
                         break;
                                         
                         case 2:
-                        $sort_column = 'sales_office_code';
+                        $sort_column = 't.sales_office_code';
                         break;
                                         
                         case 3:
-                        $sort_column = 'sales_office_name';
+                        $sort_column = 't.sales_office_name';
                         break;
                                         
                         case 4:
-                        $sort_column = 'address1';
+                        $sort_column = 't.address1';
                         break;
                                         
                         case 5:
-                        $sort_column = 'address2';
+                        $sort_column = 't.address2';
                         break;
                                         
                         case 6:
-                        $sort_column = 'barangay_id';
+                        $sort_column = 't.barangay_id';
                         break;
                                 }
         
 
                 $criteria=new CDbCriteria;
-                $criteria->compare('company_id',Yii::app()->user->company_id);
-                		$criteria->compare('sales_office_id',$columns[0]['search']['value'],true);
-		$criteria->compare('distributor_id',$columns[1]['search']['value'],true);
-		$criteria->compare('sales_office_code',$columns[2]['search']['value'],true);
-		$criteria->compare('sales_office_name',$columns[3]['search']['value'],true);
-		$criteria->compare('address1',$columns[4]['search']['value'],true);
-		$criteria->compare('address2',$columns[5]['search']['value'],true);
-		$criteria->compare('barangay_id',$columns[6]['search']['value']);
+                $criteria->compare('t.company_id',Yii::app()->user->company_id);
+                $criteria->compare('t.sales_office_id',$columns[0]['search']['value'],true);
+		$criteria->compare('distributor.distributor_name',$columns[1]['search']['value'],true);
+		$criteria->compare('t.sales_office_code',$columns[2]['search']['value'],true);
+		$criteria->compare('t.sales_office_name',$columns[3]['search']['value'],true);
+		$criteria->compare('t.address1',$columns[4]['search']['value'],true);
+		$criteria->compare('t.address2',$columns[5]['search']['value'],true);
+		$criteria->compare('t.barangay_id',$columns[6]['search']['value']);
                 $criteria->order = "$sort_column $order_dir";
                 $criteria->limit = $limit;
                 $criteria->offset = $offset;
+                $criteria->with = array('company', 'distributor', 'zones');
                 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

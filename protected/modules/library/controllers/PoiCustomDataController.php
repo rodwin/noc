@@ -96,7 +96,7 @@ class PoiCustomDataController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View PoiCustomData '.$model->custom_data_id;
+        $this->pageTitle = 'View PoiCustomData '.$model->name;
 
         $this->menu=array(
                 array('label'=>'Create PoiCustomData', 'url'=>array('create')),
@@ -116,39 +116,89 @@ class PoiCustomDataController extends Controller
     * Creates a new model.
     * If creation is successful, the browser will be redirected to the 'view' page.
     */
-    public function actionCreate()
-    {
-        
+    public function actionCreate() {
+
         $this->pageTitle = 'Create PoiCustomData';
 
-        $this->menu=array(
-                array('label'=>'Manage PoiCustomData', 'url'=>array('admin')),
-                '',
-                array('label'=>'Help', 'url' => '#'),
+        $this->menu = array(
+            array('label' => 'Manage PoiCustomData', 'url' => array('admin')),
+            '',
+            array('label' => 'Help', 'url' => '#'),
         );
-    
-        $model=new PoiCustomData('create');
+
+        $model = new PoiCustomData('create');
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
-        if(isset($_POST['PoiCustomData']))
-        {
-            $model->attributes=$_POST['PoiCustomData'];
+        $customDataForm = new CustomDataItemForm;
+
+        $data_type_list = CHtml::listData(PoiCustomData::model()->getAllDataType(), 'id', 'title');
+        $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'poi_category_id', 'category_name');
+
+        if (isset($_POST['CustomDataItemForm'])) {
+
+            $customDataForm->attributes = $_POST['CustomDataItemForm'];
+
+            if ($customDataForm->validate()) {
+                
+                $model->name = $customDataForm->customItemName;
+                $model->type = $customDataForm->type;
+                $model->data_type = $customDataForm->customDataType;
+                
+                Yii::app()->session['name'] = $customDataForm->customItemName;
+                Yii::app()->session['type'] = $customDataForm->type;
+                Yii::app()->session['data_type'] = $customDataForm->customDataType;
+
+                $attributes = PoiCustomData::model()->getAttributeByDataType($customDataForm->customDataType);
+
+                $this->render('create_form', array('model' => $model, 'unserialize_attribute' => $attributes, 'poi_category' => $poi_category,));
+            } else {
+
+                $this->render('create', array('customDataForm' => $customDataForm, 'data_type_list' => $data_type_list, 'poi_category' => $poi_category,));
+            }
+        } else if (isset($_POST['PoiCustomData'])) {
+                
+            $model->name = Yii::app()->session['name'];
+            $model->type = Yii::app()->session['type'];
+            $model->data_type = Yii::app()->session['data_type'];
+            
+            $model->attributes = $_POST['PoiCustomData'];
+            
             $model->company_id = Yii::app()->user->company_id;
             $model->created_by = Yii::app()->user->name;
             unset($model->created_date);
             $model->custom_data_id = Globals::generateV4UUID();
-            
-            if($model->save()){
-                Yii::app()->user->setFlash('success',"Successfully created");
-                $this->redirect(array('view','id'=>$model->custom_data_id));
-            }
-        }
 
-        $this->render('create',array(
-            'model'=>$model,
-        ));
+            if ($model->validate()) {
+
+                $attributes = PoiCustomData::model()->getAttributeByDataType($model->data_type);
+                $serialize_attribute = CJSON::encode($attributes);
+
+                $model->attribute = $serialize_attribute;
+                
+                $model->save();
+
+                if ($model->save()) {
+                    Yii::app()->user->setFlash('success', "Successfully created");
+                    $this->redirect(array('view', 'id' => $model->custom_data_id));
+                }
+
+                unset(Yii::app()->session['name']);
+                unset(Yii::app()->session['type']);
+                unset(Yii::app()->session['data_type']);
+                
+                $this->redirect(array('view', 'id' => $model->custom_data_id));
+            } else {
+
+                $attributes = PoiCustomData::model()->getAttributeByDataType($model->data_type);
+
+                $this->render('create_form', array('model' => $model, 'unserialize_attribute' => $attributes, 'poi_category' => $poi_category,));
+            }
+        } else {
+
+            $this->render('create', array('model' => $model, 'customDataForm' => $customDataForm, 'data_type_list' => $data_type_list, 'poi_category' => $poi_category,));
+        }
     }
 
     /**
@@ -156,38 +206,63 @@ class PoiCustomDataController extends Controller
     * If update is successful, the browser will be redirected to the 'view' page.
     * @param integer $id the ID of the model to be updated
     */
-    public function actionUpdate($id)
-    {
-        $model=$this->loadModel($id);
-            
-        $this->menu=array(
-                array('label'=>'Create PoiCustomData', 'url'=>array('create')),
-                array('label'=>'View PoiCustomData', 'url'=>array('view', 'id'=>$model->custom_data_id)),
-                array('label'=>'Manage PoiCustomData', 'url'=>array('admin')),
-                '',
-                array('label'=>'Help', 'url' => '#'),
+    public function actionUpdate($id) {
+        $model = $this->loadModel($id);
+
+        $this->menu = array(
+            array('label' => 'Create PoiCustomData', 'url' => array('create')),
+            array('label' => 'View PoiCustomData', 'url' => array('view', 'id' => $model->custom_data_id)),
+            array('label' => 'Manage PoiCustomData', 'url' => array('admin')),
+            '',
+            array('label' => 'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update PoiCustomData '.$model->custom_data_id;
-        
+        $this->pageTitle = 'Update PoiCustomData ' . $model->name;
+
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
-        if(isset($_POST['PoiCustomData']))
-        {
-            $model->attributes=$_POST['PoiCustomData'];
+        $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'poi_category_id', 'category_name');
+
+        $unserialize_attribute = CJSON::decode($model->attribute);
+
+        if (isset($_POST['PoiCustomData'])) {
+
+            $model->attributes = $_POST['PoiCustomData'];
             $model->updated_by = Yii::app()->user->name;
             $model->updated_date = date('Y-m-d H:i:s');
-            
-            if($model->save()){
-                Yii::app()->user->setFlash('success',"Successfully updated");
-                $this->redirect(array('view','id'=>$model->custom_data_id));
-            }
-        }
 
-        $this->render('update',array(
-            'model'=>$model,
-        ));
+            if ($model->validate()) {
+
+                $attributes = PoiCustomData::model()->getAttributeByDataType($model->data_type);
+
+                $serialize_attribute = CJSON::encode($attributes);
+
+                $model->attributes = $_POST['PoiCustomData'];
+                $model->attribute = $serialize_attribute;
+
+                if ($model->save()) {
+                    Yii::app()->user->setFlash('success', "Successfully updated");
+                    $this->redirect(array('view', 'id' => $model->custom_data_id));
+                }
+            } else {
+
+                $attributes = PoiCustomData::model()->getAttributeByDataType($model->data_type);
+
+                $this->render('update', array(
+                    'model' => $model,
+                    'poi_category' => $poi_category,
+                    'unserialize_attribute' => $attributes,
+                ));
+            }
+        } else {
+
+            $this->render('update', array(
+                'model' => $model,
+                'poi_category' => $poi_category,
+                'unserialize_attribute' => $unserialize_attribute,
+            ));
+        }
     }
 
     /**

@@ -64,6 +64,7 @@ class Poi extends CActiveRecord
 			array('long_name, remarks', 'length', 'max'=>250),
 			array('primary_code, secondary_code, created_by, edited_by, verified_by', 'length', 'max'=>100),
 			array('latitude, longitude', 'length', 'max'=>9),
+                        array('latitude, longitude', 'type', 'type'=>'float', 'message'=>'{attribute} must be decimal.'),
 			array('created_date, edited_date, verified_date', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.

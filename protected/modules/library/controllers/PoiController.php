@@ -28,7 +28,7 @@ class PoiController extends Controller
     {
         return array(
             array('allow',  // allow all users to perform 'index' and 'view' actions
-                'actions'=>array('index','view'),
+                'actions'=>array('index','view', 'getAllSubCategoryByCategoryID'),
                 'users'=>array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -111,7 +111,7 @@ class PoiController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View Poi '.$model->poi_id;
+        $this->pageTitle = 'View Poi '.$model->short_name;
 
         $this->menu=array(
                 array('label'=>'Create Poi', 'url'=>array('create')),
@@ -131,35 +131,55 @@ class PoiController extends Controller
     * Creates a new model.
     * If creation is successful, the browser will be redirected to the 'view' page.
     */
-    public function actionCreate()
-    {
-        
+    public function actionCreate() {
+
         $this->pageTitle = 'Create Poi';
 
-        $this->menu=array(
-                array('label'=>'Manage Poi', 'url'=>array('admin')),
-                '',
-                array('label'=>'Help', 'url' => '#'),
+        $this->menu = array(
+            array('label' => 'Manage Poi', 'url' => array('admin')),
+            '',
+            array('label' => 'Help', 'url' => '#'),
         );
-    
-        $model=new Poi('create');
+
+        $model = new Poi('create');
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
-        if(isset($_POST['Poi']))
-        {
-            $model->attributes=$_POST['Poi'];
+        if (isset($_POST['Poi'])) {
+            
+            $model->poi_id = Globals::generateV4UUID();
+            $model->attributes = $_POST['Poi'];
             $model->company_id = Yii::app()->user->company_id;
             $model->created_by = Yii::app()->user->name;
-            if($model->save()){
-                Yii::app()->user->setFlash('success',"Successfully created");
-                $this->redirect(array('view','id'=>$model->poi_id));
+            $model->latitude = !empty($_POST['Poi']['latitude']) ? $_POST['Poi']['latitude'] : 0;
+            $model->longitude = !empty($_POST['Poi']['longitude']) ? $_POST['Poi']['longitude'] : 0;     
+            $model->edited_date = null;
+            $model->verified_date = null;
+
+            $criteria = new CDbCriteria;
+            $criteria->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND poi_category_id = "' . $model->poi_category_id . '"';
+            $criteria->order = "t.sub_category_name ASC";
+
+            $poi_sub_category = CHtml::listData(PoiSubCategory::model()->findAll($criteria), 'poi_sub_category_id', 'sub_category_name');
+
+//            $model->validate();
+//            pre($model->getErrors());
+
+            if ($model->save()) {
+                Yii::app()->user->setFlash('success', "Successfully created");
+                $this->redirect(array('view', 'id' => $model->poi_id));
             }
+        } else {
+            $poi_sub_category = array();
         }
 
-        $this->render('create',array(
-            'model'=>$model,
+        $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'poi_category_id', 'category_name');
+
+        $this->render('create', array(
+            'model' => $model,
+            'poi_category' => $poi_category,
+            'poi_sub_category' => $poi_sub_category,
         ));
     }
 
@@ -168,34 +188,49 @@ class PoiController extends Controller
     * If update is successful, the browser will be redirected to the 'view' page.
     * @param integer $id the ID of the model to be updated
     */
-    public function actionUpdate($id)
-    {
-        $model=$this->loadModel($id);
-            
-        $this->menu=array(
-                array('label'=>'Create Poi', 'url'=>array('create')),
-                array('label'=>'View Poi', 'url'=>array('view', 'id'=>$model->poi_id)),
-                array('label'=>'Manage Poi', 'url'=>array('admin')),
-                '',
-                array('label'=>'Help', 'url' => '#'),
+    public function actionUpdate($id) {
+        $model = $this->loadModel($id);
+
+        $this->menu = array(
+            array('label' => 'Create Poi', 'url' => array('create')),
+            array('label' => 'View Poi', 'url' => array('view', 'id' => $model->poi_id)),
+            array('label' => 'Manage Poi', 'url' => array('admin')),
+            '',
+            array('label' => 'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update Poi '.$model->poi_id;
-        
+        $this->pageTitle = 'Update Poi ' . $model->short_name;
+
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
-        if(isset($_POST['Poi']))
-        {
-            $model->attributes=$_POST['Poi'];
-            if($model->save()){
-                Yii::app()->user->setFlash('success',"Successfully updated");
-                $this->redirect(array('view','id'=>$model->poi_id));
+        if (isset($_POST['Poi'])) {
+
+            $model->attributes = $_POST['Poi'];
+            $model->latitude = !empty($_POST['Poi']['latitude']) ? $_POST['Poi']['latitude'] : 0;
+            $model->longitude = !empty($_POST['Poi']['longitude']) ? $_POST['Poi']['longitude'] : 0;   
+            $model->edited_by = Yii::app()->user->name;
+            $model->edited_date = date('Y-m-d H:i:s');
+            $model->verified_date = null;
+
+            if ($model->save()) {
+                Yii::app()->user->setFlash('success', "Successfully updated");
+                $this->redirect(array('view', 'id' => $model->poi_id));
             }
         }
 
-        $this->render('update',array(
-            'model'=>$model,
+        $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'poi_category_id', 'category_name');
+
+        $criteria = new CDbCriteria;
+        $criteria->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND poi_category_id = "' . $model->poi_category_id . '"';
+        $criteria->order = "t.sub_category_name ASC";
+
+        $poi_sub_category = CHtml::listData(PoiSubCategory::model()->findAll($criteria), 'poi_sub_category_id', 'sub_category_name');
+
+        $this->render('update', array(
+            'model' => $model,
+            'poi_category' => $poi_category,
+            'poi_sub_category' => $poi_sub_category,
         ));
     }
 
@@ -281,5 +316,19 @@ class PoiController extends Controller
             echo CActiveForm::validate($model);
             Yii::app()->end();
         }
+    }
+    
+    public function actionGetAllSubCategoryByCategoryID() {
+        
+        $criteria = new CDbCriteria;
+        $criteria->condition = 'company_id = "'.Yii::app()->user->company_id.'" AND poi_category_id = "'.$_POST['poi_category_id'].'"';
+        $criteria->order = "t.sub_category_name ASC";
+        
+        echo "<option value=''>Select Sub Category</option>";
+        $data = CHtml::listData(PoiSubCategory::model()->findAll($criteria), 'poi_sub_category_id', 'sub_category_name');
+        
+        foreach ($data as $value => $sub_category_name)
+            echo CHtml::tag('option', array('value' => $value), CHtml::encode($sub_category_name), true);
+
     }
 }

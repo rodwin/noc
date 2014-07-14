@@ -67,6 +67,7 @@ class ZoneController extends Controller
                         $row['zone_id']= $value->zone_id;
                         $row['zone_name']= $value->zone_name;
                         $row['sales_office_id']= $value->sales_office_id;
+                        $row['sales_office_name']= $value->salesOffice->sales_office_name;
                         $row['description']= $value->description;
                         $row['created_date']= $value->created_date;
                         $row['created_by']= $value->created_by;
@@ -92,7 +93,7 @@ class ZoneController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View Zone '.$model->zone_id;
+        $this->pageTitle = 'View Zone '.$model->zone_name;
 
         $this->menu=array(
                 array('label'=>'Create Zone', 'url'=>array('create')),
@@ -141,9 +142,12 @@ class ZoneController extends Controller
                 $this->redirect(array('view','id'=>$model->zone_id));
             }
         }
+        
+        $sales_office = CHtml::listData(SalesOffice::model()->findAll(array('condition' => 'company_id = "'.Yii::app()->user->company_id.'"', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
 
         $this->render('create',array(
             'model'=>$model,
+            'sales_office' => $sales_office,
         ));
     }
 
@@ -164,7 +168,7 @@ class ZoneController extends Controller
                 array('label'=>'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update Zone '.$model->zone_id;
+        $this->pageTitle = 'Update Zone '.$model->zone_name;
         
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
@@ -180,9 +184,12 @@ class ZoneController extends Controller
                 $this->redirect(array('view','id'=>$model->zone_id));
             }
         }
+        
+        $sales_office = CHtml::listData(SalesOffice::model()->findAll(array('condition' => 'company_id = "'.Yii::app()->user->company_id.'"', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
 
         $this->render('update',array(
             'model'=>$model,
+            'sales_office' => $sales_office,
         ));
     }
 
@@ -238,8 +245,11 @@ class ZoneController extends Controller
         if(isset($_GET['Zone']))
             $model->attributes=$_GET['Zone'];
 
+        $sales_office = CHtml::listData(SalesOffice::model()->findAll(array('condition' => 'company_id = "'.Yii::app()->user->company_id.'"', 'order' => 'sales_office_name ASC')), 'sales_office_name', 'sales_office_name');
+
         $this->render('admin',array(
             'model'=>$model,
+            'sales_office' => $sales_office,
         ));
     }
 

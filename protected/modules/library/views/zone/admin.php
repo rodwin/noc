@@ -40,7 +40,7 @@ return false;
 
 <div class="search-form" style="display:none">
 	<?php $this->renderPartial('_search',array(
-	'model'=>$model,
+	'model'=>$model, 'sales_office' => $sales_office,
 )); ?>
 </div><!-- search-form -->
 
@@ -73,13 +73,13 @@ $(function() {
         "bAutoWidth": false,
         "ajax": "<?php echo Yii::app()->createUrl($this->module->id.'/Zone/data');?>",
         "columns": [
-            { "name": "zone_id","data": "zone_id"},{ "name": "zone_name","data": "zone_name"},{ "name": "sales_office_id","data": "sales_office_id"},{ "name": "description","data": "description"},{ "name": "created_date","data": "created_date"},{ "name": "created_by","data": "created_by"},{ "name": "updated_date","data": "updated_date"},            { "name": "links","data": "links", 'sortable': false}
+            { "name": "zone_id","data": "zone_id"},{ "name": "zone_name","data": "zone_name"},{ "name": "sales_office_name","data": "sales_office_name"},{ "name": "description","data": "description"},{ "name": "created_date","data": "created_date"},{ "name": "created_by","data": "created_by"},{ "name": "updated_date","data": "updated_date"},            { "name": "links","data": "links", 'sortable': false}
                ]
         });
 
         $('#btnSearch').click(function(){
             table.fnMultiFilter( { 
-                "zone_id": $("#Zone_zone_id").val(),"zone_name": $("#Zone_zone_name").val(),"sales_office_id": $("#Zone_sales_office_id").val(),"description": $("#Zone_description").val(),"created_date": $("#Zone_created_date").val(),"created_by": $("#Zone_created_by").val(),"updated_date": $("#Zone_updated_date").val(),            } );
+                "zone_id": $("#Zone_zone_id").val(),"zone_name": $("#Zone_zone_name").val(),"sales_office_name": $("#Zone_sales_office_name").val(),"description": $("#Zone_description").val(),"created_date": $("#Zone_created_date").val(),"created_by": $("#Zone_created_by").val(),"updated_date": $("#Zone_updated_date").val(),            } );
         });
         
         

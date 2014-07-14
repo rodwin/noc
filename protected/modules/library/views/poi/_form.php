@@ -96,13 +96,44 @@
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'poi_category_id',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
-	</div>
-
+		<?php //echo $form->textFieldGroup($model,'poi_category_id',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
+                <?php
+                echo $form->dropDownListGroup(
+                        $model, 'poi_category_id', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => 'col-sm-5',
+                    ),
+                    'widgetOptions' => array(
+                        'data' => $poi_category,
+                        'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Category',
+                            'ajax' => array(
+                                'type' => 'POST',
+                                'url' => CController::createUrl('poi/getAllSubCategoryByCategoryID'),
+                                'update' => '#poi_sub_category',
+                                'data' => array('poi_category_id' => 'js:this.value',),
+                            )),
+                    )
+                        )
+                );
+                ?>
+        </div>
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'poi_sub_category_id',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
-	</div>
+		<?php //echo $form->textFieldGroup($model,'poi_sub_category_id',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
+                <?php
+                echo $form->dropDownListGroup(
+                        $model, 'poi_sub_category_id', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => 'col-sm-5',
+                    ),
+                    'widgetOptions' => array(
+                        'data' => $poi_sub_category,
+                        'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Sub Category', 'id' => 'poi_sub_category'),
+                    )
+                        )
+                );
+                ?>
+        </div>
 
 	
 	<div class="form-group">
@@ -116,22 +147,22 @@
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'edited_date',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5')))); ?>
+		<?php //echo $form->textFieldGroup($model,'edited_date',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5')))); ?>
 	</div>
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'edited_by',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>100)))); ?>
+		<?php //echo $form->textFieldGroup($model,'edited_by',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>100)))); ?>
 	</div>
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'verified_by',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>100)))); ?>
+		<?php //echo $form->textFieldGroup($model,'verified_by',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>100)))); ?>
 	</div>
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'verified_date',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5')))); ?>
+		<?php //echo $form->textFieldGroup($model,'verified_date',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5')))); ?>
 	</div>
 
 

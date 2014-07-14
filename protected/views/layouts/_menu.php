@@ -71,6 +71,11 @@ $main_menu = array(
                 </a>
             </li>
             <li>
+                <a href="<?php echo Yii::app()->createUrl("/library/PoiCustomData/create") ?>">
+                    <i class="fa fa-angle-double-right"></i> <span>POI Custom Data</span>
+                </a>
+            </li>
+            <li>
                 <a href="<?php echo Yii::app()->createUrl("/library/poi/admin") ?>">
                     <i class="fa fa-angle-double-right"></i> <span>POI</span>
                 </a>

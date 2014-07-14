@@ -21,6 +21,7 @@
 class PoiSubCategory extends CActiveRecord
 {
         public $search_string;
+        public $category_name;
 	/**
 	 * @return string the associated database table name
 	 */
@@ -121,47 +122,49 @@ class PoiSubCategory extends CActiveRecord
                 switch($col){
                                         
                         case 0:
-                        $sort_column = 'poi_sub_category_id';
+                        $sort_column = 't.poi_sub_category_id';
                         break;
                                         
                         case 1:
-                        $sort_column = 'poi_category_id';
+                        $sort_column = 'category_name';
                         break;
                                         
                         case 2:
-                        $sort_column = 'sub_category_name';
+                        $sort_column = 't.sub_category_name';
                         break;
                                         
                         case 3:
-                        $sort_column = 'description';
+                        $sort_column = 't.description';
                         break;
                                         
                         case 4:
-                        $sort_column = 'created_date';
+                        $sort_column = 't.created_date';
                         break;
                                         
                         case 5:
-                        $sort_column = 'created_by';
+                        $sort_column = 't.created_by';
                         break;
                                         
                         case 6:
-                        $sort_column = 'updated_date';
+                        $sort_column = 't.updated_date';
                         break;
                                 }
         
 
                 $criteria=new CDbCriteria;
-                $criteria->compare('company_id',Yii::app()->user->company_id);
-                		$criteria->compare('poi_sub_category_id',$columns[0]['search']['value'],true);
-		$criteria->compare('poi_category_id',$columns[1]['search']['value'],true);
-		$criteria->compare('sub_category_name',$columns[2]['search']['value'],true);
-		$criteria->compare('description',$columns[3]['search']['value'],true);
-		$criteria->compare('created_date',$columns[4]['search']['value'],true);
-		$criteria->compare('created_by',$columns[5]['search']['value'],true);
-		$criteria->compare('updated_date',$columns[6]['search']['value'],true);
+                $criteria->select = 't.poi_sub_category_id, t.sub_category_name, t.description, t.created_date, t.created_by, t.updated_date, poi_category.category_name as category_name';
+                $criteria->compare('t.company_id',Yii::app()->user->company_id);
+                $criteria->compare('t.poi_sub_category_id',$columns[0]['search']['value'],true);
+		$criteria->compare('category_name',$columns[1]['search']['value'],true);
+		$criteria->compare('t.sub_category_name',$columns[2]['search']['value'],true);
+		$criteria->compare('t.description',$columns[3]['search']['value'],true);
+		$criteria->compare('t.created_date',$columns[4]['search']['value'],true);
+		$criteria->compare('t.created_by',$columns[5]['search']['value'],true);
+		$criteria->compare('t.updated_date',$columns[6]['search']['value'],true);
                 $criteria->order = "$sort_column $order_dir";
                 $criteria->limit = $limit;
                 $criteria->offset = $offset;
+                $criteria->join = 'INNER JOIN poi_category ON poi_category.poi_category_id = t.poi_category_id';
                 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

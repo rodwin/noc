@@ -40,7 +40,7 @@ return false;
 
 <div class="search-form" style="display:none">
 	<?php $this->renderPartial('_search',array(
-	'model'=>$model,
+	'model'=>$model, 'distributors' => $distributors,
 )); ?>
 </div><!-- search-form -->
 
@@ -73,13 +73,13 @@ $(function() {
         "bAutoWidth": false,
         "ajax": "<?php echo Yii::app()->createUrl($this->module->id.'/SalesOffice/data');?>",
         "columns": [
-            { "name": "sales_office_id","data": "sales_office_id"},{ "name": "distributor_id","data": "distributor_id"},{ "name": "sales_office_code","data": "sales_office_code"},{ "name": "sales_office_name","data": "sales_office_name"},{ "name": "address1","data": "address1"},{ "name": "address2","data": "address2"},{ "name": "barangay_id","data": "barangay_id"},            { "name": "links","data": "links", 'sortable': false}
+            { "name": "sales_office_id","data": "sales_office_id"},{ "name": "distributor_name","data": "distributor_name"},{ "name": "sales_office_code","data": "sales_office_code"},{ "name": "sales_office_name","data": "sales_office_name"},{ "name": "address1","data": "address1"},{ "name": "address2","data": "address2"},{ "name": "barangay_id","data": "barangay_id"},            { "name": "links","data": "links", 'sortable': false}
                ]
         });
 
         $('#btnSearch').click(function(){
             table.fnMultiFilter( { 
-                "sales_office_id": $("#SalesOffice_sales_office_id").val(),"distributor_id": $("#SalesOffice_distributor_id").val(),"sales_office_code": $("#SalesOffice_sales_office_code").val(),"sales_office_name": $("#SalesOffice_sales_office_name").val(),"address1": $("#SalesOffice_address1").val(),"address2": $("#SalesOffice_address2").val(),"barangay_id": $("#SalesOffice_barangay_id").val(),            } );
+                "sales_office_id": $("#SalesOffice_sales_office_id").val(),"distributor_name": $("#SalesOffice_distributor_name").val(),"sales_office_code": $("#SalesOffice_sales_office_code").val(),"sales_office_name": $("#SalesOffice_sales_office_name").val(),"address1": $("#SalesOffice_address1").val(),"address2": $("#SalesOffice_address2").val(),"barangay_id": $("#SalesOffice_barangay_id").val(),            } );
         });
         
         

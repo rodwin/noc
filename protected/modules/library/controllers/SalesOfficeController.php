@@ -66,6 +66,7 @@ class SalesOfficeController extends Controller
             $row = array();
                         $row['sales_office_id']= $value->sales_office_id;
                         $row['distributor_id']= $value->distributor_id;
+                        $row['distributor_name']= $value->distributor->distributor_name;
                         $row['sales_office_code']= $value->sales_office_code;
                         $row['sales_office_name']= $value->sales_office_name;
                         $row['address1']= $value->address1;
@@ -100,7 +101,7 @@ class SalesOfficeController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View SalesOffice '.$model->sales_office_id;
+        $this->pageTitle = 'View SalesOffice '.$model->sales_office_name;
 
         $this->menu=array(
                 array('label'=>'Create SalesOffice', 'url'=>array('create')),
@@ -149,9 +150,12 @@ class SalesOfficeController extends Controller
                 $this->redirect(array('view','id'=>$model->sales_office_id));
             }
         }
+        
+        $distributors = CHtml::listData(Distributor::model()->findAll(array('condition' => 'company_id = "'.Yii::app()->user->company_id.'"', 'order' => 'distributor_name ASC')), 'distributor_id', 'distributor_name');
 
         $this->render('create',array(
             'model'=>$model,
+            'distributors' => $distributors,
         ));
     }
 
@@ -172,7 +176,7 @@ class SalesOfficeController extends Controller
                 array('label'=>'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update SalesOffice '.$model->sales_office_id;
+        $this->pageTitle = 'Update SalesOffice '.$model->sales_office_name;
         
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
@@ -188,9 +192,12 @@ class SalesOfficeController extends Controller
                 $this->redirect(array('view','id'=>$model->sales_office_id));
             }
         }
+        
+        $distributors = CHtml::listData(Distributor::model()->findAll(array('condition' => 'company_id = "'.Yii::app()->user->company_id.'"', 'order' => 'distributor_name ASC')), 'distributor_id', 'distributor_name');
 
         $this->render('update',array(
             'model'=>$model,
+            'distributors' => $distributors,
         ));
     }
 
@@ -246,8 +253,11 @@ class SalesOfficeController extends Controller
         if(isset($_GET['SalesOffice']))
             $model->attributes=$_GET['SalesOffice'];
 
+        $distributors = CHtml::listData(Distributor::model()->findAll(array('condition' => 'company_id = "'.Yii::app()->user->company_id.'"', 'order' => 'distributor_name ASC')), 'distributor_name', 'distributor_name');
+
         $this->render('admin',array(
             'model'=>$model,
+            'distributors' => $distributors,
         ));
     }
 

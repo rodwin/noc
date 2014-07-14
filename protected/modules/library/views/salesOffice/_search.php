@@ -14,7 +14,8 @@
         <div class="form-group">
             <label for="SalesOffice_distributor_id" class="col-sm-2 control-label"><?php echo $fields['distributor_id'];?></label>
             <div class="col-sm-3">
-                <input type="text" class="form-control" id="SalesOffice_distributor_id" placeholder="<?php echo $fields['distributor_id'];?>" name="SalesOffice[distributor_id]">
+                <!--<input type="text" class="form-control" id="SalesOffice_distributor_id" placeholder="<?php echo $fields['distributor_id'];?>" name="SalesOffice[distributor_id]">-->
+                <?php echo CHtml::dropDownList('SalesOffice_distributor_name', '', $distributors, array('prompt' => 'Select Distributor', 'class' => 'form-control')); ?>
             </div>
         </div>
 		                
