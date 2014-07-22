@@ -127,47 +127,48 @@ class Zone extends CActiveRecord
                 switch($col){
                                         
                         case 0:
-                        $sort_column = 'zone_id';
+                        $sort_column = 't.zone_id';
                         break;
                                         
                         case 1:
-                        $sort_column = 'zone_name';
+                        $sort_column = 't.zone_name';
                         break;
                                         
                         case 2:
-                        $sort_column = 'sales_office_id';
+                        $sort_column = 'salesOffice.sales_office_name';
                         break;
                                         
                         case 3:
-                        $sort_column = 'description';
+                        $sort_column = 't.description';
                         break;
                                         
                         case 4:
-                        $sort_column = 'created_date';
+                        $sort_column = 't.created_date';
                         break;
                                         
                         case 5:
-                        $sort_column = 'created_by';
+                        $sort_column = 't.created_by';
                         break;
                                         
                         case 6:
-                        $sort_column = 'updated_date';
+                        $sort_column = 't.updated_date';
                         break;
                                 }
         
 
                 $criteria=new CDbCriteria;
-                $criteria->compare('company_id',Yii::app()->user->company_id);
-                		$criteria->compare('zone_id',$columns[0]['search']['value'],true);
-		$criteria->compare('zone_name',$columns[1]['search']['value'],true);
-		$criteria->compare('sales_office_id',$columns[2]['search']['value'],true);
-		$criteria->compare('description',$columns[3]['search']['value'],true);
-		$criteria->compare('created_date',$columns[4]['search']['value'],true);
-		$criteria->compare('created_by',$columns[5]['search']['value'],true);
-		$criteria->compare('updated_date',$columns[6]['search']['value'],true);
+                $criteria->compare('t.company_id',Yii::app()->user->company_id);
+                $criteria->compare('t.zone_id',$columns[0]['search']['value'],true);
+		$criteria->compare('t.zone_name',$columns[1]['search']['value'],true);
+		$criteria->compare('salesOffice.sales_office_name',$columns[2]['search']['value'],true);
+		$criteria->compare('t.description',$columns[3]['search']['value'],true);
+		$criteria->compare('t.created_date',$columns[4]['search']['value'],true);
+		$criteria->compare('t.created_by',$columns[5]['search']['value'],true);
+		$criteria->compare('t.updated_date',$columns[6]['search']['value'],true);
                 $criteria->order = "$sort_column $order_dir";
                 $criteria->limit = $limit;
                 $criteria->offset = $offset;
+                $criteria->with = array('salesOffice');
                 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

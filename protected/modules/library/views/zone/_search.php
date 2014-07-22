@@ -21,7 +21,8 @@
         <div class="form-group">
             <label for="Zone_sales_office_id" class="col-sm-2 control-label"><?php echo $fields['sales_office_id'];?></label>
             <div class="col-sm-3">
-                <input type="text" class="form-control" id="Zone_sales_office_id" placeholder="<?php echo $fields['sales_office_id'];?>" name="Zone[sales_office_id]">
+                <!--<input type="text" class="form-control" id="Zone_sales_office_id" placeholder="<?php echo $fields['sales_office_id'];?>" name="Zone[sales_office_id]">-->
+                <?php echo CHtml::dropDownList('Zone_sales_office_name', '', $sales_office, array('prompt' => 'Select Salesoffice', 'class' => 'form-control')); ?>
             </div>
         </div>
 	                

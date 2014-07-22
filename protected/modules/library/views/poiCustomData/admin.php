@@ -40,7 +40,7 @@ return false;
 
 <div class="search-form" style="display:none">
 	<?php $this->renderPartial('_search',array(
-	'model'=>$model,
+	'model'=>$model, 'poi_category' => $poi_category,
 )); ?>
 </div><!-- search-form -->
 
@@ -73,13 +73,13 @@ $(function() {
         "bAutoWidth": false,
         "ajax": "<?php echo Yii::app()->createUrl($this->module->id.'/PoiCustomData/data');?>",
         "columns": [
-            { "name": "custom_data_id","data": "custom_data_id"},{ "name": "name","data": "name"},{ "name": "type","data": "type"},{ "name": "data_type","data": "data_type"},{ "name": "description","data": "description"},{ "name": "required","data": "required"},{ "name": "sort_order","data": "sort_order"},            { "name": "links","data": "links", 'sortable': false}
+            { "name": "custom_data_id","data": "custom_data_id"},{ "name": "name","data": "name"},{ "name": "poi_category_name","data": "poi_category_name"},{ "name": "data_type","data": "data_type"},{ "name": "description","data": "description"},{ "name": "required","data": "required"},{ "name": "sort_order","data": "sort_order"},            { "name": "links","data": "links", 'sortable': false}
                ]
         });
 
         $('#btnSearch').click(function(){
             table.fnMultiFilter( { 
-                "custom_data_id": $("#PoiCustomData_custom_data_id").val(),"name": $("#PoiCustomData_name").val(),"type": $("#PoiCustomData_type").val(),"data_type": $("#PoiCustomData_data_type").val(),"description": $("#PoiCustomData_description").val(),"required": $("#PoiCustomData_required").val(),"sort_order": $("#PoiCustomData_sort_order").val(),            } );
+                "custom_data_id": $("#PoiCustomData_custom_data_id").val(),"name": $("#PoiCustomData_name").val(),"poi_category_name": $("#PoiCustomData_category_name").val(),"data_type": $("#PoiCustomData_data_type").val(),"description": $("#PoiCustomData_description").val(),"required": $("#PoiCustomData_required").val(),"sort_order": $("#PoiCustomData_sort_order").val(),            } );
         });
         
         

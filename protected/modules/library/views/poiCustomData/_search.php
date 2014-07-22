@@ -21,7 +21,8 @@
         <div class="form-group">
             <label for="PoiCustomData_type" class="col-sm-2 control-label"><?php echo $fields['type'];?></label>
             <div class="col-sm-3">
-                <input type="text" class="form-control" id="PoiCustomData_type" placeholder="<?php echo $fields['type'];?>" name="PoiCustomData[type]">
+                <!--<input type="text" class="form-control" id="PoiCustomData_type" placeholder="<?php echo $fields['type'];?>" name="PoiCustomData[type]">-->
+                <?php echo CHtml::dropDownList('PoiCustomData_category_name', '', $poi_category, array('prompt' => 'Select Category', 'class' => 'form-control')); ?>
             </div>
         </div>
 	                

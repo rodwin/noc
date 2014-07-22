@@ -8,4 +8,4 @@ $this->breadcrumbs=array(
 	?>
 
 
-<?php echo $this->renderPartial('_form',array('model'=>$model)); ?>
+<?php echo $this->renderPartial('_form',array('model'=>$model, 'poi_category' => $poi_category,)); ?>

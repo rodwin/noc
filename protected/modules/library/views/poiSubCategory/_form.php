@@ -16,7 +16,20 @@
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'poi_category_id',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
+		<?php //echo $form->textFieldGroup($model,'poi_category_id',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
+                <?php
+                echo $form->dropDownListGroup(
+                        $model, 'poi_category_id', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => 'col-sm-5',
+                    ),
+                    'widgetOptions' => array(
+                        'data' => $poi_category,
+                        'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Category'),
+                    )
+                        )
+                );
+                ?>
 	</div>
 
 	

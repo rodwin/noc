@@ -1,18 +1,17 @@
+
 <?php
 
 $this->breadcrumbs = array(
-    'Pois' => array('admin'),
-    $model->poi_id => array('view', 'id' => $model->poi_id),
-    'Update',
+    'Poi Custom Datas' => array('admin'),
+    'Create',
 );
 ?>
-
 
 <?php
 
 echo $this->renderPartial('_form', array(
     'model' => $model,
+    'unserialize_attribute' => $unserialize_attribute,
     'poi_category' => $poi_category,
-    'poi_sub_category' => $poi_sub_category,
 ));
 ?>

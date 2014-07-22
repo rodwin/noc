@@ -21,8 +21,21 @@
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'sales_office_id',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
-	</div>
+		<?php //echo $form->textFieldGroup($model,'sales_office_id',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
+                <?php
+                echo $form->dropDownListGroup(
+                        $model, 'sales_office_id', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => 'col-sm-5',
+                    ),
+                    'widgetOptions' => array(
+                        'data' => $sales_office,
+                        'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Salesoffice'),
+                    )
+                        )
+                );
+                ?>
+        </div>
 
 	
 	<div class="form-group">

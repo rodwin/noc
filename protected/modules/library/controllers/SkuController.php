@@ -100,7 +100,7 @@ class SkuController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View Sku '.$model->sku_id;
+        $this->pageTitle = 'View Sku '.$model->sku_name;
 
         $this->menu=array(
                 array('label'=>'Create Sku', 'url'=>array('create')),
@@ -172,7 +172,7 @@ class SkuController extends Controller
                 array('label'=>'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update Sku '.$model->sku_id;
+        $this->pageTitle = 'Update Sku '.$model->sku_name;
         
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);

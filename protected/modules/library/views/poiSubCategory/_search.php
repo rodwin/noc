@@ -14,7 +14,8 @@
         <div class="form-group">
             <label for="PoiSubCategory_poi_category_id" class="col-sm-2 control-label"><?php echo $fields['poi_category_id'];?></label>
             <div class="col-sm-3">
-                <input type="text" class="form-control" id="PoiSubCategory_poi_category_id" placeholder="<?php echo $fields['poi_category_id'];?>" name="PoiSubCategory[poi_category_id]">
+                <!--<input type="text" class="form-control" id="PoiSubCategory_poi_category_id" placeholder="<?php echo $fields['poi_category_id'];?>" name="PoiSubCategory[poi_category_id]">-->
+                <?php echo CHtml::dropDownList('PoiSubCategory_poi_category_name', '', $poi_category, array('prompt' => 'Select Category', 'class' => 'form-control')); ?>
             </div>
         </div>
 	                

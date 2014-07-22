@@ -40,7 +40,7 @@ return false;
 
 <div class="search-form" style="display:none">
 	<?php $this->renderPartial('_search',array(
-	'model'=>$model,
+	'model'=>$model, 'poi_category' => $poi_category,
 )); ?>
 </div><!-- search-form -->
 
@@ -73,13 +73,13 @@ $(function() {
         "bAutoWidth": false,
         "ajax": "<?php echo Yii::app()->createUrl($this->module->id.'/PoiSubCategory/data');?>",
         "columns": [
-            { "name": "poi_sub_category_id","data": "poi_sub_category_id"},{ "name": "poi_category_id","data": "poi_category_id"},{ "name": "sub_category_name","data": "sub_category_name"},{ "name": "description","data": "description"},{ "name": "created_date","data": "created_date"},{ "name": "created_by","data": "created_by"},{ "name": "updated_date","data": "updated_date"},            { "name": "links","data": "links", 'sortable': false}
+            { "name": "poi_sub_category_id","data": "poi_sub_category_id"},{ "name": "poi_category_name","data": "poi_category_name"},{ "name": "sub_category_name","data": "sub_category_name"},{ "name": "description","data": "description"},{ "name": "created_date","data": "created_date"},{ "name": "created_by","data": "created_by"},{ "name": "updated_date","data": "updated_date"},            { "name": "links","data": "links", 'sortable': false}
                ]
         });
 
         $('#btnSearch').click(function(){
             table.fnMultiFilter( { 
-                "poi_sub_category_id": $("#PoiSubCategory_poi_sub_category_id").val(),"poi_category_id": $("#PoiSubCategory_poi_category_id").val(),"sub_category_name": $("#PoiSubCategory_sub_category_name").val(),"description": $("#PoiSubCategory_description").val(),"created_date": $("#PoiSubCategory_created_date").val(),"created_by": $("#PoiSubCategory_created_by").val(),"updated_date": $("#PoiSubCategory_updated_date").val(),            } );
+                "poi_sub_category_id": $("#PoiSubCategory_poi_sub_category_id").val(),"poi_category_name": $("#PoiSubCategory_poi_category_name").val(),"sub_category_name": $("#PoiSubCategory_sub_category_name").val(),"description": $("#PoiSubCategory_description").val(),"created_date": $("#PoiSubCategory_created_date").val(),"created_by": $("#PoiSubCategory_created_by").val(),"updated_date": $("#PoiSubCategory_updated_date").val(),            } );
         });
         
         

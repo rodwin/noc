@@ -91,7 +91,7 @@ class DistributorController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View Distributor '.$model->distributor_id;
+        $this->pageTitle = 'View Distributor '.$model->distributor_name;
 
         $this->menu=array(
                 array('label'=>'Create Distributor', 'url'=>array('create')),
@@ -163,7 +163,7 @@ class DistributorController extends Controller
                 array('label'=>'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update Distributor '.$model->distributor_id;
+        $this->pageTitle = 'Update Distributor '.$model->distributor_name;
         
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);

@@ -90,7 +90,7 @@ class BrandCategoryController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View BrandCategory '.$model->brand_category_id;
+        $this->pageTitle = 'View BrandCategory '.$model->category_name;
 
         $this->menu=array(
                 array('label'=>'Create BrandCategory', 'url'=>array('create')),
@@ -162,7 +162,7 @@ class BrandCategoryController extends Controller
                 array('label'=>'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update BrandCategory '.$model->brand_category_id;
+        $this->pageTitle = 'Update BrandCategory '.$model->category_name;
         
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);

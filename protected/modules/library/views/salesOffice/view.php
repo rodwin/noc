@@ -12,7 +12,7 @@ $this->breadcrumbs=array(
 'type' => 'bordered condensed',
 'attributes'=>array(
 		'sales_office_id',
-		'distributor_id',
+		'distributor.distributor_name',
 		'company.name',
 		'sales_office_code',
 		'sales_office_name',
