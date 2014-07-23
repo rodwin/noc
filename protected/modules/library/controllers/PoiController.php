@@ -29,7 +29,7 @@ class PoiController extends Controller
     {
         return array(
             array('allow',  // allow all users to perform 'index' and 'view' actions
-                'actions'=>array('index','view', 'getAllSubCategoryByCategoryID', 'getAllCustomDataByCategoryID'),
+                'actions'=>array('index','view', 'getAllSubCategoryByCategoryID', 'getAllCustomDataByCategoryID', 'getAllSubCategoryByCategoryName'),
                 'users'=>array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -45,9 +45,9 @@ class PoiController extends Controller
             ),
         );
     }
-    
+
     public function actionData(){
-            
+
         Poi::model()->search_string = $_GET['search']['value'] != "" ? $_GET['search']['value']:null;
 
         $dataProvider = Poi::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'],$_GET['columns']);
@@ -60,9 +60,9 @@ class PoiController extends Controller
                 "recordsFiltered" => $dataProvider->totalItemCount,
                 "data" => array()
         );
-        
-        
-        
+
+
+
         foreach ($dataProvider->getData() as $key => $value) {
             $row = array();
                         $row['poi_id']= $value->poi_id;
@@ -83,7 +83,9 @@ class PoiController extends Controller
                         $row['landline']= $value->landline;
                         $row['mobile']= $value->mobile;
                         $row['poi_category_id']= $value->poi_category_id;
+                        $row['poi_category_name']= $value->poiCategory->category_name;
                         $row['poi_sub_category_id']= $value->poi_sub_category_id;
+                        $row['poi_sub_category_name']= $value->poiSubCategory->sub_category_name;
                         $row['remarks']= $value->remarks;
                         $row['status']= $value->status;
                         $row['created_date']= $value->created_date;
@@ -92,8 +94,8 @@ class PoiController extends Controller
                         $row['edited_by']= $value->edited_by;
                         $row['verified_by']= $value->verified_by;
                         $row['verified_date']= $value->verified_date;
-                        
-                        
+
+
             $row['links']= '<a class="view" title="View" data-toggle="tooltip" href="'.$this->createUrl('/library/poi/view',array('id'=>$value->poi_id)).'" data-original-title="View"><i class="fa fa-eye"></i></a>'
                         . '&nbsp;<a class="update" title="Update" data-toggle="tooltip" href="'.$this->createUrl('/library/poi/update',array('id'=>$value->poi_id)).'" data-original-title="View"><i class="fa fa-pencil"></i></a>'
                         . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="'.$this->createUrl('/library/poi/delete',array('id'=>$value->poi_id)).'" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
@@ -123,8 +125,11 @@ class PoiController extends Controller
                 array('label'=>'Help', 'url' => '#'),
         );
         
+        $poi_custom_data_value = PoiCustomDataValue::model()->getPoiCustomDataValue($model->poi_id, $model->poi_category_id);
+
         $this->render('view',array(
             'model'=>$model,
+            'poi_custom_data_value' => $poi_custom_data_value,
         ));
     }
 
@@ -148,29 +153,50 @@ class PoiController extends Controller
         // $this->performAjaxValidation($model);
 
         if (isset($_POST['Poi'])) {
-            
+
             $model->poi_id = Globals::generateV4UUID();
             $model->attributes = $_POST['Poi'];
             $model->company_id = Yii::app()->user->company_id;
             $model->created_by = Yii::app()->user->name;
             $model->latitude = !empty($_POST['Poi']['latitude']) ? $_POST['Poi']['latitude'] : 0;
-            $model->longitude = !empty($_POST['Poi']['longitude']) ? $_POST['Poi']['longitude'] : 0;     
+            $model->longitude = !empty($_POST['Poi']['longitude']) ? $_POST['Poi']['longitude'] : 0;
             $model->edited_date = null;
             $model->verified_date = null;
 
-            $criteria1 = new CDbCriteria;
-            $criteria1->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND poi_category_id = "' . $model->poi_category_id . '"';
-            $criteria1->order = "t.sub_category_name ASC";
-            $poi_sub_category = CHtml::listData(PoiSubCategory::model()->findAll($criteria1), 'poi_sub_category_id', 'sub_category_name');
+            $poi_sub_category = PoiSubCategory::model()->getSubCategoryOptionListByCategoryID($model->poi_category_id);
 
-            $criteria2 = new CDbCriteria;
-            $criteria2->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND type = "'. $model->poi_category_id . '"';
-            $criteria2->order = "t.sort_order ASC";
-            $custom_datas = PoiCustomData::model()->findAll($criteria2);
+            $custom_datas = PoiCustomData::model()->getPoiCustomData($model->poi_id, $model->poi_category_id);
+
+            $model->addError($model->poi_category_id, "error");
             
-            if ($model->save()) {
-                Yii::app()->user->setFlash('success', "Successfully created");
-                $this->redirect(array('view', 'id' => $model->poi_id));
+            if ($model->validate()) {
+
+                $model->save();
+
+                foreach ($custom_datas as $key => $val) {
+                    $custom_data_value = new PoiCustomDataValue;
+                    
+                    $custom_data_value->id = Globals::generateV4UUID();
+                    $custom_data_value->poi_id = $model->poi_id;
+                    $custom_data_value->custom_data_id = $val['custom_data_id'];
+                    
+                    $post_name = $val['category_name'] . "_" . $val['name'] = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . $val['data_type'] = str_replace(' ', '_', strtolower($val['name']));
+                    $pieces = explode("_", $post_name);
+                    
+//                    if ($pieces[1] == "numbers") {
+//                        $value = rtrim($_POST[$post_name], "0");
+//                        $custom_data_value->value = substr($value, -1) == "." ? rtrim($value, ".") : $value;
+//                    } else {
+                        $custom_data_value->value = $_POST[$post_name];
+//                    }
+
+                    $custom_data_value->save();
+                }
+
+                if ($model->save()) {
+                    Yii::app()->user->setFlash('success', "Successfully created");
+                    $this->redirect(array('view', 'id' => $model->poi_id));
+                }
             }
         } else {
             $poi_sub_category = array();
@@ -212,15 +238,45 @@ class PoiController extends Controller
 
             $model->attributes = $_POST['Poi'];
             $model->latitude = !empty($_POST['Poi']['latitude']) ? $_POST['Poi']['latitude'] : 0;
-            $model->longitude = !empty($_POST['Poi']['longitude']) ? $_POST['Poi']['longitude'] : 0;   
+            $model->longitude = !empty($_POST['Poi']['longitude']) ? $_POST['Poi']['longitude'] : 0;
             $model->edited_by = Yii::app()->user->name;
             $model->edited_date = date('Y-m-d H:i:s');
             $model->verified_date = null;
+            
+            $custom_datas = PoiCustomData::model()->getPoiCustomData($model->poi_id, $model->poi_category_id);
+            
+            if ($model->validate()) {
+            
+                PoiCustomDataValue::model()->deletePoiCustomDataValueByPoiID($model->poi_id);
+                
+                foreach ($custom_datas as $key => $val) {
+                    $custom_data_value = new PoiCustomDataValue;
+                    
+                    $custom_data_value->id = Globals::generateV4UUID();
+                    $custom_data_value->poi_id = $model->poi_id;
+                    $custom_data_value->custom_data_id = $val['custom_data_id'];
 
-            if ($model->save()) {
-                Yii::app()->user->setFlash('success', "Successfully updated");
-                $this->redirect(array('view', 'id' => $model->poi_id));
+                    $post_name = $val['category_name'] . "_" . $val['name'] = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . $val['data_type'] = str_replace(' ', '_', strtolower($val['name']));
+                    $pieces = explode("_", $post_name);
+                    
+//                    if ($pieces[1] == "numbers") {
+//                        $value = rtrim($_POST[$post_name], "0");
+//                        $custom_data_value->value = substr($value, -1) == "." ? rtrim($value, ".") : $value;
+//                    } else {
+                        $custom_data_value->value = $_POST[$post_name];
+//                    }
+
+                    $custom_data_value->save();
+                }
+
+                if ($model->save()) {
+                    Yii::app()->user->setFlash('success', "Successfully updated");
+                    $this->redirect(array('view', 'id' => $model->poi_id));
+                }
+                
             }
+        } else {
+            $custom_datas = PoiCustomData::model()->getPoiCustomData($model->poi_id, $model->poi_category_id);
         }
 
         $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'poi_category_id', 'category_name');
@@ -235,6 +291,7 @@ class PoiController extends Controller
             'model' => $model,
             'poi_category' => $poi_category,
             'poi_sub_category' => $poi_sub_category,
+            'custom_datas' => $custom_datas,
         ));
     }
 
@@ -247,6 +304,9 @@ class PoiController extends Controller
     {
         if(Yii::app()->request->isPostRequest)
         {
+            // delete poi custom data value by poi_id
+            PoiCustomDataValue::model()->deletePoiCustomDataValueByPoiID($id);
+            
             // we only allow deletion via POST request
             $this->loadModel($id)->delete();
 
@@ -271,7 +331,7 @@ class PoiController extends Controller
     public function actionIndex()
     {
         $dataProvider=new CActiveDataProvider('Poi');
-        
+
         $this->render('index',array(
             'dataProvider'=>$dataProvider,
         ));
@@ -284,14 +344,17 @@ class PoiController extends Controller
     {
         $this->layout='//layouts/column1';
         $this->pageTitle = 'Manage Poi';
-        
+
         $model=new Poi('search');
         $model->unsetAttributes();  // clear any default values
         if(isset($_GET['Poi']))
             $model->attributes=$_GET['Poi'];
+        
+        $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'category_name', 'category_name');
 
         $this->render('admin',array(
             'model'=>$model,
+            'poi_category' => $poi_category,
         ));
     }
 
@@ -321,32 +384,39 @@ class PoiController extends Controller
             Yii::app()->end();
         }
     }
-    
+
     public function actionGetAllSubCategoryByCategoryID() {
 
-        $criteria = new CDbCriteria;
-        $criteria->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND poi_category_id = "' . $_POST['poi_category_id'] . '"';
-        $criteria->order = "t.sub_category_name ASC";
-
         echo "<option value=''>Select Sub Category</option>";
-        $data = CHtml::listData(PoiSubCategory::model()->findAll($criteria), 'poi_sub_category_id', 'sub_category_name');
+        $data = PoiSubCategory::model()->getSubCategoryOptionListByCategoryID($_POST['poi_category_id']);
 
         foreach ($data as $value => $sub_category_name)
             echo CHtml::tag('option', array('value' => $value), CHtml::encode($sub_category_name), true);
 
     }
     
-    public function actionGetAllCustomDataByCategoryID() {
+    public function actionGetAllSubCategoryByCategoryName() {
+
+        echo "<option value=''>Select Sub Category</option>";
+        $data = PoiSubCategory::model()->getSubCategoryOptionListByCategoryName($_POST['poi_category_name']);
         
-        $criteria = new CDbCriteria;
-        $criteria->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND type = "' . $_POST['category_id'] . '"';
-        $criteria->order = "t.sort_order ASC";
-        
-        $custom_datas = PoiCustomData::model()->findAll($criteria);
-        
-        $this->renderPartial('_customItems', array('custom_datas' => $custom_datas,));
-        
-        
+        foreach ($data as $value => $sub_category_name)
+            echo CHtml::tag('option', array('value' => $value), CHtml::encode($sub_category_name), true);
+
+    }
+    
+    public function actionGetAllCustomDataByCategoryID() {  
+        $model = new Poi;
+
+        $custom_datas = PoiCustomData::model()->getPoiCustomData($_POST['poi_id'], $_POST['category_id']);
+                
+        if (empty($_POST['poi_id'])) {
+            echo $this->renderPartial('_customItems', array('custom_datas' => $custom_datas,));
+        } else {
+            echo $this->renderPartial('_customItems_update', array('custom_datas' => $custom_datas,));
+        }
+
+
     }
 
 }

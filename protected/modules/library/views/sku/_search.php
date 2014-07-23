@@ -4,12 +4,12 @@
             <div class="box-body">
             <form class="form-horizontal" role="form">
 <?php $fields = Sku::model()->attributeLabels(); ?>	                
-        <div class="form-group">
+<!--        <div class="form-group">
             <label for="Sku_sku_id" class="col-sm-2 control-label"><?php echo $fields['sku_id'];?></label>
             <div class="col-sm-3">
                 <input type="text" class="form-control" id="Sku_sku_id" placeholder="<?php echo $fields['sku_id'];?>" name="Sku[sku_id]">
             </div>
-        </div>
+        </div>-->
 	                
         <div class="form-group">
             <label for="Sku_sku_code" class="col-sm-2 control-label"><?php echo $fields['sku_code'];?></label>
@@ -21,7 +21,8 @@
         <div class="form-group">
             <label for="Sku_brand_id" class="col-sm-2 control-label"><?php echo $fields['brand_id'];?></label>
             <div class="col-sm-3">
-                <input type="text" class="form-control" id="Sku_brand_id" placeholder="<?php echo $fields['brand_id'];?>" name="Sku[brand_id]">
+                <!--<input type="text" class="form-control" id="Sku_brand_id" placeholder="<?php echo $fields['brand_id'];?>" name="Sku[brand_id]">-->
+                <?php echo CHtml::dropDownList('Sku_brand_name', '', $brand, array('prompt' => 'Select Brand', 'class' => 'form-control')); ?>
             </div>
         </div>
 	                
@@ -42,7 +43,8 @@
         <div class="form-group">
             <label for="Sku_default_uom_id" class="col-sm-2 control-label"><?php echo $fields['default_uom_id'];?></label>
             <div class="col-sm-3">
-                <input type="text" class="form-control" id="Sku_default_uom_id" placeholder="<?php echo $fields['default_uom_id'];?>" name="Sku[default_uom_id]">
+                <!--<input type="text" class="form-control" id="Sku_default_uom_id" placeholder="<?php echo $fields['default_uom_id'];?>" name="Sku[default_uom_id]">-->
+                <?php echo CHtml::dropDownList('Sku_default_uom_name', '', $uom, array('prompt' => 'Select UOM', 'class' => 'form-control')); ?>
             </div>
         </div>
 	                
@@ -63,7 +65,8 @@
         <div class="form-group">
             <label for="Sku_default_zone_id" class="col-sm-2 control-label"><?php echo $fields['default_zone_id'];?></label>
             <div class="col-sm-3">
-                <input type="text" class="form-control" id="Sku_default_zone_id" placeholder="<?php echo $fields['default_zone_id'];?>" name="Sku[default_zone_id]">
+                <!--<input type="text" class="form-control" id="Sku_default_zone_id" placeholder="<?php echo $fields['default_zone_id'];?>" name="Sku[default_zone_id]">-->
+                <?php echo CHtml::dropDownList('Sku_default_zone_name', '', $zone, array('prompt' => 'Select Zone', 'class' => 'form-control')); ?>
             </div>
         </div>
 	                

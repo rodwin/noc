@@ -1,11 +1,23 @@
 <?php
-$this->breadcrumbs=array(
-	'Skus'=>array('admin'),
-	$model->sku_id=>array('view','id'=>$model->sku_id),
-	'Update',
+
+$this->breadcrumbs = array(
+    'Skus' => array('admin'),
+    $model->sku_name => array('view', 'id' => $model->sku_id),
+    'Update',
 );
+?>
 
-	?>
 
+<?php
 
-<?php echo $this->renderPartial('_form',array('model'=>$model)); ?>
+echo $this->renderPartial('_update_form', array(
+    'model' => $model,
+    'brand' => $brand,
+    'uom' => $uom,
+    'zone' => $zone,
+    'custom_datas' => $custom_datas,
+    'sku_convertion' => $sku_convertion,
+    'sku_convertion_uom' => $sku_convertion_uom,
+    'sku_location_restock' => $sku_location_restock,
+));
+?>

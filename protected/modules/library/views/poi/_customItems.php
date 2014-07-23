@@ -11,58 +11,86 @@
 
                 $attr = CJSON::decode($val['attribute']);
                 $label_name = $val['name'];
-                $post_name = $val['name'] = str_replace(' ', '_', strtolower($val['name']));
+                $data_type = $val['data_type'];
+                $post_name = $val['category_name'] . "_" . $val['data_type'] = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . $val['name'] = str_replace(' ', '_', strtolower($val['name']));
 
-                if ($val['data_type'] == 'Text and Numbers') {
+
+                if ($data_type == 'Text and Numbers') {
 
                     if ($attr['text_field'] == 1) {
                         ?>
 
                         <div class="form-group">
                             <label><?php echo $label_name; ?></label>
-                            <textarea id="<?php echo $post_name; ?>" name="<?php echo $post_name; ?>" class="form-control input-sm" rows="3" maxlength="<?php echo isset($attr['max_character_length']) ? $attr['max_character_length'] : 0; ?>" style="resize: none;"><?php
-                                echo isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value'];
-                                ?></textarea>
+                            <?php echo CHtml::textArea($post_name, isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value'], array('maxlength' => isset($attr['max_character_length']) ? $attr['max_character_length'] : "", 'class' => 'form-control input-sm', 'style' => 'resize: none; height: 100px;')); ?>
                         </div>
 
-                    <?php } else { ?>
+                    <?php } else { ?>        
 
                         <div class="form-group">
-                            <label><?php echo $label_name; ?></label>                            
-                            <input id="<?php echo $post_name; ?>" name="<?php echo $post_name; ?>" type="text" class="form-control input-sm" maxlength="<?php echo isset($attr['max_character_length']) ? $attr['max_character_length'] : 0; ?>" value="<?php echo isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value']; ?>"/>
+                            <label><?php echo $label_name; ?></label>
+                            <?php echo CHtml::textField($post_name, isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value'], array('maxlength' => isset($attr['max_character_length']) ? $attr['max_character_length'] : "", 'class' => 'form-control input-sm')); ?>
+
                         </div>
 
                     <?php } ?>
 
-                <?php } else if ($val['data_type'] == 'Numbers Only') { ?>
+                <?php } else if ($data_type == 'Numbers Only') { ?>
 
-                    <div class="form-group">
+                    <div class="form-group">                        
                         <label><?php echo $label_name; ?></label>
-                        <input id="<?php echo $post_name; ?>" name="<?php echo $post_name; ?>" type="number" class="form-control input-sm" value="<?php echo isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value']; ?>" onkeypress="return isNumberKey(event)"/>
+
+                        <?php
+                        $value = rtrim(isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value'], "0");
+                        $value = substr($value, -1) == "." ? rtrim($value, ".") : $value;
+                        ?>
+
+                        <?php echo CHtml::numberField($post_name, isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value'], array('min' => $attr['min_value'], 'max' => $attr['max_value'], 'step' => $attr['decimal_place'], 'class' => 'form-control input-sm')) ?>
                     </div>
 
-                <?php } else if ($val['data_type'] == 'CheckBox') { ?>
+                <?php } else if ($data_type == 'CheckBox') { ?>
+
+                    <label>
+                        <?php
+                        if (isset($_POST[$post_name]) && $_POST[$post_name] == "1") {
+                            $check = true;
+                        } else if (!isset($_POST[$post_name]) && $attr['default_value'] == "1" && $val['custom_data_value'] == "") {
+                            $check = true;
+                        } else if (!isset($_POST[$post_name]) && $val['custom_data_value'] == "1") {
+                            $check = true;
+                        } else {
+                            $check = false;
+                        }
+                        ?>
+
+                        <?php echo CHtml::hiddenField($post_name, "0") ?>
+                        <?php echo CHtml::CheckBox($post_name, $check, array('value' => '1',)); ?>
+                        <?php echo $label_name; ?>
+                    </label>
+
+                <?php } else if ($data_type == 'Drop Down List') { ?>
 
                     <div class="form-group">
-                        <label>
-                            <input id="<?php echo $post_name; ?>" name="<?php echo $post_name; ?>" type="checkbox" class="minimal" <?php echo isset($_POST[$post_name]) ? "checked" : ""; ?>/>
-                            <?php echo $label_name; ?>
-                        </label>
-                    </div>
-
-                <?php } else if ($val['data_type'] == 'Drop Down List') { ?>
-
-                    <div class="form-group">
-                        <script type="text/javascript">
-                            
-                        </script>
                         <label><?php echo $label_name; ?></label>
                         <select id="<?php echo $post_name; ?>" name="<?php echo $post_name; ?>" class="form-control">
                             <?php echo implode("\n", $attr['dropDownList_default']); ?>
                         </select>
+
+                        <script type="text/javascript">
+                            function setSelectedOption(id, value) {
+                                for (var i = 0; i < id.options.length; i++) {
+                                    if (id.options[i].text == value) {
+                                        id.options[i].selected = true;
+                                        return;
+                                    }
+                                }
+                            }
+
+                            setSelectedOption(document.getElementById(<?php echo '"' . $post_name . '"'; ?>), <?php echo isset($_POST[$post_name]) ? '"' . $_POST[$post_name] . '"' : ""; ?>);
+                        </script>
                     </div>
 
-                <?php } else if ($val['data_type'] == 'Date') { ?>
+                <?php } else if ($data_type == 'Date') { ?>
 
 
 

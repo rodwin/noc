@@ -2,7 +2,7 @@
 
 $this->breadcrumbs = array(
     'Pois' => array('admin'),
-    $model->poi_id => array('view', 'id' => $model->poi_id),
+    $model->short_name => array('view', 'id' => $model->poi_id),
     'Update',
 );
 ?>
@@ -14,5 +14,5 @@ echo $this->renderPartial('_form', array(
     'model' => $model,
     'poi_category' => $poi_category,
     'poi_sub_category' => $poi_sub_category,
-));
+    'custom_datas' => $custom_datas,));
 ?>

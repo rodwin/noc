@@ -14,8 +14,9 @@
                 <?php /* if($form->errorSummary($model)){?><div class="alert alert-danger alert-dismissable">
                   <i class="fa fa-ban"></i>
                   <?php echo $form->errorSummary($model); ?></div>
-                 */ ?>        
+                 */ ?>   
 
+                <input id="poi_id" type="hidden" value="<?php echo $model->poi_id; ?>"/>
 
                 <div class="form-group">
                     <?php echo $form->textFieldGroup($model, 'short_name', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 200)))); ?>
@@ -170,12 +171,18 @@
 
                 <div id="custom_datas">
 
-                    <?php echo $this->renderPartial('_customItems', array('model' => $model, 'custom_datas' => $custom_datas)); ?>
+                    <?php
+                    if ($model->isNewRecord) {
+                        echo $this->renderPartial('_customItems', array('model' => $model, 'custom_datas' => $custom_datas));
+                    } else {
+                        echo $this->renderPartial('_customItems_update', array('model' => $model, 'custom_datas' => $custom_datas));
+                    }
+                    ?>
 
                 </div>
 
                 <div class="form-group">
-                    <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save', array('class' => 'btn btn-primary btn-flat')); ?>    <?php echo CHtml::resetButton('Reset', array('class' => 'btn btn-primary btn-flat')); ?></div>
+                    <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save', array('onclick' => 'poiSubmit()', 'class' => 'btn btn-primary btn-flat')); ?>    <?php echo CHtml::resetButton('Reset', array('class' => 'btn btn-primary btn-flat')); ?></div>
 
                 <?php $this->endWidget(); ?>
             </div>
@@ -184,14 +191,15 @@
 </div>
 
 <script type="text/javascript">
-    
+
     $('#poi_category').change(function() {
 
         $.ajax({
             'type': 'POST',
             'url': '<?php echo CController::createUrl('poi/getAllCustomDataByCategoryID'); ?>',
             'data': {
-                category_id: $("#poi_category").val()
+                category_id: $("#poi_category").val(),
+                poi_id: $("#poi_id").val()
             },
             'success': function(data) {
                 $("#custom_datas").html(data);
@@ -202,5 +210,5 @@
         });
 
     });
-    
+
 </script>

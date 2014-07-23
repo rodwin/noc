@@ -1,7 +1,7 @@
 <?php
 $this->breadcrumbs=array(
 	'Sales Offices'=>array('admin'),
-	$model->sales_office_id=>array('view','id'=>$model->sales_office_id),
+	$model->sales_office_name=>array('view','id'=>$model->sales_office_id),
 	'Update',
 );
 

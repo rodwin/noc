@@ -1,7 +1,7 @@
 <?php
-$this->breadcrumbs=array(
-	'Poi Custom Datas'=>array('admin'),
-	'Manage',
+$this->breadcrumbs = array(
+    'Poi Custom Datas' => array('admin'),
+    'Manage',
 );
 
 
@@ -19,8 +19,8 @@ return false;
 ");
 ?>
 
-<?php echo CHtml::link('Advanced Search','#',array('class'=>'search-button btn btn-primary btn-flat')); ?>&nbsp;
-<?php echo CHtml::link('Create',array('PoiCustomData/create'),array('class'=>'btn btn-primary btn-flat')); ?>
+<?php echo CHtml::link('Advanced Search', '#', array('class' => 'search-button btn btn-primary btn-flat')); ?>&nbsp;
+<?php echo CHtml::link('Create', array('PoiCustomData/create'), array('class' => 'btn btn-primary btn-flat')); ?>
 
 <div class="btn-group">
     <button type="button" class="btn btn-info btn-flat">More Options</button>
@@ -39,9 +39,11 @@ return false;
 <br/>
 
 <div class="search-form" style="display:none">
-	<?php $this->renderPartial('_search',array(
-	'model'=>$model, 'poi_category' => $poi_category,
-)); ?>
+    <?php
+    $this->renderPartial('_search', array(
+        'model' => $model, 'poi_category' => $poi_category, 'data_type_list' => $data_type_list,
+    ));
+    ?>
 </div><!-- search-form -->
 
 <?php $fields = PoiCustomData::model()->attributeLabels(); ?>
@@ -49,59 +51,62 @@ return false;
     <table id="poi-custom-data_table" class="table table-bordered">
         <thead>
             <tr>
-                <th><?php echo $fields['custom_data_id']; ?></th>
-<th><?php echo $fields['name']; ?></th>
-<th><?php echo $fields['type']; ?></th>
-<th><?php echo $fields['data_type']; ?></th>
-<th><?php echo $fields['description']; ?></th>
-<th><?php echo $fields['required']; ?></th>
-<th><?php echo $fields['sort_order']; ?></th>
+                <!--<th><?php echo $fields['custom_data_id']; ?></th>-->
+                <th><?php echo $fields['name']; ?></th>
+                <th><?php echo $fields['type']; ?></th>
+                <th><?php echo $fields['data_type']; ?></th>
+                <th><?php echo $fields['description']; ?></th>
+                <th><?php echo $fields['required']; ?></th>
+                <th><?php echo $fields['sort_order']; ?></th>
                 <th>Actions</th>
-                
+
             </tr>
         </thead>
-        
-        </table>
+
+    </table>
 </div>
 
 <script type="text/javascript">
-$(function() {
-    var table = $('#poi-custom-data_table').dataTable({
-        "filter": false,
-        "processing": true,
-        "serverSide": true,
-        "bAutoWidth": false,
-        "ajax": "<?php echo Yii::app()->createUrl($this->module->id.'/PoiCustomData/data');?>",
-        "columns": [
-            { "name": "custom_data_id","data": "custom_data_id"},{ "name": "name","data": "name"},{ "name": "poi_category_name","data": "poi_category_name"},{ "name": "data_type","data": "data_type"},{ "name": "description","data": "description"},{ "name": "required","data": "required"},{ "name": "sort_order","data": "sort_order"},            { "name": "links","data": "links", 'sortable': false}
-               ]
+    $(function() {
+        var table = $('#poi-custom-data_table').dataTable({
+            "filter": false,
+            "processing": true,
+            "serverSide": true,
+            "bAutoWidth": false,
+            "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/PoiCustomData/data'); ?>",
+            "columns": [
+//                { "name": "custom_data_id","data": "custom_data_id"},
+                {"name": "name", "data": "name"}, {"name": "poi_category_name", "data": "poi_category_name"}, {"name": "data_type", "data": "data_type"}, {"name": "description", "data": "description"}, {"name": "required", "data": "required"}, {"name": "sort_order", "data": "sort_order"}, {"name": "links", "data": "links", 'sortable': false}
+            ]
         });
 
-        $('#btnSearch').click(function(){
-            table.fnMultiFilter( { 
-                "custom_data_id": $("#PoiCustomData_custom_data_id").val(),"name": $("#PoiCustomData_name").val(),"poi_category_name": $("#PoiCustomData_category_name").val(),"data_type": $("#PoiCustomData_data_type").val(),"description": $("#PoiCustomData_description").val(),"required": $("#PoiCustomData_required").val(),"sort_order": $("#PoiCustomData_sort_order").val(),            } );
+        $('#btnSearch').click(function() {
+            table.fnMultiFilter({
+//                "custom_data_id": $("#PoiCustomData_custom_data_id").val(),
+                "name": $("#PoiCustomData_name").val(), "poi_category_name": $("#PoiCustomData_category_name").val(), "data_type": $("#PoiCustomData_data_type").val(), "description": $("#PoiCustomData_description").val(), "required": $("#PoiCustomData_required").val(), "sort_order": $("#PoiCustomData_sort_order").val(), });
         });
-        
-        
-        
-        jQuery(document).on('click','#poi-custom-data_table a.delete',function() {
-            if(!confirm('Are you sure you want to delete this item?')) return false;
+
+
+
+        jQuery(document).on('click', '#poi-custom-data_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
             $.ajax({
-                'url':jQuery(this).attr('href')+'&ajax=1',
-                'type':'POST',
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
                 'dataType': 'text',
-                'success':function(data) {
-                   $.growl( data, { 
-                        icon: 'glyphicon glyphicon-info-sign', 
+                'success': function(data) {
+                    $.growl(data, {
+                        icon: 'glyphicon glyphicon-info-sign',
                         type: 'success'
                     });
-                    
+
                     table.fnMultiFilter();
                 },
                 error: function(jqXHR, exception) {
-                    alert('An error occured: '+ exception);
+                    alert('An error occured: ' + exception);
                 }
-            });  
+            });
             return false;
         });
     });

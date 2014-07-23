@@ -66,6 +66,7 @@ class BrandController extends Controller
             $row = array();
                         $row['brand_id']= $value->brand_id;
                         $row['brand_category_id']= $value->brand_category_id;
+                        $row['brand_category_name']= $value->brandCategory->category_name;
                         $row['brand_code']= $value->brand_code;
                         $row['brand_name']= $value->brand_name;
                         $row['created_date']= $value->created_date;
@@ -141,9 +142,12 @@ class BrandController extends Controller
                 $this->redirect(array('view','id'=>$model->brand_id));
             }
         }
+        
+        $brand_category = CHtml::listData(BrandCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'brand_category_id', 'category_name');
 
         $this->render('create',array(
             'model'=>$model,
+            'brand_category' => $brand_category,
         ));
     }
 
@@ -180,9 +184,12 @@ class BrandController extends Controller
                 $this->redirect(array('view','id'=>$model->brand_id));
             }
         }
+        
+        $brand_category = CHtml::listData(BrandCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'brand_category_id', 'category_name');
 
         $this->render('update',array(
             'model'=>$model,
+            'brand_category' => $brand_category,
         ));
     }
 
@@ -237,9 +244,12 @@ class BrandController extends Controller
         $model->unsetAttributes();  // clear any default values
         if(isset($_GET['Brand']))
             $model->attributes=$_GET['Brand'];
+        
+        $brand_category = CHtml::listData(BrandCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'category_name', 'category_name');
 
         $this->render('admin',array(
             'model'=>$model,
+            'brand_category' => $brand_category,
         ));
     }
 
