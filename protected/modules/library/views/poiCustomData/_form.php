@@ -100,7 +100,7 @@
                 <div class="form-group">
                     <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save', array('onclick' => 'getAllOptions()', 'class' => 'btn btn-primary btn-flat')); ?>&nbsp;
                     <?php echo CHtml::resetButton('Reset', array('class' => 'btn btn-primary btn-flat')); ?>&nbsp;
-                    <?php echo CHtml::link('Cancel', array('PoiCustomData/create'), array('class' => 'btn btn-primary btn-flat')); ?>
+                    <?php echo $model->isNewRecord ? CHtml::link('Cancel', array('PoiCustomData/create'), array('class' => 'btn btn-primary btn-flat')) : ""; ?>
                 </div>
 
                 <?php $this->endWidget(); ?>

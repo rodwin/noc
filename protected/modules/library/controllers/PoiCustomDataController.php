@@ -275,6 +275,9 @@ class PoiCustomDataController extends Controller
     {
         if(Yii::app()->request->isPostRequest)
         {
+            // delete poi custom data value by custom_data_id
+            PoiCustomDataValue::model()->deletePoiCustomDataValueByCustomDataID($id);
+             
             // we only allow deletion via POST request
             $this->loadModel($id)->delete();
 
@@ -320,9 +323,12 @@ class PoiCustomDataController extends Controller
 
         $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'category_name', 'category_name');
 
+        $data_type_list = CHtml::listData(PoiCustomData::model()->getAllDataType(), 'id', 'title');
+        
         $this->render('admin',array(
             'model'=>$model,
             'poi_category' => $poi_category,
+            'data_type_list' => $data_type_list,
         ));
     }
 

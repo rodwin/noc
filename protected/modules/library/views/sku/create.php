@@ -1,9 +1,18 @@
 <?php
-$this->breadcrumbs=array(
-	'Skus'=>array('admin'),
-	'Create',
-);
 
+$this->breadcrumbs = array(
+    'Skus' => array('admin'),
+    'Create',
+);
 ?>
 
-<?php echo $this->renderPartial('_form', array('model'=>$model)); ?>
+<?php
+
+echo $this->renderPartial('_create_form', array(
+    'model' => $model,
+    'brand' => $brand,
+    'uom' => $uom,
+    'zone' => $zone,
+    'custom_datas' => $custom_datas,
+));
+?>

@@ -105,6 +105,11 @@ $main_menu = array(
                 </a>
             </li>
             <li>
+                <a href="<?php echo Yii::app()->createUrl("/library/skuCustomData/create") ?>">
+                    <i class="fa fa-angle-double-right"></i> <span>SKU Custom Data</span>
+                </a>
+            </li>
+            <li>
                 <a href="<?php echo Yii::app()->createUrl("/library/sku/admin") ?>">
                     <i class="fa fa-angle-double-right"></i> <span>SKU</span>
                 </a>

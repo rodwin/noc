@@ -1,7 +1,7 @@
 <?php
 $this->breadcrumbs=array(
 	'Zones'=>array('admin'),
-	$model->zone_id,
+	$model->zone_name,
 );
 
 ?>
@@ -14,7 +14,7 @@ $this->breadcrumbs=array(
 		'zone_id',
 		'zone_name',
 		'company.name',
-		'sales_office_id',
+		'salesOffice.sales_office_name',
 		'description',
 		'created_date',
 		'created_by',

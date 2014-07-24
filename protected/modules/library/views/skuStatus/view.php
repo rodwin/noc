@@ -1,7 +1,7 @@
 <?php
 $this->breadcrumbs=array(
 	'Sku Statuses'=>array('admin'),
-	$model->sku_status_id,
+	$model->status_name,
 );
 
 ?>

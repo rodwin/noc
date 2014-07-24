@@ -120,47 +120,29 @@ class SkuConvertion extends CActiveRecord
                 switch($col){
                                         
                         case 0:
-                        $sort_column = 'id';
+                        $sort_column = 't.quantity';
                         break;
                                         
                         case 1:
-                        $sort_column = 'quantity';
-                        break;
-                                        
-                        case 2:
-                        $sort_column = 'uom_id';
+                        $sort_column = 'uom.uom_name';
                         break;
                                         
                         case 3:
-                        $sort_column = 'new_quantity';
-                        break;
-                                        
-                        case 4:
-                        $sort_column = 'created_date';
-                        break;
-                                        
-                        case 5:
-                        $sort_column = 'created_by';
-                        break;
-                                        
-                        case 6:
-                        $sort_column = 'updated_date';
+                        $sort_column = 't.new_quantity';
                         break;
                                 }
         
 
                 $criteria=new CDbCriteria;
-                $criteria->compare('company_id',Yii::app()->user->company_id);
-                		$criteria->compare('id',$columns[0]['search']['value'],true);
-		$criteria->compare('quantity',$columns[1]['search']['value']);
-		$criteria->compare('uom_id',$columns[2]['search']['value'],true);
-		$criteria->compare('new_quantity',$columns[3]['search']['value']);
-		$criteria->compare('created_date',$columns[4]['search']['value'],true);
-		$criteria->compare('created_by',$columns[5]['search']['value'],true);
-		$criteria->compare('updated_date',$columns[6]['search']['value'],true);
+                $criteria->select = 't.*, "=" as equals';
+                $criteria->compare('t.company_id',Yii::app()->user->company_id);
+		$criteria->compare('t.quantity',$columns[0]['search']['value']);
+		$criteria->compare('uom.uom_name',$columns[1]['search']['value'],true);
+		$criteria->compare('t.new_quantity',$columns[3]['search']['value']);
                 $criteria->order = "$sort_column $order_dir";
                 $criteria->limit = $limit;
                 $criteria->offset = $offset;
+                $criteria->with = array('company', 'uom');
                 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
