@@ -16,8 +16,21 @@
 
 	
 	<div class="form-group">
-		<?php echo $form->textFieldGroup($model,'distributor_id',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
-	</div>
+		<?php //echo $form->textFieldGroup($model,'distributor_id',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
+                <?php
+                echo $form->dropDownListGroup(
+                        $model, 'distributor_id', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => 'col-sm-5',
+                    ),
+                    'widgetOptions' => array(
+                        'data' => $distributors,
+                        'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Distributor'),
+                    )
+                        )
+                );
+                ?>
+        </div>
 
 	
 	<div class="form-group">

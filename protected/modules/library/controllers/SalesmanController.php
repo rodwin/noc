@@ -98,7 +98,7 @@ class SalesmanController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View Salesman '.$model->salesman_id;
+        $this->pageTitle = 'View Salesman '.$model->salesman_name;
 
         $this->menu=array(
                 array('label'=>'Create Salesman', 'url'=>array('create')),
@@ -170,7 +170,7 @@ class SalesmanController extends Controller
                 array('label'=>'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update Salesman '.$model->salesman_id;
+        $this->pageTitle = 'Update Salesman '.$model->salesman_name;
         
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);

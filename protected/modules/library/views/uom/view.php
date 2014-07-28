@@ -1,7 +1,7 @@
 <?php
 $this->breadcrumbs=array(
 	'Uoms'=>array('admin'),
-	$model->uom_id,
+	$model->uom_name,
 );
 
 ?>

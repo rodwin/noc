@@ -66,6 +66,7 @@ class PoiSubCategoryController extends Controller
             $row = array();
                         $row['poi_sub_category_id']= $value->poi_sub_category_id;
                         $row['poi_category_id']= $value->poi_category_id;
+                        $row['poi_category_name']= $value->category_name;
                         $row['sub_category_name']= $value->sub_category_name;
                         $row['description']= $value->description;
                         $row['created_date']= $value->created_date;
@@ -92,7 +93,7 @@ class PoiSubCategoryController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View PoiSubCategory '.$model->poi_sub_category_id;
+        $this->pageTitle = 'View PoiSubCategory '.$model->sub_category_name;
 
         $this->menu=array(
                 array('label'=>'Create PoiSubCategory', 'url'=>array('create')),
@@ -141,9 +142,12 @@ class PoiSubCategoryController extends Controller
                 $this->redirect(array('view','id'=>$model->poi_sub_category_id));
             }
         }
+        
+        $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "'.Yii::app()->user->company_id.'"', 'order' => 'category_name ASC')), 'poi_category_id', 'category_name');
 
         $this->render('create',array(
             'model'=>$model,
+            'poi_category' => $poi_category,
         ));
     }
 
@@ -164,7 +168,7 @@ class PoiSubCategoryController extends Controller
                 array('label'=>'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update PoiSubCategory '.$model->poi_sub_category_id;
+        $this->pageTitle = 'Update PoiSubCategory '.$model->sub_category_name;
         
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
@@ -180,9 +184,12 @@ class PoiSubCategoryController extends Controller
                 $this->redirect(array('view','id'=>$model->poi_sub_category_id));
             }
         }
+        
+        $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "'.Yii::app()->user->company_id.'"', 'order' => 'category_name ASC')), 'poi_category_id', 'category_name');
 
         $this->render('update',array(
             'model'=>$model,
+            'poi_category' => $poi_category,
         ));
     }
 
@@ -237,9 +244,12 @@ class PoiSubCategoryController extends Controller
         $model->unsetAttributes();  // clear any default values
         if(isset($_GET['PoiSubCategory']))
             $model->attributes=$_GET['PoiSubCategory'];
+        
+        $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "'.Yii::app()->user->company_id.'"', 'order' => 'category_name ASC')), 'category_name', 'category_name');
 
         $this->render('admin',array(
             'model'=>$model,
+            'poi_category' => $poi_category,
         ));
     }
 

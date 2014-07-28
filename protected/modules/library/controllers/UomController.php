@@ -90,7 +90,7 @@ class UomController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View Uom '.$model->uom_id;
+        $this->pageTitle = 'View Uom '.$model->uom_name;
 
         $this->menu=array(
                 array('label'=>'Create Uom', 'url'=>array('create')),
@@ -162,7 +162,7 @@ class UomController extends Controller
                 array('label'=>'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update Uom '.$model->uom_id;
+        $this->pageTitle = 'Update Uom '.$model->uom_name;
         
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);

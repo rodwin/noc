@@ -16,6 +16,7 @@
 class PoiCustomDataValue extends CActiveRecord
 {
         public $search_string;
+        public $custom_data_name;
 	/**
 	 * @return string the associated database table name
 	 */
@@ -147,4 +148,37 @@ class PoiCustomDataValue extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+        
+        public function getPoiCustomDataValue($poi_id, $poi_category_id) {
+
+            $criteria = new CDbCriteria;
+            $criteria->select = 't.*, poi_custom_data.name as custom_data_name';
+            $criteria->join = 'INNER JOIN poi_custom_data ON poi_custom_data.custom_data_id = t.custom_data_id';
+            $criteria->join .= ' INNER JOIN poi ON poi.poi_id = t.poi_id';
+            $criteria->condition = 'poi_custom_data.company_id = "' . Yii::app()->user->company_id . '" AND poi.poi_id = "' . $poi_id . '" AND poi.poi_category_id = "' . $poi_category_id . '"';
+            $criteria->order = "poi_custom_data.sort_order ASC";
+
+            return PoiCustomDataValue::model()->findAll($criteria);
+        }
+        
+        public function deletePoiCustomDataValueByPoiID($poi_id) {
+
+            $sql = "DELETE FROM noc.poi_custom_data_value
+                        WHERE poi_id = :poi_id";
+
+            $command = Yii::app()->db->createCommand($sql);
+            $command->bindParam(':poi_id', $poi_id, PDO::PARAM_STR);
+            $command->execute();
+        }
+        
+        public function deletePoiCustomDataValueByCustomDataID($custom_data_id) {
+
+            $sql = "DELETE FROM noc.poi_custom_data_value
+                        WHERE custom_data_id = :custom_data_id";
+
+            $command = Yii::app()->db->createCommand($sql);
+            $command->bindParam(':custom_data_id', $custom_data_id, PDO::PARAM_STR);
+            $command->execute();
+        }
+
 }

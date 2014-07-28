@@ -120,47 +120,28 @@ class SkuLocationRestock extends CActiveRecord
                 switch($col){
                                         
                         case 0:
-                        $sort_column = 'id';
+                        $sort_column = 'zone.zone_name';
                         break;
                                         
                         case 1:
-                        $sort_column = 'zone_id';
+                        $sort_column = 't.low_qty_threshold';
                         break;
                                         
                         case 2:
-                        $sort_column = 'low_qty_threshold';
-                        break;
-                                        
-                        case 3:
-                        $sort_column = 'high_qty_threshold';
-                        break;
-                                        
-                        case 4:
-                        $sort_column = 'created_date';
-                        break;
-                                        
-                        case 5:
-                        $sort_column = 'created_by';
-                        break;
-                                        
-                        case 6:
-                        $sort_column = 'updated_date';
+                        $sort_column = 't.high_qty_threshold';
                         break;
                                 }
         
 
                 $criteria=new CDbCriteria;
-                $criteria->compare('company_id',Yii::app()->user->company_id);
-                		$criteria->compare('id',$columns[0]['search']['value'],true);
-		$criteria->compare('zone_id',$columns[1]['search']['value'],true);
-		$criteria->compare('low_qty_threshold',$columns[2]['search']['value']);
-		$criteria->compare('high_qty_threshold',$columns[3]['search']['value']);
-		$criteria->compare('created_date',$columns[4]['search']['value'],true);
-		$criteria->compare('created_by',$columns[5]['search']['value'],true);
-		$criteria->compare('updated_date',$columns[6]['search']['value'],true);
+                $criteria->compare('t.company_id',Yii::app()->user->company_id);
+		$criteria->compare('zone.zone_name',$columns[0]['search']['value'],true);
+		$criteria->compare('t.low_qty_threshold',$columns[1]['search']['value']);
+		$criteria->compare('t.high_qty_threshold',$columns[2]['search']['value']);
                 $criteria->order = "$sort_column $order_dir";
                 $criteria->limit = $limit;
                 $criteria->offset = $offset;
+                $criteria->with = array('company', 'zone');
                 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

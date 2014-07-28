@@ -1,11 +1,22 @@
 <?php
-$this->breadcrumbs=array(
-	'Pois'=>array('admin'),
-	$model->poi_id=>array('view','id'=>$model->poi_id),
-	'Update',
+
+$this->breadcrumbs = array(
+    'Pois' => array('admin'),
+    $model->short_name => array('view', 'id' => $model->poi_id),
+    'Update',
 );
+?>
 
-	?>
 
+<?php
 
-<?php echo $this->renderPartial('_form',array('model'=>$model)); ?>
+echo $this->renderPartial('_form', array(
+    'model' => $model,
+    'region' => $region,
+    'province' => $province,
+    'municipal' => $municipal,
+    'barangay' => $barangay,
+    'poi_category' => $poi_category,
+    'poi_sub_category' => $poi_sub_category,
+    'custom_datas' => $custom_datas,));
+?>

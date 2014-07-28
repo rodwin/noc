@@ -1,7 +1,7 @@
 <?php
 $this->breadcrumbs=array(
 	'Poi Sub Categories'=>array('admin'),
-	$model->poi_sub_category_id,
+	$model->sub_category_name,
 );
 
 ?>
@@ -13,7 +13,7 @@ $this->breadcrumbs=array(
 'attributes'=>array(
 		'poi_sub_category_id',
 		'company.name',
-		'poi_category_id',
+		'category_name',
 		'sub_category_name',
 		'description',
 		'created_date',

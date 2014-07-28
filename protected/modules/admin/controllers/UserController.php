@@ -208,7 +208,7 @@ class UserController extends Controller
                 array('label'=>'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update User '.$model->user_id;
+        $this->pageTitle = 'Update User '.$model->user_name;
         
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);

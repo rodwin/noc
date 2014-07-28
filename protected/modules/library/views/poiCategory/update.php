@@ -1,7 +1,7 @@
 <?php
 $this->breadcrumbs=array(
 	'Poi Categories'=>array('admin'),
-	$model->poi_category_id=>array('view','id'=>$model->poi_category_id),
+	$model->category_name=>array('view','id'=>$model->poi_category_id),
 	'Update',
 );
 

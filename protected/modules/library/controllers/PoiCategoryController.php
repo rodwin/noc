@@ -90,7 +90,7 @@ class PoiCategoryController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View PoiCategory '.$model->poi_category_id;
+        $this->pageTitle = 'View PoiCategory '.$model->category_name;
 
         $this->menu=array(
                 array('label'=>'Create PoiCategory', 'url'=>array('create')),
@@ -162,7 +162,7 @@ class PoiCategoryController extends Controller
                 array('label'=>'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update PoiCategory '.$model->poi_category_id;
+        $this->pageTitle = 'Update PoiCategory '.$model->category_name;
         
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);

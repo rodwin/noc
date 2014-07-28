@@ -90,7 +90,7 @@ class SkuStatusController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View SkuStatus '.$model->sku_status_id;
+        $this->pageTitle = 'View SkuStatus '.$model->status_name;
 
         $this->menu=array(
                 array('label'=>'Create SkuStatus', 'url'=>array('create')),
@@ -162,7 +162,7 @@ class SkuStatusController extends Controller
                 array('label'=>'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update SkuStatus '.$model->sku_status_id;
+        $this->pageTitle = 'Update SkuStatus '.$model->status_name;
         
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
