@@ -242,4 +242,34 @@
 
     }
 
+    function onlyDotsAndNumbers(txt, event, dots) {
+        console.log(dots);
+        var charCode = (event.which) ? event.which : event.keyCode;
+
+        if (charCode == 46) {
+            if (dots == 0) {
+                return false;
+            }
+            if (txt.value.indexOf(".") < 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        if (txt.value.indexOf(".") > 0) {
+            var txtlen = txt.value.length;
+            var dotpos = txt.value.indexOf(".");
+
+            if ((txtlen - dotpos) > dots) {
+                return false;
+            }
+        }
+
+        if (charCode > 31 && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
 </script>

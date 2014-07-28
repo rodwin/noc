@@ -43,7 +43,8 @@
                         $value = substr($value, -1) == "." ? rtrim($value, ".") : $value;
                         ?>
 
-                        <?php echo CHtml::numberField($post_name, isset($_POST[$post_name]) ? $_POST[$post_name] : $val['custom_data_value'], array('min' => $attr['min_value'], 'max' => $attr['max_value'], 'step' => $attr['decimal_place'], 'class' => 'form-control input-sm')) ?>
+                        <?php $decimal_place = $attr['decimal_place']; ?>
+                        <?php echo CHtml::numberField($post_name, isset($_POST[$post_name]) ? $_POST[$post_name] : $val['custom_data_value'], array('min' => $attr['min_value'], 'max' => $attr['max_value'], "onkeypress" => "return onlyDotsAndNumbers(this, event, $decimal_place)", 'class' => 'form-control input-sm')) ?>
                     </div>
 
                 <?php } else if ($data_type == 'CheckBox') { ?>

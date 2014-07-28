@@ -53,7 +53,7 @@ return false;
             <tr>
                 <!--<th><?php echo $fields['custom_data_id']; ?></th>-->
                 <th><?php echo $fields['name']; ?></th>
-                <th><?php echo $fields['type']; ?></th>
+                <!--<th><?php echo $fields['type']; ?></th>-->
                 <th><?php echo $fields['data_type']; ?></th>
                 <th><?php echo $fields['description']; ?></th>
                 <th><?php echo $fields['required']; ?></th>
@@ -75,13 +75,17 @@ return false;
             "bAutoWidth": false,
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/SkuCustomData/data'); ?>",
             "columns": [
-                {"name": "name", "data": "name"}, {"name": "type", "data": "type"}, {"name": "data_type", "data": "data_type"}, {"name": "description", "data": "description"}, {"name": "required", "data": "required"}, {"name": "sort_order", "data": "sort_order"}, {"name": "links", "data": "links", 'sortable': false}
+                {"name": "name", "data": "name"},
+//                {"name": "type", "data": "type"}, 
+                {"name": "data_type", "data": "data_type"}, {"name": "description", "data": "description"}, {"name": "required", "data": "required"}, {"name": "sort_order", "data": "sort_order"}, {"name": "links", "data": "links", 'sortable': false}
             ]
         });
 
         $('#btnSearch').click(function() {
             table.fnMultiFilter({
-                "name": $("#SkuCustomData_name").val(), "type": $("#SkuCustomData_type").val(), "data_type": $("#SkuCustomData_data_type").val(), "description": $("#SkuCustomData_description").val(), "required": $("#SkuCustomData_required").val(), "sort_order": $("#SkuCustomData_sort_order").val(), });
+                "name": $("#SkuCustomData_name").val(),
+//                "type": $("#SkuCustomData_type").val(), 
+                "data_type": $("#SkuCustomData_data_type").val(), "description": $("#SkuCustomData_description").val(), "required": $("#SkuCustomData_required").val(), "sort_order": $("#SkuCustomData_sort_order").val(), });
         });
 
 

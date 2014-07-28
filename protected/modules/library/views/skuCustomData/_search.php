@@ -18,12 +18,12 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="SkuCustomData_type" class="col-sm-2 control-label"><?php echo $fields['type']; ?></label>
-                        <div class="col-sm-3">
-                            <input type="text" class="form-control" id="SkuCustomData_type" placeholder="<?php echo $fields['type']; ?>" name="SkuCustomData[type]">
-                        </div>
-                    </div>
+                    <!--                    <div class="form-group">
+                                            <label for="SkuCustomData_type" class="col-sm-2 control-label"><?php echo $fields['type']; ?></label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" id="SkuCustomData_type" placeholder="<?php echo $fields['type']; ?>" name="SkuCustomData[type]">
+                                            </div>
+                                        </div>-->
 
                     <div class="form-group">
                         <label for="SkuCustomData_data_type" class="col-sm-2 control-label"><?php echo $fields['data_type']; ?></label>

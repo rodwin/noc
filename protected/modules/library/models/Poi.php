@@ -230,7 +230,7 @@ class Poi extends CActiveRecord {
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
-        $criteria->with = array('poiCustomDataValues', 'poiCategory', 'poiSubCategory');
+        $criteria->with = array('poiCategory', 'poiSubCategory');
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,

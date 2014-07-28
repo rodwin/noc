@@ -35,5 +35,5 @@
 
 <div>
     <?php echo $form->label($model, 'Decimal Places', array('class' => 'control-label text-primary', 'style' => 'font-weight: bold;')); ?><br/>
-    <?php echo CHtml::dropDownList('decimal_place', $unserialize_attribute['decimal_place'], array('0' => '0', '0.1' => '1', '0.01' => '2'), array('style' => 'width: 100px; padding: 5px; font-size: 12px;')); ?>
+    <?php echo CHtml::dropDownList('decimal_place', $unserialize_attribute['decimal_place'], array('0' => '0', '1' => '1', '2' => '2'), array('style' => 'width: 100px; padding: 5px; font-size: 12px;')); ?>
 </div>
