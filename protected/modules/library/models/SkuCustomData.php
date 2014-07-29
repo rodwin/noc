@@ -134,23 +134,23 @@ class SkuCustomData extends CActiveRecord {
                 $sort_column = 'name';
                 break;
 
-            case 1:
-                $sort_column = 'type';
-                break;
+//            case 1:
+//                $sort_column = 'type';
+//                break;
 
-            case 2:
+            case 1:
                 $sort_column = 'data_type';
                 break;
 
-            case 3:
+            case 2:
                 $sort_column = 'description';
                 break;
 
-            case 4:
+            case 3:
                 $sort_column = 'required';
                 break;
 
-            case 5:
+            case 4:
                 $sort_column = 'sort_order';
                 break;
         }
@@ -160,11 +160,11 @@ class SkuCustomData extends CActiveRecord {
         $criteria->compare('company_id', Yii::app()->user->company_id);
 //        $criteria->compare('custom_data_id', $columns[0]['search']['value'], true);
         $criteria->compare('name', $columns[0]['search']['value'], true);
-        $criteria->compare('type', $columns[1]['search']['value'], true);
-        $criteria->compare('data_type', $columns[2]['search']['value'], true);
-        $criteria->compare('description', $columns[3]['search']['value'], true);
-        $criteria->compare('required', $columns[4]['search']['value'], true);
-        $criteria->compare('sort_order', $columns[5]['search']['value']);
+//        $criteria->compare('type', $columns[1]['search']['value'], true);
+        $criteria->compare('data_type', $columns[1]['search']['value'], true);
+        $criteria->compare('description', $columns[2]['search']['value'], true);
+        $criteria->compare('required', $columns[3]['search']['value'], true);
+        $criteria->compare('sort_order', $columns[4]['search']['value']);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;

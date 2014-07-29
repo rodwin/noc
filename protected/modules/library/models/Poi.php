@@ -41,6 +41,10 @@
 class Poi extends CActiveRecord {
 
     public $search_string;
+    public $barangay_name;
+    public $municipal_name;
+    public $province_name;
+    public $region_name;
 
     /**
      * @return string the associated database table name
@@ -199,38 +203,54 @@ class Poi extends CActiveRecord {
                 break;
 
             case 4:
-                $sort_column = 't.barangay_id';
-                break;
-
-            case 5:
-                $sort_column = 't.municipal_id';
-                break;
-
-            case 6:
                 $sort_column = 'poiCategory.category_name';
                 break;
 
-            case 7:
+            case 5:
                 $sort_column = 'poiSubCategory.sub_category_name';
+                break;
+
+            case 6:
+                $sort_column = 'barangay_name';
+                break;
+
+            case 7:
+                $sort_column = 'municipal_name';
+                break;
+
+            case 8:
+                $sort_column = 'province_name';
+                break;
+
+            case 9:
+                $sort_column = 'region_name';
                 break;
         }
 
 
         $criteria = new CDbCriteria;
+        $criteria->select = "t.*, barangay.barangay_name as barangay_name, municipal.municipal_name as municipal_name, "
+                . "province.province_name as province_name, region.region_name as region_name";
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
 //        $criteria->compare('poi_id', $columns[0]['search']['value'], true);
         $criteria->compare('t.short_name', $columns[0]['search']['value'], true);
         $criteria->compare('t.long_name', $columns[1]['search']['value'], true);
         $criteria->compare('t.primary_code', $columns[2]['search']['value'], true);
         $criteria->compare('t.secondary_code', $columns[3]['search']['value'], true);
-        $criteria->compare('t.barangay_id', $columns[4]['search']['value']);
-        $criteria->compare('t.municipal_id', $columns[5]['search']['value']);
-        $criteria->compare('poiCategory.category_name', $columns[6]['search']['value']);
-        $criteria->compare('poiSubCategory.sub_category_name', $columns[7]['search']['value']);
+        $criteria->compare('poiCategory.category_name', $columns[4]['search']['value']);
+        $criteria->compare('poiSubCategory.sub_category_name', $columns[5]['search']['value']);
+        $criteria->compare('barangay_name', $columns[6]['search']['value']);
+        $criteria->compare('municipal_name', $columns[7]['search']['value']);
+        $criteria->compare('province_name', $columns[8]['search']['value']);
+        $criteria->compare('region_name', $columns[9]['search']['value']);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
-        $criteria->with = array('poiCustomDataValues', 'poiCategory', 'poiSubCategory');
+        $criteria->with = array('poiCategory', 'poiSubCategory');
+        $criteria->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
+        $criteria->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
+        $criteria->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
+        $criteria->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,

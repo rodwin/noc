@@ -70,9 +70,13 @@ class PoiController extends Controller {
             $row['primary_code'] = $value->primary_code;
             $row['secondary_code'] = $value->secondary_code;
             $row['barangay_id'] = $value->barangay_id;
+            $row['barangay_name'] = $value->barangay_name;
             $row['municipal_id'] = $value->municipal_id;
+            $row['municipal_name'] = $value->municipal_name;
             $row['province_id'] = $value->province_id;
+            $row['province_name'] = $value->province_name;
             $row['region_id'] = $value->region_id;
+            $row['region_name'] = $value->region_name;
             $row['sales_region_id'] = $value->sales_region_id;
             $row['latitude'] = $value->latitude;
             $row['longitude'] = $value->longitude;
@@ -293,7 +297,7 @@ class PoiController extends Controller {
         $barangay = CHtml::listData(Barangay::model()->findAll(array('condition' => 'municipal_code = "' . $model->municipal_id . '"', 'order' => 'barangay_name ASC')), 'barangay_code', 'barangay_name');
         $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'poi_category_id', 'category_name');
         $poi_sub_category = PoiSubCategory::model()->getSubCategoryOptionListByCategoryID($model->poi_category_id);
-        
+
         $this->render('update', array(
             'model' => $model,
             'region' => $region,

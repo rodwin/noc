@@ -25,7 +25,7 @@
                             <?php echo CHtml::textArea($post_name, isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value'], array('maxlength' => isset($attr['max_character_length']) ? $attr['max_character_length'] : "", 'class' => 'form-control input-sm', 'style' => 'resize: none; height: 100px;')); ?>
                         </div>
 
-                    <?php } else { ?>        
+                    <?php } else { ?>
 
                         <div class="form-group">
                             <label><?php echo $label_name; ?></label>
@@ -37,15 +37,15 @@
 
                 <?php } else if ($data_type == 'Numbers Only') { ?>
 
-                    <div class="form-group">                        
+                    <div class="form-group">
                         <label><?php echo $label_name; ?></label>
 
                         <?php
                         $value = rtrim(isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value'], "0");
                         $value = substr($value, -1) == "." ? rtrim($value, ".") : $value;
                         ?>
-
-                        <?php echo CHtml::numberField($post_name, isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value'], array('min' => $attr['min_value'], 'max' => $attr['max_value'], 'step' => $attr['decimal_place'], 'class' => 'form-control input-sm')) ?>
+                        <?php $decimal_place = $attr['decimal_place']; ?>
+                        <?php echo CHtml::numberField($post_name, isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value'], array('min' => $attr['min_value'], 'max' => $attr['max_value'], "onkeypress" => "return onlyDotsAndNumbers(this, event, $decimal_place)", 'class' => 'form-control input-sm')) ?>
                     </div>
 
                 <?php } else if ($data_type == 'CheckBox') { ?>

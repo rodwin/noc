@@ -230,7 +230,7 @@ class SkuCustomDataController extends Controller {
 
                 $serialize_attribute = CJSON::encode($attributes);
 
-                $model->attributes = $_POST['PoiCustomData'];
+                $model->attributes = $_POST['SkuCustomData'];
                 $model->attribute = $serialize_attribute;
 
                 if ($model->save()) {

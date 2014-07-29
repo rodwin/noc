@@ -1,28 +1,27 @@
 <?php
-
 $main_menu = array(
-        array('label' => 'Dashboard', 'url' => array('/site/index'), 'visible'=>!Yii::app()->user->isGuest),
-        array('label' => 'Widgets', 'url' => array('/tracker'), 'visible'=>!Yii::app()->user->isGuest),
-        array('label' => 'Charts', 'url' => '#', 'visible'=>!Yii::app()->user->isGuest, 'items' => array(
-                array('label' => 'Morris', 'url' => array('/transaction/salesorder/admin'), 'visible'=>!Yii::app()->user->isGuest),
-                array('label' => 'Flot', 'url' => array('/transaction/salesorder/admin'), 'visible'=>!Yii::app()->user->isGuest),
-                array('label' => 'Inline charts', 'url' => array('/transaction/salesorder/admin'), 'visible'=>!Yii::app()->user->isGuest),
+    array('label' => 'Dashboard', 'url' => array('/site/index'), 'visible' => !Yii::app()->user->isGuest),
+    array('label' => 'Widgets', 'url' => array('/tracker'), 'visible' => !Yii::app()->user->isGuest),
+    array('label' => 'Charts', 'url' => '#', 'visible' => !Yii::app()->user->isGuest, 'items' => array(
+            array('label' => 'Morris', 'url' => array('/transaction/salesorder/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => 'Flot', 'url' => array('/transaction/salesorder/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => 'Inline charts', 'url' => array('/transaction/salesorder/admin'), 'visible' => !Yii::app()->user->isGuest),
         )),
 );
-        
 ?>
 
 <!-- sidebar menu: : style can be found in sidebar.less -->
 <ul class="sidebar-menu">
     <?php
-    //foreach ($main_menu as $key => $value) {
-    //    if($value['url'] != '#'){?>
-        
-        
-    
-    <?php //}
-    //}
+//foreach ($main_menu as $key => $value) {
+//    if($value['url'] != '#'){
+    ?>
 
+
+
+    <?php
+    //}
+    //}
     ?>
     <li class="active">
         <a href="#">
@@ -30,7 +29,7 @@ $main_menu = array(
         </a>
     </li>
     <li class="">
-        <a href="#">
+        <a href="<?php echo Yii::app()->createUrl("/inventory/inventory/admin") ?>">
             <i class="fa fa-list-alt"></i> <span>Inventory</span>
         </a>
     </li>
@@ -80,7 +79,7 @@ $main_menu = array(
                     <i class="fa fa-angle-double-right"></i> <span>POI</span>
                 </a>
             </li>
-            
+
             <li>
                 <hr/>
             </li>
@@ -128,7 +127,7 @@ $main_menu = array(
                 </a>
             </li>
             <li>
-                <a href="<?php echo Yii::app()->createUrl("/admin/company/update",array('id'=>Yii::app()->user->company_id)) ?>">
+                <a href="<?php echo Yii::app()->createUrl("/admin/company/update", array('id' => Yii::app()->user->company_id)) ?>">
                     <i class="fa fa-angle-double-right"></i> <span>Company</span>
                 </a>
             </li>
@@ -139,5 +138,5 @@ $main_menu = array(
             </li>
         </ul>
     </li>
-    
+
 </ul>
