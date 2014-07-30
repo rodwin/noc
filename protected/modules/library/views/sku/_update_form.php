@@ -57,7 +57,7 @@
                             <div id="sku_custom_datas">
 
                                 <?php
-                                echo $this->renderPartial('_customItems_update', array('model' => $model, 'custom_datas' => $custom_datas));
+                                echo $this->renderPartial('_customItems_update', array('model' => $model, 'custom_datas' => $custom_datas, 'sku_custom_data' => $sku_custom_data, 'form' => $form,));
                                 ?>
 
                             </div>
@@ -243,7 +243,7 @@
     }
 
     function onlyDotsAndNumbers(txt, event, dots) {
-        console.log(dots);
+        
         var charCode = (event.which) ? event.which : event.keyCode;
 
         if (charCode == 46) {
