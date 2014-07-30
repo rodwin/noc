@@ -71,7 +71,9 @@
 
 
 <div class="form-group">
-    <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save',array('class'=>'btn btn-primary btn-flat')); ?>    <?php echo CHtml::resetButton('Reset',array('class'=>'btn btn-primary btn-flat')); ?></div>
+    <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save',array('class'=>'btn btn-primary btn-flat')); ?>    
+    <?php echo CHtml::resetButton('Reset',array('class'=>'btn btn-primary btn-flat')); ?>
+</div>
 
 <?php $this->endWidget(); ?>
     </div>

@@ -5,14 +5,10 @@
  * ContactForm is the data structure for keeping
  * contact form data. It is used by the 'contact' action of 'SiteController'.
  */
-class ContactForm extends CFormModel
+class SKUImportForm extends CFormModel
 {
-	public $name;
-	public $email;
-	public $subject;
-	public $body;
-	public $verifyCode;
-
+	public $doc_file;
+        public $notify;
 	/**
 	 * Declares the validation rules.
 	 */
@@ -20,11 +16,7 @@ class ContactForm extends CFormModel
 	{
 		return array(
 			// name, email, subject and body are required
-			array('name, email, subject, body', 'required'),
-			// email has to be a valid email address
-			array('email', 'email'),
-			// verifyCode needs to be entered correctly
-			array('verifyCode', 'captcha', 'allowEmpty'=>!CCaptcha::checkRequirements()),
+                        array('doc_file', 'file', 'types' => 'csv', 'maxSize' => 1024 * 1024 * 10, 'tooLarge' => 'The file was larger than 10MB. Please upload a smaller file.'),
 		);
 	}
 
@@ -36,7 +28,8 @@ class ContactForm extends CFormModel
 	public function attributeLabels()
 	{
 		return array(
-			'verifyCode'=>'Verification Code',
+			'notify'=>'Notify me by email when upload is complete',
+			'doc_file'=>'File Name',
 		);
 	}
 }

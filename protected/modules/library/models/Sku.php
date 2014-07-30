@@ -83,7 +83,7 @@ class Sku extends CActiveRecord {
     {
         $data = trim($this->$attribute);
         
-        if($data == ""){
+        if($data == null){
             return;
         }
         

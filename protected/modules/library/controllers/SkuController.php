@@ -64,15 +64,15 @@ class SkuController extends Controller {
             $row['sku_id'] = $value->sku_id;
             $row['sku_code'] = $value->sku_code;
             $row['brand_id'] = $value->brand_id;
-            $row['brand_name'] = $value->brand->brand_name;
+            $row['brand_name'] = isset($value->brand->brand_name) ? $value->brand->brand_name:null;
             $row['sku_name'] = $value->sku_name;
             $row['description'] = $value->description;
             $row['default_uom_id'] = $value->default_uom_id;
-            $row['default_uom_name'] = $value->defaultUom->uom_name;
+            $row['default_uom_name'] = isset($value->brand->brand_name) ? $value->defaultUom->uom_name : null;
             $row['default_unit_price'] = $value->default_unit_price;
             $row['type'] = $value->type;
             $row['default_zone_id'] = $value->default_zone_id;
-            $row['default_zone_name'] = $value->defaultZone->zone_name;
+            $row['default_zone_name'] = isset($value->brand->brand_name) ? $value->defaultZone->zone_name : null;
             $row['supplier'] = $value->supplier;
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
@@ -99,7 +99,56 @@ class SkuController extends Controller {
     }
     public function actionUpload() {
         
-        Sku::model()->parseCsv("");
+        $this->pageTitle = 'Upload Sku';
+
+        $this->menu = array(
+            array('label' => 'Create Sku', 'url' => array('create')),
+            array('label' => 'Manage Sku', 'url' => array('admin')),
+            '',
+            array('label' => 'Help', 'url' => '#'),
+        );
+
+        $model = new SKUImportForm();
+        
+        if(isset($_POST) && count($_POST)>0)
+        {
+            $model->attributes=$_POST['SKUImportForm'];
+            if($model->validate()){
+//                    pre($_FILES);
+                if(isset($_FILES['SKUImportForm']['name']) && $_FILES['SKUImportForm']['name'] != ""){
+
+                    $file = CUploadedFile::getInstance($model, 'doc_file');
+                    
+                    $dir = Yii::app()->basePath.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.Yii::app()->user->company_id.DIRECTORY_SEPARATOR.'sku';
+
+                    if(!is_dir($dir)){
+                            mkdir($dir, 0777, true);
+                    }
+                    
+                    $file->saveAs($dir.DIRECTORY_SEPARATOR.str_replace(' ', '_', strtolower(date('YmdHis').'-'.$file->name)));
+//                    $batch_upload = new BatchUpload('create');
+//                    $batch_upload->client_id = $model->gyrt_client_id;
+//                    $batch_upload->status = 'PENDING';
+//                    $batch_upload->file_name= str_replace(' ', '_', strtolower($file->name));
+//                    $batch_upload->total_rows= 0;
+//                    $batch_upload->failed_rows= 0;
+//                    $batch_upload->type= 'members';
+//                    $batch_upload->module= 'gyrt';
+//                    $batch_upload->added_by = Yii::app()->user->id;
+//                    $batch_upload->save();
+//
+//                    $this->runinbackground($batch_upload->id);
+//
+                    Yii::app()->user->setFlash('success',"Successfully uploaded data. Please wait for the checking to finish!");
+                    $this->redirect(array('upload'));
+
+                }
+            }
+        }
+
+        $headers = Sku::model()->requiredHeaders();
+        
+        $this->render('upload',array('model'=>$model,'headers'=>$headers));
         
     }
 
