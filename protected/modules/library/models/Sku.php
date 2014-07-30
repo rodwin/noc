@@ -47,21 +47,86 @@ class Sku extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('sku_id, sku_code, company_id, brand_id, sku_name, default_uom_id, default_zone_id', 'required'),
-            array('low_qty_threshold, high_qty_threshold', 'numerical', 'integerOnly' => true),
+            array('sku_id, sku_code, company_id, sku_name', 'required'),
+            array('low_qty_threshold, high_qty_threshold', 'numerical', 'integerOnly' => true,'max'=>9999999,'min'=> 0),
             array('sku_id, sku_code, company_id, brand_id, default_uom_id, type, default_zone_id, created_by, updated_by', 'length', 'max' => 50),
             array('sku_name, description', 'length', 'max' => 150),
+            array('sku_code', 'uniqueCode'),
+            array('default_uom_id', 'isValidUOM'),
+            array('default_zone_id', 'isValidZone'),
+            array('brand_id', 'isValidBrand'),
             array('default_unit_price', 'length', 'max' => 18),
             array('supplier', 'length', 'max' => 250),
-            array('default_unit_price', 'type', 'type' => 'float', 'message' => '{attribute} must be number.'),
+            array('default_unit_price', 'match', 'pattern'=>'/^[0-9]{1,9}(\.[0-9]{0,3})?$/'),
             array('created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('sku_id, sku_code, company_id, brand_id, sku_name, description, default_uom_id, default_unit_price, type, default_zone_id, supplier, created_date, created_by, updated_date, updated_by, low_qty_threshold, high_qty_threshold', 'safe', 'on' => 'search'),
         );
     }
+    
+    public function uniqueCode($attribute, $params) {
+        
+        $model = Sku::model()->findByAttributes(array('company_id' => $this->company_id, 'sku_code' => $this->$attribute));
+        if ($model && $model->sku_id != $this->sku_id) {
+            $this->addError($attribute, 'Sku code selected already taken');
+        }
+        return;
+    }
+    
+    public function isValidUOM($attribute)
+    {
+        if($this->$attribute == null){
+            return;
+        }
+        $model = Uom::model()->findByPk($this->$attribute);
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'UOM is invalid');
+        }
+        
+        return;
+    }
+    
+    public function isValidBrand($attribute)
+    {
+        if($this->$attribute == null){
+            return;
+        }
+        $model = Brand::model()->findbypk($this->$attribute);
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'UOM is invalid');
+        }
+        
+        return;
+    }
+    
+    public function isValidZone($attribute)
+    {
+        if($this->$attribute == null){
+            return;
+        }
+        
+        $model = Zone::model()->findByPk($this->$attribute);
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'Zone is invalid');
+        }
+        
+        return;
+    }
 
     public function beforeValidate() {
+        if($this->default_uom_id == ""){
+            $this->default_uom_id = null;
+        }
+        if($this->default_zone_id == ""){
+            $this->default_zone_id = null;
+        }
+        if($this->brand_id == ""){
+            $this->brand_id = null;
+        }
         return parent::beforeValidate();
     }
 

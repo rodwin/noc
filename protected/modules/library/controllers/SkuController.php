@@ -348,6 +348,11 @@ class SkuController extends Controller {
      * Manages all models.
      */
     public function actionAdmin() {
+        
+        if(isset($_GET['upload'])){
+            $this->upload("C:\\inetpub\\wwwroot\\noc\\protected\\data\\ItemSample.csv");
+        }
+        
         $this->layout = '//layouts/column1';
         $this->pageTitle = 'Manage Sku';
 
@@ -391,5 +396,43 @@ class SkuController extends Controller {
             Yii::app()->end();
         }
     }
-
+    
+    private function upload($file){
+        
+        $rows = Globals::parseCSV($file,true,true,',');
+        
+        $mapping = array(
+            'SKU Code' => 'sku_code',
+            'SKU Description' => 'sku_code',
+            'Brand' => 'sku_code',
+            'Description' => 'sku_code',
+            'Default Location' => 'sku_code',
+            'Default Unit of Measure' => 'sku_code',
+            'SKU Code' => 'sku_code',
+        );
+        
+        if($rows){
+            
+            echo count($rows).PHP_EOL;
+            
+            $success = 0;
+            $fail = 0;
+            
+            foreach($rows as $key => $val){
+                
+                pr($val);
+                
+                $model = Sku::model()->findByAttributes(array('sku_code' => $val['SKU Code'], 'company_id' => Yii::app()->user->company_id));
+                
+                if($model){//for update
+                    
+                }else{// for insert
+                    
+                }
+                
+            
+            }
+        }
+        exit;
+    }
 }
