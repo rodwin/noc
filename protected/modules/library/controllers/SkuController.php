@@ -25,7 +25,7 @@ class SkuController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view', 'saveSkuConvertion'),
+                'actions' => array('index', 'view', 'saveSkuConvertion','GenerateTemplate','Upload'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -90,6 +90,17 @@ class SkuController extends Controller {
         }
 
         echo json_encode($output);
+    }
+    
+    public function actionGenerateTemplate() {
+        
+        Sku::model()->generateTemplate();
+        
+    }
+    public function actionUpload() {
+        
+        Sku::model()->parseCsv("");
+        
     }
 
     /**
@@ -349,10 +360,6 @@ class SkuController extends Controller {
      */
     public function actionAdmin() {
         
-        if(isset($_GET['upload'])){
-            $this->upload("C:\\inetpub\\wwwroot\\noc\\protected\\data\\ItemSample.csv");
-        }
-        
         $this->layout = '//layouts/column1';
         $this->pageTitle = 'Manage Sku';
 
@@ -397,42 +404,5 @@ class SkuController extends Controller {
         }
     }
     
-    private function upload($file){
-        
-        $rows = Globals::parseCSV($file,true,true,',');
-        
-        $mapping = array(
-            'SKU Code' => 'sku_code',
-            'SKU Description' => 'sku_code',
-            'Brand' => 'sku_code',
-            'Description' => 'sku_code',
-            'Default Location' => 'sku_code',
-            'Default Unit of Measure' => 'sku_code',
-            'SKU Code' => 'sku_code',
-        );
-        
-        if($rows){
-            
-            echo count($rows).PHP_EOL;
-            
-            $success = 0;
-            $fail = 0;
-            
-            foreach($rows as $key => $val){
-                
-                pr($val);
-                
-                $model = Sku::model()->findByAttributes(array('sku_code' => $val['SKU Code'], 'company_id' => Yii::app()->user->company_id));
-                
-                if($model){//for update
-                    
-                }else{// for insert
-                    
-                }
-                
-            
-            }
-        }
-        exit;
-    }
+    
 }
