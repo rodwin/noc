@@ -1,14 +1,12 @@
 <div class="row">
-
     <div class="panel panel-default">
-
         <div class="panel-body">
             <div class="col-md-8">
+
                 <?php
                 $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                     'id' => 'poi-form',
                     'enableAjaxValidation' => false,
-                    'htmlOptions' => array("onsubmit" => "return(requiredValidate())", 'name' => 'forms'),
                 ));
                 ?>
 
@@ -221,18 +219,21 @@
 
                     <?php
                     if ($model->isNewRecord) {
-                        echo $this->renderPartial('_customItems', array('model' => $model, 'custom_datas' => $custom_datas));
+                        echo $this->renderPartial('_customItems', array('model' => $model, 'custom_datas' => $custom_datas, 'poi_custom_data' => $poi_custom_data, 'form' => $form,));
                     } else {
-                        echo $this->renderPartial('_customItems_update', array('model' => $model, 'custom_datas' => $custom_datas));
+                        echo $this->renderPartial('_customItems_update', array('model' => $model, 'custom_datas' => $custom_datas, 'poi_custom_data' => $poi_custom_data, 'form' => $form,));
                     }
                     ?>
 
                 </div>
 
                 <div class="form-group">
-                    <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save', array('onclick' => 'poiSubmit()', 'class' => 'btn btn-primary btn-flat')); ?>    <?php echo CHtml::resetButton('Reset', array('class' => 'btn btn-primary btn-flat')); ?></div>
+                    <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save', array('onclick' => 'poiSubmit()', 'class' => 'btn btn-primary btn-flat')); ?>
+                    <?php echo CHtml::resetButton('Reset', array('class' => 'btn btn-primary btn-flat')); ?>
+                </div>
 
                 <?php $this->endWidget(); ?>
+
             </div>
         </div>
     </div>
@@ -260,7 +261,7 @@
     });
 
     function onlyDotsAndNumbers(txt, event, dots) {
-        console.log(dots);
+    
         var charCode = (event.which) ? event.which : event.keyCode;
 
         if (charCode == 46) {
