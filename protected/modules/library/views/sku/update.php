@@ -19,5 +19,6 @@ echo $this->renderPartial('_update_form', array(
     'sku_convertion' => $sku_convertion,
     'sku_convertion_uom' => $sku_convertion_uom,
     'sku_location_restock' => $sku_location_restock,
+    'sku_custom_data' => $sku_custom_data,
 ));
 ?>

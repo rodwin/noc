@@ -138,8 +138,14 @@ class SkuController extends Controller {
         // $this->performAjaxValidation($model);
 
         $custom_datas = SkuCustomData::model()->getAllSkuCustomData($model->sku_id);
+        $sku_custom_data = new SkuCustomData;
+
+        $brand = CHtml::listData(Brand::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'brand_name ASC')), 'brand_id', 'brand_name');
+        $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
+        $zone = CHtml::listData(Zone::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
 
         if (isset($_POST['Sku'])) {
+
             $model->attributes = $_POST['Sku'];
             $model->company_id = Yii::app()->user->company_id;
             $model->created_by = Yii::app()->user->name;
@@ -147,7 +153,16 @@ class SkuController extends Controller {
             $model->sku_id = Globals::generateV4UUID();
             $model->default_unit_price = !empty($_POST['Sku']['default_unit_price']) ? $_POST['Sku']['default_unit_price'] : 0;
 
-            if ($model->validate()) {
+            foreach ($custom_datas as $key => $val) {
+                $attr_name = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
+                $post_data = trim($_POST[$attr_name]);
+
+                if ($val['required'] == 1 && empty($post_data)) {
+                    $sku_custom_data->addError($attr_name, "<font color='red'>" . ucwords($val['name']) . " required.</font>");
+                }
+            }
+
+            if ($model->validate() && count($sku_custom_data->getErrors()) == 0) {
 
                 $model->save();
 
@@ -159,9 +174,7 @@ class SkuController extends Controller {
                     $sku_custom_data_value->custom_data_id = $val['custom_data_id'];
 
                     $post_name = $val['name'] = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . $val['data_type'] = str_replace(' ', '_', strtolower($val['name']));
-
                     $sku_custom_data_value->value = $_POST[$post_name];
-
                     $sku_custom_data_value->save();
                 }
 
@@ -172,16 +185,13 @@ class SkuController extends Controller {
             }
         }
 
-        $brand = CHtml::listData(Brand::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'brand_name ASC')), 'brand_id', 'brand_name');
-        $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
-        $zone = CHtml::listData(Zone::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
-
         $this->render('create', array(
             'model' => $model,
             'brand' => $brand,
             'uom' => $uom,
             'zone' => $zone,
             'custom_datas' => $custom_datas,
+            'sku_custom_data' => $sku_custom_data,
         ));
     }
 
@@ -207,9 +217,14 @@ class SkuController extends Controller {
         // $this->performAjaxValidation($model);
 
         $custom_datas = SkuCustomData::model()->getAllSkuCustomData($model->sku_id);
-
+        $sku_custom_data = new SkuCustomData;
         $sku_convertion = new SkuConvertion;
         $sku_location_restock = new SkuLocationRestock;
+
+        $brand = CHtml::listData(Brand::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'brand_name ASC')), 'brand_id', 'brand_name');
+        $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
+        $zone = CHtml::listData(Zone::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
+        $sku_convertion_uom = CHtml::listData(Uom::model()->getAllUOMNotInSkuConvertion(), 'uom_id', 'uom_name');
 
         if (isset($_POST['Sku'])) {
 
@@ -218,7 +233,16 @@ class SkuController extends Controller {
             $model->updated_date = date('Y-m-d H:i:s');
             $model->default_unit_price = !empty($_POST['Sku']['default_unit_price']) ? $_POST['Sku']['default_unit_price'] : 0;
 
-            if ($model->validate()) {
+            foreach ($custom_datas as $key => $val) {
+                $attr_name = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
+                $post_data = trim($_POST[$attr_name]);
+
+                if ($val['required'] == 1 && empty($post_data)) {
+                    $sku_custom_data->addError($attr_name, "<font color='red'>" . ucwords($val['name']) . " required.</font>");
+                }
+            }
+
+            if ($model->validate() && count($sku_custom_data->getErrors()) == 0) {
 
                 SkuCustomDataValue::model()->deleteSkuCustomDataValueBySkuID($model->sku_id);
 
@@ -266,12 +290,6 @@ class SkuController extends Controller {
             }
         }
 
-        $brand = CHtml::listData(Brand::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'brand_name ASC')), 'brand_id', 'brand_name');
-        $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
-        $zone = CHtml::listData(Zone::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
-
-        $sku_convertion_uom = CHtml::listData(Uom::model()->getAllUOMNotInSkuConvertion(), 'uom_id', 'uom_name');
-
         $this->render('update', array(
             'model' => $model,
             'brand' => $brand,
@@ -281,6 +299,7 @@ class SkuController extends Controller {
             'sku_convertion' => $sku_convertion,
             'sku_convertion_uom' => $sku_convertion_uom,
             'sku_location_restock' => $sku_location_restock,
+            'sku_custom_data' => $sku_custom_data,
         ));
     }
 

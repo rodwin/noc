@@ -154,6 +154,11 @@ class PoiController extends Controller {
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
+        $poi_custom_data = new PoiCustomData;
+
+        $region = CHtml::listData(Region::model()->findAll(array('order' => 'region_name ASC')), 'region_code', 'region_name');
+        $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'poi_category_id', 'category_name');
+
         if (isset($_POST['Poi'])) {
 
             $model->poi_id = Globals::generateV4UUID();
@@ -172,9 +177,16 @@ class PoiController extends Controller {
 
             $custom_datas = PoiCustomData::model()->getPoiCustomData($model->poi_id, $model->poi_category_id);
 
-            $model->addError($model->poi_category_id, "error");
+            foreach ($custom_datas as $key => $val) {
+                $attr_name = $val['category_name'] . "_" . str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
+                $post_data = trim($_POST[$attr_name]);
+                
+                if ($val['required'] == 1 && empty($post_data)) {
+                    $poi_custom_data->addError($attr_name, "<font color='red'>" . ucwords($val['name']) . " required.</font>");
+                }
+            }
 
-            if ($model->validate()) {
+            if ($model->validate() && count($poi_custom_data->getErrors()) == 0) {
 
                 $model->save();
 
@@ -185,16 +197,8 @@ class PoiController extends Controller {
                     $custom_data_value->poi_id = $model->poi_id;
                     $custom_data_value->custom_data_id = $val['custom_data_id'];
 
-                    $post_name = $val['category_name'] . "_" . $val['name'] = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . $val['data_type'] = str_replace(' ', '_', strtolower($val['name']));
-                    $pieces = explode("_", $post_name);
-
-//                    if ($pieces[1] == "numbers") {
-//                        $value = rtrim($_POST[$post_name], "0");
-//                        $custom_data_value->value = substr($value, -1) == "." ? rtrim($value, ".") : $value;
-//                    } else {
+                    $post_name = $val['category_name'] . "_" . $val['data_type'] = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . $val['name'] = str_replace(' ', '_', strtolower($val['name']));
                     $custom_data_value->value = $_POST[$post_name];
-//                    }
-
                     $custom_data_value->save();
                 }
 
@@ -211,9 +215,6 @@ class PoiController extends Controller {
             $custom_datas = array();
         }
 
-        $region = CHtml::listData(Region::model()->findAll(array('order' => 'region_name ASC')), 'region_code', 'region_name');
-        $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'poi_category_id', 'category_name');
-
         $this->render('create', array(
             'model' => $model,
             'region' => $region,
@@ -223,6 +224,7 @@ class PoiController extends Controller {
             'poi_category' => $poi_category,
             'poi_sub_category' => $poi_sub_category,
             'custom_datas' => $custom_datas,
+            'poi_custom_data' => $poi_custom_data,
         ));
     }
 
@@ -247,6 +249,15 @@ class PoiController extends Controller {
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
+        $poi_custom_data = new PoiCustomData;
+
+        $region = CHtml::listData(Region::model()->findAll(array('order' => 'region_name ASC')), 'region_code', 'region_name');
+        $province = CHtml::listData(Province::model()->findAll(array('condition' => 'region_code = "' . $model->region_id . '"', 'order' => 'province_name ASC')), 'province_code', 'province_name');
+        $municipal = CHtml::listData(Municipal::model()->findAll(array('condition' => 'province_code = "' . $model->province_id . '"', 'order' => 'municipal_name ASC')), 'municipal_code', 'municipal_name');
+        $barangay = CHtml::listData(Barangay::model()->findAll(array('condition' => 'municipal_code = "' . $model->municipal_id . '"', 'order' => 'barangay_name ASC')), 'barangay_code', 'barangay_name');
+        $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'poi_category_id', 'category_name');
+        $poi_sub_category = PoiSubCategory::model()->getSubCategoryOptionListByCategoryID($model->poi_category_id);
+
         if (isset($_POST['Poi'])) {
 
             $model->attributes = $_POST['Poi'];
@@ -258,7 +269,16 @@ class PoiController extends Controller {
 
             $custom_datas = PoiCustomData::model()->getPoiCustomData($model->poi_id, $model->poi_category_id);
 
-            if ($model->validate()) {
+            foreach ($custom_datas as $key => $val) {
+                $attr_name = $val['category_name'] . "_" . str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
+                $post_data = trim($_POST[$attr_name]);
+                
+                if ($val['required'] == 1 && empty($post_data)) {
+                    $poi_custom_data->addError($attr_name, "<font color='red'>" . ucwords($val['name']) . " required.</font>");
+                }
+            }
+
+            if ($model->validate() && count($poi_custom_data->getErrors()) == 0) {
 
                 PoiCustomDataValue::model()->deletePoiCustomDataValueByPoiID($model->poi_id);
 
@@ -269,16 +289,8 @@ class PoiController extends Controller {
                     $custom_data_value->poi_id = $model->poi_id;
                     $custom_data_value->custom_data_id = $val['custom_data_id'];
 
-                    $post_name = $val['category_name'] . "_" . $val['name'] = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . $val['data_type'] = str_replace(' ', '_', strtolower($val['name']));
-                    $pieces = explode("_", $post_name);
-
-//                    if ($pieces[1] == "numbers") {
-//                        $value = rtrim($_POST[$post_name], "0");
-//                        $custom_data_value->value = substr($value, -1) == "." ? rtrim($value, ".") : $value;
-//                    } else {
+                    $post_name = $val['category_name'] . "_" . $val['data_type'] = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . $val['name'] = str_replace(' ', '_', strtolower($val['name']));
                     $custom_data_value->value = $_POST[$post_name];
-//                    }
-
                     $custom_data_value->save();
                 }
 
@@ -291,13 +303,6 @@ class PoiController extends Controller {
             $custom_datas = PoiCustomData::model()->getPoiCustomData($model->poi_id, $model->poi_category_id);
         }
 
-        $region = CHtml::listData(Region::model()->findAll(array('order' => 'region_name ASC')), 'region_code', 'region_name');
-        $province = CHtml::listData(Province::model()->findAll(array('condition' => 'region_code = "' . $model->region_id . '"', 'order' => 'province_name ASC')), 'province_code', 'province_name');
-        $municipal = CHtml::listData(Municipal::model()->findAll(array('condition' => 'province_code = "' . $model->province_id . '"', 'order' => 'municipal_name ASC')), 'municipal_code', 'municipal_name');
-        $barangay = CHtml::listData(Barangay::model()->findAll(array('condition' => 'municipal_code = "' . $model->municipal_id . '"', 'order' => 'barangay_name ASC')), 'barangay_code', 'barangay_name');
-        $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'poi_category_id', 'category_name');
-        $poi_sub_category = PoiSubCategory::model()->getSubCategoryOptionListByCategoryID($model->poi_category_id);
-
         $this->render('update', array(
             'model' => $model,
             'region' => $region,
@@ -307,6 +312,7 @@ class PoiController extends Controller {
             'poi_category' => $poi_category,
             'poi_sub_category' => $poi_sub_category,
             'custom_datas' => $custom_datas,
+            'poi_custom_data' => $poi_custom_data,
         ));
     }
 
@@ -412,11 +418,17 @@ class PoiController extends Controller {
     public function actionGetAllCustomDataByCategoryID() {
 
         $custom_datas = PoiCustomData::model()->getPoiCustomData($_POST['poi_id'], $_POST['category_id']);
+        $poi_custom_data = new PoiCustomData;
+
+        $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
+            'id' => 'poi-form',
+            'enableAjaxValidation' => false,
+        ));
 
         if (empty($_POST['poi_id'])) {
-            echo $this->renderPartial('_customItems', array('custom_datas' => $custom_datas,));
+            echo $this->renderPartial('_customItems', array('custom_datas' => $custom_datas, 'poi_custom_data' => $poi_custom_data, 'form' => $form,));
         } else {
-            echo $this->renderPartial('_customItems_update', array('custom_datas' => $custom_datas,));
+            echo $this->renderPartial('_customItems_update', array('custom_datas' => $custom_datas, 'poi_custom_data' => $poi_custom_data, 'form' => $form,));
         }
     }
 
