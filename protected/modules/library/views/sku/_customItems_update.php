@@ -24,7 +24,7 @@
                         <div class="form-group">
                             <label><?php echo $label_name; ?></label>
                             <?php echo CHtml::textArea($post_name, isset($_POST[$post_name]) ? $_POST[$post_name] : $val['custom_data_value'], array('maxlength' => isset($attr['max_character_length']) ? $attr['max_character_length'] : "", 'class' => 'form-control input-sm', 'style' => 'resize: none; height: 100px;', 'placeholder' => $placeholder)); ?>
-                            <?php echo $form->error($poi_custom_data, $post_name); ?>
+                            <?php echo $form->error($sku_custom_data, $post_name); ?>
                         </div>
 
                     <?php } else { ?>
