@@ -14,7 +14,8 @@
  * @property string $type
  * @property string $error_message
  * @property string $created_date
- * @property integer $created_by
+ * @property string $created_by
+ * @property string $notify
  * @property string $ended_date
  * @property string $module
  *
@@ -25,7 +26,13 @@
 class BatchUpload extends CActiveRecord
 {
         public $search_string;
-	/**
+        
+        const STATUS_PENDING = 'PENDING';
+        const STATUS_DONE = 'DONE';
+        const STATUS_WARNING = 'WARNING';
+        const STATUS_ERROR = 'ERROR';
+
+        /**
 	 * @return string the associated database table name
 	 */
 	public function tableName()
@@ -42,14 +49,15 @@ class BatchUpload extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('company_id, file, file_name, status, type, module', 'required'),
-			array('total_rows, failed_rows, created_by', 'numerical', 'integerOnly'=>true),
-			array('company_id', 'length', 'max'=>50),
+			array('total_rows, failed_rows', 'numerical', 'integerOnly'=>true),
+			array('company_id, created_by', 'length', 'max'=>50),
 			array('file, file_name, error_message', 'length', 'max'=>200),
 			array('status, type, module', 'length', 'max'=>45),
+			array('notify', 'length', 'max'=>1),
 			array('created_date, ended_date', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, company_id, file, file_name, status, total_rows, failed_rows, type, error_message, created_date, created_by, ended_date, module', 'safe', 'on'=>'search'),
+			array('id, company_id, file, file_name, status, total_rows, failed_rows, type, error_message, created_date, created_by, notify, ended_date, module', 'safe', 'on'=>'search'),
 		);
 	}
         
@@ -76,7 +84,7 @@ class BatchUpload extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => 'ID',
+			'id' => 'Batch ID',
 			'company_id' => 'Company',
 			'file' => 'File',
 			'file_name' => 'File Name',
@@ -87,6 +95,7 @@ class BatchUpload extends CActiveRecord
 			'error_message' => 'Error Message',
 			'created_date' => 'Created Date',
 			'created_by' => 'Created By',
+			'notify' => 'Notify',
 			'ended_date' => 'Ended Date',
 			'module' => 'Module',
 		);
@@ -120,7 +129,8 @@ class BatchUpload extends CActiveRecord
 		$criteria->compare('type',$this->type,true);
 		$criteria->compare('error_message',$this->error_message,true);
 		$criteria->compare('created_date',$this->created_date,true);
-		$criteria->compare('created_by',$this->created_by);
+		$criteria->compare('created_by',$this->created_by,true);
+		$criteria->compare('notify',$this->notify,true);
 		$criteria->compare('ended_date',$this->ended_date,true);
 		$criteria->compare('module',$this->module,true);
 
@@ -192,4 +202,10 @@ class BatchUpload extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+        
+        public function getByTypeAndCompanyID($type,$company_id) {
+        
+            $model = BatchUpload::model()->findAllByAttributes(array('company_id' => $company_id,'type'=>$type));
+            return $model;
+        }
 }

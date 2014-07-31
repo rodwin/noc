@@ -201,6 +201,16 @@ class Globals {
 
         return $return;
     }
+    
+    public static function getSingleLineErrorMessage($errors = array()){
+        
+        $err = "";
+        foreach ($errors as $key => $value) {
+            $err .= $value[0].',';
+        }
+        
+        return substr($err, 0, -1) ;
+    }
 
 }
 

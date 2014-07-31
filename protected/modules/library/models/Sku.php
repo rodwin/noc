@@ -152,6 +152,9 @@ class Sku extends CActiveRecord {
         if($this->type == ""){
             $this->type = null;
         }
+        if($this->default_unit_price == ""){
+            $this->default_unit_price = 0;
+        }
         
         return parent::beforeValidate();
     }
@@ -339,6 +342,7 @@ class Sku extends CActiveRecord {
             'pagination' => false,
         ));
     }
+    
 
     /**
      * Returns the static model of the specified AR class.
@@ -366,13 +370,17 @@ class Sku extends CActiveRecord {
         exit();
     }
     
-    public function parseCsv($file){
+    public function processBatchUpload($id,$company_id){
+        
+        $BatchUploadModel = BatchUpload::model()->findByPk($id);
+        
+        if ($BatchUploadModel === null){
+            throw new CException('The requested model does not exist.');
+        }
         
         $ret = array();
         
-        $file = "C:\\inetpub\\wwwroot\\noc\\protected\\data\\ItemSample.csv";
-        
-        $rows = Globals::parseCSV($file,true,true,',');
+        $rows = Globals::parseCSV($BatchUploadModel->file,true,true,',');
         
         $ret['success'] = 0;
         $ret['fail'] = 0;
@@ -380,93 +388,126 @@ class Sku extends CActiveRecord {
         $ret['updated'] = 0;
         $ret['message'] = "";
         $incomplete_field = 0;
-        
+        $message = "";
         $required_headers = Sku::model()->requiredHeaders();
         
         if($rows && count($rows)>0){
             
-            /*
-             * check the first row if all columns are complete
-             * else do not continue
-             */
-            
             foreach ($required_headers as $key => $value) {
-                
                 if(!isset($rows[0][$value])){
                     $incomplete_field++;
                     $message .= $value.',';
                 }
-                
             }
             
             if($incomplete_field > 0){
+                
                 $ret['message'] = "Could not find the following column(s): ". substr($message, 0,-1);
-                return $ret;
+                $BatchUploadModel->error_message = $ret['message'];
+                $BatchUploadModel->status = BatchUpload::STATUS_ERROR;
+                
+            }else{
+                
+                foreach($rows as $key => $val){
+                
+                    $data = array(
+                        'company_id'=>Yii::app()->user->company_id,
+                        'sku_code'=>$val[$required_headers['sku_code']],
+                        'brand_id'=>$val[$required_headers['brand_id']],
+                        'sku_name'=>$val[$required_headers['sku_name']],
+                        'description'=>$val[$required_headers['description']],
+                        'default_uom_id'=>$val[$required_headers['default_uom_id']],
+                        'default_unit_price'=>$val[$required_headers['default_unit_price']],
+                        'type'=>$val[$required_headers['type']],
+                        'default_zone_id'=>$val[$required_headers['default_zone_id']],
+                        'supplier'=>$val[$required_headers['supplier']],
+                        'low_qty_threshold'=>$val[$required_headers['low_qty_threshold']],
+                        'high_qty_threshold'=>$val[$required_headers['high_qty_threshold']],
+                    );
+
+                    $model = Sku::model()->findByAttributes(array('sku_code' => $val[$required_headers['sku_code']], 'company_id' => $company_id));
+
+                    if($model){//for update
+
+                        $model->attributes = $data;
+                        $model->updated_date = date('Y-m-d H:i:s');
+                        $model->updated_by = Yii::app()->user->name;
+                        $model->validate();
+                        if($model->validate()){
+                            try {
+                                $model->save();
+                                $ret['success']++;
+                                $ret['updated']++;
+                            } catch (Exception $exc) {
+                                $ret['fail']++;
+                                $this->saveBatchUploadDetail($BatchUploadModel->id, "Row ".($key+2).": ".$exc->getMessage(), $company_id);
+                            }
+
+                        }else{
+                            $ret['fail']++;
+                            $errors = Globals::getSingleLineErrorMessage($model->getErrors());
+                            
+                            $this->saveBatchUploadDetail($BatchUploadModel->id, "Row ".($key+2).": ".$errors, $company_id);
+                        }
+
+                    }else{// for insert
+
+                        $data['sku_id'] = Globals::generateV4UUID();
+                        $data['created_by'] = Yii::app()->user->name;
+                        
+                        
+                        $model = new Sku;
+                        $model->attributes = $data;
+                        $model->validate();
+                        if($model->validate()){
+                            try {
+                                $model->save();
+                                $ret['success']++;
+                                $ret['inserted']++;
+                            } catch (Exception $exc) {
+                                $ret['fail']++;
+                                $this->saveBatchUploadDetail($BatchUploadModel->id, "Row ".($key+2).": ".$exc->getMessage(), $company_id);
+                            }
+
+                        }else{
+                            $ret['fail']++;
+                            $errors = Globals::getSingleLineErrorMessage($model->getErrors());
+                            
+                            $this->saveBatchUploadDetail($BatchUploadModel->id, "Row ".($key+2).": ".$errors, $company_id);
+                        }
+
+                    }
+                }
+                
+                if($ret['fail'] > 0){
+                    $BatchUploadModel->status = BatchUpload::STATUS_WARNING;
+                }else{
+                    $BatchUploadModel->status = BatchUpload::STATUS_DONE;
+                }
+                
             }
             
-            foreach($rows as $key => $val){
-                
-                $data = array(
-                    'company_id'=>Yii::app()->user->company_id,
-                    'sku_code'=>$val[$required_headers['sku_code']],
-                    'brand_id'=>$val[$required_headers['brand_id']],
-                    'sku_name'=>$val[$required_headers['sku_name']],
-                    'description'=>$val[$required_headers['description']],
-                    'default_uom_id'=>$val[$required_headers['default_uom_id']],
-                    'default_unit_price'=>$val[$required_headers['default_unit_price']],
-                    'type'=>$val[$required_headers['type']],
-                    'default_zone_id'=>$val[$required_headers['default_zone_id']],
-                    'supplier'=>$val[$required_headers['supplier']],
-                    'low_qty_threshold'=>$val[$required_headers['low_qty_threshold']],
-                    'high_qty_threshold'=>$val[$required_headers['high_qty_threshold']],
-                );
-                
-                $model = Sku::model()->findByAttributes(array('sku_code' => $val[$required_headers['sku_code']], 'company_id' => Yii::app()->user->company_id));
-                
-                if($model){//for update
-                    
-                    $model->attributes = $data;
-                    $model->updated_date = date('Y-m-d H:i:s');
-                    $model->updated_by = Yii::app()->user->name;
-                    $model->validate();
-                    if($model->validate()){
-                        try {
-                            $model->save();
-                            $ret['success']++;
-                            $ret['updated']++;
-                        } catch (Exception $exc) {
-                            $ret['fail']++;
-                        }
-
-                    }else{
-                        $ret['fail']++;
-                    }
-                    
-                }else{// for insert
-                    
-                    $data['sku_id'] = Globals::generateV4UUID();
-                    $data['created_by'] = Yii::app()->user->name;
-                    $model = new Sku;
-                    $model->attributes = $data;
-                    $model->validate();
-                    if($model->validate()){
-                        try {
-                            $model->save();
-                            $ret['success']++;
-                            $ret['inserted']++;
-                        } catch (Exception $exc) {
-                            $ret['fail']++;
-                        }
-
-                    }else{
-                        $ret['fail']++;
-                    }
-                    
-                }
-            }
+        }else{
+            $ret['message'] = "No data to process";
+            $BatchUploadModel->error_message = $ret['message'];
+            $BatchUploadModel->status = BatchUpload::STATUS_ERROR;
         }
-        pr($ret);
-        exit;
+        
+        $BatchUploadModel->failed_rows = $ret['fail'];
+        $BatchUploadModel->total_rows = bcadd($ret['success'], $ret['fail']);
+        $BatchUploadModel->ended_date = date('Y-m-d H:i:s');
+        return $BatchUploadModel->save();
+        
+        
+    }
+    
+    public function saveBatchUploadDetail($batch_id,$message,$company_id){
+        
+        $model = new BatchUploadDetail;
+        $model->company_id = $company_id;
+        $model->batch_upload_id = $batch_id;
+        $model->message = $message;
+        return $model->save();
     }
 
 }

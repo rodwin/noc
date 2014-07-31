@@ -25,7 +25,7 @@ class SkuController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view', 'saveSkuConvertion','GenerateTemplate','Upload'),
+                'actions' => array('index', 'view', 'saveSkuConvertion','GenerateTemplate','Upload','UploadDetails'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -92,21 +92,38 @@ class SkuController extends Controller {
         echo json_encode($output);
     }
     
+    
     public function actionGenerateTemplate() {
         
         Sku::model()->generateTemplate();
         
     }
-    public function actionUpload() {
+    
+    public function actionUploadDetails($id){
         
-        $this->pageTitle = 'Upload Sku';
-
+        $this->pageTitle = 'Upload Sku Details';
+        
         $this->menu = array(
+            array('label' => 'Upload Sku', 'url' => array('upload')),
             array('label' => 'Create Sku', 'url' => array('create')),
             array('label' => 'Manage Sku', 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
+        
+        $model = BatchUpload::model()->findByAttributes(array('id'=>$id,'company_id' => Yii::app()->user->company_id));
+        if ($model === null)
+            throw new CHttpException(404, 'The requested page does not exist.');
+        
+        $uploads = BatchUploadDetail::model()->findAllByAttributes(array('batch_upload_id' => $id,'company_id' => Yii::app()->user->company_id));
+        
+        $this->render('upload_details',array('model'=>$model,'uploads'=>$uploads));
+    }
+    
+    public function actionUpload() {
+        
+        $this->layout = '//layouts/column1';
+        $this->pageTitle = 'Upload Sku';
 
         $model = new SKUImportForm();
         
@@ -125,21 +142,35 @@ class SkuController extends Controller {
                             mkdir($dir, 0777, true);
                     }
                     
-                    $file->saveAs($dir.DIRECTORY_SEPARATOR.str_replace(' ', '_', strtolower(date('YmdHis').'-'.$file->name)));
-//                    $batch_upload = new BatchUpload('create');
-//                    $batch_upload->client_id = $model->gyrt_client_id;
-//                    $batch_upload->status = 'PENDING';
-//                    $batch_upload->file_name= str_replace(' ', '_', strtolower($file->name));
-//                    $batch_upload->total_rows= 0;
-//                    $batch_upload->failed_rows= 0;
-//                    $batch_upload->type= 'members';
-//                    $batch_upload->module= 'gyrt';
-//                    $batch_upload->added_by = Yii::app()->user->id;
-//                    $batch_upload->save();
+                    $file_name = str_replace(' ', '_', strtolower($file->name));
+                    $file->saveAs($dir.DIRECTORY_SEPARATOR.$file_name);
+                    
+                    $batch_upload = new BatchUpload;
+                    $batch_upload->company_id = Yii::app()->user->company_id;
+                    $batch_upload->status = 'PENDING';
+                    $batch_upload->file_name= $file_name;
+                    $batch_upload->file = $dir.DIRECTORY_SEPARATOR.$file_name;
+                    $batch_upload->total_rows= 0;
+                    $batch_upload->failed_rows= 0;
+                    $batch_upload->type= 'sku';
+                    $batch_upload->notify = $_POST['SKUImportForm']['notify'];
+                    $batch_upload->module= 'inventory';
+                    $batch_upload->created_by = Yii::app()->user->name;
+                    if($batch_upload->validate()){
+                        
+                        $batch_upload->save();
+                        
+                        Sku::model()->processBatchUpload($batch_upload->id,Yii::app()->user->company_id);
+                        
+                        Yii::app()->user->setFlash('success',"Successfully uploaded data. Please wait for the checking to finish!");
+                    }else{
+                        Yii::app()->user->setFlash('danger',"Failed to create batch upload.");
+                    }
+                    
 //
 //                    $this->runinbackground($batch_upload->id);
 //
-                    Yii::app()->user->setFlash('success',"Successfully uploaded data. Please wait for the checking to finish!");
+                    
                     $this->redirect(array('upload'));
 
                 }
@@ -148,7 +179,9 @@ class SkuController extends Controller {
 
         $headers = Sku::model()->requiredHeaders();
         
-        $this->render('upload',array('model'=>$model,'headers'=>$headers));
+        $uploads = BatchUpload::model()->getByTypeAndCompanyID('sku', Yii::app()->user->company_id);
+        
+        $this->render('upload',array('model'=>$model,'headers'=>$headers,'uploads'=>$uploads));
         
     }
 
