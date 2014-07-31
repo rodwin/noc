@@ -200,6 +200,7 @@ class Sku extends CActiveRecord {
     }
     
     public function requiredHeaders(){
+        
         $headers = $this->attributeLabels();
         unset($headers['sku_id']);
         unset($headers['company_id']);
@@ -207,6 +208,10 @@ class Sku extends CActiveRecord {
         unset($headers['created_by']);
         unset($headers['updated_date']);
         unset($headers['updated_by']);
+        
+        $criteria = new CDbCriteria();
+        $criteria->order= "sort_order";
+        //$model = SkuCustomData::model()->findAllByAttributes(array('company_id'=> Yii::app()->user->company_id),$criteria);
         
         return $headers;
     }
@@ -411,7 +416,7 @@ class Sku extends CActiveRecord {
                 foreach($rows as $key => $val){
                 
                     $data = array(
-                        'company_id'=>Yii::app()->user->company_id,
+                        'company_id'=>$company_id,
                         'sku_code'=>$val[$required_headers['sku_code']],
                         'brand_id'=>$val[$required_headers['brand_id']],
                         'sku_name'=>$val[$required_headers['sku_name']],
@@ -431,7 +436,7 @@ class Sku extends CActiveRecord {
 
                         $model->attributes = $data;
                         $model->updated_date = date('Y-m-d H:i:s');
-                        $model->updated_by = Yii::app()->user->name;
+                        $model->updated_by = $BatchUploadModel->created_by;
                         $model->validate();
                         if($model->validate()){
                             try {
@@ -453,7 +458,7 @@ class Sku extends CActiveRecord {
                     }else{// for insert
 
                         $data['sku_id'] = Globals::generateV4UUID();
-                        $data['created_by'] = Yii::app()->user->name;
+                        $data['created_by'] = $BatchUploadModel->created_by;
                         
                         
                         $model = new Sku;

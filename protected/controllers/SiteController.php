@@ -57,6 +57,34 @@ class SiteController extends Controller
 	 */
 	public function actionIndex()
 	{
+            /*
+            // Create the Transport
+            $transport = Swift_SmtpTransport::newInstance('ssl://email-smtp.us-east-1.amazonaws.com', 465)
+            ->setUsername('AKIAIX2XWIYNE6EGEEQA')
+            ->setPassword('AsO1fJO35g1IvtbOUjhsQqK+daLBPzHxm/vWVkUS8vPu');
+
+            // Create the Mailer using your created Transport
+            $mailer = Swift_Mailer::newInstance($transport);
+
+            // Create a message
+            $message = Swift_Message::newInstance('test')
+            ->setFrom(array('bbadmin@vitalink.com.ph' => 'bbadmin@vitalink.com.ph'))
+            ->setTo(array('rblising@vitalink.com.ph' => 'rblising@vitalink.com.ph'))
+            ->setBody(
+                'test',
+                'text/plain' 
+                );       
+
+
+            try{    
+                $mailer->send($message);
+            }catch(Swift_TransportException $ex){
+                echo $ex->getMessage().PHP_EOL;
+            }  catch (Exception $ex){
+                echo $ex->getMessage().PHP_EOL;
+            }
+             */
+            
 //            pre(Globals::generateV4UUID()->tostring());
             /*
             $companyObj = Company::model()->findByAttributes(array('code'=>'vlink'));

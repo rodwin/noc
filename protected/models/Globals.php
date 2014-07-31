@@ -211,6 +211,23 @@ class Globals {
         
         return substr($err, 0, -1) ;
     }
+    
+    public static function queue($data){
+    
+        $connection = new PhpAmqpLib\Connection\AMQPConnection(Yii::app()->params['rabbitmq']['host'], Yii::app()->params['rabbitmq']['port'], Yii::app()->params['rabbitmq']['username'], Yii::app()->params['rabbitmq']['password']);
+        $channel = $connection->channel();
+
+        $channel->queue_declare('noc_queue', false, true, false, false);
+
+        $msg = new PhpAmqpLib\Message\AMQPMessage($data,
+            array('delivery_mode' => 2) # make message persistent
+        );
+
+        $channel->basic_publish($msg, '', 'noc_queue');
+
+        $channel->close();
+        $connection->close();
+    }
 
 }
 

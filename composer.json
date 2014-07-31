@@ -5,10 +5,16 @@
         {
             "name": "rodwin",
             "email": "rodwinlising@gmail.com"
+        },
+        {
+            "name": "Junel",
+            "email": "jttorate@in1go.com.ph"
         }
     ],
     "require": {
-        "rhumsaa/uuid": "~2.7"
+        "rhumsaa/uuid": "~2.7",
+        "swiftmailer/swiftmailer": "@stable",
+        "videlalvaro/php-amqplib": "2.2.*"
     },
     "require-dev": {
         "phpunit/phpunit": "4.1.*",

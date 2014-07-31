@@ -160,16 +160,21 @@ class SkuController extends Controller {
                         
                         $batch_upload->save();
                         
-                        Sku::model()->processBatchUpload($batch_upload->id,Yii::app()->user->company_id);
+                        $data = array(
+                            'task' => "import_sku",
+                            'details'=> array(
+                                'batch_id' => $batch_upload->id,
+                                'company_id' => Yii::app()->user->company_id,
+                            )
+                        );
+
+                        Globals::queue(json_encode($data));
+                        //Sku::model()->processBatchUpload($batch_upload->id,Yii::app()->user->company_id);
                         
                         Yii::app()->user->setFlash('success',"Successfully uploaded data. Please wait for the checking to finish!");
                     }else{
                         Yii::app()->user->setFlash('danger',"Failed to create batch upload.");
                     }
-                    
-//
-//                    $this->runinbackground($batch_upload->id);
-//
                     
                     $this->redirect(array('upload'));
 
