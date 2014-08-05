@@ -70,7 +70,7 @@ return false;
 <script type="text/javascript">
     $(function() {
         var table = $('#inventory_table').dataTable({
-            "filter": false,
+            "filter": true,
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,

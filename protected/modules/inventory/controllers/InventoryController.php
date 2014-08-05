@@ -236,7 +236,7 @@ class InventoryController extends Controller {
         $model->unsetAttributes();  // clear any default values
         if (isset($_GET['Inventory']))
             $model->attributes = $_GET['Inventory'];
-
+        
         $this->render('admin', array(
             'model' => $model,
         ));

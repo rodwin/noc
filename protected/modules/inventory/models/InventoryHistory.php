@@ -180,5 +180,24 @@ class InventoryHistory extends CActiveRecord {
     public static function model($className = __CLASS__) {
         return parent::model($className);
     }
-
+    
+    public function createHistory($company_id,$inventory_id,$quantity_change,$running_total,$action,$cost_unit =0,$created_by = null) {
+        
+        $inventory_history = new InventoryHistory;
+        $inventory_history->company_id = $company_id;
+        $inventory_history->inventory_id = $inventory_id;
+        $inventory_history->quantity_change = $quantity_change;
+        $inventory_history->running_total = $running_total;
+        $inventory_history->action = $action;
+        $inventory_history->cost_unit = $cost_unit;
+        
+        /*
+         * compute this!
+         */
+        $inventory_history->ave_cost_per_unit = 0;
+        $inventory_history->created_by = $created_by;
+        return $inventory_history->save();
+        
+    }
+    
 }

@@ -18,6 +18,7 @@
  * @property string $updated_by
  * @property string $expiration_date
  * @property string $reference_no
+ * @property string $cost_per_unit
  *
  * The followings are the available model relations:
  * @property Company $company
@@ -30,7 +31,13 @@
 class Inventory extends CActiveRecord {
 
     public $search_string;
-
+    
+    const INVENTORY_ACTION_TYPE_INCREASE = 'increase';
+    const INVENTORY_ACTION_TYPE_DECREASE = 'decrease';
+    const INVENTORY_ACTION_TYPE_MOVE = 'move';
+    const INVENTORY_ACTION_TYPE_CONVERT = 'convert';
+    const INVENTORY_ACTION_TYPE_UPDATE = 'update';
+    
     /**
      * @return string the associated database table name
      */
@@ -49,6 +56,8 @@ class Inventory extends CActiveRecord {
             array('qty', 'numerical', 'integerOnly' => true),
             array('company_id, sku_id, uom_id, zone_id, sku_status_id, created_by, updated_by', 'length', 'max' => 50),
             array('reference_no', 'length', 'max' => 250),
+            array('cost_per_unit', 'length', 'max' => 18),
+            array('cost_per_unit', 'match', 'pattern'=>'/^[0-9]{1,9}(\.[0-9]{0,3})?$/'),
             array('created_date, updated_date, expiration_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
@@ -57,17 +66,20 @@ class Inventory extends CActiveRecord {
     }
 
     public function beforeValidate() {
-        if ($this->scenario == 'create') {
-
-            $this->company_id = Yii::app()->user->company_id;
-
-            $this->inventory_id = Globals::generateV4UUID();
-            unset($this->created_date);
-            $this->created_by = Yii::app()->user->name;
-        } else {
-            $this->updated_date = date('Y-m-d H:i:s');
-            $this->updated_by = Yii::app()->user->name;
+        
+        if($this->cost_per_unit == ""){
+           $this->cost_per_unit = null; 
         }
+        if($this->zone_id == ""){
+           $this->zone_id = null; 
+        }
+        if($this->uom_id == ""){
+           $this->uom_id = null; 
+        }
+        if($this->sku_status_id == ""){
+           $this->sku_status_id = null; 
+        }
+        
         return parent::beforeValidate();
     }
 
@@ -207,5 +219,143 @@ class Inventory extends CActiveRecord {
     public static function model($className = __CLASS__) {
         return parent::model($className);
     }
+    
+    public function create($data){
+        
+        $inventory = Inventory::model()->findByAttributes(
+                array(
+                    'company_id'=> $data['company_id'],
+                    'sku_id'=> $data['sku_id'],
+                    'uom_id'=> $data['uom_id'],
+                    'zone_id'=> $data['zone_id'],
+                    'sku_status_id'=> $data['sku_status_id'],
+                    )
+                );
+                
+        if($inventory){
+            
+            $quantity = bcadd($inventory->qty,$data['qty']);
+            $inventory->attributes = $data;
+            $inventory->qty = $quantity;
+            
+            if($inventory->validate()){
+                try {
+                    return $inventory->save();
+                } catch (Exception $exc) {
+                    throw new Exception($exc->getTraceAsString());
+                }
+            }
+            
+        }else{
+            
+            $inventory = new Inventory();
+            $inventory->attributes = $data;
+            
+            if($inventory->validate()){
+                try {
+                    return $inventory->save();
+                } catch (Exception $exc) {
+                    throw new Exception($exc->getTraceAsString());
+                }
+            }
+            
+        }
+        
+    }
+    
+    public function increase($company_id,$inventory_id,$qty,$transaction_date,$cost_per_unit){
+        $model = Inventory::model()->findByAttributes(array('inventory_id' => $inventory_id, 'company_id' => $company_id));
+        if ($model === null)
+            throw new CHttpException(404, 'The requested page does not exist.');
+        
+        $model->qty = bcadd($model->qty, $qty);
+        $model->transaction_date = $transaction_date;
+        $model->cost_per_unit = $cost_per_unit;
+        
+        if($model->validate()){
+            
+            try {
+                
+                $model->save();
+                
+                //InventoryHistory::model()->createHistory($company_id, $inventory_id, $qty, $model->qty, self::INVENTORY_ACTION_TYPE_INCREASE, $cost_per_unit);
+                
+                return true;
+                
+            } catch (Exception $exc) {
+                throw new Exception($exc->getTraceAsString());
+            }
 
+            
+        }
+        
+        return false;
+        
+    }
+    
+    public function decrease($company_id,$inventory_id,$qty,$transaction_date){
+        $model = Inventory::model()->findByAttributes(array('inventory_id' => $inventory_id, 'company_id' => $company_id));
+        if ($model === null)
+            throw new CHttpException(404, 'The requested page does not exist.');
+        
+        $model->qty = bcsub($model->qty, $qty);
+        $model->transaction_date = $transaction_date;
+        
+        if($model->validate()){
+            try {
+                
+                $model->save();
+                $qty = $qty * -1;
+                //InventoryHistory::model()->createHistory($company_id, $inventory_id, $qty, $model->qty, self::INVENTORY_ACTION_TYPE_DECREASE, 0);
+                
+                return true;
+                
+            } catch (Exception $exc) {
+                throw new Exception($exc->getTraceAsString());
+            }
+        }
+        
+        return false;
+            
+    }
+    
+    public function move($company_id,$inventory_id,$move_qty,$move_to_zone,$move_status,$transaction_date){
+        $model = Inventory::model()->findByAttributes(array('inventory_id' => $inventory_id, 'company_id' => $company_id));
+        if ($model === null)
+            throw new CHttpException(404, 'The requested page does not exist.');
+        
+        
+        $move = new Inventory;
+        $move->company_id = $company_id;
+        $move->qty = $move_qty;
+        $move->zone_id = $move_to_zone;
+        $move->sku_status_id = $move_status;
+        $move->transaction_date = $transaction_date;
+        $move->sku_id = $model->sku_id;
+        $move->uom_id = $model->uom_id;
+        
+        if($move->validate()){
+            try {
+                
+                $move->save();
+                $qty = bcsub($model->qty, $move_qty);
+                $move_qty = $move_qty * -1;
+                
+                $model->qty = $qty;
+                $model->save();
+                
+                //InventoryHistory::model()->createHistory($company_id, $inventory_id, $move_qty, $qty, self::INVENTORY_ACTION_TYPE_MOVE);
+                
+                return true;
+                
+            } catch (Exception $exc) {
+                throw new Exception($exc->getTraceAsString());
+            }
+        }
+        
+        return false;
+            
+    }
+    
+    
 }

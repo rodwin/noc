@@ -15,9 +15,9 @@
         <!-- Theme style -->
         <link href="<?php echo Yii::app()->theme->baseUrl;?>/css/AdminLTE.css" rel="stylesheet" type="text/css" />
         <link href="<?php echo Yii::app()->baseUrl;?>/css/custom.css" rel="stylesheet" type="text/css" />
-        <!-- daterange picker -->
-        <link href="<?php echo Yii::app()->theme->baseUrl;?>/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
-        <script src="<?php echo Yii::app()->baseUrl;?>/js/jquery.min.js" type="text/javascript"></script>
+<!--         daterange picker 
+        <link href="<?php //echo Yii::app()->theme->baseUrl;?>/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />-->
+<!--        <script src="<?php //echo Yii::app()->baseUrl;?>/js/jquery.min.js" type="text/javascript"></script>-->
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
@@ -364,7 +364,7 @@
 
 
         <!-- jQuery 2.0.2 -->
-<!--        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>-->
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 
         <script src="<?php echo Yii::app()->baseUrl;?>/js/jquery.yii.js" type="text/javascript"></script>
         <!-- jQuery UI 1.10.3 -->
@@ -372,7 +372,7 @@
         <!-- Bootstrap -->
         <script src="<?php echo Yii::app()->theme->baseUrl;?>/js/bootstrap.min.js" type="text/javascript"></script>
         <!-- DATA TABES SCRIPT -->
-<!--        <script src="<?php echo Yii::app()->theme->baseUrl;?>/js/plugins/datatables/jquery.dataTables.js" type="text/javascript"></script>-->
+<!--        <script src="<?php //echo Yii::app()->theme->baseUrl;?>/js/plugins/datatables/jquery.dataTables.js" type="text/javascript"></script>-->
         <script src="http://cdn.datatables.net/1.10.0/js/jquery.dataTables.js" type="text/javascript"></script>
         <script src="http://cdn.datatables.net/plug-ins/28e7751dbec/api/fnMultiFilter.js" type="text/javascript"></script>
         <script src="<?php echo Yii::app()->theme->baseUrl;?>/js/plugins/datatables/dataTables.bootstrap.js" type="text/javascript"></script>
