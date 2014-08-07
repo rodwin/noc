@@ -70,12 +70,15 @@ class Inventory extends CActiveRecord {
         if($this->cost_per_unit == ""){
            $this->cost_per_unit = null; 
         }
+        
         if($this->zone_id == ""){
            $this->zone_id = null; 
         }
+        
         if($this->uom_id == ""){
            $this->uom_id = null; 
         }
+        
         if($this->sku_status_id == ""){
            $this->sku_status_id = null; 
         }
@@ -218,49 +221,6 @@ class Inventory extends CActiveRecord {
      */
     public static function model($className = __CLASS__) {
         return parent::model($className);
-    }
-    
-    public function create($data){
-        
-        $inventory = Inventory::model()->findByAttributes(
-                array(
-                    'company_id'=> $data['company_id'],
-                    'sku_id'=> $data['sku_id'],
-                    'uom_id'=> $data['uom_id'],
-                    'zone_id'=> $data['zone_id'],
-                    'sku_status_id'=> $data['sku_status_id'],
-                    )
-                );
-                
-        if($inventory){
-            
-            $quantity = bcadd($inventory->qty,$data['qty']);
-            $inventory->attributes = $data;
-            $inventory->qty = $quantity;
-            
-            if($inventory->validate()){
-                try {
-                    return $inventory->save();
-                } catch (Exception $exc) {
-                    throw new Exception($exc->getTraceAsString());
-                }
-            }
-            
-        }else{
-            
-            $inventory = new Inventory();
-            $inventory->attributes = $data;
-            
-            if($inventory->validate()){
-                try {
-                    return $inventory->save();
-                } catch (Exception $exc) {
-                    throw new Exception($exc->getTraceAsString());
-                }
-            }
-            
-        }
-        
     }
     
     public function increase($company_id,$inventory_id,$qty,$transaction_date,$cost_per_unit){

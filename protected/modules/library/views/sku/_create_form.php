@@ -11,7 +11,7 @@
 
                 <div class="row">
                     <div class="col-md-6">
-
+                        <h4 class="control-label text-primary"><b>Item Details</b></h4>
                         <?php /* if($form->errorSummary($model)){?><div class="alert alert-danger alert-dismissable">
                           <i class="fa fa-ban"></i>
                           <?php echo $form->errorSummary($model); ?></div>

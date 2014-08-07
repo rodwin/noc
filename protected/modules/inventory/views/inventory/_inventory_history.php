@@ -1,41 +1,29 @@
 
-<h4 class="control-label text-primary"><b>Recently Created Records</b></h4>
+<!-- general form elements disabled -->
+<div class="box box-solid box-info">
+    <div class="box-header">
+        <h3 class="box-title">Recently Created Records</h3>
+    </div><!-- /.box-header -->
+    <?php $fields = InventoryHistory::model()->attributeLabels(); ?>
+    <div class="box-body table-responsive">
+        <table id="inventory-history_table" class="table table-bordered">
+            <thead>
+                <tr>
+                    <!--<th><?php echo $fields['inventory_history_id']; ?></th>-->
+                    <th><?php echo $fields['inventory_id']; ?></th>
+                    <th><?php echo $fields['quantity_change']; ?></th>
+                    <th><?php echo $fields['running_total']; ?></th>
+                    <th><?php echo $fields['action']; ?></th>
+                    <th><?php echo $fields['cost_unit']; ?></th>
+                    <th><?php echo $fields['ave_cost_per_unit']; ?></th>
+                    <th>Actions</th>
 
-<?php
-Yii::app()->clientScript->registerScript('search', "
-$('.search-button').click(function(){
-$('.search-form').toggle();
-return false;
-});
-$('.search-form form').submit(function(){
-$.fn.yiiGridView.update('inventory-history-grid', {
-data: $(this).serialize()
-});
-return false;
-});
-");
-?>
+                </tr>
+            </thead>
 
-<?php $fields = InventoryHistory::model()->attributeLabels(); ?>
-<div class="box-body table-responsive">
-    <table id="inventory-history_table" class="table table-bordered">
-        <thead>
-            <tr>
-                <!--<th><?php echo $fields['inventory_history_id']; ?></th>-->
-                <th><?php echo $fields['inventory_id']; ?></th>
-                <th><?php echo $fields['quantity_change']; ?></th>
-                <th><?php echo $fields['running_total']; ?></th>
-                <th><?php echo $fields['action']; ?></th>
-                <th><?php echo $fields['cost_unit']; ?></th>
-                <th><?php echo $fields['ave_cost_per_unit']; ?></th>
-                <th>Actions</th>
-
-            </tr>
-        </thead>
-
-    </table>
+        </table>
+    </div>
 </div>
-
 <script type="text/javascript">
     $(function() {
         var table = $('#inventory-history_table').dataTable({

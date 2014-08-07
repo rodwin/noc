@@ -17,6 +17,8 @@
         <link href="<?php echo Yii::app()->baseUrl;?>/css/custom.css" rel="stylesheet" type="text/css" />
 <!--         daterange picker 
         <link href="<?php //echo Yii::app()->theme->baseUrl;?>/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />-->
+        <!-- jQuery 2.0.2 -->
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 <!--        <script src="<?php //echo Yii::app()->baseUrl;?>/js/jquery.min.js" type="text/javascript"></script>-->
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -363,8 +365,7 @@
         <!-- add new calendar event modal -->
 
 
-        <!-- jQuery 2.0.2 -->
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+        
 
         <script src="<?php echo Yii::app()->baseUrl;?>/js/jquery.yii.js" type="text/javascript"></script>
         <!-- jQuery UI 1.10.3 -->

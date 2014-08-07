@@ -116,7 +116,8 @@ class InventoryController extends Controller {
      */
     public function actionCreate() {
 
-        $this->pageTitle = 'Create Inventory';
+        $this->layout = '//layouts/column1';
+        $this->pageTitle = 'Inventory';
 
         $this->menu = array(
             array('label' => 'Manage Inventory', 'url' => array('admin')),
@@ -124,7 +125,7 @@ class InventoryController extends Controller {
             array('label' => 'Help', 'url' => '#'),
         );
 
-        $model = new Inventory('create');
+        $model = new CreateInventoryForm();
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
@@ -143,7 +144,7 @@ class InventoryController extends Controller {
             }
         }
 
-        $sku = CHtml::listData(Sku::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'sku_name ASC')), 'sku_id', 'sku_name');
+        $sku = CHtml::listData(Sku::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'sku_name ASC')), 'sku_id', 'sku_name','brand.brand_name');
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $zone = CHtml::listData(Zone::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');

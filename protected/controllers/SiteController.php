@@ -57,6 +57,7 @@ class SiteController extends Controller
 	 */
 	public function actionIndex()
 	{
+            
             /*
             // Create the Transport
             $transport = Swift_SmtpTransport::newInstance('ssl://email-smtp.us-east-1.amazonaws.com', 465)
