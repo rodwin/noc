@@ -43,11 +43,21 @@ class Zone extends CActiveRecord {
             array('zone_id, company_id, sales_office_id, created_by, updated_by', 'length', 'max' => 50),
             array('zone_name', 'length', 'max' => 200),
             array('description', 'length', 'max' => 250),
+            array('zone_name', 'uniqueName'),
             array('created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('zone_id, zone_name, company_id, sales_office_id, description, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
+    }
+    
+    public function uniqueName($attribute, $params) {
+
+        $model = Zone::model()->findByAttributes(array('company_id' => $this->company_id, 'zone_name' => $this->$attribute));
+        if ($model && $model->zone_id != $this->zone_id) {
+            $this->addError($attribute, 'Zone name selected already taken.');
+        }
+        return;
     }
 
     public function beforeValidate() {

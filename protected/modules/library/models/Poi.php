@@ -61,13 +61,20 @@ class Poi extends CActiveRecord {
         // will receive user inputs.
         return array(
             array('poi_id, company_id, short_name, primary_code, poi_category_id, poi_sub_category_id', 'required'),
-            array('barangay_id, municipal_id, province_id, region_id, sales_region_id', 'numerical', 'integerOnly' => true),
+            array('sales_region_id', 'numerical', 'integerOnly' => true),
             array('poi_id, company_id, zip, landline, mobile, poi_category_id, poi_sub_category_id, status', 'length', 'max' => 50),
             array('short_name, address1, address2', 'length', 'max' => 200),
             array('long_name, remarks', 'length', 'max' => 250),
             array('primary_code, secondary_code, created_by, edited_by, verified_by', 'length', 'max' => 100),
             array('latitude, longitude', 'length', 'max' => 9),
-            array('latitude, longitude', 'type', 'type' => 'float', 'message' => '{attribute} must be number.'),
+            array('latitude, longitude', 'numerical'),
+            array('primary_code', 'uniquePrimaryCode'),
+            array('poi_category_id', 'isValidPoiCategory'),
+            array('poi_sub_category_id', 'isValidPoiSubCategory'),
+            array('region_id', 'isValidRegionCode'),
+            array('province_id', 'isValidProvinceCode'),
+            array('municipal_id', 'isValidMunicipalCode'),
+            array('barangay_id', 'isValidBarangayCode'),
             array('created_date, edited_date, verified_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
@@ -75,7 +82,116 @@ class Poi extends CActiveRecord {
         );
     }
 
+    public function uniquePrimaryCode($attribute, $params) {
+
+        $model = Poi::model()->findByAttributes(array('company_id' => $this->company_id, 'primary_code' => $this->$attribute));
+        if ($model && $model->poi_id != $this->poi_id) {
+            $this->addError($attribute, 'Primary code selected already taken.');
+        }
+        return;
+    }
+
+    public function isValidPoiCategory($attribute) {
+        if ($this->$attribute == null) {
+            return;
+        }
+        $model = PoiCategory::model()->findByAttributes(array("poi_category_id" => $this->$attribute));
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'Poi Category ' . $this->$attribute . ' is invalid.');
+        }
+
+        return;
+    }
+
+    public function isValidPoiSubCategory($attribute) {
+        if ($this->$attribute == null) {
+            return;
+        }
+        $model = PoiSubCategory::model()->findByAttributes(array("poi_sub_category_id" => $this->$attribute, "poi_category_id" => $this->poi_category_id));
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'Poi Sub Category ' . $this->$attribute . ' is invalid.');
+        }
+
+        return;
+    }
+
+    public function isValidRegionCode($attribute) {
+        if ($this->$attribute == null) {
+            return;
+        }
+        $model = Region::model()->findByAttributes(array("region_code" => $this->$attribute));
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'Region code ' . $this->$attribute . ' is invalid.');
+        }
+
+        return;
+    }
+
+    public function isValidProvinceCode($attribute) {
+
+        if ($this->$attribute == null) {
+            return;
+        }
+
+        $model = Province::model()->findByAttributes(array("province_code" => $this->$attribute, "region_code" => $this->region_id));
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'Province code ' . $this->$attribute . ' is invalid.');
+        }
+
+        return;
+    }
+
+    public function isValidMunicipalCode($attribute) {
+
+        if ($this->$attribute == null) {
+            return;
+        }
+
+        $model = Municipal::model()->findByAttributes(array("municipal_code" => $this->$attribute, "province_code" => $this->province_id));
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'Municpal code ' . $this->$attribute . ' is invalid.');
+        }
+
+        return;
+    }
+
+    public function isValidBarangayCode($attribute) {
+
+        if ($this->$attribute == null) {
+            return;
+        }
+
+        $model = Barangay::model()->findByAttributes(array("barangay_code" => $this->$attribute, "municipal_code" => $this->municipal_id));
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'Barangay code ' . $this->$attribute . ' is invalid.');
+        }
+
+        return;
+    }
+
     public function beforeValidate() {
+        if ($this->scenario == 'create') {
+
+            unset($this->created_date);
+            unset($this->edited_date);
+            unset($this->verified_date);
+        } else {
+            $this->edited_date = date('Y-m-d H:i:s');
+            unset($this->verified_date);
+        }
+
+        if ($this->latitude == "") {
+            $this->latitude = 0;
+        }
+        if ($this->longitude == "") {
+            $this->longitude = 0;
+        }
         return parent::beforeValidate();
     }
 
@@ -103,11 +219,11 @@ class Poi extends CActiveRecord {
             'long_name' => 'Long Name',
             'primary_code' => 'Primary Code',
             'secondary_code' => 'Secondary Code',
-            'barangay_id' => 'Barangay',
-            'municipal_id' => 'Municipal',
-            'province_id' => 'Province',
-            'region_id' => 'Region',
             'sales_region_id' => 'Sales Region',
+            'region_id' => 'Region',
+            'province_id' => 'Province',
+            'municipal_id' => 'Municipal',
+            'barangay_id' => 'Barangay',
             'latitude' => 'Latitude',
             'longitude' => 'Longitude',
             'address1' => 'Address1',
@@ -125,6 +241,44 @@ class Poi extends CActiveRecord {
             'edited_by' => 'Edited By',
             'verified_by' => 'Verified By',
             'verified_date' => 'Verified Date',
+        );
+    }
+
+    public function requiredHeaders($company_id) {
+
+        $headers = $this->attributeLabels();
+        unset($headers['poi_id']);
+        unset($headers['company_id']);
+        unset($headers['poi_category_id']);
+        unset($headers['created_date']);
+        unset($headers['created_by']);
+        unset($headers['edited_date']);
+        unset($headers['edited_by']);
+        unset($headers['updated_date']);
+        unset($headers['updated_by']);
+        unset($headers['verified_date']);
+        unset($headers['verified_by']);
+
+        $poi_category = PoiCategory::model()->findAllByAttributes(array("company_id" => $company_id));
+
+        $custom_data = array();
+        foreach ($poi_category as $key => $val) {
+
+            $criteria = new CDbCriteria();
+            $criteria->order = "sort_order";
+            $model = PoiCustomData::model()->findAllByAttributes(array('company_id' => $company_id, "type" => $val['poi_category_id']), $criteria);
+
+            $array = array();
+            foreach ($model as $v) {
+                array_push($array, $v['name']);
+            }
+
+            $custom_data[str_replace(' ', '_', strtolower($val['category_name']))] = $array;
+        }
+
+        return array(
+            'headers' => $headers,
+            'custom_data' => $custom_data,
         );
     }
 
@@ -268,9 +422,263 @@ class Poi extends CActiveRecord {
         return parent::model($className);
     }
 
-    public function catchError($attribute, $error) {
+    public function generateTemplate($poi_category_id) {
 
-        $this->addError($attribute, $error);
+        $poi_category = PoiCategory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "poi_category_id" => $poi_category_id));
+
+        header('Content-Type: application/excel');
+        header('Content-Disposition: attachment; filename="poi_' . str_replace(" ", "_", strtolower($poi_category->category_name)) . '.csv"');
+
+        $fp = fopen('php://output', 'w');
+        $cols = "";
+
+        $headers = $this->requiredHeaders(Yii::app()->user->company_id);
+
+        foreach ($headers['headers'] as $k => $v) {
+            $cols .= $v . ',';
+        }
+
+        if (count($headers['custom_data']) > 0) {
+            foreach ($headers['custom_data'] as $key => $val) {
+                if (strtolower($key) == strtolower(str_replace(" ", "_", $poi_category->category_name))) {
+                    foreach ($val as $field_name) {
+                        $cols .= ucwords($field_name) . ',';
+                    }
+                }
+            }
+        }
+
+        fputcsv($fp, explode(',', $cols));
+        fclose($fp);
+        exit();
+    }
+
+    public function processBatchUpload($id, $company_id) {
+
+        $BatchUploadModel = BatchUpload::model()->findByPk($id);
+
+        if ($BatchUploadModel === null) {
+            throw new CException('The requested model does not exist.');
+        }
+
+        $ret = array();
+
+        $rows = Globals::parseCSV($BatchUploadModel->file, true, true, ',');
+
+        $ret['success'] = 0;
+        $ret['fail'] = 0;
+        $ret['inserted'] = 0;
+        $ret['updated'] = 0;
+        $ret['message'] = "";
+        $incomplete_field = 0;
+        $message = "";
+
+        $headers = Poi::model()->requiredHeaders($company_id);
+
+        $count_custom_data = 0;
+        $category_id = "";
+        $custom_data_header = array();
+        $required_headers = $headers['headers'];
+
+        if (count($headers['custom_data']) > 0) {
+            foreach ($headers['custom_data'] as $key => $val) {
+
+                $category = PoiCategory::model()->findByAttributes(array("company_id" => $company_id), $condition = 'LOWER(t.category_name) = "' . str_replace("_", " ", $key) . '"');
+
+                $data = PoiCustomData::model()->findAllByAttributes(array("company_id" => $company_id), $condition = 'type = "' . $category->poi_category_id . '"');
+
+                foreach ($data as $k => $v) {
+
+                    if ($rows && count($rows) > 0) {
+
+                        if (array_key_exists($v['name'], $rows[0])) {
+
+                            $required_headers[str_replace(' ', '_', strtolower($v['name']))] = ucwords($v['name']);
+                            $custom_data_header[] = str_replace(' ', '_', strtolower($v['name']));
+
+                            $count_custom_data++;
+                            $category_id = $v['type'];
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($rows && count($rows) > 0) {
+
+            foreach ($required_headers as $key => $value) {
+                if (!isset($rows[0][$value])) {
+                    $incomplete_field++;
+                    $message .= $value . ',';
+                }
+            }
+
+            if ($incomplete_field > 0) {
+
+                $ret['message'] = "Could not find the following column(s): " . substr($message, 0, -1);
+                $BatchUploadModel->error_message = $ret['message'];
+                $BatchUploadModel->status = BatchUpload::STATUS_ERROR;
+            } else {
+
+                foreach ($rows as $key => $val) {
+
+                    $region = Region::model()->findByAttributes(array(), $condition = 'trim(t.region_name) = "' . trim($val[$required_headers['region_id']]) . '"');
+                    $province = Province::model()->findByAttributes(array(), $condition = 'trim(t.province_name) = "' . trim($val[$required_headers['province_id']]) . '"');
+                    $municipal = Municipal::model()->findByAttributes(array(), $condition = 'trim(t.municipal_name) = "' . trim($val[$required_headers['municipal_id']]) . '"');
+                    $barangay = Barangay::model()->findByAttributes(array(), $condition = 'trim(t.barangay_name) = "' . trim($val[$required_headers['barangay_id']]) . '"');
+                    $poi_sub_category = PoiSubCategory::model()->findByAttributes(array("sub_category_name" => trim($val[$required_headers['poi_sub_category_id']]), 'company_id' => $company_id));
+
+                    $data = array(
+                        'company_id' => $company_id,
+                        'short_name' => $val[$required_headers['short_name']],
+                        'long_name' => $val[$required_headers['long_name']],
+                        'primary_code' => $val[$required_headers['primary_code']],
+                        'secondary_code' => $val[$required_headers['secondary_code']],
+                        'region_id' => isset($region->region_code) ? $region->region_code : $val[$required_headers['region_id']],
+                        'province_id' => isset($province->province_code) ? $province->province_code : $val[$required_headers['province_id']],
+                        'municipal_id' => isset($municipal->municipal_code) ? $municipal->municipal_code : $val[$required_headers['municipal_id']],
+                        'barangay_id' => isset($barangay->barangay_code) ? $barangay->barangay_code : $val[$required_headers['barangay_id']],
+                        'sales_region_id' => $val[$required_headers['sales_region_id']],
+                        'latitude' => $val[$required_headers['latitude']],
+                        'longitude' => $val[$required_headers['longitude']],
+                        'address1' => $val[$required_headers['address1']],
+                        'address2' => $val[$required_headers['address2']],
+                        'zip' => $val[$required_headers['zip']],
+                        'landline' => $val[$required_headers['landline']],
+                        'mobile' => $val[$required_headers['mobile']],
+                        'poi_category_id' => $category_id,
+                        'poi_sub_category_id' => isset($poi_sub_category->poi_sub_category_id) ? $poi_sub_category->poi_sub_category_id : $val[$required_headers['poi_sub_category_id']],
+                        'remarks' => $val[$required_headers['remarks']],
+                        'status' => $val[$required_headers['status']],
+                    );
+
+                    $custom_data = array();
+                    $poi_custom_data = new PoiCustomDataValue;
+                    if ($count_custom_data > 0) {
+                        for ($i = 0; $i < $count_custom_data; $i++) {
+                            $poi_custom_field = PoiCustomData::model()->findByAttributes(array('name' => $required_headers[$custom_data_header[$i]], 'company_id' => $company_id));
+
+                            $custom_data[] = array(
+                                'custom_data_id' => $poi_custom_field->custom_data_id,
+                                'value' => $val[$required_headers[$custom_data_header[$i]]],
+                            );
+
+                            PoiCustomData::model()->validateAllCustomDataValue($poi_custom_data, $company_id, $required_headers[$custom_data_header[$i]], trim($val[$required_headers[$custom_data_header[$i]]]));
+                        }
+                    }
+
+                    $model = Poi::model()->findByAttributes(array('primary_code' => $val[$required_headers['primary_code']], 'company_id' => $company_id));
+
+                    if ($model) {//for update
+                        $model->attributes = $data;
+                        $model->edited_date = date('Y-m-d H:i:s');
+                        $model->edited_by = $BatchUploadModel->created_by;
+
+                        $model->validate();
+                        if ($model->validate() && count($poi_custom_data->getErrors()) == 0) {
+                            try {
+                                $model->save();
+
+                                // delete poi custom data value by poi_id
+                                PoiCustomDataValue::model()->deletePoiCustomDataValueByPoiID($model->poi_id);
+
+                                if ($model->save() && $count_custom_data > 0) {
+                                    for ($i = 0; $i < $count_custom_data; $i++) {
+                                        $poi_custom_data_value = new PoiCustomDataValue;
+                                        $poi_custom_data_value->poi_id = $model->poi_id;
+                                        $poi_custom_data_value->attributes = $custom_data[$i];
+                                        $poi_custom_data_value->save();
+                                    }
+                                }
+
+                                $ret['success'] ++;
+                                $ret['updated'] ++;
+                            } catch (Exception $exc) {
+                                $ret['fail'] ++;
+                                $this->saveBatchUploadDetail($BatchUploadModel->id, "Row " . ($key + 2) . ": " . $exc->errorInfo[2], $company_id);
+//                                $this->saveBatchUploadDetail($BatchUploadModel->id, "Row " . ($key + 2) . ": " . $exc->getMessage(), $company_id);
+                            }
+                        } else {
+                            $ret['fail'] ++;
+                            $errors = Globals::getSingleLineErrorMessage($model->getErrors());
+                            $custom_data_errors = Globals::getSingleLineErrorMessage($poi_custom_data->getErrors());
+
+                            $comma = "";
+                            if (count($model->getErrors()) > 0 && count($poi_custom_data->getErrors()) > 0) {
+                                $comma = " ,";
+                            }
+
+                            $this->saveBatchUploadDetail($BatchUploadModel->id, "Row " . ($key + 2) . ": " . $errors . (count($poi_custom_data->getErrors()) > 0 ? $comma . $custom_data_errors : ""), $company_id);
+                        }
+                    } else {// for insert
+                        $data['poi_id'] = Globals::generateV4UUID();
+                        $data['created_by'] = $BatchUploadModel->created_by;
+
+                        $model = new Poi;
+                        $model->attributes = $data;
+
+                        $model->validate();
+                        if ($model->validate() && count($poi_custom_data->getErrors()) == 0) {
+                            try {
+                                $model->save();
+
+                                if ($model->save() && $count_custom_data > 0) {
+                                    for ($i = 0; $i < $count_custom_data; $i++) {
+                                        $poi_custom_data_value = new PoiCustomDataValue;
+                                        $poi_custom_data_value->poi_id = $model->poi_id;
+                                        $poi_custom_data_value->attributes = $custom_data[$i];
+                                        $poi_custom_data_value->validate();
+                                        $poi_custom_data_value->save();
+                                    }
+                                }exit;
+
+                                $ret['success'] ++;
+                                $ret['inserted'] ++;
+                            } catch (Exception $exc) {
+                                $ret['fail'] ++;
+                                $this->saveBatchUploadDetail($BatchUploadModel->id, "Row " . ($key + 2) . ": " . $exc->errorInfo[2], $company_id);
+//                                $this->saveBatchUploadDetail($BatchUploadModel->id, "Row " . ($key + 2) . ": " . $exc->getMessage(), $company_id);
+                            }
+                        } else {
+                            $ret['fail'] ++;
+                            $errors = Globals::getSingleLineErrorMessage($model->getErrors());
+                            $custom_data_errors = Globals::getSingleLineErrorMessage($poi_custom_data->getErrors());
+
+                            $comma = "";
+                            if (count($model->getErrors()) > 0 && count($poi_custom_data->getErrors()) > 0) {
+                                $comma = " ,";
+                            }
+
+                            $this->saveBatchUploadDetail($BatchUploadModel->id, "Row " . ($key + 2) . ": " . $errors . (count($poi_custom_data->getErrors()) > 0 ? $comma . $custom_data_errors : ""), $company_id);
+                        }
+                    }
+                }
+
+                if ($ret['fail'] > 0) {
+                    $BatchUploadModel->status = BatchUpload::STATUS_WARNING;
+                } else {
+                    $BatchUploadModel->status = BatchUpload::STATUS_DONE;
+                }
+            }
+        } else {
+            $ret['message'] = "No data to process";
+            $BatchUploadModel->error_message = $ret['message'];
+            $BatchUploadModel->status = BatchUpload::STATUS_ERROR;
+        }
+
+        $BatchUploadModel->failed_rows = $ret['fail'];
+        $BatchUploadModel->total_rows = bcadd($ret['success'], $ret['fail']);
+        $BatchUploadModel->ended_date = date('Y-m-d H:i:s');
+        return $BatchUploadModel->save();
+    }
+
+    public function saveBatchUploadDetail($batch_id, $message, $company_id) {
+
+        $model = new BatchUploadDetail;
+        $model->company_id = $company_id;
+        $model->batch_upload_id = $batch_id;
+        $model->message = $message;
+        return $model->save();
     }
 
 }

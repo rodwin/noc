@@ -10,8 +10,11 @@ $this->breadcrumbs = array(
             <div class="col-md-12">
                 <p><h4>Column Headings:</h4></p>
                 <small>
-                    <?php foreach ($headers as $key => $value) {?>
+                    <?php foreach ($headers['headers'] as $key => $value) {?>
                         <?php echo $value; ?>,
+                    <?php }?>
+                    <?php foreach ($headers['custom_data'] as $key => $value) {?>
+                        <?php echo ucwords($value['name']); ?>,
                     <?php }?>
                 </small>
                 <?php

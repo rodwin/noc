@@ -5,6 +5,10 @@ $this->breadcrumbs = array(
 );
 ?>
 
+<style type="text/css">
+    #sku tr th { width: 20%; }
+</style>
+
 <div class="row">
     <div class="nav-tabs-custom">
 
@@ -18,6 +22,7 @@ $this->breadcrumbs = array(
 
                 <?php
                 $this->widget('booster.widgets.TbDetailView', array(
+                    'id' => 'sku',
                     'data' => $model,
                     'type' => 'bordered condensed',
                     'attributes' => array(
@@ -39,6 +44,7 @@ $this->breadcrumbs = array(
 
                 <?php
                 $this->widget('booster.widgets.TbDetailView', array(
+                    'id' => 'sku',
                     'data' => $model,
                     'type' => 'bordered condensed',
                     'attributes' => array(
@@ -55,6 +61,7 @@ $this->breadcrumbs = array(
 
                 <?php
                 $this->widget('booster.widgets.TbDetailView', array(
+                    'id' => 'sku',
                     'data' => $model,
                     'type' => 'bordered condensed',
                     'attributes' => array(

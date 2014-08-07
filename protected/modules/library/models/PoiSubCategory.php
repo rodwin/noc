@@ -41,11 +41,21 @@ class PoiSubCategory extends CActiveRecord {
             array('poi_sub_category_id, company_id, poi_category_id, created_by, updated_by', 'length', 'max' => 50),
             array('sub_category_name', 'length', 'max' => 100),
             array('description', 'length', 'max' => 250),
+            array('sub_category_name', 'uniqueName'),
             array('created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('poi_sub_category_id, company_id, poi_category_id, sub_category_name, description, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
+    }
+
+    public function uniqueName($attribute, $params) {
+
+        $model = PoiSubCategory::model()->findByAttributes(array('company_id' => $this->company_id, 'sub_category_name' => $this->$attribute));
+        if ($model && $model->poi_sub_category_id != $this->poi_sub_category_id) {
+            $this->addError($attribute, 'Sub category name selected already taken');
+        }
+        return;
     }
 
     public function beforeValidate() {
@@ -147,7 +157,7 @@ class PoiSubCategory extends CActiveRecord {
 
 
         $criteria = new CDbCriteria;
-        $criteria->select = 't.poi_sub_category_id, t.sub_category_name, t.description, t.created_date, t.created_by, t.updated_date, poi_category.category_name as category_name';
+        $criteria->select = 't.*, poi_category.category_name as category_name';
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
 //        $criteria->compare('t.poi_sub_category_id', $columns[0]['search']['value'], true);
         $criteria->compare('category_name', $columns[0]['search']['value'], true);
@@ -159,7 +169,7 @@ class PoiSubCategory extends CActiveRecord {
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
-        $criteria->join = 'INNER JOIN poi_category ON poi_category.poi_category_id = t.poi_category_id';
+        $criteria->join = 'LEFT JOIN poi_category ON poi_category.poi_category_id = t.poi_category_id';
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,

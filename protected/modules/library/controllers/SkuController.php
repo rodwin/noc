@@ -25,7 +25,7 @@ class SkuController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view', 'saveSkuConvertion','GenerateTemplate','Upload','UploadDetails'),
+                'actions' => array('index', 'view', 'saveSkuConvertion', 'GenerateTemplate', 'Upload', 'UploadDetails'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -64,7 +64,7 @@ class SkuController extends Controller {
             $row['sku_id'] = $value->sku_id;
             $row['sku_code'] = $value->sku_code;
             $row['brand_id'] = $value->brand_id;
-            $row['brand_name'] = isset($value->brand->brand_name) ? $value->brand->brand_name:null;
+            $row['brand_name'] = isset($value->brand->brand_name) ? $value->brand->brand_name : null;
             $row['sku_name'] = $value->sku_name;
             $row['description'] = $value->description;
             $row['default_uom_id'] = $value->default_uom_id;
@@ -91,18 +91,16 @@ class SkuController extends Controller {
 
         echo json_encode($output);
     }
-    
-    
+
     public function actionGenerateTemplate() {
-        
+
         Sku::model()->generateTemplate();
-        
     }
-    
-    public function actionUploadDetails($id){
-        
+
+    public function actionUploadDetails($id) {
+
         $this->pageTitle = 'Upload Sku Details';
-        
+
         $this->menu = array(
             array('label' => 'Upload Sku', 'url' => array('upload')),
             array('label' => 'Create Sku', 'url' => array('create')),
@@ -110,84 +108,81 @@ class SkuController extends Controller {
             '',
             array('label' => 'Help', 'url' => '#'),
         );
-        
-        $model = BatchUpload::model()->findByAttributes(array('id'=>$id,'company_id' => Yii::app()->user->company_id));
+
+        $model = BatchUpload::model()->findByAttributes(array('id' => $id, 'company_id' => Yii::app()->user->company_id));
         if ($model === null)
             throw new CHttpException(404, 'The requested page does not exist.');
-        
-        $uploads = BatchUploadDetail::model()->findAllByAttributes(array('batch_upload_id' => $id,'company_id' => Yii::app()->user->company_id));
-        
-        $this->render('upload_details',array('model'=>$model,'uploads'=>$uploads));
+
+        $uploads = BatchUploadDetail::model()->findAllByAttributes(array('batch_upload_id' => $id, 'company_id' => Yii::app()->user->company_id));
+
+        $this->render('upload_details', array('model' => $model, 'uploads' => $uploads));
     }
-    
+
     public function actionUpload() {
-        
+
         $this->layout = '//layouts/column1';
         $this->pageTitle = 'Upload Sku';
 
         $model = new SKUImportForm();
-        
-        if(isset($_POST) && count($_POST)>0)
-        {
-            $model->attributes=$_POST['SKUImportForm'];
-            if($model->validate()){
+
+        if (isset($_POST) && count($_POST) > 0) {
+            $model->attributes = $_POST['SKUImportForm'];
+            if ($model->validate()) {
 //                    pre($_FILES);
-                if(isset($_FILES['SKUImportForm']['name']) && $_FILES['SKUImportForm']['name'] != ""){
+                if (isset($_FILES['SKUImportForm']['name']) && $_FILES['SKUImportForm']['name'] != "") {
 
                     $file = CUploadedFile::getInstance($model, 'doc_file');
-                    
-                    $dir = Yii::app()->basePath.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.Yii::app()->user->company_id.DIRECTORY_SEPARATOR.'sku';
 
-                    if(!is_dir($dir)){
-                            mkdir($dir, 0777, true);
+                    $dir = Yii::app()->basePath . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'sku';
+
+                    if (!is_dir($dir)) {
+                        mkdir($dir, 0777, true);
                     }
-                    
+
                     $file_name = str_replace(' ', '_', strtolower($file->name));
-                    $file->saveAs($dir.DIRECTORY_SEPARATOR.$file_name);
-                    
+                    $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
+
                     $batch_upload = new BatchUpload;
                     $batch_upload->company_id = Yii::app()->user->company_id;
                     $batch_upload->status = 'PENDING';
-                    $batch_upload->file_name= $file_name;
-                    $batch_upload->file = $dir.DIRECTORY_SEPARATOR.$file_name;
-                    $batch_upload->total_rows= 0;
-                    $batch_upload->failed_rows= 0;
-                    $batch_upload->type= 'sku';
+                    $batch_upload->file_name = $file_name;
+                    $batch_upload->file = $dir . DIRECTORY_SEPARATOR . $file_name;
+                    $batch_upload->total_rows = 0;
+                    $batch_upload->failed_rows = 0;
+                    $batch_upload->type = 'sku';
                     $batch_upload->notify = $_POST['SKUImportForm']['notify'];
-                    $batch_upload->module= 'inventory';
+                    $batch_upload->module = 'inventory';
                     $batch_upload->created_by = Yii::app()->user->name;
-                    if($batch_upload->validate()){
-                        
+                    if ($batch_upload->validate()) {
+
                         $batch_upload->save();
-                        
+
                         $data = array(
                             'task' => "import_sku",
-                            'details'=> array(
+                            'details' => array(
                                 'batch_id' => $batch_upload->id,
                                 'company_id' => Yii::app()->user->company_id,
                             )
                         );
 
-                        Globals::queue(json_encode($data));
-                        //Sku::model()->processBatchUpload($batch_upload->id,Yii::app()->user->company_id);
-                        
-                        Yii::app()->user->setFlash('success',"Successfully uploaded data. Please wait for the checking to finish!");
-                    }else{
-                        Yii::app()->user->setFlash('danger',"Failed to create batch upload.");
-                    }
-                    
-                    $this->redirect(array('upload'));
+//                        Globals::queue(json_encode($data));
+                        Sku::model()->processBatchUpload($batch_upload->id, Yii::app()->user->company_id);
 
+                        Yii::app()->user->setFlash('success', "Successfully uploaded data. Please wait for the checking to finish!");
+                    } else {
+                        Yii::app()->user->setFlash('danger', "Failed to create batch upload.");
+                    }
+
+                    $this->redirect(array('upload'));
                 }
             }
         }
 
-        $headers = Sku::model()->requiredHeaders();
-        
+        $headers = Sku::model()->requiredHeaders(Yii::app()->user->company_id);
+
         $uploads = BatchUpload::model()->getByTypeAndCompanyID('sku', Yii::app()->user->company_id);
-        
-        $this->render('upload',array('model'=>$model,'headers'=>$headers,'uploads'=>$uploads));
-        
+
+        $this->render('upload', array('model' => $model, 'headers' => $headers, 'uploads' => $uploads));
     }
 
     /**
@@ -253,11 +248,8 @@ class SkuController extends Controller {
 
             foreach ($custom_datas as $key => $val) {
                 $attr_name = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
-                $post_data = trim($_POST[$attr_name]);
-
-                if ($val['required'] == 1 && empty($post_data)) {
-                    $sku_custom_data->addError($attr_name, "<font color='red'>" . ucwords($val['name']) . " required.</font>");
-                }
+                $post_data = isset($_POST[$attr_name]) ? trim($_POST[$attr_name]) : "";
+                SkuCustomData::model()->validateAllCustomDataValue($sku_custom_data, Yii::app()->user->company_id, $val['name'], $post_data);
             }
 
             if ($model->validate() && count($sku_custom_data->getErrors()) == 0) {
@@ -271,7 +263,7 @@ class SkuController extends Controller {
                     $sku_custom_data_value->sku_id = $model->sku_id;
                     $sku_custom_data_value->custom_data_id = $val['custom_data_id'];
 
-                    $post_name = $val['name'] = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . $val['data_type'] = str_replace(' ', '_', strtolower($val['name']));
+                    $post_name = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
                     $sku_custom_data_value->value = $_POST[$post_name];
                     $sku_custom_data_value->save();
                 }
@@ -333,11 +325,8 @@ class SkuController extends Controller {
 
             foreach ($custom_datas as $key => $val) {
                 $attr_name = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
-                $post_data = trim($_POST[$attr_name]);
-
-                if ($val['required'] == 1 && empty($post_data)) {
-                    $sku_custom_data->addError($attr_name, "<font color='red'>" . ucwords($val['name']) . " required.</font>");
-                }
+                $post_data = isset($_POST[$attr_name]) ? trim($_POST[$attr_name]) : "";
+                SkuCustomData::model()->validateAllCustomDataValue($sku_custom_data, Yii::app()->user->company_id, $val['name'], $post_data);
             }
 
             if ($model->validate() && count($sku_custom_data->getErrors()) == 0) {
@@ -351,8 +340,7 @@ class SkuController extends Controller {
                     $sku_custom_data_value->sku_id = $model->sku_id;
                     $sku_custom_data_value->custom_data_id = $val['custom_data_id'];
 
-                    $post_name = $val['name'] = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . $val['data_type'] = str_replace(' ', '_', strtolower($val['name']));
-
+                    $post_name = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
                     $sku_custom_data_value->value = $_POST[$post_name];
                     $sku_custom_data_value->save();
                 }
@@ -446,7 +434,7 @@ class SkuController extends Controller {
      * Manages all models.
      */
     public function actionAdmin() {
-        
+
         $this->layout = '//layouts/column1';
         $this->pageTitle = 'Manage Sku';
 
@@ -490,6 +478,5 @@ class SkuController extends Controller {
             Yii::app()->end();
         }
     }
-    
-    
+
 }

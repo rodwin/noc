@@ -40,11 +40,21 @@ class Brand extends CActiveRecord {
             array('brand_category_id, brand_id, brand_code, company_id, brand_name', 'required'),
             array('brand_id, brand_category_id, brand_code, company_id, created_by, updated_by', 'length', 'max' => 50),
             array('brand_name', 'length', 'max' => 250),
+            array('brand_code', 'uniqueCode'),
             array('created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('brand_id, brand_category_id, brand_code, company_id, brand_name, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
+    }
+
+    public function uniqueCode($attribute, $params) {
+
+        $model = Brand::model()->findByAttributes(array('company_id' => $this->company_id, 'brand_code' => $this->$attribute));
+        if ($model && $model->brand_id != $this->brand_id) {
+            $this->addError($attribute, 'Brand code selected already taken.');
+        }
+        return;
     }
 
     public function beforeValidate() {

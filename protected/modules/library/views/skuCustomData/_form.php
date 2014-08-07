@@ -1,9 +1,8 @@
 <div class="row">
-
     <div class="panel panel-default">
-
         <div class="panel-body">
             <div class="col-md-8">
+
                 <?php
                 $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                     'id' => 'poi-custom-data-form',
@@ -25,7 +24,6 @@
                     <?php echo $form->textFieldGroup($model, 'data_type', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 50, 'readonly' => true)))); ?>
                 </div>
 
-
                 <div class="form-group">
                     <?php //echo $form->textFieldGroup($model, 'description', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 250))));  ?>
                     <?php
@@ -42,7 +40,6 @@
                     ?>
                 </div>
 
-
                 <div class="panel panel-default">
 
                     <div class="panel-body">
@@ -50,19 +47,19 @@
                         <?php
                         if ($model->data_type == 'Text and Numbers') {
 
-                            echo $this->renderPartial('_text_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute));
+                            echo $this->renderPartial('_text_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute, 'sku_custom_data' => $sku_custom_data));
                         } else if ($model->data_type == 'Numbers Only') {
 
-                            echo $this->renderPartial('_number_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute));
+                            echo $this->renderPartial('_number_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute, 'sku_custom_data' => $sku_custom_data));
                         } else if ($model->data_type == 'CheckBox') {
 
-                            echo $this->renderPartial('_checkBox_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute));
+                            echo $this->renderPartial('_checkBox_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute, 'sku_custom_data' => $sku_custom_data));
                         } else if ($model->data_type == 'Drop Down List') {
 
-                            echo $this->renderPartial('_dropDownList_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute));
+                            echo $this->renderPartial('_dropDownList_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute, 'sku_custom_data' => $sku_custom_data));
                         } else if ($model->data_type == 'Date') {
 
-                            echo $this->renderPartial('_date_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute));
+                            echo $this->renderPartial('_date_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute, 'sku_custom_data' => $sku_custom_data));
                         }
                         ?>
 
@@ -73,11 +70,9 @@
                     <?php echo $form->checkboxGroup($model, 'required'); ?>
                 </div>
 
-
                 <div class="form-group">
                     <?php echo $form->textFieldGroup($model, 'sort_order', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5')))); ?>
                 </div>
-
 
                 <div class="form-group">
                     <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save', array('onclick' => 'getAllOptions()', 'class' => 'btn btn-primary btn-flat')); ?>&nbsp;
@@ -85,7 +80,8 @@
                     <?php echo $model->isNewRecord ? CHtml::link('Cancel', array('SkuCustomData/create'), array('class' => 'btn btn-primary btn-flat')) : ""; ?>
                 </div>
 
-<?php $this->endWidget(); ?>
+                <?php $this->endWidget(); ?>
+
             </div>
         </div>
     </div>
@@ -100,6 +96,16 @@
         for (var i = 0; i < dropDownList_multiple.options.length; i++) {
             dropDownList_multiple.options[i].selected = true;
         }
+    }
+
+    function onlyNumbers(txt, event) {
+
+        var charCode = (event.which) ? event.which : event.keyCode;
+
+        if (charCode > 31 && (charCode < 48 || charCode > 57 || charCode == 46))
+            return false;
+
+        return true;
     }
 
 </script>
