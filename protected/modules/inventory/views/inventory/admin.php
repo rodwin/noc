@@ -51,14 +51,17 @@ return false;
     <table id="inventory_table" class="table table-bordered">
         <thead>
             <tr>
-                <!--<th><?php echo $fields['inventory_id']; ?></th>-->
-                <th><?php echo $fields['sku_id']; ?></th>
+                <th><?php echo $fields['sku_code']; ?></th>
+                <th><?php echo $fields['sku_name']; ?></th>
                 <th><?php echo $fields['qty']; ?></th>
                 <th><?php echo $fields['uom_id']; ?></th>
                 <th>Action Qty <i class="fa fa-fw fa-info-circle" data-toggle="popover" content="And here's some amazing content. It's very engaging. right?"></i></th>
                 <th><?php echo $fields['zone_id']; ?></th>
                 <th><?php echo $fields['sku_status_id']; ?></th>
-                <th><?php echo $fields['transaction_date']; ?></th>
+                <th><?php echo $fields['expiration_date']; ?></th>
+                <th><?php echo $fields['reference_no']; ?></th>
+                <th><?php echo $fields['brand_name']; ?></th>
+                <th><?php echo $fields['sales_office_name']; ?></th>
                 <th>Actions</th>
 
             </tr>
@@ -70,21 +73,39 @@ return false;
 <script type="text/javascript">
     $(function() {
         var table = $('#inventory_table').dataTable({
-            "filter": true,
+            "filter": false,
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Inventory/data'); ?>",
             "columns": [
-//                {"name": "inventory_id", "data": "inventory_id"}, 
-                {"name": "sku_id", "data": "sku_id"}, {"name": "qty", "data": "qty"}, {"name": "uom_id", "data": "uom_id"}, {"name": "action_qty", "data": "action_qty", 'sortable': false}, {"name": "zone_id", "data": "zone_id"}, {"name": "sku_status_id", "data": "sku_status_id"}, {"name": "transaction_date", "data": "transaction_date"}, {"name": "links", "data": "links", 'sortable': false}
+                {"name": "sku_code", "data": "sku_code"}, 
+                {"name": "sku_name", "data": "sku_name"},
+                {"name": "qty", "data": "qty"},
+                {"name": "uom_name", "data": "uom_name"},
+                {"name": "action_qty", "data": "action_qty", 'sortable': false},
+                {"name": "zone_name", "data": "zone_name"},
+                {"name": "sku_status_name", "data": "sku_status_name"},
+                {"name": "expiration_date", "data": "expiration_date"}, 
+                {"name": "reference_no", "data": "reference_no"}, 
+                {"name": "brand_name", "data": "brand_name"}, 
+                {"name": "sales_office_name", "data": "sales_office_name"}, 
+                {"name": "links", "data": "links", 'sortable': false}
             ]
         });
 
         $('#btnSearch').click(function() {
             table.fnMultiFilter({
-//                "inventory_id": $("#Inventory_inventory_id").val(), 
-                "sku_id": $("#Inventory_sku_id").val(), "qty": $("#Inventory_qty").val(), "uom_id": $("#Inventory_uom_id").val(), "zone_id": $("#Inventory_zone_id").val(), "sku_status_id": $("#Inventory_sku_status_id").val(), "transaction_date": $("#Inventory_transaction_date").val(), });
+                "sku_code": $("#Inventory_sku_code").val(), 
+                "sku_name": $("#Inventory_qty").val(), 
+                "qty": $("#Inventory_qty").val(), 
+                "zone_name": $("#Inventory_zone_name").val(), 
+                "sku_status_name": $("#Inventory_sku_status_name").val(), 
+                "expiration_date": $("#Inventory_expiration_date").val(), 
+                "reference_no": $("#Inventory_reference_no").val(), 
+                "brand_name": $("#Inventory_brand_name").val(), 
+                "sales_office_name": $("#Inventory_sales_office_name").val(), 
+            });
         });
 
 

@@ -62,12 +62,19 @@ class InventoryController extends Controller {
         foreach ($dataProvider->getData() as $key => $value) {
             $row = array();
             $row['inventory_id'] = $value->inventory_id;
+            $row['sku_code'] = $value->sku->sku_code;
             $row['sku_id'] = $value->sku_id;
+            $row['sku_name'] = $value->sku->sku_name;
             $row['qty'] = $value->qty;
             $row['uom_id'] = $value->uom_id;
+            $row['uom_name'] = $value->uom->uom_name;
             $row['action_qty'] = "";
             $row['zone_id'] = $value->zone_id;
+            $row['zone_name'] = $value->zone->zone_name;
             $row['sku_status_id'] = $value->sku_status_id;
+            $row['sku_status_name'] = isset($value->skuStatus->status_name) ? $value->skuStatus->status_name:'';
+            $row['sales_office_name'] = isset($value->zone->salesOffice->sales_office_name) ? $value->zone->salesOffice->sales_office_name:'';
+            $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name:'';
             $row['transaction_date'] = $value->transaction_date;
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
@@ -130,18 +137,23 @@ class InventoryController extends Controller {
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
-        if (isset($_POST['Inventory'])) {
-
-            if (isset($_POST['create'])) {
-
-                $model->attributes = $_POST['Inventory'];
-                if ($model->save()) {
-                    Yii::app()->user->setFlash('success', "Successfully created");
-                    $this->redirect(array('view', 'id' => $model->inventory_id));
-                }
-            } else if (isset($_POST['save'])) {
+        if (isset($_POST['CreateInventoryForm'])) {
+//            pre($_POST);
+            $model->attributes = $_POST['CreateInventoryForm'];
+            $model->company_id = Yii::app()->user->company_id;
+            if ($model->validate()) {
                 
+                $model->create();
+                Yii::app()->user->setFlash('success', "Successfully created");
+                
+                if (isset($_POST['create'])) {
+                    $this->redirect(array('/inventory/Inventory/create'));
+                } else if (isset($_POST['save'])) {
+                    $this->redirect(array('/inventory/inventory/admin'));
+                }
             }
+            
+            
         }
 
         $sku = CHtml::listData(Sku::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'sku_name ASC')), 'sku_id', 'sku_name','brand.brand_name');

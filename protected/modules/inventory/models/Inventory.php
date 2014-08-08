@@ -110,10 +110,17 @@ class Inventory extends CActiveRecord {
             'inventory_id' => 'Inventory',
             'company_id' => 'Company',
             'sku_id' => 'Sku',
+            'sku_code' => 'Code',
+            'sku_name' => 'Name',
             'qty' => 'Qty',
             'uom_id' => 'Uom',
+            'uom_name' => 'Uom',
             'zone_id' => 'Zone',
-            'sku_status_id' => 'Sku Status',
+            'zone_name' => 'Zone',
+            'sku_status_id' => 'Status',
+            'sku_status_name' => 'Status',
+            'brand_name' => 'Brand',
+            'sales_office_name' => 'Sales Office',
             'transaction_date' => 'Transaction Date',
             'created_date' => 'Created Date',
             'created_by' => 'Created By',
@@ -164,46 +171,53 @@ class Inventory extends CActiveRecord {
     public function data($col, $order_dir, $limit, $offset, $columns) {
         switch ($col) {
 
-//            case 0:
-//                $sort_column = 'inventory_id';
-//                break;
-
             case 0:
-                $sort_column = 'sku_id';
+                $sort_column = 'sku.sku_code';
                 break;
-
             case 1:
+                $sort_column = 'sku.sku_name';
+                break;
+            case 2:
                 $sort_column = 'qty';
                 break;
-
-            case 2:
-                $sort_column = 'uom_id';
-                break;
-
             case 3:
-                $sort_column = 'zone_id';
+                $sort_column = 'uom.uom_name';
                 break;
-
             case 4:
-                $sort_column = 'sku_status_id';
+                $sort_column = 'zone.zone_name';
                 break;
-
             case 5:
-                $sort_column = 'transaction_date';
+                $sort_column = 'skuStatus.status_name';
+                break;
+            case 6:
+                $sort_column = 'expiration_date';
+                break;
+            case 7:
+                $sort_column = 'reference_no';
+                break;
+            case 8:
+                $sort_column = 'sku.brand.brand_name';
+                break;
+            case 9:
+                $sort_column = 'zone.salesOffice.sales_office_name';
                 break;
         }
 
 
         $criteria = new CDbCriteria;
-        $criteria->compare('company_id', Yii::app()->user->company_id);
-//        $criteria->compare('inventory_id', $columns[0]['search']['value']);
-        $criteria->compare('sku_id', $columns[0]['search']['value'], true);
-        $criteria->compare('qty', $columns[1]['search']['value']);
-        $criteria->compare('uom_id', $columns[2]['search']['value'], true);
-        $criteria->compare('zone_id', $columns[3]['search']['value'], true);
-        $criteria->compare('sku_status_id', $columns[4]['search']['value'], true);
-        $criteria->compare('transaction_date', $columns[5]['search']['value'], true);
+        $criteria->compare('t.company_id', Yii::app()->user->company_id);
+        $criteria->compare('sku.sku_code', $columns[0]['search']['value'], true);
+        $criteria->compare('sku.sku_name', $columns[1]['search']['value'], true);
+        $criteria->compare('qty', $columns[2]['search']['value']);
+        $criteria->compare('uom.uom_name', $columns[3]['search']['value'], true);
+        $criteria->compare('zone.zone_name', $columns[4]['search']['value'], true);
+        $criteria->compare('skuStatus.status_name', $columns[5]['search']['value'], true);
+        $criteria->compare('expiration_date', $columns[6]['search']['value'], true);
+        $criteria->compare('reference_no', $columns[7]['search']['value'], true);
+        $criteria->compare('sku.brand.brand_name', $columns[8]['search']['value'], true);
+        $criteria->compare('zone.salesOffice.sales_office_name', $columns[9]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
+        $criteria->with = array('sku','sku.brand','skuStatus','uom','zone','zone.salesOffice');
         $criteria->limit = $limit;
         $criteria->offset = $offset;
 

@@ -3,6 +3,7 @@
 class CreateInventoryForm extends CFormModel
 {
         public $company_id;
+	public $sku_code;
 	public $sku_id;
         public $qty;
 	public $default_uom_id;
@@ -24,11 +25,11 @@ class CreateInventoryForm extends CFormModel
 	{
 		return array(
 			// username and password are required
-			array('sku_id,company_id,qty,default_uom_id,default_zone_id,transaction_date', 'required'),
+			array('sku_code,company_id,qty,default_uom_id,default_zone_id,transaction_date', 'required'),
                         
                         array('unique_tag', 'length', 'max' => 150),
                     
-			array('sku_id', 'isValidSku'),
+			array('sku_code', 'isValidSku'),
                     
                         array('default_uom_id', 'isValidUOM'),
                         array('default_zone_id', 'isValidZone'),
@@ -45,10 +46,12 @@ class CreateInventoryForm extends CFormModel
         
         public function isValidSku($attribute)
         {
-            $model = Sku::model()->findbypk($this->$attribute);
+            $model = Sku::model()->findByAttributes(array('sku_code'=>$this->$attribute,'company_id'=> $this->company_id));
 
             if (!Validator::isResultSetWithRows($model)) {
                 $this->addError($attribute, 'Sku is invalid');
+            }else{
+                $this->sku_id = $model->sku_id;
             }
 
             return;
@@ -121,7 +124,7 @@ class CreateInventoryForm extends CFormModel
 	public function attributeLabels()
 	{
 		return array(
-			'sku_id'=>'Sku Code',
+			'sku_code'=>'Sku Code',
 			'qty'=>'Quantity',
 			'default_uom_id'=>'Unit of Measure',
 			'default_zone_id'=>'Zone',

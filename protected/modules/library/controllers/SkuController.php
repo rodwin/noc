@@ -56,6 +56,7 @@ class SkuController extends Controller {
         
         $return = array();
         foreach($sku as $key => $val){
+            $return[$key]['sku_id']= $val->sku_id;
             $return[$key]['sku_code']= $val->sku_code;
             $return[$key]['value']=$val->sku_name;
             $return[$key]['brand']=isset($val->brand->brand_name) ? $val->brand->brand_name:'';

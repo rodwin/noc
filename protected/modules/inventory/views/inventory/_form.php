@@ -79,15 +79,16 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
             ));
             ?>
             <div class="box-body">
-                <?php if ($form->errorSummary($model)) { ?>
+                <?php /*if ($form->errorSummary($model)) { ?>
                     <div class="alert alert-danger alert-dismissable">
                         <i class="fa fa-ban"></i>
                         <?php echo $form->errorSummary($model); ?></div>
-                    <?php } ?>        
+                    <?php } */?>        
 
 
                 <div class="form-group">
-                    <?php echo $form->textFieldGroup($model, 'sku_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 typeahead', 'maxlength' => 50)))); ?>
+                    <?php echo $form->textFieldGroup($model, 'sku_code', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 typeahead', 'maxlength' => 50)))); ?>
+                    
                     <?php
                     /*
                       echo $form->dropDownListGroup(
@@ -105,12 +106,8 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
                     <b>Brand Name:</b> <span id="brand_name"></span>
                 </div>
 
-                <div class="form-group">
                     <?php echo $form->textFieldGroup($model, 'qty', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5','value'=> 1)))); ?>
-                </div>
 
-                <div class="form-group">
-                    <?php // echo $form->textFieldGroup($model, 'uom_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 50))));  ?>
                     <?php
                     echo $form->dropDownListGroup(
                             $model, 'default_uom_id', array(
@@ -125,9 +122,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
                             )
                     );
                     ?>
-                </div>
 
-                <div class="form-group">
                     <?php
                     echo $form->dropDownListGroup(
                             $model, 'default_zone_id', array(
@@ -141,16 +136,12 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
                             )
                     );
                     ?>
-                </div>
-                <div class="form-group">
                     <?php
                     echo $form->textFieldGroup($model, 'cost_per_unit', array('widgetOptions' => array('htmlOptions' => array())
                         , 'prepend' => 'P'
                         , 'append' => '.00'
                     ));
                     ?>
-                </div>
-                <div class="form-group">
                     <?php // echo $form->textFieldGroup($model, 'sku_status_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 50)))); ?>
                     <?php
                     echo $form->dropDownListGroup(
@@ -165,10 +156,8 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
                             )
                     );
                     ?>
-                </div>
 
 
-                <div class="form-group">
                     <?php
                     echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask'))
                         , 'prepend' => '<i class="glyphicon glyphicon-calendar"></i>'
@@ -176,19 +165,11 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
                     ?>
 
 
-                </div>
-
-                <div class="form-group">
-                <?php //echo $form->datePickerGroup($model, 'unique_date', array('widgetOptions' => array('options' => array(), 'htmlOptions' => array('class' => 'span5')), 'prepend' => '<i class="glyphicon glyphicon-calendar"></i>'));  ?>
-                </div>
-
-                <div class="form-group">
                     <?php
                     echo $form->textFieldGroup($model, 'unique_tag', array('widgetOptions' => array('htmlOptions' => array('maxlength' => 250))
                         , 'prepend' => '<i class="fa fa-tag"></i>'
                     ));
                     ?>
-                </div>
 
                 <div class="form-group">
                     <?php echo CHtml::submitButton('Create & New', array('name' => 'create', 'class' => 'btn btn-primary btn-flat')); ?>
@@ -224,7 +205,7 @@ echo $this->renderPartial('_inventory_history', array());
 
         sku.initialize();
 
-        $('#CreateInventoryForm_sku_id').typeahead(null, {
+        $('#CreateInventoryForm_sku_code').typeahead(null, {
             name: 'skus',
             displayKey: 'sku_code',
             source: sku.ttAdapter(),

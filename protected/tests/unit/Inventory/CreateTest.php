@@ -24,6 +24,7 @@ class CreateTest extends CDbTestCase
             $data = array(
                         'company_id'=>'',
                         'sku_id'=>'',
+                        'sku_code'=>'',
 			'qty'=>'Quantity',
 			'default_uom_id'=>'Unit of Measure',
 			'default_zone_id'=>'Zone',
@@ -40,7 +41,7 @@ class CreateTest extends CDbTestCase
             $errors = $model->getErrors();
             
             $this->assertTrue(isset($errors['company_id']));
-            $this->assertTrue(isset($errors['sku_id']));
+            $this->assertTrue(isset($errors['sku_code']));
             $this->assertTrue(isset($errors['qty']));
             $this->assertTrue(isset($errors['default_uom_id']));
             $this->assertTrue(isset($errors['default_zone_id']));
@@ -63,6 +64,7 @@ class CreateTest extends CDbTestCase
             $data = array(
                         'company_id'=>$this->company->company_id,
                         'sku_id'=>  'sku_id',
+                        'sku_code'=>  'sku_code',
 			'qty'=>1,
 			'default_uom_id'=>'pc(s)',
 			'default_zone_id'=>'zone1',
@@ -84,7 +86,7 @@ class CreateTest extends CDbTestCase
 
             $data = array(
                         'company_id'=>$this->company->company_id,
-                        'sku_id'=>  'sku_id',
+                        'sku_code'=>  'sku_code',
 			'qty'=>100,
 			'default_uom_id'=>'pc(s)',
 			'default_zone_id'=>'zone1',
@@ -103,7 +105,7 @@ class CreateTest extends CDbTestCase
             $inventoryObj = Inventory::model()->findByAttributes(
                 array(
                     'company_id'=> $data['company_id'],
-                    'sku_id'=> $data['sku_id'],
+                    'sku_id'=> 'sku_id',
                     'uom_id'=> $data['default_uom_id'],
                     'zone_id'=> $data['default_zone_id'],
                     'sku_status_id'=> $data['sku_status_id'],

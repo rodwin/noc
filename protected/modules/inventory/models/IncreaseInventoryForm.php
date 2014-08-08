@@ -46,7 +46,7 @@ class CreateInventoryForm extends CFormModel
         public function isValidSku($attribute)
         {
             $model = Sku::model()->findbypk($this->$attribute);
-
+            
             if (!Validator::isResultSetWithRows($model)) {
                 $this->addError($attribute, 'Sku is invalid');
             }
