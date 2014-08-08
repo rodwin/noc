@@ -2,7 +2,7 @@
 <div class="panel panel-default">
     <div class="panel-body">
 
-        <div class="control-label text-primary"><h4><b>Custom Item Fields</b></h4></div>
+        <h4 class="control-label text-primary"><b>Custom Item Fields</b></h4>
 
         <?php if (count($custom_datas) > 0) { ?>
 
@@ -14,76 +14,70 @@
                 $label_name = ucwords($val['name']) . " " . $required;
                 $placeholder = ucwords($val['name']);
                 $data_type = $val['data_type'];
-                $post_name = $val['data_type'] = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . $val['name'] = str_replace(' ', '_', strtolower($val['name']));
+                $post_name = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
 
-                if ($data_type == 'Text and Numbers') {
+                if ($data_type == SkuCustomData::TYPE_TEXT_NUMBERS) {
 
                     if ($attr['text_field'] == 1) {
                         ?>
 
                         <div class="form-group">
                             <label><?php echo $label_name; ?></label>
-                            <?php echo CHtml::textArea($post_name, isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value'], array('maxlength' => isset($attr['max_character_length']) ? $attr['max_character_length'] : "", 'class' => 'form-control input-sm', 'style' => 'resize: none; height: 100px;', 'placeholder' => $placeholder)); ?>
-                            <?php echo $form->error($sku_custom_data, $post_name); ?>
-							
+                            <?php echo CHtml::textArea($post_name, isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value'], array('maxlength' => isset($attr['max_character_length']) ? $attr['max_character_length'] : "", 'class' => 'form-control input', 'style' => 'resize: none; height: 100px;', 'placeholder' => $placeholder)); ?>
+                            <?php echo isset($_POST[$post_name]) ? $form->error($sku_custom_data, $post_name, array("style" => "color: #f56954;")) : ""; ?>							
                         </div>
 
                     <?php } else { ?>     
 
                         <div class="form-group">
                             <label><?php echo $label_name; ?></label>
-                            <?php echo CHtml::textField($post_name, isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value'], array('maxlength' => isset($attr['max_character_length']) ? $attr['max_character_length'] : "", 'class' => 'form-control input-sm', 'placeholder' => $label_name, 'placeholder' => $placeholder)); ?>
-                            <?php echo $form->error($sku_custom_data, $post_name); ?>
+                            <?php echo CHtml::textField($post_name, isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value'], array('maxlength' => isset($attr['max_character_length']) ? $attr['max_character_length'] : "", 'class' => 'form-control input', 'placeholder' => $placeholder)); ?>
+                            <?php echo isset($_POST[$post_name]) ? $form->error($sku_custom_data, $post_name, array("style" => "color: #f56954;")) : ""; ?>
                         </div>
 
                     <?php } ?>
 
-                <?php } else if ($data_type == 'Numbers Only') { ?>
+                <?php } else if ($data_type == SkuCustomData::TYPE_NUMBER_ONLY) { ?>
 
                     <div class="form-group">                        
                         <label><?php echo $label_name; ?></label>
 
-                        <?php
-                        $value = rtrim(isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value'], "0");
-                        $value = substr($value, -1) == "." ? rtrim($value, ".") : $value;
-                        ?>
-
                         <?php $decimal_place = $attr['decimal_place']; ?>
-                        <?php echo CHtml::numberField($post_name, isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value'], array('min' => $attr['min_value'], 'max' => $attr['max_value'], "onkeypress" => "return onlyDotsAndNumbers(this, event, $decimal_place)", 'class' => 'form-control input-sm', 'placeholder' => $placeholder)) ?>
-                        <?php echo $form->error($sku_custom_data, $post_name); ?>
+                        <?php echo CHtml::textField($post_name, isset($_POST[$post_name]) ? $_POST[$post_name] : $attr['default_value'], array('maxlength' => SkuCustomData::CUSTOM_VALUE_LENGTH, "onkeypress" => "return onlyDotsAndNumbers(this, event, $decimal_place)", 'class' => 'form-control input', 'placeholder' => $placeholder)) ?>
+                        <?php echo isset($_POST[$post_name]) ? $form->error($sku_custom_data, $post_name, array("style" => "color: #f56954;")) : ""; ?>
                     </div>
 
-                <?php } else if ($data_type == 'CheckBox') { ?>
+                <?php } else if ($data_type == SkuCustomData::TYPE_CHECKBOX) { ?>
 
                     <div class="form-group">
                         <label>
                             <?php
-                            if (isset($_POST[$post_name]) && $_POST[$post_name] == "1") {
+                            if (isset($_POST[$post_name]) && $_POST[$post_name] == "yes") {
                                 $check = true;
-                            } else if (!isset($_POST[$post_name]) && $attr['default_value'] == "1" && $val['custom_data_value'] == "") {
+                            } else if (!isset($_POST[$post_name]) && $attr['default_value'] == "yes" && $val['custom_data_value'] == "") {
                                 $check = true;
-                            } else if (!isset($_POST[$post_name]) && $val['custom_data_value'] == "1") {
+                            } else if (!isset($_POST[$post_name]) && $val['custom_data_value'] == "yes") {
                                 $check = true;
                             } else {
                                 $check = false;
                             }
                             ?>
 
-                            <?php echo CHtml::hiddenField($post_name, "0") ?>
-                            <?php echo CHtml::CheckBox($post_name, $check, array('value' => '1',)); ?>
+                            <?php echo CHtml::hiddenField($post_name, "no") ?>
+                            <?php echo CHtml::CheckBox($post_name, $check, array('value' => 'yes',)); ?>
                             <?php echo $label_name; ?>
                         </label>
-                        <?php echo $form->error($sku_custom_data, $post_name); ?>
+                        <?php echo isset($_POST[$post_name]) ? $form->error($sku_custom_data, $post_name, array("style" => "color: #f56954;")) : ""; ?>
                     </div>
 
-                <?php } else if ($data_type == 'Drop Down List') { ?>
+                <?php } else if ($data_type == SkuCustomData::TYPE_DROPDOWN) { ?>
 
                     <div class="form-group">
                         <label><?php echo $label_name; ?></label>
-                        <select id="<?php echo $post_name; ?>" name="<?php echo $post_name; ?>" class="form-control">
+                        <select id="<?php echo $post_name; ?>" name="<?php echo $post_name; ?>" class="form-control input">
                             <?php echo implode("\n", $attr['dropDownList_default']); ?>
                         </select>
-                        <?php echo $form->error($sku_custom_data, $post_name); ?>
+                        <?php echo isset($_POST[$post_name]) ? $form->error($sku_custom_data, $post_name, array("style" => "color: #f56954;")) : ""; ?>
 
                         <script type="text/javascript">
                             function setSelectedOption(id, value) {
@@ -99,11 +93,9 @@
                         </script>
                     </div>
 
-                <?php } else if ($data_type == 'Date') { ?>
-
-
-
                     <?php
+                } else if ($data_type == 'Date') {
+                    
                 }
             }
             ?>

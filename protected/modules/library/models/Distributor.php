@@ -38,11 +38,21 @@ class Distributor extends CActiveRecord {
             array('distributor_id, company_id, distributor_code, distributor_name', 'required'),
             array('distributor_id, company_id, distributor_code, created_by, updated_by', 'length', 'max' => 50),
             array('distributor_name', 'length', 'max' => 250),
+            array('distributor_code', 'uniqueCode'),
             array('created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('distributor_id, company_id, distributor_code, distributor_name, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
+    }
+    
+    public function uniqueCode($attribute, $params) {
+        
+        $model = Distributor::model()->findByAttributes(array('company_id' => $this->company_id, 'distributor_code' => $this->$attribute));
+        if ($model && $model->distributor_id != $this->distributor_id) {
+            $this->addError($attribute, 'Distributor code selected already taken.');
+        }
+        return;
     }
 
     public function beforeValidate() {

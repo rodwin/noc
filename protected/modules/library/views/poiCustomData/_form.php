@@ -68,19 +68,19 @@
                         <?php
                         if ($model->data_type == 'Text and Numbers') {
 
-                            echo $this->renderPartial('_text_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute));
+                            echo $this->renderPartial('_text_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute, 'poi_custom_data' => $poi_custom_data,));
                         } else if ($model->data_type == 'Numbers Only') {
 
-                            echo $this->renderPartial('_number_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute));
+                            echo $this->renderPartial('_number_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute, 'poi_custom_data' => $poi_custom_data,));
                         } else if ($model->data_type == 'CheckBox') {
 
-                            echo $this->renderPartial('_checkBox_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute));
+                            echo $this->renderPartial('_checkBox_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute, 'poi_custom_data' => $poi_custom_data,));
                         } else if ($model->data_type == 'Drop Down List') {
 
-                            echo $this->renderPartial('_dropDownList_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute));
+                            echo $this->renderPartial('_dropDownList_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute, 'poi_custom_data' => $poi_custom_data,));
                         } else if ($model->data_type == 'Date') {
 
-                            echo $this->renderPartial('_date_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute));
+                            echo $this->renderPartial('_date_attribute', array('model' => $model, 'form' => $form, 'unserialize_attribute' => $unserialize_attribute, 'poi_custom_data' => $poi_custom_data,));
                         }
                         ?>
 
@@ -118,6 +118,16 @@
         for (var i = 0; i < dropDownList_multiple.options.length; i++) {
             dropDownList_multiple.options[i].selected = true;
         }
+    }
+
+    function onlyNumbers(txt, event) {
+
+        var charCode = (event.which) ? event.which : event.keyCode;
+
+        if (charCode > 31 && (charCode < 48 || charCode > 57 || charCode == 46))
+            return false;
+
+        return true;
     }
 
 </script>

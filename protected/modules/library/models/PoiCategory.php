@@ -37,11 +37,21 @@ class PoiCategory extends CActiveRecord {
             array('poi_category_id, company_id, category_name', 'required'),
             array('poi_category_id, company_id, created_by, updated_by', 'length', 'max' => 50),
             array('category_name', 'length', 'max' => 200),
+            array('category_name', 'uniqueName'),
             array('created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('poi_category_id, company_id, category_name, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
+    }
+
+    public function uniqueName($attribute, $params) {
+
+        $model = PoiCategory::model()->findByAttributes(array('company_id' => $this->company_id, 'category_name' => $this->$attribute));
+        if ($model && $model->poi_category_id != $this->poi_category_id) {
+            $this->addError($attribute, 'Poi category name selected already taken');
+        }
+        return;
     }
 
     public function beforeValidate() {
@@ -160,6 +170,11 @@ class PoiCategory extends CActiveRecord {
      */
     public static function model($className = __CLASS__) {
         return parent::model($className);
+    }
+
+    public function getPoiCategoryById($id) {
+
+        return PoiCategory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "poi_category_id" => $id));
     }
 
 }

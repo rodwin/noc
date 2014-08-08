@@ -17,7 +17,7 @@ class SkuCustomDataItemForm extends CFormModel {
         return array(
             // name, email, subject and body are required
             array('customDataType, customItemName', 'required'),
-            array('customItemName', 'checkDuplicate'),
+            array('customItemName', 'uniqueName'),
         );
     }
 
@@ -27,37 +27,14 @@ class SkuCustomDataItemForm extends CFormModel {
             'customItemName' => 'What is the name of this data?',
         );
     }
-
-    public function checkDuplicate($attribute) {
-        $duplicate = SkuCustomData::model()->exists('name = :name', array(':name' => $this->customItemName));
-
-        $sql = "SELECT * FROM noc.sku_custom_data WHERE name = :name";
-
-        $command = Yii::app()->db->createCommand($sql);
-        $command->bindValue('name', $this->customItemName);
-        $data = $command->queryAll();
-
-        if (isset($data) > 0) {
-
-            $data_type = "";
-
-            foreach ($data as $key => $val) {
-                $data_type = $val['data_type'];
-            }
-
-            if (isset($duplicate) && $data_type != '') {
-                if ($this->customDataType == $data_type) {
-                    $this->addError($attribute, 'Custom Data Name is already exist in this data type.');
-                }
-            }
+    
+    public function uniqueName($attribute, $params) {
+        
+        $model = SkuCustomData::model()->findByAttributes(array('company_id' => Yii::app()->user->company_id, 'name' => $this->$attribute));
+        
+        if ($model) {
+            $this->addError($attribute, 'Custom data name selected already taken.');
         }
+        return;
     }
-
-//    public function checkDuplicate($attribute) {
-//        $result = CustomData::model()->exists('name = :name', array(':name' => $this->customItemName));
-//
-//        if ($result) {
-//            $this->addError($attribute, 'Custom Data Name is already exist.');
-//        }
-//    }
 }

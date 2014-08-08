@@ -14,7 +14,7 @@ $this->breadcrumbs=array(
 		'custom_data_id',
 		'company.name',
 		'name',
-		'type',
+//		'type',
 		'data_type',
 		'description',
 		'required',

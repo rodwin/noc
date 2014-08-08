@@ -39,7 +39,7 @@
                                     ),
                                     'widgetOptions' => array(
                                         'data' => $brand,
-                                        'htmlOptions' => array('multiple' => false),
+                                        'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Brand'),
                                     )
                                         )
                                 );
@@ -90,7 +90,7 @@
                                     ),
                                     'widgetOptions' => array(
                                         'data' => $uom,
-                                        'htmlOptions' => array('multiple' => false),
+                                        'htmlOptions' => array('multiple' => false, 'prompt' => 'Select UOM'),
                                     )
                                         )
                                 );
@@ -115,7 +115,7 @@
                                     ),
                                     'widgetOptions' => array(
                                         'data' => $zone,
-                                        'htmlOptions' => array('multiple' => false),
+                                        'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Zone'),
                                     )
                                         )
                                 );

@@ -45,11 +45,22 @@ class Salesman extends CActiveRecord {
             array('salesman_id, team_leader_id, company_id, salesman_code, mobile_number, device_no, other_fields_1, other_fields_2, other_fields_3, created_by, updated_by', 'length', 'max' => 50),
             array('salesman_name', 'length', 'max' => 200),
             array('is_team_leader', 'length', 'max' => 1),
+            array('mobile_number', 'numerical', 'integerOnly' => true),
+            array('salesman_code', 'uniqueCode'),
             array('created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('salesman_id, team_leader_id, company_id, salesman_name, salesman_code, mobile_number, device_no, other_fields_1, other_fields_2, other_fields_3, created_date, created_by, updated_date, updated_by, is_team_leader', 'safe', 'on' => 'search'),
         );
+    }
+
+    public function uniqueCode($attribute, $params) {
+
+        $model = Salesman::model()->findByAttributes(array('company_id' => $this->company_id, 'salesman_code' => $this->$attribute));
+        if ($model && $model->salesman_id != $this->salesman_id) {
+            $this->addError($attribute, 'Salesman code selected already taken');
+        }
+        return;
     }
 
     public function beforeValidate() {

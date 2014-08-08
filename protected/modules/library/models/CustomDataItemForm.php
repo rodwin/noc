@@ -18,7 +18,7 @@ class CustomDataItemForm extends CFormModel {
         return array(
             // name, email, subject and body are required
             array('customDataType, customItemName, type', 'required'),
-            array('customItemName', 'checkDuplicate'),
+            array('customItemName', 'uniqueName'),
         );
     }
 
@@ -26,42 +26,17 @@ class CustomDataItemForm extends CFormModel {
         return array(
             'customDataType' => 'What kind of data will the field contain?',
             'customItemName' => 'What is the name of this data?',
-            'type' => 'Category Type',
+            'type' => 'Poi Category Type',
         );
     }
-
-    public function checkDuplicate($attribute) {
-        $duplicate = PoiCustomData::model()->exists('name = :name', array(':name' => $this->customItemName));
-
-        $sql = "SELECT * FROM noc.poi_custom_data WHERE name = :name";
-
-        $command = Yii::app()->db->createCommand($sql);
-        $command->bindValue('name', $this->customItemName);
-        $data = $command->queryAll();
-
-        if (isset($data) > 0) {
-
-            $type = 0;
-            $data_type = "";
-
-            foreach ($data as $key => $val) {
-                $type = $val['type'];
-                $data_type = $val['data_type'];
-            }
-
-            if (isset($duplicate) && $type != '') {
-                if ($this->type == $type && $this->customDataType == $data_type) {
-                    $this->addError($attribute, 'Custom Data Name is already exist in this data type and category.');
-                }
-            }
+    
+    public function uniqueName($attribute, $params) {
+        
+        $model = PoiCustomData::model()->findByAttributes(array('company_id' => Yii::app()->user->company_id, 'name' => $this->$attribute));
+        
+        if ($model) {
+            $this->addError($attribute, 'Custom data name selected already taken.');
         }
+        return;
     }
-
-//    public function checkDuplicate($attribute) {
-//        $result = CustomData::model()->exists('name = :name', array(':name' => $this->customItemName));
-//
-//        if ($result) {
-//            $this->addError($attribute, 'Custom Data Name is already exist.');
-//        }
-//    }
 }

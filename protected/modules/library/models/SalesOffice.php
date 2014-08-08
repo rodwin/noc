@@ -50,6 +50,8 @@ class SalesOffice extends CActiveRecord {
             array('sales_office_id, distributor_id, company_id, sales_office_code, created_by, updated_by', 'length', 'max' => 50),
             array('sales_office_name, address1, address2', 'length', 'max' => 200),
             array('latitude, longitude', 'length', 'max' => 15),
+            array('sales_office_code', 'uniqueCode'),
+            array('latitude, longitude', 'numerical'),
             array('created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
@@ -57,7 +59,22 @@ class SalesOffice extends CActiveRecord {
         );
     }
 
+    public function uniqueCode($attribute, $params) {
+
+        $model = Salesoffice::model()->findByAttributes(array('company_id' => $this->company_id, 'sales_office_code' => $this->$attribute));
+        if ($model && $model->sales_office_id != $this->sales_office_id && $model->distributor_id == $this->distributor_id) {
+            $this->addError($attribute, 'Sales Office code already exist in selected distributor');
+        }
+        return;
+    }
+
     public function beforeValidate() {
+        if ($this->latitude == "") {
+            $this->latitude = 0;
+        }
+        if ($this->longitude == "") {
+            $this->longitude = 0;
+        }
         return parent::beforeValidate();
     }
 

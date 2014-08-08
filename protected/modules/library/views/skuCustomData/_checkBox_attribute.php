@@ -1,7 +1,11 @@
 
-<div><?php echo $form->label($model, 'CheckBox', array('class' => 'control-label text-primary', 'style' => 'font-weight: bold;')); ?></div>
+<h4 class="control-label text-primary"><b>CheckBox</b></h4>
 
-<div>
-    <?php echo $form->label($model, 'Default Value', array('class' => 'control-label')); ?><br/>
-    <?php echo CHtml::dropDownList('default_value', $unserialize_attribute['default_value'], array('0' => 'Un-Checked', '1' => 'Checked'), array('style' => 'width: 200px; padding: 5px; font-size: 12px;')); ?>
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            <label>Default Value</label><br/>
+            <?php echo CHtml::dropDownList('default_value', $unserialize_attribute['default_value'], array('no' => 'Un-Checked', 'yes' => 'Checked'), array('class' => 'form-control input-sm')); ?>
+        </div>
+    </div>
 </div>

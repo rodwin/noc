@@ -47,7 +47,7 @@
                         ),
                         'widgetOptions' => array(
                             'data' => $region,
-                            'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Region',
+                            'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Region', 'id' => 'region',
                                 'ajax' => array(
                                     'type' => 'POST',
                                     'url' => CController::createUrl('poi/getProvinceByRegionCode'),
@@ -161,7 +161,7 @@
                         ),
                         'widgetOptions' => array(
                             'data' => $poi_category,
-                            'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Category', 'id' => 'poi_category',
+                            'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Category', 'id' => 'poi_category', 'onchange' => "poiCategorySelected()",
                                 'ajax' => array(
                                     'type' => 'POST',
                                     'url' => CController::createUrl('poi/getAllSubCategoryByCategoryID'),
@@ -228,7 +228,7 @@
                 </div>
 
                 <div class="form-group">
-                    <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save', array('onclick' => 'poiSubmit()', 'class' => 'btn btn-primary btn-flat')); ?>
+                    <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save', array('class' => 'btn btn-primary btn-flat')); ?>
                     <?php echo CHtml::resetButton('Reset', array('class' => 'btn btn-primary btn-flat')); ?>
                 </div>
 
@@ -241,7 +241,7 @@
 
 <script type="text/javascript">
 
-    $('#poi_category').change(function() {
+    function poiCategorySelected() {
 
         $.ajax({
             'type': 'POST',
@@ -258,10 +258,10 @@
             }
         });
 
-    });
+    }
 
     function onlyDotsAndNumbers(txt, event, dots) {
-    
+
         var charCode = (event.which) ? event.which : event.keyCode;
 
         if (charCode == 46) {
@@ -289,5 +289,16 @@
 
         return true;
     }
+
+    $('#region').change(function() {
+        $('#municipal, #barangay').empty();
+        $('#municipal').append('<option value="">Select Municipal</option>');
+        $('#barangay').append('<option value="">Select Barangay</option>');
+    });
+
+    $('#province').change(function() {
+        $('#barangay').empty();
+        $('#barangay').append('<option value="">Select Barangay</option>');
+    });
 
 </script>
