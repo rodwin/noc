@@ -36,11 +36,21 @@ class SkuStatus extends CActiveRecord {
         return array(
             array('sku_status_id, company_id, status_name', 'required'),
             array('sku_status_id, company_id, status_name, created_by, updated_by', 'length', 'max' => 50),
+            array('status_name', 'uniqueName'),
             array('created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('sku_status_id, company_id, status_name, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
+    }
+    
+    public function uniqueName($attribute, $params) {
+        
+        $model = SkuStatus::model()->findByAttributes(array('company_id' => $this->company_id, 'status_name' => $this->$attribute));
+        if ($model && $model->sku_status_id != $this->sku_status_id) {
+            $this->addError($attribute, 'Status name selected already taken');
+        }
+        return;
     }
 
     public function beforeValidate() {

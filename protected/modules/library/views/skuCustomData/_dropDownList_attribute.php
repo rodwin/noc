@@ -1,41 +1,41 @@
 
-<div><?php echo $form->label($model, 'Drop Down List', array('class' => 'control-label text-primary', 'style' => 'font-weight: bold;')); ?></div>
+<h4 class="control-label text-primary"><b>Drop Down List</b></h4>
 
-
-<div style="width: 400px; margin-bottom: 20px;">
-
-    <label class="control-label">Available Values</label>
+<div class="form-group">
+    <label>Available Values</label>
     <div class="input-group">
         <span class="input-group-addon">+</span>
-        <input id="add_dropdown_value" type="text" class="form-control" placeholder="" />
+        <input id="add_dropdown_value" type="text" class="form-control" placeholder="" maxlength="<?php echo SkuCustomData::CUSTOM_VALUE_LENGTH; ?>"/>
         <span class="input-group-btn">
             <button class="btn btn-primary" type="button" onclick="addDropdownValue(document.getElementById('add_dropdown_value').value)" style="width: 100px;">Add</button>
         </span>
     </div>
-
 </div>
 
-<div style="width: 400px; margin-bottom: 20px;">
-    <div style="float: left;">
-        <?php //echo CHtml::dropDownList('dropDownList_multiple', $unserialize_attribute['dropDownList_multiple'], array(), array('name' => 'dropDownList_multiple[]', 'multiple' => 'multiple','style' => 'width: 280px; height: 200px;')); ?>
-        <select id="dropDownList_multiple" name="dropDownList_multiple[]" multiple="multiple" onchange="showOptions(this)" style="width: 280px; height: 200px;">
-            <?php echo implode("\n", $unserialize_attribute['dropDownList_multiple']); ?>
-        </select>
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            <?php //echo CHtml::dropDownList('dropDownList_multiple', $unserialize_attribute['dropDownList_multiple'], array(), array('name' => 'dropDownList_multiple[]', 'multiple' => 'multiple','style' => 'width: 280px; height: 200px;')); ?>
+            <select id="dropDownList_multiple" name="dropDownList_multiple[]" multiple="multiple" onchange="showOptions(this)" style="width: 100%; height: 200px;">
+                <?php echo implode("\n", $unserialize_attribute['dropDownList_multiple']); ?>
+            </select>
+            <?php echo $form->error($sku_custom_data, "dropDownList_multiple", array("style" => "color: #f56954;")); ?>
+        </div>
     </div>
 
-    <div style="float: right;">
-        <button id="option_move_up" onclick="optionMoveUp()" type="button" class="btn btn-default btn-sm" style="float: right; width: 100px; margin-bottom: 10px; text-align: left;">Move Up</button><br/>
-        <button id="option_move_down" onclick="optionMoveDown()" type="button" class="btn btn-default btn-sm" style="float: right; width: 100px; margin-bottom: 10px; text-align: left;">Move Down</button><br/>
-        <button id="option_remove" onclick="optionRemove()" type="button" class="btn btn-default btn-sm" style="float: right; width: 100px; margin-bottom: 10px; text-align: left;">Delete</button>
+    <div class="col-md-6">
+        <div class="form-group">
+            <button id="option_move_up" onclick="optionMoveUp()" type="button" class="btn btn-default btn-sm" style="width: 100%; margin-bottom: 10px; text-align: left;">Move Up</button>
+            <button id="option_move_down" onclick="optionMoveDown()" type="button" class="btn btn-default btn-sm" style="width: 100%; margin-bottom: 10px; text-align: left;">Move Down</button>
+            <button id="option_remove" onclick="optionRemove()" type="button" class="btn btn-default btn-sm" style="width: 100%; margin-bottom: 10px; text-align: left;">Delete</button>
+        </div>
     </div>
 </div>
 
-<div class="clearfix"></div>
-
-<div>
-    <?php echo $form->label($model, 'Drop Down List Default Value', array('class' => 'control-label')); ?><br/>
+<div class="form-group">
+    <label>Drop Down List Default Value</label>
     <?php //echo CHtml::dropDownList('dropDownList_default[]', $unserialize_attribute['default_value'], array(implode("\n", $unserialize_attribute['dropDownList_multiple'])), array('name' => 'dropDownList_default[]','style' => 'width: 280px; padding: 5px;')); ?>
-    <select class="form-control" id="dropDownList_default" name="dropDownList_default[]" style="width: 280px; padding: 5px;">
+    <select class="form-control" id="dropDownList_default" name="dropDownList_default[]" style="padding: 5px;">
         <?php echo implode("\n", $unserialize_attribute['dropDownList_default']); ?>
     </select>
 </div>
@@ -76,7 +76,7 @@
     }
 
     //move dropdown list item up
-    function optionMoveUp(){
+    function optionMoveUp() {
         var optionID;
         $('#dropDownList_multiple option:selected:first-child').prop("selected", false);
         var before = $('#dropDownList_multiple option:selected:first').prev();

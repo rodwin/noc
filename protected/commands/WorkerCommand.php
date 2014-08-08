@@ -50,6 +50,9 @@ class WorkerCommand extends CConsoleCommand {
                 case 'import_sku':
                     Sku::model()->processBatchUpload($data->details->batch_id, $data->details->company_id);
                     break;
+                case 'import_poi':
+                    Poi::model()->processBatchUpload($data->details->batch_id, $data->details->company_id);
+                    break;
                 default:
                     break;
             }

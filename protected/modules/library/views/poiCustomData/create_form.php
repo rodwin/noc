@@ -13,5 +13,6 @@ echo $this->renderPartial('_form', array(
     'model' => $model,
     'unserialize_attribute' => $unserialize_attribute,
     'poi_category' => $poi_category,
+    'poi_custom_data' => $poi_custom_data,
 ));
 ?>

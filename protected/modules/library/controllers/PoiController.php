@@ -28,7 +28,7 @@ class PoiController extends Controller {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
                 'actions' => array('index', 'view', 'getAllSubCategoryByCategoryID', 'getAllCustomDataByCategoryID', 'getAllSubCategoryByCategoryName', 'getProvinceByRegionCode',
-                    'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode'),
+                    'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode', 'upload', 'uploadDetails'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -109,6 +109,110 @@ class PoiController extends Controller {
         echo json_encode($output);
     }
 
+    public function generateTemplate($poi_category_id) {
+
+        Poi::model()->generateTemplate($poi_category_id);
+    }
+
+    public function actionUploadDetails($id) {
+
+        $this->pageTitle = 'Upload Poi Details';
+
+        $this->menu = array(
+            array('label' => 'Upload Poi', 'url' => array('upload')),
+            array('label' => 'Create Poi', 'url' => array('create')),
+            array('label' => 'Manage Poi', 'url' => array('admin')),
+            '',
+            array('label' => 'Help', 'url' => '#'),
+        );
+
+        $model = BatchUpload::model()->findByAttributes(array('id' => $id, 'company_id' => Yii::app()->user->company_id));
+        if ($model === null)
+            throw new CHttpException(404, 'The requested page does not exist.');
+
+        $uploads = BatchUploadDetail::model()->findAllByAttributes(array('batch_upload_id' => $id, 'company_id' => Yii::app()->user->company_id));
+
+        $this->render('upload_details', array('model' => $model, 'uploads' => $uploads));
+    }
+
+    public function actionUpload() {
+
+        $this->layout = '//layouts/column1';
+        $this->pageTitle = 'Upload Poi';
+
+        $model = new POIImportForm();
+        $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'poi_category_id', 'category_name');
+
+        if (isset($_POST) && count($_POST) > 0) {
+
+            if (isset($_POST['generate_template'])) {
+
+                if ($_POST['poi_category_id'] != "") {
+
+                    $this->generateTemplate($_POST['poi_category_id']);
+                }
+            } else {
+
+                $model->attributes = $_POST['POIImportForm'];
+
+                if ($model->validate()) {
+//                    pre($_FILES);
+                    if (isset($_FILES['POIImportForm']['name']) && $_FILES['POIImportForm']['name'] != "") {
+
+                        $dir = Yii::app()->basePath . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'poi';
+
+                        if (!is_dir($dir)) {
+                            mkdir($dir, 0777, true);
+                        }
+
+                        $file = CUploadedFile::getInstance($model, 'doc_file');
+                        $file_name = str_replace(' ', '_', strtolower($file->name));
+                        $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
+
+                        $batch_upload = new BatchUpload;
+                        $batch_upload->company_id = Yii::app()->user->company_id;
+                        $batch_upload->status = 'PENDING';
+                        $batch_upload->file_name = $file_name;
+                        $batch_upload->file = $dir . DIRECTORY_SEPARATOR . $file_name;
+                        $batch_upload->total_rows = 0;
+                        $batch_upload->failed_rows = 0;
+                        $batch_upload->type = 'poi';
+                        $batch_upload->notify = $_POST['POIImportForm']['notify'];
+                        $batch_upload->module = 'inventory';
+                        $batch_upload->created_by = Yii::app()->user->name;
+                        if ($batch_upload->validate()) {
+
+                            $batch_upload->save();
+
+                            $data = array(
+                                'task' => "import_poi",
+                                'details' => array(
+                                    'batch_id' => $batch_upload->id,
+                                    'company_id' => Yii::app()->user->company_id,
+                                )
+                            );
+
+                            Globals::queue(json_encode($data));
+//                            Poi::model()->processBatchUpload($batch_upload->id, Yii::app()->user->company_id);
+
+                            Yii::app()->user->setFlash('success', "Successfully uploaded data. Please wait for the checking to finish!");
+                        } else {
+                            Yii::app()->user->setFlash('danger', "Failed to create batch upload.");
+                        }
+
+                        $this->redirect(array('upload'));
+                    }
+                }
+            }
+        }
+
+        $headers = Poi::model()->requiredHeaders(Yii::app()->user->company_id);
+
+        $uploads = BatchUpload::model()->getByTypeAndCompanyID('poi', Yii::app()->user->company_id);
+
+        $this->render('upload', array('model' => $model, 'headers' => $headers, 'uploads' => $uploads, 'poi_category' => $poi_category,));
+    }
+
     /**
      * Displays a particular model.
      * @param integer $id the ID of the model to be displayed
@@ -161,29 +265,21 @@ class PoiController extends Controller {
 
         if (isset($_POST['Poi'])) {
 
-            $model->poi_id = Globals::generateV4UUID();
             $model->attributes = $_POST['Poi'];
+            $model->poi_id = Globals::generateV4UUID();
             $model->company_id = Yii::app()->user->company_id;
             $model->created_by = Yii::app()->user->name;
-            $model->latitude = !empty($_POST['Poi']['latitude']) ? $_POST['Poi']['latitude'] : 0;
-            $model->longitude = !empty($_POST['Poi']['longitude']) ? $_POST['Poi']['longitude'] : 0;
-            $model->edited_date = null;
-            $model->verified_date = null;
 
             $province = CHtml::listData(Province::model()->findAll(array('condition' => 'region_code = "' . $model->region_id . '"', 'order' => 'province_name ASC')), 'province_code', 'province_name');
             $municipal = CHtml::listData(Municipal::model()->findAll(array('condition' => 'province_code = "' . $model->province_id . '"', 'order' => 'municipal_name ASC')), 'municipal_code', 'municipal_name');
             $barangay = CHtml::listData(Barangay::model()->findAll(array('condition' => 'municipal_code = "' . $model->municipal_id . '"', 'order' => 'barangay_name ASC')), 'barangay_code', 'barangay_name');
             $poi_sub_category = PoiSubCategory::model()->getSubCategoryOptionListByCategoryID($model->poi_category_id);
-
             $custom_datas = PoiCustomData::model()->getPoiCustomData($model->poi_id, $model->poi_category_id);
 
             foreach ($custom_datas as $key => $val) {
-                $attr_name = $val['category_name'] . "_" . str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
-                $post_data = trim($_POST[$attr_name]);
-                
-                if ($val['required'] == 1 && empty($post_data)) {
-                    $poi_custom_data->addError($attr_name, "<font color='red'>" . ucwords($val['name']) . " required.</font>");
-                }
+                $post_name = str_replace(' ', '_', strtolower($val['category_name'])) . "_" . str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
+                $post_data = isset($_POST[$post_name]) ? trim($_POST[$post_name]) : "";
+                PoiCustomData::model()->validateAllCustomDataValue($poi_custom_data, Yii::app()->user->company_id, $val['name'], $post_data);
             }
 
             if ($model->validate() && count($poi_custom_data->getErrors()) == 0) {
@@ -197,7 +293,7 @@ class PoiController extends Controller {
                     $custom_data_value->poi_id = $model->poi_id;
                     $custom_data_value->custom_data_id = $val['custom_data_id'];
 
-                    $post_name = $val['category_name'] . "_" . $val['data_type'] = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . $val['name'] = str_replace(' ', '_', strtolower($val['name']));
+                    $post_name = str_replace(' ', '_', strtolower($val['category_name'])) . "_" . str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
                     $custom_data_value->value = $_POST[$post_name];
                     $custom_data_value->save();
                 }
@@ -261,21 +357,18 @@ class PoiController extends Controller {
         if (isset($_POST['Poi'])) {
 
             $model->attributes = $_POST['Poi'];
-            $model->latitude = !empty($_POST['Poi']['latitude']) ? $_POST['Poi']['latitude'] : 0;
-            $model->longitude = !empty($_POST['Poi']['longitude']) ? $_POST['Poi']['longitude'] : 0;
             $model->edited_by = Yii::app()->user->name;
-            $model->edited_date = date('Y-m-d H:i:s');
-            $model->verified_date = null;
 
+            $province = CHtml::listData(Province::model()->findAll(array('condition' => 'region_code = "' . $model->region_id . '"', 'order' => 'province_name ASC')), 'province_code', 'province_name');
+            $municipal = CHtml::listData(Municipal::model()->findAll(array('condition' => 'province_code = "' . $model->province_id . '"', 'order' => 'municipal_name ASC')), 'municipal_code', 'municipal_name');
+            $barangay = CHtml::listData(Barangay::model()->findAll(array('condition' => 'municipal_code = "' . $model->municipal_id . '"', 'order' => 'barangay_name ASC')), 'barangay_code', 'barangay_name');
+            $poi_sub_category = PoiSubCategory::model()->getSubCategoryOptionListByCategoryID($model->poi_category_id);
             $custom_datas = PoiCustomData::model()->getPoiCustomData($model->poi_id, $model->poi_category_id);
 
             foreach ($custom_datas as $key => $val) {
-                $attr_name = $val['category_name'] . "_" . str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
-                $post_data = trim($_POST[$attr_name]);
-                
-                if ($val['required'] == 1 && empty($post_data)) {
-                    $poi_custom_data->addError($attr_name, "<font color='red'>" . ucwords($val['name']) . " required.</font>");
-                }
+                $post_name = str_replace(' ', '_', strtolower($val['category_name'])) . "_" . str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
+                $post_data = isset($_POST[$post_name]) ? trim($_POST[$post_name]) : "";
+                PoiCustomData::model()->validateAllCustomDataValue($poi_custom_data, Yii::app()->user->company_id, $val['name'], $post_data);
             }
 
             if ($model->validate() && count($poi_custom_data->getErrors()) == 0) {
@@ -289,7 +382,7 @@ class PoiController extends Controller {
                     $custom_data_value->poi_id = $model->poi_id;
                     $custom_data_value->custom_data_id = $val['custom_data_id'];
 
-                    $post_name = $val['category_name'] . "_" . $val['data_type'] = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . $val['name'] = str_replace(' ', '_', strtolower($val['name']));
+                    $post_name = str_replace(' ', '_', strtolower($val['category_name'])) . "_" . str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
                     $custom_data_value->value = $_POST[$post_name];
                     $custom_data_value->save();
                 }
@@ -420,15 +513,10 @@ class PoiController extends Controller {
         $custom_datas = PoiCustomData::model()->getPoiCustomData($_POST['poi_id'], $_POST['category_id']);
         $poi_custom_data = new PoiCustomData;
 
-        $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
-            'id' => 'poi-form',
-            'enableAjaxValidation' => false,
-        ));
-
-        if (empty($_POST['poi_id'])) {
-            echo $this->renderPartial('_customItems', array('custom_datas' => $custom_datas, 'poi_custom_data' => $poi_custom_data, 'form' => $form,));
+        if ($_POST['poi_id'] == "") {
+            echo $this->renderPartial('_customItems', array('custom_datas' => $custom_datas, 'poi_custom_data' => $poi_custom_data,));
         } else {
-            echo $this->renderPartial('_customItems_update', array('custom_datas' => $custom_datas, 'poi_custom_data' => $poi_custom_data, 'form' => $form,));
+            echo $this->renderPartial('_customItems_update', array('custom_datas' => $custom_datas, 'poi_custom_data' => $poi_custom_data,));
         }
     }
 

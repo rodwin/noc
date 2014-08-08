@@ -123,6 +123,7 @@ class SkuCustomDataController extends Controller {
         );
 
         $model = new SkuCustomData('create');
+        $sku_custom_data = new SkuCustomData;
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
@@ -142,9 +143,9 @@ class SkuCustomDataController extends Controller {
                 Yii::app()->session['name'] = $skuCustomDataForm->customItemName;
                 Yii::app()->session['data_type'] = $skuCustomDataForm->customDataType;
 
-                $attributes = SkuCustomData::model()->getAttributeByDataType($skuCustomDataForm->customDataType);
+                $attributes = SkuCustomData::model()->getAttributeByDataType($skuCustomDataForm->customItemName, $skuCustomDataForm->customDataType);
 
-                $this->render('create_form', array('model' => $model, 'unserialize_attribute' => $attributes));
+                $this->render('create_form', array('model' => $model, 'unserialize_attribute' => $attributes, 'sku_custom_data' => $sku_custom_data,));
             } else {
 
                 $this->render('create', array('skuCustomDataForm' => $skuCustomDataForm, 'data_type_list' => $data_type_list));
@@ -155,19 +156,21 @@ class SkuCustomDataController extends Controller {
             $model->data_type = Yii::app()->session['data_type'];
 
             $model->attributes = $_POST['SkuCustomData'];
-
             $model->company_id = Yii::app()->user->company_id;
             $model->created_by = Yii::app()->user->name;
             unset($model->created_date);
             $model->custom_data_id = Globals::generateV4UUID();
 
-            if ($model->validate()) {
+            $attributes = SkuCustomData::model()->getAttributeByDataType($model->name, $model->data_type);
 
-                $attributes = SkuCustomData::model()->getAttributeByDataType($model->data_type);
+            foreach ($attributes as $key => $val) {
+                SkuCustomData::model()->validateAllDatatypeRequiredField($sku_custom_data, $key);
+            }
+
+            if ($model->validate() && count($sku_custom_data->getErrors()) == 0) {
+
                 $serialize_attribute = CJSON::encode($attributes);
-
                 $model->attribute = $serialize_attribute;
-
                 $model->save();
 
                 if ($model->save()) {
@@ -181,9 +184,9 @@ class SkuCustomDataController extends Controller {
                 $this->redirect(array('view', 'id' => $model->custom_data_id));
             } else {
 
-                $attributes = SkuCustomData::model()->getAttributeByDataType($model->data_type);
+                $attributes = SkuCustomData::model()->getAttributeByDataType($model->name, $model->data_type);
 
-                $this->render('create_form', array('model' => $model, 'unserialize_attribute' => $attributes));
+                $this->render('create_form', array('model' => $model, 'unserialize_attribute' => $attributes, 'sku_custom_data' => $sku_custom_data,));
             }
         } else {
 
@@ -216,6 +219,7 @@ class SkuCustomDataController extends Controller {
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
+        $sku_custom_data = new SkuCustomData;
         $unserialize_attribute = CJSON::decode($model->attribute);
 
         if (isset($_POST['SkuCustomData'])) {
@@ -224,12 +228,15 @@ class SkuCustomDataController extends Controller {
             $model->updated_by = Yii::app()->user->name;
             $model->updated_date = date('Y-m-d H:i:s');
 
-            if ($model->validate()) {
+            $attributes = SkuCustomData::model()->getAttributeByDataType($model->name, $model->data_type);
 
-                $attributes = SkuCustomData::model()->getAttributeByDataType($model->data_type);
+            foreach ($attributes as $key => $val) {
+                SkuCustomData::model()->validateAllDatatypeRequiredField($sku_custom_data, $key);
+            }
+
+            if ($model->validate() && count($sku_custom_data->getErrors()) == 0) {
 
                 $serialize_attribute = CJSON::encode($attributes);
-
                 $model->attributes = $_POST['SkuCustomData'];
                 $model->attribute = $serialize_attribute;
 
@@ -239,11 +246,12 @@ class SkuCustomDataController extends Controller {
                 }
             } else {
 
-                $attributes = SkuCustomData::model()->getAttributeByDataType($model->data_type);
+                $attributes = SkuCustomData::model()->getAttributeByDataType($model->name, $model->data_type);
 
                 $this->render('update', array(
                     'model' => $model,
                     'unserialize_attribute' => $attributes,
+                    'sku_custom_data' => $sku_custom_data,
                 ));
             }
         } else {
@@ -251,6 +259,7 @@ class SkuCustomDataController extends Controller {
             $this->render('update', array(
                 'model' => $model,
                 'unserialize_attribute' => $unserialize_attribute,
+                'sku_custom_data' => $sku_custom_data,
             ));
         }
     }
@@ -262,22 +271,34 @@ class SkuCustomDataController extends Controller {
      */
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
-            
-            
+
+
             // delete sku custom data value by custom_data_id
-            SkuCustomDataValue::model()->deleteSkuCustomDataValueByCustomDataID($id);
-            
-            // we only allow deletion via POST request
-            $this->loadModel($id)->delete();
+//            SkuCustomDataValue::model()->deleteSkuCustomDataValueByCustomDataID($id);
 
-            // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-            if (!isset($_GET['ajax'])) {
-                Yii::app()->user->setFlash('success', "Successfully deleted");
-                $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-            } else {
+            try {
+                // we only allow deletion via POST request
+                $this->loadModel($id)->delete();
 
-                echo "Successfully deleted";
-                exit;
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    if (!isset($_GET['ajax'])) {
+                        Yii::app()->user->setFlash('danger', "Unable to deleted");
+                        $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('view', 'id' => $id));
+                    } else {
+                        echo "1451";
+                        exit;
+                    }
+                }
             }
         } else
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
@@ -307,7 +328,7 @@ class SkuCustomDataController extends Controller {
             $model->attributes = $_GET['SkuCustomData'];
 
         $data_type_list = CHtml::listData(PoiCustomData::model()->getAllDataType(), 'id', 'title');
-                
+
         $this->render('admin', array(
             'model' => $model,
             'data_type_list' => $data_type_list,

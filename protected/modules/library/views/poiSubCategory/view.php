@@ -13,7 +13,7 @@ $this->breadcrumbs=array(
 'attributes'=>array(
 		'poi_sub_category_id',
 		'company.name',
-		'category_name',
+		'poi_category_id',
 		'sub_category_name',
 		'description',
 		'created_date',

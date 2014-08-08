@@ -36,11 +36,21 @@ class BrandCategory extends CActiveRecord {
         return array(
             array('brand_category_id, company_id, category_name', 'required'),
             array('brand_category_id, company_id, category_name, created_by, updated_by', 'length', 'max' => 50),
+            array('category_name', 'uniqueName'),
             array('created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('brand_category_id, company_id, category_name, created_date, created_by, updated_by, updated_date', 'safe', 'on' => 'search'),
         );
+    }
+    
+    public function uniqueName($attribute, $params) {
+        
+        $model = BrandCategory::model()->findByAttributes(array('company_id' => $this->company_id, 'category_name' => $this->$attribute));
+        if ($model && $model->brand_category_id != $this->brand_category_id) {
+            $this->addError($attribute, 'Brand category name selected already taken');
+        }
+        return;
     }
 
     public function beforeValidate() {

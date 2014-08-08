@@ -23,6 +23,14 @@ class SkuCustomData extends CActiveRecord {
     public $search_string;
     public $custom_data_value;
 
+    // custom data types
+    const TYPE_TEXT_NUMBERS = 'Text and Numbers';
+    const TYPE_NUMBER_ONLY = 'Numbers Only';
+    const TYPE_CHECKBOX = 'CheckBox';
+    const TYPE_DROPDOWN = 'Drop Down List';
+    // custom value length
+    const CUSTOM_VALUE_LENGTH = 250;
+
     /**
      * @return string the associated database table name
      */
@@ -46,8 +54,17 @@ class SkuCustomData extends CActiveRecord {
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('custom_data_id, company_id, name, type, data_type, description, required, sort_order, attribute, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
-            array('name', 'checkDuplicate'),
+            array('name', 'uniqueName'),
         );
+    }
+
+    public function uniqueName($attribute, $params) {
+
+        $model = SkuCustomData::model()->findByAttributes(array('company_id' => Yii::app()->user->company_id, 'name' => $this->$attribute));
+        if ($model && $model->custom_data_id != $this->custom_data_id) {
+            $this->addError($attribute, 'Custom data name selected already taken.');
+        }
+        return;
     }
 
     public function beforeValidate() {
@@ -185,16 +202,16 @@ class SkuCustomData extends CActiveRecord {
         return parent::model($className);
     }
 
-    public function getAttributeByDataType($data_type) {
+    public function getAttributeByDataType($attr_name, $data_type) {
 
-        if ($data_type == 'Text and Numbers') {
+        if ($data_type == SkuCustomData::TYPE_TEXT_NUMBERS) {
 
             return array(
                 'max_character_length' => isset($_POST['max_character_length']) ? $_POST['max_character_length'] : null,
                 'text_field' => isset($_POST['text_area']) ? $_POST['text_area'] : 0,
                 'default_value' => isset($_POST['default_value']) ? $_POST['default_value'] : null,
             );
-        } else if ($data_type == 'Numbers Only') {
+        } else if ($data_type == SkuCustomData::TYPE_NUMBER_ONLY) {
 
             return array(
                 'min_value' => isset($_POST['minimum_value']) ? $_POST['minimum_value'] : null,
@@ -204,16 +221,17 @@ class SkuCustomData extends CActiveRecord {
                 'leading_zero' => isset($_POST['leading_zero']) ? $_POST['leading_zero'] : 0,
                 'decimal_place' => isset($_POST['decimal_place']) ? $_POST['decimal_place'] : 0,
             );
-        } else if ($data_type == 'CheckBox') {
+        } else if ($data_type == SkuCustomData::TYPE_CHECKBOX) {
 
             return array(
                 'default_value' => isset($_POST['default_value']) ? $_POST['default_value'] : 0,
             );
-        } else if ($data_type == 'Drop Down List') {
+        } else if ($data_type == SkuCustomData::TYPE_DROPDOWN) {
 
             $multiple_options = array();
             $default_options = array();
-            $default_options[] = "<option id='' value=''></option>";
+            $default_options[] = "<option id='' value=''>Select " . ucwords($attr_name) . "</option>";
+            $options_array = array();
 
             $ctr = 0;
 
@@ -223,20 +241,29 @@ class SkuCustomData extends CActiveRecord {
                 $default_option = $_POST['dropDownList_default'];
 
                 foreach ($_POST['dropDownList_multiple'] as $item) {
-                    array_push($array, $item);
+                    array_push($array, trim($item));
                 }
 
                 foreach ($array as $items => $val) {
                     $multiple_options[] = "<option id='{$items}' value='{$val}'>{$val}</option>";
-                }
 
-                foreach ($array as $items => $val) {
                     $selected = ($val == $default_option[0]) ? " selected='selected'" : "";
                     $default_options[] = "<option id='{$items}' value='{$val}' $selected>{$val}</option>";
+
+                    $options_array[$val] = $val;
                 }
+
+//                foreach ($array as $items => $val) {
+//                    $selected = ($val == $default_option[0]) ? " selected='selected'" : "";
+//                    $default_options[] = "<option id='{$items}' value='{$val}' $selected>{$val}</option>";
+//                }
+//                foreach ($array as $val) {
+//                    $options_array[$val] = $val;
+//                }
             }
 
             return array(
+                'options_array' => $options_array,
                 'dropDownList_multiple' => $multiple_options,
                 'dropDownList_default' => $default_options,
             );
@@ -290,37 +317,12 @@ class SkuCustomData extends CActiveRecord {
 
     public function getAllDataType() {
         return array(
-            array('id' => 'Text and Numbers', 'title' => ' Text and Numbers'),
-            array('id' => 'Numbers Only', 'title' => ' Numbers Only'),
-            array('id' => 'CheckBox', 'title' => ' CheckBox'),
-            array('id' => 'Drop Down List', 'title' => ' Drop Down List'),
+            array('id' => SkuCustomData::TYPE_TEXT_NUMBERS, 'title' => " " . SkuCustomData::TYPE_TEXT_NUMBERS),
+            array('id' => SkuCustomData::TYPE_NUMBER_ONLY, 'title' => " " . SkuCustomData::TYPE_NUMBER_ONLY),
+            array('id' => SkuCustomData::TYPE_CHECKBOX, 'title' => " " . SkuCustomData::TYPE_CHECKBOX),
+            array('id' => SkuCustomData::TYPE_DROPDOWN, 'title' => " " . SkuCustomData::TYPE_DROPDOWN),
 //                array('id' => 'Date', 'title' => ' Date')
         );
-    }
-
-    public function checkDuplicate($attribute) {
-        $duplicate = SkuCustomData::model()->exists('name = :name', array(':name' => $this->name));
-
-        $sql = "select custom_data_id from noc.sku_custom_data where name = :name";
-
-        $command = Yii::app()->db->createCommand($sql);
-        $command->bindValue('name', $this->name);
-        $data = $command->queryAll();
-
-        if (isset($data) > 0) {
-
-            $custom_data_id = 0;
-
-            foreach ($data as $key => $val) {
-                $custom_data_id = $val['custom_data_id'];
-            }
-
-            if (isset($duplicate) && $custom_data_id != '') {
-                if ($this->custom_data_id != $custom_data_id) {
-                    $this->addError($attribute, 'Custom Data Name is already exist in this data type.');
-                }
-            }
-        }
     }
 
     public function getAllSkuCustomData($sku_id) {
@@ -333,6 +335,118 @@ class SkuCustomData extends CActiveRecord {
         $criteria->order = "t.sort_order ASC";
 
         return SkuCustomData::model()->findAll($criteria);
+    }
+
+    public function validateAllDatatypeRequiredField($sku_custom_data, $key) {
+
+        if ($key == "max_character_length") {
+
+            if ($_POST['max_character_length'] == "") {
+
+                $sku_custom_data->addError("max_character_length", "Max character length cannot be blank.");
+            } else if (isset($_POST['max_character_length']) && $_POST['max_character_length'] < 0 || $_POST['max_character_length'] > SkuCustomData::CUSTOM_VALUE_LENGTH) {
+
+                $sku_custom_data->addError("max_character_length", "Max character must be greater than 0 and less than " . SkuCustomData::CUSTOM_VALUE_LENGTH . " character(s).");
+            }
+        } else if ($key == "min_value" || $key == "max_value") {
+
+            if ($_POST['minimum_value'] == "") {
+
+                $sku_custom_data->addError("minimum_value", "Minimum value cannot be blank.");
+//            } else if (isset($_POST['minimum_value']) && $_POST['minimum_value'] < 0 || $_POST['minimum_value'] > SkuCustomData::CUSTOM_VALUE_LENGTH) {
+//                $sku_custom_data->addError("minimum_value", "<font color='red'>Minimum value must be greater than 0 and less than " . SkuCustomData::CUSTOM_VALUE_LENGTH . ".</font>");
+            } else if (isset($_POST['minimum_value']) != "" && isset($_POST['maximum_value']) != "") {
+
+                if ($_POST['minimum_value'] > $_POST['maximum_value']) {
+
+                    $sku_custom_data->addError("minimum_value", "Minimum value must be less than maximum value.");
+                }
+            }
+
+            if ($_POST['maximum_value'] == "") {
+
+                $sku_custom_data->addError("maximum_value", "Maximum value cannot be blank.");
+//            } else if (isset($_POST['maximum_value']) && $_POST['maximum_value'] < 0 || $_POST['maximum_value'] > SkuCustomData::CUSTOM_VALUE_LENGTH) {
+//                $sku_custom_data->addError("maximum_value", "<font color='red'>Maximum value must be greater than 0 and less than " . SkuCustomData::CUSTOM_VALUE_LENGTH . ".</font>");
+            }
+        } else if ($key == "dropDownList_multiple") {
+
+            if (isset($_POST['dropDownList_multiple']) == "") {
+
+                $sku_custom_data->addError("dropDownList_multiple", "Options cannot be blank.");
+            }
+        }
+    }
+
+    public function validateAllCustomDataValue($sku_custom_data, $company_id, $attr_name, $value) {
+
+        $custom_data = SkuCustomData::model()->findByAttributes(array('name' => $attr_name, 'company_id' => $company_id));
+
+        $post_name = str_replace(' ', '_', strtolower($custom_data->data_type)) . "_" . str_replace(' ', '_', strtolower($attr_name));
+        $field_name = ucwords($attr_name);
+        $attr = CJSON::decode($custom_data->attribute);
+
+        if ($custom_data->required == 1 && $value == "") {
+
+            $sku_custom_data->addError($post_name, $field_name . " cannot be blank.");
+        } else if (strlen($value) > SkuCustomData::CUSTOM_VALUE_LENGTH) {
+
+            $sku_custom_data->addError($post_name, $field_name . " value must be less than " . SkuCustomData::CUSTOM_VALUE_LENGTH . " character(s).");
+        } else if ($custom_data->data_type == SkuCustomData::TYPE_NUMBER_ONLY && $value != "") {
+
+            if (!is_numeric($value)) {
+
+                $sku_custom_data->addError($post_name, $field_name . " must be a number.");
+            } else if ($value < $attr['min_value']) {
+
+                $sku_custom_data->addError($post_name, $field_name . " must be greater than " . $attr['min_value'] . ".");
+            } else if ($value > $attr['max_value']) {
+
+                $sku_custom_data->addError($post_name, $field_name . " must be less than " . $attr['max_value'] . ".");
+            } else {
+
+                $parse_value = explode(".", trim($value));
+
+                if (isset($parse_value[1])) {
+                    
+                    if (strlen($parse_value[1]) > $attr['decimal_place']) {
+                        
+                        $sku_custom_data->addError($post_name, $field_name . " must be less than " . $attr['decimal_place'] . " decimal place(s).");
+                    }
+                }
+            }
+        } else if ($custom_data->data_type == SkuCustomData::TYPE_CHECKBOX) {
+
+            if ($custom_data->required == 1 && $value != "yes") {
+
+                if ($value == "no") {
+
+                    $sku_custom_data->addError($post_name, $field_name . " is required.");
+                } else {
+
+                    $sku_custom_data->addError($post_name, $field_name . " value must be yes/no only.");
+                }
+            } else if ($custom_data->required == 0 && $value != "no") {
+
+                if ($value != "yes") {
+
+                    $sku_custom_data->addError($post_name, $field_name . " value must be yes/no only.");
+                }
+            }
+        } else if ($custom_data->data_type == SkuCustomData::TYPE_DROPDOWN) {
+
+            if ($custom_data->required == 1 && $value != "") {
+
+                if (!in_array($value, $attr['options_array'])) {
+                    $sku_custom_data->addError($post_name, $field_name . " value is not existing.");
+                }
+            } else if ($custom_data->required == 0 && $value != "") {
+
+                if (!in_array($value, $attr['options_array'])) {
+                    $sku_custom_data->addError($post_name, $field_name . " value is not existing.");
+                }
+            }
+        }
     }
 
 }
