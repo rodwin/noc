@@ -25,7 +25,7 @@ class SkuController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view', 'saveSkuConvertion','GenerateTemplate','Upload','UploadDetails'),
+                'actions' => array('index', 'view', 'saveSkuConvertion','GenerateTemplate','Upload','UploadDetails','search'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -40,6 +40,29 @@ class SkuController extends Controller {
                 'users' => array('*'),
             ),
         );
+    }
+    
+    public function actionSearch($value){
+        
+        $c = new CDbCriteria();
+        if($value != ""){
+            $c->addSearchCondition('t.sku_code', $value,true, 'OR');
+            $c->addSearchCondition('t.sku_name', $value,true, 'OR');
+            $c->addSearchCondition('brand.brand_name', $value,true, 'OR');
+        }
+        $c->addSearchCondition('t.company_id', Yii::app()->user->company_id);
+        $c->with = array('brand');
+        $sku = Sku::model()->findAll($c);
+        
+        $return = array();
+        foreach($sku as $key => $val){
+            $return[$key]['sku_id']= $val->sku_id;
+            $return[$key]['value']=$val->sku_name;
+            $return[$key]['brand']=isset($val->brand->brand_name) ? $val->brand->brand_name:'';
+        }
+        
+        echo json_encode($return);
+        Yii::app()->end();
     }
 
     public function actionData() {

@@ -121,7 +121,7 @@ class CreateInventoryForm extends CFormModel
 	public function attributeLabels()
 	{
 		return array(
-			'sku_id'=>'Sku',
+			'sku_id'=>'Sku Code',
 			'qty'=>'Quantity',
 			'default_uom_id'=>'Unit of Measure',
 			'default_zone_id'=>'Zone',
