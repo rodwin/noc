@@ -11,24 +11,41 @@ $this->breadcrumbs = array(
 
             <p><h4>Column Headings:</h4></p>
             <small>
-                <?php foreach ($headers['headers'] as $key => $value) { ?>
-                    <?php echo $value; ?>,
-                <?php } ?>
+                <?php
+                $ctr = count($headers['headers']);
+                foreach ($headers['headers'] as $key => $value) {
+                    echo $value;
+                    $ctr--;
+                    echo $ctr != 0 ? ", " : "";
+                }
+                ?>   
             </small><br/>
 
-            <small>
-                <?php
+            <?php
+            if (count($headers['custom_data']) > 0) {
+
                 foreach ($headers['custom_data'] as $key => $val) {
-                    if (isset($val)) {
-                        echo "<b style='font-size: 15px;'>" . ucwords(str_replace('_', ' ', $key)) . ": </b>";
+
+                    if (count($val) > 0) {
+                        $ctr2 = count($val);
+
+                        $category = PoiCategory::model()->getPoiCategoryById($key);
+                        echo "<b>" . ucwords($category->category_name) . ": </b>";
+
+                        echo "<small>";
                         foreach ($val as $v) {
-                            echo $v . ", ";
+                            echo ucwords($v);
+                            $ctr2--;
+                            echo $ctr2 != 0 ? ", " : "";
                         }
+                        echo "</small>";
+
+                        echo "<br/>";
                     }
-                    echo "<br/>";
                 }
-                ?>
-            </small>
+            }
+            ?>
+
             <?php
             $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 'id' => 'poi-template-form',
@@ -47,7 +64,7 @@ $this->breadcrumbs = array(
                 <div class="col-md-7">
                     <div class="form-group">
                         <?php echo CHtml::submitButton('Upload', array('class' => 'btn btn-primary btn-flat')); ?>    
-                        <?php // echo CHtml::link('Download Template', array(), array('class' => 'btn btn-info btn-flat', 'onclick' => 'click()')); ?>    
+                        <?php // echo CHtml::link('Download Template', array(), array('class' => 'btn btn-info btn-flat', 'onclick' => 'click()'));   ?>    
                         <?php echo CHtml::submitButton('Download All SKU', array('class' => 'btn btn-info btn-flat')); ?>
 
                     </div>

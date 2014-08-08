@@ -192,8 +192,8 @@ class PoiController extends Controller {
                                 )
                             );
 
-//                            Globals::queue(json_encode($data));
-                            Poi::model()->processBatchUpload($batch_upload->id, Yii::app()->user->company_id);
+                            Globals::queue(json_encode($data));
+//                            Poi::model()->processBatchUpload($batch_upload->id, Yii::app()->user->company_id);
 
                             Yii::app()->user->setFlash('success', "Successfully uploaded data. Please wait for the checking to finish!");
                         } else {

@@ -261,24 +261,21 @@ class Poi extends CActiveRecord {
 
         $poi_category = PoiCategory::model()->findAllByAttributes(array("company_id" => $company_id));
 
-        $custom_data = array();
+        $custom_fields = array();
         foreach ($poi_category as $key => $val) {
 
             $criteria = new CDbCriteria();
             $criteria->order = "sort_order";
             $model = PoiCustomData::model()->findAllByAttributes(array('company_id' => $company_id, "type" => $val['poi_category_id']), $criteria);
 
-            $array = array();
             foreach ($model as $v) {
-                array_push($array, $v['name']);
+                $custom_fields[$v['type']][str_replace(" ", "_", strtolower($v['name']))] = $v['name'];
             }
-
-            $custom_data[str_replace(' ', '_', strtolower($val['category_name']))] = $array;
         }
 
         return array(
             'headers' => $headers,
-            'custom_data' => $custom_data,
+            'custom_data' => $custom_fields,
         );
     }
 
@@ -427,7 +424,8 @@ class Poi extends CActiveRecord {
         $poi_category = PoiCategory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "poi_category_id" => $poi_category_id));
 
         header('Content-Type: application/excel');
-        header('Content-Disposition: attachment; filename="poi_' . str_replace(" ", "_", strtolower($poi_category->category_name)) . '.csv"');
+//        header('Content-Disposition: attachment; filename="poi_' . str_replace(" ", "_", strtolower($poi_category->category_name)) . '.csv"');
+        header('Content-Disposition: attachment; filename="poi.csv"');
 
         $fp = fopen('php://output', 'w');
         $cols = "";
@@ -439,9 +437,13 @@ class Poi extends CActiveRecord {
         }
 
         if (count($headers['custom_data']) > 0) {
+
             foreach ($headers['custom_data'] as $key => $val) {
-                if (strtolower($key) == strtolower(str_replace(" ", "_", $poi_category->category_name))) {
+
+                if ($key == $poi_category->poi_category_id) {
+
                     foreach ($val as $field_name) {
+
                         $cols .= ucwords($field_name) . ',';
                     }
                 }
@@ -478,35 +480,46 @@ class Poi extends CActiveRecord {
         $count_custom_data = 0;
         $category_id = "";
         $custom_data_header = array();
+        $custom_fields = array();
+        $arr_headers = array();
+        $arr_custom_fields = array();
         $required_headers = $headers['headers'];
 
         if (count($headers['custom_data']) > 0) {
             foreach ($headers['custom_data'] as $key => $val) {
 
-                $category = PoiCategory::model()->findByAttributes(array("company_id" => $company_id), $condition = 'LOWER(t.category_name) = "' . str_replace("_", " ", $key) . '"');
+                $model = PoiCustomData::model()->findAllByAttributes(array('company_id' => $company_id, "type" => $key));
 
-                $data = PoiCustomData::model()->findAllByAttributes(array("company_id" => $company_id), $condition = 'type = "' . $category->poi_category_id . '"');
+                foreach ($model as $v) {
+                    $custom_fields[$v['type']][] = $v['name'];
+                }
 
-                foreach ($data as $k => $v) {
+                if ($rows && count($rows) > 0) {
 
-                    if ($rows && count($rows) > 0) {
+                    for ($x = 0; $x < count($custom_fields[$key]); $x++) {
 
-                        if (array_key_exists($v['name'], $rows[0])) {
+                        $arr_headers[$key][str_replace(' ', '_', strtolower($custom_fields[$key][$x]))] = ucwords($custom_fields[$key][$x]);
+                        $arr_custom_fields[$key][] = str_replace(' ', '_', strtolower($custom_fields[$key][$x]));
 
-                            $required_headers[str_replace(' ', '_', strtolower($v['name']))] = ucwords($v['name']);
-                            $custom_data_header[] = str_replace(' ', '_', strtolower($v['name']));
-
-                            $count_custom_data++;
-                            $category_id = $v['type'];
+                        if (array_key_exists(ucwords($custom_fields[$key][$x]), $rows[0])) {
+                            $category_id = $key;
                         }
                     }
                 }
             }
+
+            if ($category_id != "") {
+                $required_headers = array_merge($required_headers, $arr_headers[$category_id]);
+                $custom_data_header = $arr_custom_fields[$category_id];
+            }
         }
+
+        $count_custom_data = count($custom_data_header);
 
         if ($rows && count($rows) > 0) {
 
             foreach ($required_headers as $key => $value) {
+
                 if (!isset($rows[0][$value])) {
                     $incomplete_field++;
                     $message .= $value . ',';
@@ -605,7 +618,7 @@ class Poi extends CActiveRecord {
 
                             $comma = "";
                             if (count($model->getErrors()) > 0 && count($poi_custom_data->getErrors()) > 0) {
-                                $comma = " ,";
+                                $comma = ",";
                             }
 
                             $this->saveBatchUploadDetail($BatchUploadModel->id, "Row " . ($key + 2) . ": " . $errors . (count($poi_custom_data->getErrors()) > 0 ? $comma . $custom_data_errors : ""), $company_id);
@@ -630,7 +643,7 @@ class Poi extends CActiveRecord {
                                         $poi_custom_data_value->validate();
                                         $poi_custom_data_value->save();
                                     }
-                                }exit;
+                                }
 
                                 $ret['success'] ++;
                                 $ret['inserted'] ++;
@@ -646,7 +659,7 @@ class Poi extends CActiveRecord {
 
                             $comma = "";
                             if (count($model->getErrors()) > 0 && count($poi_custom_data->getErrors()) > 0) {
-                                $comma = " ,";
+                                $comma = ",";
                             }
 
                             $this->saveBatchUploadDetail($BatchUploadModel->id, "Row " . ($key + 2) . ": " . $errors . (count($poi_custom_data->getErrors()) > 0 ? $comma . $custom_data_errors : ""), $company_id);
