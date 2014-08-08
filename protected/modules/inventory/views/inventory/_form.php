@@ -216,10 +216,10 @@ echo $this->renderPartial('_inventory_history', array());
         var sku = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('sku_name'),
             queryTokenizer: Bloodhound.tokenizers.whitespace,
-            prefetch: 'http://localhost/noc/index.php?r=library/sku/search&value=',
-            remote: 'http://localhost/noc/index.php?r=library/sku/search&value=%QUERY'
-            //prefetch: '<?php //echo Yii::app()->createUrl("library/sku/search",array('value'=>''))?>',
-            //remote: '<?php //echo Yii::app()->createUrl("library/sku/search")?>&value=%QUERY'
+//            prefetch: 'http://localhost/noc/index.php?r=library/sku/search&value=',
+//            remote: 'http://localhost/noc/index.php?r=library/sku/search&value=%QUERY'
+            prefetch: '<?php echo Yii::app()->createUrl("library/sku/search",array('value'=>''))?>',
+            remote: '<?php echo Yii::app()->createUrl("library/sku/search")?>&value=%QUERY'
         });
 
         sku.initialize();
