@@ -183,22 +183,22 @@ class Inventory extends CActiveRecord {
             case 3:
                 $sort_column = 'uom.uom_name';
                 break;
-            case 4:
+            case 5:
                 $sort_column = 'zone.zone_name';
                 break;
-            case 5:
+            case 6:
                 $sort_column = 'skuStatus.status_name';
                 break;
-            case 6:
+            case 7:
                 $sort_column = 'expiration_date';
                 break;
-            case 7:
+            case 8:
                 $sort_column = 'reference_no';
                 break;
-            case 8:
+            case 9:
                 $sort_column = 'sku.brand.brand_name';
                 break;
-            case 9:
+            case 10:
                 $sort_column = 'zone.salesOffice.sales_office_name';
                 break;
         }
@@ -210,12 +210,12 @@ class Inventory extends CActiveRecord {
         $criteria->compare('sku.sku_name', $columns[1]['search']['value'], true);
         $criteria->compare('qty', $columns[2]['search']['value']);
         $criteria->compare('uom.uom_name', $columns[3]['search']['value'], true);
-        $criteria->compare('zone.zone_name', $columns[4]['search']['value'], true);
-        $criteria->compare('skuStatus.status_name', $columns[5]['search']['value'], true);
-        $criteria->compare('expiration_date', $columns[6]['search']['value'], true);
-        $criteria->compare('reference_no', $columns[7]['search']['value'], true);
-        $criteria->compare('sku.brand.brand_name', $columns[8]['search']['value'], true);
-        $criteria->compare('zone.salesOffice.sales_office_name', $columns[9]['search']['value'], true);
+        $criteria->compare('zone.zone_name', $columns[5]['search']['value'], true);
+        $criteria->compare('skuStatus.status_name', $columns[6]['search']['value'], true);
+        $criteria->compare('expiration_date', $columns[7]['search']['value'], true);
+        $criteria->compare('reference_no', $columns[8]['search']['value'], true);
+        $criteria->compare('sku.brand.brand_name', $columns[9]['search']['value'], true);
+        $criteria->compare('zone.salesOffice.sales_office_name', $columns[10]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->with = array('sku','sku.brand','skuStatus','uom','zone','zone.salesOffice');
         $criteria->limit = $limit;
