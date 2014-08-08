@@ -214,22 +214,24 @@ echo $this->renderPartial('_inventory_history', array());
         $("[data-mask]").inputmask();
 
         var sku = new Bloodhound({
-            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('sku_name'),
             queryTokenizer: Bloodhound.tokenizers.whitespace,
             prefetch: 'http://localhost/noc/index.php?r=library/sku/search&value=',
             remote: 'http://localhost/noc/index.php?r=library/sku/search&value=%QUERY'
+            //prefetch: '<?php //echo Yii::app()->createUrl("library/sku/search",array('value'=>''))?>',
+            //remote: '<?php //echo Yii::app()->createUrl("library/sku/search")?>&value=%QUERY'
         });
 
         sku.initialize();
 
         $('#CreateInventoryForm_sku_id').typeahead(null, {
             name: 'skus',
-            displayKey: 'sku_id',
+            displayKey: 'sku_code',
             source: sku.ttAdapter(),
             templates: {
                 suggestion: Handlebars.compile([
                     '<p class="repo-language">{{brand}}</p>',
-                    '<p class="repo-name">{{sku_id}}</p>',
+                    '<p class="repo-name">{{sku_code}}</p>',
                     '<p class="repo-description">{{value}}</p>'
                 ].join(''))
             }
