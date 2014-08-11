@@ -126,7 +126,7 @@ class Inventory extends CActiveRecord {
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
             'updated_by' => 'Updated By',
-            'expiration_date' => 'Expiration Date',
+            'expiration_date' => 'Unique Date',
             'reference_no' => 'Reference No',
         );
     }
@@ -225,6 +225,18 @@ class Inventory extends CActiveRecord {
             'criteria' => $criteria,
             'pagination' => false,
         ));
+    }
+    
+    public function recentlyCreatedItems($company_id,$limit = 20){
+        
+        $criteria = new CDbCriteria;
+        $criteria->compare('t.company_id', $company_id);
+        $criteria->order = "t.transaction_date desc";
+        $criteria->with = array('sku','sku.brand','skuStatus','uom','zone','zone.salesOffice');
+        $criteria->limit = $limit;
+        
+        return Inventory::model()->findAll($criteria);
+        
     }
 
     /**

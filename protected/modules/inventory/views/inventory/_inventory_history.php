@@ -1,71 +1,28 @@
-
-<!-- general form elements disabled -->
-<div class="box box-solid box-info">
+<div class="box">
     <div class="box-header">
         <h3 class="box-title">Recently Created Records</h3>
     </div><!-- /.box-header -->
-    <?php $fields = InventoryHistory::model()->attributeLabels(); ?>
-    <div class="box-body table-responsive">
-        <table id="inventory-history_table" class="table table-bordered">
-            <thead>
-                <tr>
-                    <!--<th><?php echo $fields['inventory_history_id']; ?></th>-->
-                    <th><?php echo $fields['inventory_id']; ?></th>
-                    <th><?php echo $fields['quantity_change']; ?></th>
-                    <th><?php echo $fields['running_total']; ?></th>
-                    <th><?php echo $fields['action']; ?></th>
-                    <th><?php echo $fields['cost_unit']; ?></th>
-                    <th><?php echo $fields['ave_cost_per_unit']; ?></th>
-                    <th>Actions</th>
-
-                </tr>
-            </thead>
-
+    <div class="box-body no-padding">
+        <?php $fields = Inventory::model()->attributeLabels(); ?>
+        <table class="table">
+            <tr>
+                <th><?php echo $fields['sku_code']; ?></th>
+                <th><?php echo $fields['qty']; ?></th>
+                <th><?php echo $fields['uom_name']; ?></th>
+                <th><?php echo $fields['zone_name']; ?></th>
+                <th><?php echo $fields['sku_status_name']; ?></th>
+                <th><?php echo $fields['reference_no']; ?></th>
+            </tr>
+            <?php foreach ($recentlyCreatedItems as $key => $value) {?>
+            <tr>
+                <td><?php echo $value->sku->sku_code;?></td>
+                <td><?php echo $value->qty;?></td>
+                <td><?php echo $value->uom->uom_name;?></td>
+                <td><?php echo $value->zone->zone_name;?></td>
+                <td><?php echo isset($value->skuStatus->status_name) ? $value->skuStatus->status_name:'';?></td>
+                <td><?php echo $value->reference_no;?></td>
+            </tr>
+            <?php }?>
         </table>
-    </div>
+    </div><!-- /.box-body -->
 </div>
-<script type="text/javascript">
-    $(function() {
-        var table = $('#inventory-history_table').dataTable({
-            "filter": false,
-            "processing": true,
-            "serverSide": true,
-            "bAutoWidth": false,
-            "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/InventoryHistory/data'); ?>",
-            "columns": [
-//                {"name": "inventory_history_id", "data": "inventory_history_id"}, 
-                {"name": "inventory_id", "data": "inventory_id"}, {"name": "quantity_change", "data": "quantity_change"}, {"name": "running_total", "data": "running_total"}, {"name": "action", "data": "action"}, {"name": "cost_unit", "data": "cost_unit"}, {"name": "ave_cost_per_unit", "data": "ave_cost_per_unit"}, {"name": "links", "data": "links", 'sortable': false}
-            ]
-        });
-
-        $('#btnSearch').click(function() {
-            table.fnMultiFilter({
-//                "inventory_history_id": $("#InventoryHistory_inventory_history_id").val(), 
-                "inventory_id": $("#InventoryHistory_inventory_id").val(), "quantity_change": $("#InventoryHistory_quantity_change").val(), "running_total": $("#InventoryHistory_running_total").val(), "action": $("#InventoryHistory_action").val(), "cost_unit": $("#InventoryHistory_cost_unit").val(), "ave_cost_per_unit": $("#InventoryHistory_ave_cost_per_unit").val(), });
-        });
-
-
-
-        jQuery(document).on('click', '#inventory-history_table a.delete', function() {
-            if (!confirm('Are you sure you want to delete this item?'))
-                return false;
-            $.ajax({
-                'url': jQuery(this).attr('href') + '&ajax=1',
-                'type': 'POST',
-                'dataType': 'text',
-                'success': function(data) {
-                    $.growl(data, {
-                        icon: 'glyphicon glyphicon-info-sign',
-                        type: 'success'
-                    });
-
-                    table.fnMultiFilter();
-                },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
-                }
-            });
-            return false;
-        });
-    });
-</script>

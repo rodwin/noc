@@ -1,15 +1,16 @@
 <?php
 
-class CreateInventoryForm extends CFormModel
+class IncreaseInventoryForm extends CFormModel
 {
         public $company_id;
+	public $sku_code;
 	public $sku_id;
         public $qty;
 	public $default_uom_id;
-        public $sku_status_id;
 	public $default_zone_id;
 	public $transaction_date;
 	public $cost_per_unit;
+        public $sku_status_id;
         public $unique_tag;
         public $unique_date;
         
@@ -24,11 +25,11 @@ class CreateInventoryForm extends CFormModel
 	{
 		return array(
 			// username and password are required
-			array('sku_id,company_id,qty,default_uom_id,default_zone_id,transaction_date', 'required'),
+			array('sku_code,company_id,qty,default_uom_id,default_zone_id,transaction_date', 'required'),
                         
                         array('unique_tag', 'length', 'max' => 150),
                     
-			array('sku_id', 'isValidSku'),
+			array('sku_code', 'isValidSku'),
                     
                         array('default_uom_id', 'isValidUOM'),
                         array('default_zone_id', 'isValidZone'),
@@ -45,10 +46,12 @@ class CreateInventoryForm extends CFormModel
         
         public function isValidSku($attribute)
         {
-            $model = Sku::model()->findbypk($this->$attribute);
-            
+            $model = Sku::model()->findByAttributes(array('sku_code'=>$this->$attribute,'company_id'=> $this->company_id));
+
             if (!Validator::isResultSetWithRows($model)) {
-                $this->addError($attribute, 'Sku is invalid');
+                $this->addError($attribute, 'Sku not found');
+            }else{
+                $this->sku_id = $model->sku_id;
             }
 
             return;
@@ -111,6 +114,9 @@ class CreateInventoryForm extends CFormModel
             if($this->qty == ""){
                 $this->qty = 0;
             }
+            if($this->unique_date == ""){
+                $this->unique_date = null;
+            }
 
             return parent::beforeValidate();
         }
@@ -121,7 +127,7 @@ class CreateInventoryForm extends CFormModel
 	public function attributeLabels()
 	{
 		return array(
-			'sku_id'=>'Sku',
+			'sku_code'=>'Sku Code',
 			'qty'=>'Quantity',
 			'default_uom_id'=>'Unit of Measure',
 			'default_zone_id'=>'Zone',
@@ -133,8 +139,14 @@ class CreateInventoryForm extends CFormModel
 		);
 	}
         
-        public function create() {
+        public function increase($validate = true) {
              
+            if($validate){
+                if(!$this->validate()){
+                    return false;
+                }
+            }
+            
             $qty = 0;
             
             $inventoryObj = Inventory::model()->findByAttributes(
@@ -155,8 +167,6 @@ class CreateInventoryForm extends CFormModel
                 $qty = $this->qty;
             }
             
-            
-            
             $transaction = $inventory->dbConnection->beginTransaction(); // Transaction begin
                 
             try {
@@ -175,7 +185,9 @@ class CreateInventoryForm extends CFormModel
                 
                 $inventory->attributes = $inventory_data;
                 $inventory->save(false);
-            
+                
+                InventoryHistory::model()->createHistory($this->company_id, $inventory->inventory_id, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_MOVE);
+                
                 $transaction->commit();
                 return true;
                 

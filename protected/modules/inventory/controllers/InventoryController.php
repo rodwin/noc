@@ -57,8 +57,6 @@ class InventoryController extends Controller {
             "data" => array()
         );
 
-
-
         foreach ($dataProvider->getData() as $key => $value) {
             $row = array();
             $row['inventory_id'] = $value->inventory_id;
@@ -137,13 +135,14 @@ class InventoryController extends Controller {
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
+        $selectedSkuname = "";
+        $selectedSkuBrand = "";
         if (isset($_POST['CreateInventoryForm'])) {
-//            pre($_POST);
+            
             $model->attributes = $_POST['CreateInventoryForm'];
             $model->company_id = Yii::app()->user->company_id;
-            if ($model->validate()) {
+            if ($model->create()) {
                 
-                $model->create();
                 Yii::app()->user->setFlash('success', "Successfully created");
                 
                 if (isset($_POST['create'])) {
@@ -153,6 +152,13 @@ class InventoryController extends Controller {
                 }
             }
             
+            if(isset($_POST['CreateInventoryForm']['sku_code'])){
+                $selectedSku = Sku::model()->findByAttributes(array('sku_code'=>$model->sku_code,'company_id'=>Yii::app()->user->company_id));
+                if($selectedSku){
+                    $selectedSkuname = $selectedSku->sku_name;
+                    $selectedSkuBrand = isset($selectedSku->brand->brand_name) ? $selectedSku->brand->brand_name:'';
+                }
+            }
             
         }
 
@@ -161,12 +167,21 @@ class InventoryController extends Controller {
         $zone = CHtml::listData(Zone::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
 
+        //top 20 new created item
+        $recentlyCreatedItems = Inventory::model()->recentlyCreatedItems(Yii::app()->user->company_id);
+//        foreach ($recentlyCreatedItems as $key => $value) {
+//            pr($value);
+//        }
+        
         $this->render('create', array(
             'model' => $model,
             'sku' => $sku,
             'uom' => $uom,
             'zone' => $zone,
             'sku_status' => $sku_status,
+            'selectedSkuname' => $selectedSkuname,
+            'selectedSkuBrand' => $selectedSkuBrand,
+            'recentlyCreatedItems' => $recentlyCreatedItems,
         ));
     }
 

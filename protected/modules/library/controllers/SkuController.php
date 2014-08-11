@@ -50,8 +50,8 @@ class SkuController extends Controller {
             $c->addSearchCondition('t.sku_name', $value,true, 'OR');
             $c->addSearchCondition('brand.brand_name', $value,true, 'OR');
         }
-        $c->addSearchCondition('t.company_id', Yii::app()->user->company_id);
-        $c->with = array('brand');
+        $c->compare('t.company_id', Yii::app()->user->company_id);
+        $c->with = array('brand','defaultZone','defaultUom');
         $sku = Sku::model()->findAll($c);
         
         $return = array();
@@ -60,6 +60,9 @@ class SkuController extends Controller {
             $return[$key]['sku_code']= $val->sku_code;
             $return[$key]['value']=$val->sku_name;
             $return[$key]['brand']=isset($val->brand->brand_name) ? $val->brand->brand_name:'';
+            $return[$key]['uom_id']=isset($val->defaultUom->uom_id) ? $val->defaultUom->uom_id:'';
+            $return[$key]['zone_id']=isset($val->defaultZone->zone_id) ? $val->defaultZone->zone_id:'';
+            $return[$key]['cost_per_unit']=$val->default_unit_price;
         }
         
         echo json_encode($return);

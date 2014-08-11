@@ -102,8 +102,8 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
                       );
                      */
                     ?>
-                    <b>Sku Name:</b> <span id="sku_name"></span><br/>
-                    <b>Brand Name:</b> <span id="brand_name"></span>
+                    <b>Sku Name:</b> <span id="sku_name"><?php echo $selectedSkuname; ?></span><br/>
+                    <b>Brand Name:</b> <span id="brand_name"><?php echo $selectedSkuBrand; ?></span>
                 </div>
 
                     <?php echo $form->textFieldGroup($model, 'qty', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5','value'=> 1)))); ?>
@@ -159,7 +159,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
 
 
                     <?php
-                    echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask'))
+                    echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('value'=>date('Y-m-d'),'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask'))
                         , 'prepend' => '<i class="glyphicon glyphicon-calendar"></i>'
                     ));
                     ?>
@@ -168,6 +168,12 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
                     <?php
                     echo $form->textFieldGroup($model, 'unique_tag', array('widgetOptions' => array('htmlOptions' => array('maxlength' => 250))
                         , 'prepend' => '<i class="fa fa-tag"></i>'
+                    ));
+                    ?>
+                
+                    <?php
+                    echo $form->textFieldGroup($model, 'unique_date', array('widgetOptions' => array('htmlOptions' => array('data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask'))
+                        , 'prepend' => '<i class="glyphicon glyphicon-calendar"></i>'
                     ));
                     ?>
 
@@ -184,7 +190,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
     <!-- right column -->
     <div class="col-md-7">
 <?php
-echo $this->renderPartial('_inventory_history', array());
+echo $this->renderPartial('_inventory_history', array('recentlyCreatedItems'=> $recentlyCreatedItems));
 ?>
 
     </div>
@@ -221,6 +227,10 @@ echo $this->renderPartial('_inventory_history', array());
             
             $('#sku_name').html(datum.value);
             $('#brand_name').html(datum.brand);
+            $('#CreateInventoryForm_default_uom_id').val(datum.uom_id);
+            $('#CreateInventoryForm_default_zone_id').val(datum.zone_id);
+            $('#CreateInventoryForm_cost_per_unit').val(datum.cost_per_unit);
+            
         });
 
     });
