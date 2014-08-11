@@ -49,7 +49,7 @@ class CreateInventoryForm extends CFormModel
             $model = Sku::model()->findByAttributes(array('sku_code'=>$this->$attribute,'company_id'=> $this->company_id));
 
             if (!Validator::isResultSetWithRows($model)) {
-                $this->addError($attribute, 'Sku is invalid');
+                $this->addError($attribute, 'Sku not found');
             }else{
                 $this->sku_id = $model->sku_id;
             }
@@ -114,6 +114,9 @@ class CreateInventoryForm extends CFormModel
             if($this->qty == ""){
                 $this->qty = 0;
             }
+            if($this->unique_date == ""){
+                $this->unique_date = null;
+            }
 
             return parent::beforeValidate();
         }
@@ -136,8 +139,14 @@ class CreateInventoryForm extends CFormModel
 		);
 	}
         
-        public function create() {
+        public function create($validate = true) {
              
+            if($validate){
+                if(!$this->validate()){
+                    return false;
+                }
+            }
+            
             $qty = 0;
             
             $inventoryObj = Inventory::model()->findByAttributes(
@@ -176,7 +185,9 @@ class CreateInventoryForm extends CFormModel
                 
                 $inventory->attributes = $inventory_data;
                 $inventory->save(false);
-            
+                
+                InventoryHistory::model()->createHistory($this->company_id, $inventory->inventory_id, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_MOVE);
+                
                 $transaction->commit();
                 return true;
                 

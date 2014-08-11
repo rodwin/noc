@@ -102,8 +102,8 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
                       );
                      */
                     ?>
-                    <b>Sku Name:</b> <span id="sku_name"></span><br/>
-                    <b>Brand Name:</b> <span id="brand_name"></span>
+                    <b>Sku Name:</b> <span id="sku_name"><?php echo $selectedSkuname; ?></span><br/>
+                    <b>Brand Name:</b> <span id="brand_name"><?php echo $selectedSkuBrand; ?></span>
                 </div>
 
                     <?php echo $form->textFieldGroup($model, 'qty', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5','value'=> 1)))); ?>
@@ -170,6 +170,12 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
                         , 'prepend' => '<i class="fa fa-tag"></i>'
                     ));
                     ?>
+                
+                    <?php
+                    echo $form->textFieldGroup($model, 'unique_date', array('widgetOptions' => array('htmlOptions' => array('data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask'))
+                        , 'prepend' => '<i class="glyphicon glyphicon-calendar"></i>'
+                    ));
+                    ?>
 
                 <div class="form-group">
                     <?php echo CHtml::submitButton('Create & New', array('name' => 'create', 'class' => 'btn btn-primary btn-flat')); ?>
@@ -184,7 +190,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
     <!-- right column -->
     <div class="col-md-7">
 <?php
-echo $this->renderPartial('_inventory_history', array());
+echo $this->renderPartial('_inventory_history', array('recentlyCreatedItems'=> $recentlyCreatedItems));
 ?>
 
     </div>

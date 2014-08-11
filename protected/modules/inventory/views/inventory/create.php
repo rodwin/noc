@@ -14,5 +14,8 @@ echo $this->renderPartial('_form', array(
     'uom' => $uom,
     'zone' => $zone,
     'sku_status' => $sku_status,
+    'selectedSkuname' => $selectedSkuname,
+    'selectedSkuBrand' => $selectedSkuBrand,
+    'recentlyCreatedItems' => $recentlyCreatedItems,
 ));
 ?>

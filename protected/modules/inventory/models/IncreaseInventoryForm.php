@@ -1,6 +1,6 @@
 <?php
 
-class CreateInventoryForm extends CFormModel
+class IncreaseInventoryForm extends CFormModel
 {
         public $company_id;
 	public $sku_id;
