@@ -159,7 +159,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
 
 
                     <?php
-                    echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask'))
+                    echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('value'=>date('Y-m-d'),'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask'))
                         , 'prepend' => '<i class="glyphicon glyphicon-calendar"></i>'
                     ));
                     ?>
@@ -227,6 +227,10 @@ echo $this->renderPartial('_inventory_history', array('recentlyCreatedItems'=> $
             
             $('#sku_name').html(datum.value);
             $('#brand_name').html(datum.brand);
+            $('#CreateInventoryForm_default_uom_id').val(datum.uom_id);
+            $('#CreateInventoryForm_default_zone_id').val(datum.zone_id);
+            $('#CreateInventoryForm_cost_per_unit').val(datum.cost_per_unit);
+            
         });
 
     });
