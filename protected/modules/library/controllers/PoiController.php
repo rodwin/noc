@@ -46,6 +46,8 @@ class PoiController extends Controller {
     }
 
     public function actionData() {
+        
+        header('HTTP/1.1 200 OK');
 
         Poi::model()->search_string = $_GET['search']['value'] != "" ? $_GET['search']['value'] : null;
 
@@ -70,11 +72,11 @@ class PoiController extends Controller {
             $row['primary_code'] = $value->primary_code;
             $row['secondary_code'] = $value->secondary_code;
             $row['barangay_id'] = $value->barangay_id;
-            $row['barangay_name'] = $value->barangay_name;
+            $row['barangay_name'] = isset($value->barangay_name) ? $value->barangay_name : null;
             $row['municipal_id'] = $value->municipal_id;
-            $row['municipal_name'] = $value->municipal_name;
+            $row['municipal_name'] = isset($value->municipal_name) ? $value->municipal_name : null;
             $row['province_id'] = $value->province_id;
-            $row['province_name'] = $value->province_name;
+            $row['province_name'] = isset($value->province_name) ? $value->province_name : null;
             $row['region_id'] = $value->region_id;
             $row['region_name'] = $value->region_name;
             $row['sales_region_id'] = $value->sales_region_id;
@@ -86,9 +88,9 @@ class PoiController extends Controller {
             $row['landline'] = $value->landline;
             $row['mobile'] = $value->mobile;
             $row['poi_category_id'] = $value->poi_category_id;
-            $row['poi_category_name'] = $value->poiCategory->category_name;
+            $row['poi_category_name'] = isset($value->poiCategory->category_name) ? $value->poiCategory->category_name : null;
             $row['poi_sub_category_id'] = $value->poi_sub_category_id;
-            $row['poi_sub_category_name'] = $value->poiSubCategory->sub_category_name;
+            $row['poi_sub_category_name'] = isset($value->poiSubCategory->sub_category_name) ? $value->poiSubCategory->sub_category_name : null;
             $row['remarks'] = $value->remarks;
             $row['status'] = $value->status;
             $row['created_date'] = $value->created_date;
