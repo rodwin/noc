@@ -159,6 +159,7 @@ class IncreaseInventoryForm extends CFormModel
                     )
                 );
             
+            /*
             if($inventoryObj){
                 $inventory = $inventoryObj;
                 $qty = $this->qty + $inventory->qty;
@@ -166,36 +167,47 @@ class IncreaseInventoryForm extends CFormModel
                 $inventory = new Inventory();
                 $qty = $this->qty;
             }
+            */
             
-            $transaction = $inventory->dbConnection->beginTransaction(); // Transaction begin
+            if($inventoryObj){
                 
-            try {
+                $qty = $this->qty + $inventoryObj->qty;
                 
-                $inventory_data = array(
-                    'sku_id'=>$this->sku_id,
-                    'company_id'=>$this->company_id,
-                    'qty'=>$qty,
-                    'uom_id'=>$this->default_uom_id,
-                    'zone_id'=>$this->default_zone_id,
-                    'sku_status_id'=>$this->sku_status_id,
-                    'transaction_date'=>$this->transaction_date,
-                    'expiration_date'=>$this->unique_date,
-                    'reference_no'=>$this->unique_tag,
-                );
-                
-                $inventory->attributes = $inventory_data;
-                $inventory->save(false);
-                
-                InventoryHistory::model()->createHistory($this->company_id, $inventory->inventory_id, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_MOVE);
-                
-                $transaction->commit();
-                return true;
-                
-            } catch (Exception $exc) {
-                Yii::log($exc->getTraceAsString(), 'error');
-                $transaction->rollBack();
-                return false;
+                $transaction = $inventoryObj->dbConnection->beginTransaction(); // Transaction begin
+
+                try {
+
+                    $inventory_data = array(
+                        'sku_id'=>$this->sku_id,
+                        'company_id'=>$this->company_id,
+                        'qty'=>$qty,
+                        'uom_id'=>$this->default_uom_id,
+                        'zone_id'=>$this->default_zone_id,
+                        'sku_status_id'=>$this->sku_status_id,
+                        'transaction_date'=>$this->transaction_date,
+                        'expiration_date'=>$this->unique_date,
+                        'reference_no'=>$this->unique_tag,
+                    );
+
+                    $inventoryObj->attributes = $inventory_data;
+                    $inventoryObj->save(false);
+                    
+                    InventoryHistory::model()->createHistory($this->company_id, $inventoryObj->inventory_id, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE);
+                    
+                    $transaction->commit();
+                    return true;
+
+                } catch (Exception $exc) {
+                    Yii::log($exc->getTraceAsString(), 'error');
+                    $transaction->rollBack();
+                    return false;
+                }
             }
+            return false;
+            
+            
+            
+            
                   
         }
 

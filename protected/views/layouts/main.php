@@ -19,6 +19,8 @@
         <link href="<?php //echo Yii::app()->theme->baseUrl;?>/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />-->
         <!-- jQuery 2.0.2 -->
 <!--        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>-->
+        
+        
         <script src="<?php echo Yii::app()->baseUrl;?>/js/jquery.min.js" type="text/javascript"></script>
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -26,6 +28,8 @@
           <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
           <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
         <![endif]-->
+        
+        
     </head>
     <body class="skin-blue">
         <!-- header logo: style can be found in header.less -->
@@ -381,6 +385,7 @@
         <script src="<?php echo Yii::app()->theme->baseUrl;?>/js/AdminLTE/app.js" type="text/javascript"></script>
         <script src="<?php echo Yii::app()->theme->baseUrl;?>/js/AdminLTE/demo.js" type="text/javascript"></script>
         <script src="<?php echo Yii::app()->baseUrl;?>/js/bootstrap-growl.min.js" type="text/javascript"></script>
+        <script src="<?php echo Yii::app()->baseUrl;?>/js/global.js" type="text/javascript"></script>
         <!-- date-picker -->
 <!--        <script src="<?php //echo Yii::app()->theme->baseUrl;?>/js/plugins/datepicker/datepicker.js" type="text/javascript"></script>-->
         <script type="text/javascript">

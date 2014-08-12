@@ -25,7 +25,7 @@ class InventoryController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view'),
+                'actions' => array('index', 'view','trans'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -40,6 +40,93 @@ class InventoryController extends Controller {
                 'users' => array('*'),
             ),
         );
+    }
+    
+    public function actionTrans($inventory_id,$transaction_type,$qty){
+        
+        $title = "";
+        $body="";
+        switch ($transaction_type) {
+            case 1:
+                $title= '<div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title" id="myModalLabel">Increase</h4>
+                          </div>';
+                
+                $body='<div class="modal-body">
+                        ...
+                      </div>';
+
+                break;
+            case 2:
+                $title= '<div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title" id="myModalLabel">Decrease</h4>
+                          </div>';
+                
+                $body='<div class="modal-body">
+                        ...
+                      </div>';
+
+                break;
+            case 3:
+                $title= '<div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title" id="myModalLabel">Convert Unit of Measure</h4>
+                          </div>';
+                
+                $body='<div class="modal-body">
+                        ...
+                      </div>';
+
+                break;
+            case 4:
+                $title= '<div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title" id="myModalLabel">Move</h4>
+                          </div>';
+                
+                $body='<div class="modal-body">
+                        ...
+                      </div>';
+
+                break;
+            case 5:
+                $title= '<div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title" id="myModalLabel">Update Status</h4>
+                          </div>';
+                
+                $body='<div class="modal-body">
+                        ...
+                      </div>';
+
+                break;
+            case 6:
+                $title= '<div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            <h4 class="modal-title" id="myModalLabel">Apply</h4>
+                          </div>';
+                
+                $body='<div class="modal-body">
+                        ...
+                      </div>';
+
+                break;
+
+            default:
+                break;
+        }
+        
+        $return =$title.$body;
+        
+        
+//        echo "inventory_id: ".$inventory_id.'<br/>';
+//        echo "transaction_type: ".$transaction_type.'<br/>';
+//        echo "qty: ".$qty.'<br/>';
+        echo $return;
+        Yii::app()->end();
+        
     }
 
     public function actionData() {
@@ -59,6 +146,7 @@ class InventoryController extends Controller {
 
         foreach ($dataProvider->getData() as $key => $value) {
             $row = array();
+            $row['DT_RowId'] = $value->inventory_id;// Add an ID to the TR element
             $row['inventory_id'] = $value->inventory_id;
             $row['sku_code'] = $value->sku->sku_code;
             $row['sku_id'] = $value->sku_id;
@@ -66,7 +154,7 @@ class InventoryController extends Controller {
             $row['qty'] = $value->qty;
             $row['uom_id'] = $value->uom_id;
             $row['uom_name'] = $value->uom->uom_name;
-            $row['action_qty'] = "";
+            $row['action_qty'] = '<input type="text" data-id="'.$value->inventory_id.'" name="action_qty" id="action_qty_'.$value->inventory_id.'" />';
             $row['zone_id'] = $value->zone_id;
             $row['zone_name'] = $value->zone->zone_name;
             $row['sku_status_id'] = $value->sku_status_id;
