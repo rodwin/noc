@@ -62,11 +62,13 @@ class InventoryController extends Controller {
         
         if (isset($_POST['IncreaseInventoryForm'])) {
             $model->attributes = $_POST['IncreaseInventoryForm'];
-            pr($_POST);
-            echo CActiveForm::validate($model);
-            Yii::app()->end();
             
-            if ($model->increase()) {
+            if(!$model->validate()){
+                echo CActiveForm::validate($model);
+                Yii::app()->end();
+            }
+            
+            if ($model->increase(false)) {
                 echo 'ok';
             }else{
                 echo 'bad';
