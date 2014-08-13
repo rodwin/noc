@@ -25,7 +25,7 @@ class InventoryController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view','trans'),
+                'actions' => array('index', 'view','trans','test','increase'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -42,21 +42,60 @@ class InventoryController extends Controller {
         );
     }
     
-    public function actionTrans($inventory_id,$transaction_type,$qty){
+    public function actionTest($inventory_id,$transaction_type,$qty){
+        $this->layout = '//layouts/column1';
+        
+        $inventoryObj = $this->loadModel($inventory_id);
+        $model = new IncreaseInventoryForm();
+        $this->render('_increase', array(
+            'inventoryObj' => $inventoryObj,
+            'model' => $model,
+            'qty' => $qty,
+        ));
+        
+        
+    }
+    
+    public function actionIncrease() {
+        
+        $model = new IncreaseInventoryForm();
+        
+        if (isset($_POST['IncreaseInventoryForm'])) {
+            $model->attributes = $_POST['IncreaseInventoryForm'];
+            pr($_POST);
+            echo CActiveForm::validate($model);
+            Yii::app()->end();
+            
+            if ($model->increase()) {
+                echo 'ok';
+            }else{
+                echo 'bad';
+            }
+        }
+        
+    }
+    
+    public function actionTrans(){
+        
+        $inventory_id = Yii::app()->request->getParam('inventory_id');
+        $transaction_type = Yii::app()->request->getParam('transaction_type');
+        $qty = Yii::app()->request->getParam('qty');
+        
+        $inventoryObj = $this->loadModel($inventory_id);
         
         $title = "";
         $body="";
         switch ($transaction_type) {
             case 1:
-                $title= '<div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                            <h4 class="modal-title" id="myModalLabel">Increase</h4>
-                          </div>';
+                $model = new IncreaseInventoryForm();
+                echo CJSON::encode(array($this->renderPartial('_increase', array(
+                    'inventoryObj' => $inventoryObj,
+                    'model' => $model,
+                    'qty' => $qty,
+                ),true)));
                 
-                $body='<div class="modal-body">
-                        ...
-                      </div>';
-
+                Yii::app()->end();
+                
                 break;
             case 2:
                 $title= '<div class="modal-header">
@@ -272,6 +311,8 @@ class InventoryController extends Controller {
             'recentlyCreatedItems' => $recentlyCreatedItems,
         ));
     }
+    
+    
 
     /**
      * Updates a particular model.

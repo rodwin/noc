@@ -75,7 +75,10 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
             <?php
             $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 'id' => 'inventory-form',
-                'enableAjaxValidation' => false,
+//                'enableClientValidation'=>true,
+//                'clientOptions'=>array(
+//                        'validateOnSubmit'=>true,
+//                ),
             ));
             ?>
             <div class="box-body">

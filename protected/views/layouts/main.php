@@ -1,3 +1,7 @@
+<?php
+Yii::app()->clientScript->registerCoreScript('jquery');
+Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END);
+?>
 <!DOCTYPE html>
 <html>
     <head>
@@ -21,7 +25,7 @@
 <!--        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>-->
         
         
-        <script src="<?php echo Yii::app()->baseUrl;?>/js/jquery.min.js" type="text/javascript"></script>
+<!--        <script src="<?php //echo Yii::app()->baseUrl;?>/js/jquery.min.js" type="text/javascript"></script>-->
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
@@ -371,9 +375,9 @@
 
         
 
-        <script src="<?php echo Yii::app()->baseUrl;?>/js/jquery.yii.js" type="text/javascript"></script>
+<!--        <script src="<?php //echo Yii::app()->baseUrl;?>/js/jquery.yii.js" type="text/javascript"></script>-->
         <!-- jQuery UI 1.10.3 -->
-        <script src="<?php echo Yii::app()->theme->baseUrl;?>/js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>
+<!--        <script src="<?php //echo Yii::app()->theme->baseUrl;?>/js/jquery-ui-1.10.3.min.js" type="text/javascript"></script>-->
         <!-- Bootstrap -->
         <script src="<?php echo Yii::app()->theme->baseUrl;?>/js/bootstrap.min.js" type="text/javascript"></script>
         <!-- DATA TABES SCRIPT -->
@@ -381,6 +385,7 @@
         <script src="http://cdn.datatables.net/1.10.0/js/jquery.dataTables.js" type="text/javascript"></script>
         <script src="http://cdn.datatables.net/plug-ins/28e7751dbec/api/fnMultiFilter.js" type="text/javascript"></script>
         <script src="<?php echo Yii::app()->theme->baseUrl;?>/js/plugins/datatables/dataTables.bootstrap.js" type="text/javascript"></script>
+        <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.js" type="text/javascript"></script>
         <!-- AdminLTE App -->
         <script src="<?php echo Yii::app()->theme->baseUrl;?>/js/AdminLTE/app.js" type="text/javascript"></script>
         <script src="<?php echo Yii::app()->theme->baseUrl;?>/js/AdminLTE/demo.js" type="text/javascript"></script>

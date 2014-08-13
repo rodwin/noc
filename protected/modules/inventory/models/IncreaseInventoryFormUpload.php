@@ -1,6 +1,6 @@
 <?php
 
-class DecreaseInventoryForm extends CFormModel
+class IncreaseInventoryFormUpload extends CFormModel
 {
         public $company_id;
 	public $sku_code;
@@ -9,6 +9,7 @@ class DecreaseInventoryForm extends CFormModel
 	public $default_uom_id;
 	public $default_zone_id;
 	public $transaction_date;
+	public $cost_per_unit;
         public $sku_status_id;
         public $unique_tag;
         public $unique_date;
@@ -34,7 +35,10 @@ class DecreaseInventoryForm extends CFormModel
                         array('default_zone_id', 'isValidZone'),
                         array('sku_status_id', 'isValidStatus'),
                     
-                        array('unique_date,transaction_date', 'type' => 'date', 'message' => '{attribute}: is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
+                        array('cost_per_unit', 'length', 'max' => 18),
+                        array('cost_per_unit', 'match', 'pattern'=>'/^[0-9]{1,9}(\.[0-9]{0,3})?$/'),
+                    
+                        array('unique_date,transaction_date',  'type','type' => 'date', 'message' => '{attribute}: is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
                     
 			array('qty', 'numerical', 'integerOnly' => true,'max'=>9999999,'min'=> 0),
 		);
@@ -99,6 +103,10 @@ class DecreaseInventoryForm extends CFormModel
                 $this->default_zone_id = null;
             }
 
+            if($this->cost_per_unit == ""){
+                $this->cost_per_unit = 0;
+            }
+            
             if($this->sku_status_id == ""){
                 $this->sku_status_id = null;
             }
@@ -120,7 +128,7 @@ class DecreaseInventoryForm extends CFormModel
 	{
 		return array(
 			'sku_code'=>'Sku Code',
-			'qty'=>'Quantity',
+			'qty'=>'Increase the quantity by...',
 			'default_uom_id'=>'Unit of Measure',
 			'default_zone_id'=>'Zone',
 			'transaction_date'=>'Transaction Date',
@@ -131,7 +139,7 @@ class DecreaseInventoryForm extends CFormModel
 		);
 	}
         
-        public function decrease($validate = true) {
+        public function increase($validate = true) {
              
             if($validate){
                 if(!$this->validate()){

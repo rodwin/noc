@@ -1,8 +1,10 @@
+
 <style>
     .action_qty{
         width: 50px;
     }
     .popModal .popModal_content.popModal_contentOverflow {max-height:250px;}
+    
 </style>
 <?php
 $this->breadcrumbs = array(
@@ -13,7 +15,9 @@ $this->breadcrumbs = array(
 $baseUrl = Yii::app()->baseUrl;
 $cs = Yii::app()->getClientScript();
 $cs->registerScriptFile($baseUrl . '/js/popModal.min.js', CClientScript::POS_END);
+//$cs->registerScriptFile($baseUrl . '/js/jquery.nyroModal.custom.min.js');
 $cs->registerCssFile($baseUrl . '/css/popModal.min.css');
+//$cs->registerCssFile($baseUrl . '/css/nyroModal.css');
 
 Yii::app()->clientScript->registerScript('search', "
 $('.search-button').click(function(){
@@ -115,25 +119,21 @@ return false;
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-        <?php
-        $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
-            'id' => 'inventory-trans-form',
-            'enableAjaxValidation' => true,
-        ));
-        ?>
+        
         <div id="transactionDialogContainer">
 
         </div>
       
-      <div class="modal-footer">
+<!--      <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-        <?php $this->endWidget(); ?>
+      </div>-->
+        
     </div>
   </div>
 </div>
 
+<a href="http://localhost/noc/index.php?r=library/Sku/create" class="nyroModal">Ajax</a>
 
 <script type="text/javascript">
     
@@ -235,22 +235,33 @@ return false;
             return false;
         });
         
-        
     });
     
     function LoadModal(val){
         
-        $('html').popModal("hide");
+//        $('html').popModal("hide");
         
         var qty = $('#action_qty_'+inventory_id).val();
         
-        $('#transactionDialogContainer').load(
-            '<?php echo Yii::app()->createUrl($this->module->id . '/Inventory/Trans'); ?>&inventory_id=' + inventory_id + '&transaction_type=' + val + ($.isNumeric(qty) ? '&qty=' + qty : '&qty=0'),
-            function () {
+        $.ajax({
+            data: {
+                inventory_id : inventory_id,
+                transaction_type : val,
+                qty : qty
+            },
+            type: "get",
+            dataType:"json",
+            success: function(data) {
+                $('#transactionDialogContainer').html(data);
                 $('#myModal').modal('show');
                 $('#action_qty_'+inventory_id).popModal("hide");
+            },
+            url:'<?php echo Yii::app()->createUrl($this->module->id . '/Inventory/Trans'); ?>',
+            error: function(jqXHR, exception)
+            {
+                alert('connection error')
             }
-        );
+        });
         
     }
 </script>

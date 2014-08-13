@@ -11,7 +11,6 @@
  * @property string $uom_id
  * @property string $zone_id
  * @property string $sku_status_id
- * @property string $transaction_date
  * @property string $created_date
  * @property string $created_by
  * @property string $updated_date
@@ -52,7 +51,7 @@ class Inventory extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, sku_id, qty, transaction_date', 'required'),
+            array('company_id, sku_id, qty', 'required'),
             array('qty', 'numerical', 'integerOnly' => true),
             array('company_id, sku_id, uom_id, zone_id, sku_status_id, created_by, updated_by', 'length', 'max' => 50),
             array('reference_no', 'length', 'max' => 250),
@@ -61,7 +60,7 @@ class Inventory extends CActiveRecord {
             array('created_date, updated_date, expiration_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('inventory_id, company_id, sku_id, qty, uom_id, zone_id, sku_status_id, transaction_date, created_date, created_by, updated_date, updated_by, expiration_date, reference_no', 'safe', 'on' => 'search'),
+            array('inventory_id, company_id, sku_id, qty, uom_id, zone_id, sku_status_id, created_date, created_by, updated_date, updated_by, expiration_date, reference_no', 'safe', 'on' => 'search'),
         );
     }
 
@@ -121,7 +120,6 @@ class Inventory extends CActiveRecord {
             'sku_status_name' => 'Status',
             'brand_name' => 'Brand',
             'sales_office_name' => 'Sales Office',
-            'transaction_date' => 'Transaction Date',
             'created_date' => 'Created Date',
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
@@ -155,7 +153,6 @@ class Inventory extends CActiveRecord {
         $criteria->compare('uom_id', $this->uom_id, true);
         $criteria->compare('zone_id', $this->zone_id, true);
         $criteria->compare('sku_status_id', $this->sku_status_id, true);
-        $criteria->compare('transaction_date', $this->transaction_date, true);
         $criteria->compare('created_date', $this->created_date, true);
         $criteria->compare('created_by', $this->created_by, true);
         $criteria->compare('updated_date', $this->updated_date, true);
@@ -231,7 +228,7 @@ class Inventory extends CActiveRecord {
         
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', $company_id);
-        $criteria->order = "t.transaction_date desc";
+        $criteria->order = "t.created_date desc";
         $criteria->with = array('sku','sku.brand','skuStatus','uom','zone','zone.salesOffice');
         $criteria->limit = $limit;
         

@@ -16,6 +16,7 @@
  * @property string $created_by
  * @property string $updated_date
  * @property string $updated_by
+ * @property string $transaction_date
  *
  * The followings are the available model relations:
  * @property Inventory $inventory
@@ -43,6 +44,7 @@ class InventoryHistory extends CActiveRecord {
             array('cost_unit', 'length', 'max' => 18),
             array('ave_cost_per_unit', 'length', 'max' => 19),
             array('created_date, updated_date', 'safe'),
+            array('transaction_date','type', 'type' => 'date', 'message' => '{attribute}: is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('inventory_history_id, company_id, inventory_id, quantity_change, running_total, action, cost_unit, ave_cost_per_unit, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
@@ -181,7 +183,7 @@ class InventoryHistory extends CActiveRecord {
         return parent::model($className);
     }
     
-    public function createHistory($company_id,$inventory_id,$quantity_change,$running_total,$action,$cost_unit =0,$created_by = null) {
+    public function createHistory($company_id,$inventory_id,$transaction_date,$quantity_change,$running_total,$action,$cost_unit =0,$created_by = null) {
         
         $inventory_history = new InventoryHistory;
         $inventory_history->company_id = $company_id;
@@ -190,13 +192,20 @@ class InventoryHistory extends CActiveRecord {
         $inventory_history->running_total = $running_total;
         $inventory_history->action = $action;
         $inventory_history->cost_unit = $cost_unit;
-        
+        $inventory_history->transaction_date = $transaction_date;
         /*
          * compute this!
          */
         $inventory_history->ave_cost_per_unit = 0;
         $inventory_history->created_by = $created_by;
-        return $inventory_history->save();
+        
+        
+        if($inventory_history->validate()){
+            return $inventory_history->save();
+        }else{
+            return $inventory_history->getErrors();
+            
+        }
         
     }
     

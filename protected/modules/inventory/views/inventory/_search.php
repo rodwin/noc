@@ -47,13 +47,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="Inventory_transaction_date" class="col-sm-2 control-label"><?php echo $fields['transaction_date']; ?></label>
-                        <div class="col-sm-3">
-                            <input type="text" class="form-control" id="Inventory_transaction_date" placeholder="<?php echo $fields['transaction_date']; ?>" name="Inventory[transaction_date]">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
                         <label for="Inventory_created_date" class="col-sm-2 control-label"><?php echo $fields['created_date']; ?></label>
                         <div class="col-sm-3">
                             <input type="text" class="form-control" id="Inventory_created_date" placeholder="<?php echo $fields['created_date']; ?>" name="Inventory[created_date]">

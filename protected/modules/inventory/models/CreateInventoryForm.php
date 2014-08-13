@@ -178,7 +178,6 @@ class CreateInventoryForm extends CFormModel
                     'uom_id'=>$this->default_uom_id,
                     'zone_id'=>$this->default_zone_id,
                     'sku_status_id'=>$this->sku_status_id,
-                    'transaction_date'=>$this->transaction_date,
                     'expiration_date'=>$this->unique_date,
                     'reference_no'=>$this->unique_tag,
                 );
@@ -186,7 +185,7 @@ class CreateInventoryForm extends CFormModel
                 $inventory->attributes = $inventory_data;
                 $inventory->save(false);
                 
-                InventoryHistory::model()->createHistory($this->company_id, $inventory->inventory_id, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE);
+                InventoryHistory::model()->createHistory($this->company_id, $inventory->inventory_id,$this->transaction_date, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE);
                 
                 $transaction->commit();
                 return true;
