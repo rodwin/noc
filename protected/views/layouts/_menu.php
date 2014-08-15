@@ -29,6 +29,11 @@ $main_menu = array(
         </a>
     </li>
     <li class="">
+        <a href="<?php echo Yii::app()->createUrl("locationviewer") ?>">
+            <i class="fa fa-map-marker"></i> <span>Location Viewer</span>
+        </a>
+    </li>
+    <li class="">
         <a href="<?php echo Yii::app()->createUrl("/inventory/inventory/admin") ?>">
             <i class="fa fa-list-alt"></i> <span>Inventory</span>
         </a>

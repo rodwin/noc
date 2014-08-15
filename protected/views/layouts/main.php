@@ -8,6 +8,7 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
         <meta charset="UTF-8">
         <title><?php echo $this->pageTitle;?></title>
         <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+        <meta http-equiv="X-UA-Compatible" content="IE=7; IE=EmulateIE9; IE=10" />
         <!-- bootstrap 3.0.2 -->
         <link href="<?php echo Yii::app()->theme->baseUrl;?>/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
         <!-- font Awesome -->
@@ -358,14 +359,10 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
 
                 <!-- Main content -->
                 <section class="content">
-                    <div class="row">
-                        <div class="col-xs-12">
                             
                                 <?php echo $content; ?>
                             
                             
-                        </div>
-                    </div>
                 </section><!-- /.content -->
             </aside><!-- /.right-side -->
         </div><!-- ./wrapper -->
