@@ -178,6 +178,7 @@ class CreateInventoryForm extends CFormModel
                     'uom_id'=>$this->default_uom_id,
                     'zone_id'=>$this->default_zone_id,
                     'sku_status_id'=>$this->sku_status_id,
+                    'transaction_date'=>$this->transaction_date,
                     'expiration_date'=>$this->unique_date,
                     'reference_no'=>$this->unique_tag,
                 );

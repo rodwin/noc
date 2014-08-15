@@ -18,6 +18,7 @@
  * @property string $expiration_date
  * @property string $reference_no
  * @property string $cost_per_unit
+ * @property string $transaction_date
  *
  * The followings are the available model relations:
  * @property Company $company
@@ -57,7 +58,7 @@ class Inventory extends CActiveRecord {
             array('reference_no', 'length', 'max' => 250),
             array('cost_per_unit', 'length', 'max' => 18),
             array('cost_per_unit', 'match', 'pattern'=>'/^[0-9]{1,9}(\.[0-9]{0,3})?$/'),
-            array('created_date, updated_date, expiration_date', 'safe'),
+            array('transaction_date,expiration_date, updated_date, expiration_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('inventory_id, company_id, sku_id, qty, uom_id, zone_id, sku_status_id, created_date, created_by, updated_date, updated_by, expiration_date, reference_no', 'safe', 'on' => 'search'),
