@@ -23,21 +23,37 @@ $main_menu = array(
     //}
     //}
     ?>
+    
     <li class="active">
-        <a href="#">
+        <a href="<?php echo Yii::app()->createUrl("site/index") ?>">
             <i class="fa fa-dashboard"></i> <span>Dashboard</span>
         </a>
     </li>
+    <?php
+    if(isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['locationviewer'])){
+    ?>
     <li class="">
         <a href="<?php echo Yii::app()->createUrl("locationviewer") ?>">
             <i class="fa fa-map-marker"></i> <span>Location Viewer</span>
         </a>
     </li>
+    <?php
+    }
+    ?>
+    <?php
+    if(isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['inventory'])){
+    ?>
     <li class="">
         <a href="<?php echo Yii::app()->createUrl("/inventory/inventory/admin") ?>">
             <i class="fa fa-list-alt"></i> <span>Inventory</span>
         </a>
     </li>
+    <?php
+    }
+    ?>
+    <?php
+    if(isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['library'])){
+    ?>
     <li class="treeview">
         <a href="#">
             <i class="fa fa-book"></i> <span>Library</span>
@@ -120,6 +136,12 @@ $main_menu = array(
             </li>
         </ul>
     </li>
+    <?php
+    }
+    ?>
+     <?php
+    if(isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['admin'])){
+    ?>
     <li class="treeview">
         <a href="#">
             <i class="fa fa-users"></i> <span>Admin</span>
@@ -143,5 +165,8 @@ $main_menu = array(
             </li>
         </ul>
     </li>
+    <?php
+    }
+    ?>
 
 </ul>

@@ -76,14 +76,14 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                         <li class="dropdown messages-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-envelope"></i>
-                                <span class="label label-success">4</span>
+<!--                                <span class="label label-success">4</span>-->
                             </a>
                             <ul class="dropdown-menu">
-                                <li class="header">You have 4 messages</li>
+                                <li class="header">You have 0 messages</li>
                                 <li>
                                     <!-- inner menu: contains the actual data -->
                                     <ul class="menu">
-                                        <li><!-- start message -->
+<!--                                        <li> start message 
                                             <a href="#">
                                                 <div class="pull-left">
                                                     <img src="<?php echo Yii::app()->theme->baseUrl;?>/img/avatar3.png" class="img-circle" alt="User Image"/>
@@ -94,11 +94,11 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                                                 </h4>
                                                 <p>Why not buy a new awesome theme?</p>
                                             </a>
-                                        </li><!-- end message -->
+                                        </li> end message 
                                         <li>
                                             <a href="#">
                                                 <div class="pull-left">
-                                                    <img src="<?php echo Yii::app()->theme->baseUrl;?>/img/avatar2.png" class="img-circle" alt="user image"/>
+                                                    <img src="<?php //echo Yii::app()->theme->baseUrl;?>/img/avatar2.png" class="img-circle" alt="user image"/>
                                                 </div>
                                                 <h4>
                                                     AdminLTE Design Team
@@ -110,7 +110,7 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                                         <li>
                                             <a href="#">
                                                 <div class="pull-left">
-                                                    <img src="<?php echo Yii::app()->theme->baseUrl;?>/img/avatar.png" class="img-circle" alt="user image"/>
+                                                    <img src="<?php //echo Yii::app()->theme->baseUrl;?>/img/avatar.png" class="img-circle" alt="user image"/>
                                                 </div>
                                                 <h4>
                                                     Developers
@@ -122,7 +122,7 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                                         <li>
                                             <a href="#">
                                                 <div class="pull-left">
-                                                    <img src="<?php echo Yii::app()->theme->baseUrl;?>/img/avatar2.png" class="img-circle" alt="user image"/>
+                                                    <img src="<?php //echo Yii::app()->theme->baseUrl;?>/img/avatar2.png" class="img-circle" alt="user image"/>
                                                 </div>
                                                 <h4>
                                                     Sales Department
@@ -134,7 +134,7 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                                         <li>
                                             <a href="#">
                                                 <div class="pull-left">
-                                                    <img src="<?php echo Yii::app()->theme->baseUrl;?>/img/avatar.png" class="img-circle" alt="user image"/>
+                                                    <img src="<?php //echo Yii::app()->theme->baseUrl;?>/img/avatar.png" class="img-circle" alt="user image"/>
                                                 </div>
                                                 <h4>
                                                     Reviewers
@@ -142,7 +142,7 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                                                 </h4>
                                                 <p>Why not buy a new awesome theme?</p>
                                             </a>
-                                        </li>
+                                        </li>-->
                                     </ul>
                                 </li>
                                 <li class="footer"><a href="#">See All Messages</a></li>
@@ -152,14 +152,14 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                         <li class="dropdown notifications-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-warning"></i>
-                                <span class="label label-warning">10</span>
+<!--                                <span class="label label-warning">10</span>-->
                             </a>
                             <ul class="dropdown-menu">
-                                <li class="header">You have 10 notifications</li>
+                                <li class="header">You have 0 notifications</li>
                                 <li>
                                     <!-- inner menu: contains the actual data -->
                                     <ul class="menu">
-                                        <li>
+<!--                                        <li>
                                             <a href="#">
                                                 <i class="ion ion-ios7-people info"></i> 5 new members joined today
                                             </a>
@@ -184,7 +184,7 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                                             <a href="#">
                                                 <i class="ion ion-ios7-person danger"></i> You changed your username
                                             </a>
-                                        </li>
+                                        </li>-->
                                     </ul>
                                 </li>
                                 <li class="footer"><a href="#">View all</a></li>
@@ -194,14 +194,14 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                         <li class="dropdown tasks-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-tasks"></i>
-                                <span class="label label-danger">9</span>
+<!--                                <span class="label label-danger">9</span>-->
                             </a>
                             <ul class="dropdown-menu">
-                                <li class="header">You have 9 tasks</li>
+                                <li class="header">You have 0 tasks</li>
                                 <li>
                                     <!-- inner menu: contains the actual data -->
                                     <ul class="menu">
-                                        <li><!-- Task item -->
+<!--                                        <li> Task item 
                                             <a href="#">
                                                 <h3>
                                                     Design some buttons
@@ -213,8 +213,8 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                                                     </div>
                                                 </div>
                                             </a>
-                                        </li><!-- end task item -->
-                                        <li><!-- Task item -->
+                                        </li> end task item 
+                                        <li> Task item 
                                             <a href="#">
                                                 <h3>
                                                     Create a nice theme
@@ -226,8 +226,8 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                                                     </div>
                                                 </div>
                                             </a>
-                                        </li><!-- end task item -->
-                                        <li><!-- Task item -->
+                                        </li> end task item 
+                                        <li> Task item 
                                             <a href="#">
                                                 <h3>
                                                     Some task I need to do
@@ -239,8 +239,8 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                                                     </div>
                                                 </div>
                                             </a>
-                                        </li><!-- end task item -->
-                                        <li><!-- Task item -->
+                                        </li> end task item 
+                                        <li> Task item 
                                             <a href="#">
                                                 <h3>
                                                     Make beautiful transitions
@@ -252,7 +252,7 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                                                     </div>
                                                 </div>
                                             </a>
-                                        </li><!-- end task item -->
+                                        </li> end task item -->
                                     </ul>
                                 </li>
                                 <li class="footer">
