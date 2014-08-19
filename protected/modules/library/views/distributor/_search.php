@@ -26,6 +26,20 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="Distributor_latitude" class="col-sm-2 control-label"><?php echo $fields['latitude']; ?></label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="Distributor_latitude" placeholder="<?php echo $fields['latitude']; ?>" name="Distributor[latitude]">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Distributor_longitude" class="col-sm-2 control-label"><?php echo $fields['longitude']; ?></label>
+                        <div class="col-sm-3">
+                            <input type="text" class="form-control" id="Distributor_longitude" placeholder="<?php echo $fields['longitude']; ?>" name="Distributor[longitude]">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="Distributor_created_date" class="col-sm-2 control-label"><?php echo $fields['created_date']; ?></label>
                         <div class="col-sm-3">
                             <input type="text" class="form-control" id="Distributor_created_date" placeholder="<?php echo $fields['created_date']; ?>" name="Distributor[created_date]">

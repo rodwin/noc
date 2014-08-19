@@ -43,9 +43,9 @@ class SkuStatus extends CActiveRecord {
             array('sku_status_id, company_id, status_name, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
-    
+
     public function uniqueName($attribute, $params) {
-        
+
         $model = SkuStatus::model()->findByAttributes(array('company_id' => $this->company_id, 'status_name' => $this->$attribute));
         if ($model && $model->sku_status_id != $this->sku_status_id) {
             $this->addError($attribute, 'Status name selected already taken');
@@ -74,7 +74,7 @@ class SkuStatus extends CActiveRecord {
      */
     public function attributeLabels() {
         return array(
-            'sku_status_id' => 'Sku Status',
+            'sku_status_id' => Sku::SKU_LABEL . ' Status',
             'company_id' => 'Company',
             'status_name' => 'Status Name',
             'created_date' => 'Created Date',

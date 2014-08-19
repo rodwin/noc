@@ -25,7 +25,7 @@ class SkuController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view', 'saveSkuConvertion','GenerateTemplate','Upload','UploadDetails','search'),
+                'actions' => array('index', 'view', 'saveSkuConvertion', 'GenerateTemplate', 'Upload', 'UploadDetails', 'search', 'skuImage', 'ajaxLoadImages', 'ajaxFilterImages', 'deleteSkuImage'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -41,30 +41,30 @@ class SkuController extends Controller {
             ),
         );
     }
-    
-    public function actionSearch($value){
-        
+
+    public function actionSearch($value) {
+
         $c = new CDbCriteria();
-        if($value != ""){
-            $c->addSearchCondition('t.sku_code', $value,true, 'OR');
-            $c->addSearchCondition('t.sku_name', $value,true, 'OR');
-            $c->addSearchCondition('brand.brand_name', $value,true, 'OR');
+        if ($value != "") {
+            $c->addSearchCondition('t.sku_code', $value, true, 'OR');
+            $c->addSearchCondition('t.sku_name', $value, true, 'OR');
+            $c->addSearchCondition('brand.brand_name', $value, true, 'OR');
         }
         $c->compare('t.company_id', Yii::app()->user->company_id);
-        $c->with = array('brand','defaultZone','defaultUom');
+        $c->with = array('brand', 'defaultZone', 'defaultUom');
         $sku = Sku::model()->findAll($c);
-        
+
         $return = array();
-        foreach($sku as $key => $val){
-            $return[$key]['sku_id']= $val->sku_id;
-            $return[$key]['sku_code']= $val->sku_code;
-            $return[$key]['value']=$val->sku_name;
-            $return[$key]['brand']=isset($val->brand->brand_name) ? $val->brand->brand_name:'';
-            $return[$key]['uom_id']=isset($val->defaultUom->uom_id) ? $val->defaultUom->uom_id:'';
-            $return[$key]['zone_id']=isset($val->defaultZone->zone_id) ? $val->defaultZone->zone_id:'';
-            $return[$key]['cost_per_unit']=$val->default_unit_price;
+        foreach ($sku as $key => $val) {
+            $return[$key]['sku_id'] = $val->sku_id;
+            $return[$key]['sku_code'] = $val->sku_code;
+            $return[$key]['value'] = $val->sku_name;
+            $return[$key]['brand'] = isset($val->brand->brand_name) ? $val->brand->brand_name : '';
+            $return[$key]['uom_id'] = isset($val->defaultUom->uom_id) ? $val->defaultUom->uom_id : '';
+            $return[$key]['zone_id'] = isset($val->defaultZone->zone_id) ? $val->defaultZone->zone_id : '';
+            $return[$key]['cost_per_unit'] = $val->default_unit_price;
         }
-        
+
         echo json_encode($return);
         Yii::app()->end();
     }
@@ -92,14 +92,16 @@ class SkuController extends Controller {
             $row['sku_code'] = $value->sku_code;
             $row['brand_id'] = $value->brand_id;
             $row['brand_name'] = isset($value->brand->brand_name) ? $value->brand->brand_name : null;
+            $row['brand_category'] = "";
             $row['sku_name'] = $value->sku_name;
             $row['description'] = $value->description;
             $row['default_uom_id'] = $value->default_uom_id;
-            $row['default_uom_name'] = isset($value->brand->brand_name) ? $value->defaultUom->uom_name : null;
+            $row['default_uom_name'] = isset($value->defaultUom->uom_name) ? $value->defaultUom->uom_name : null;
             $row['default_unit_price'] = $value->default_unit_price;
             $row['type'] = $value->type;
+            $row['sub_type'] = $value->sub_type;
             $row['default_zone_id'] = $value->default_zone_id;
-            $row['default_zone_name'] = isset($value->brand->brand_name) ? $value->defaultZone->zone_name : null;
+            $row['default_zone_name'] = isset($value->defaultZone->zone_name) ? $value->defaultZone->zone_name : null;
             $row['supplier'] = $value->supplier;
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
@@ -126,12 +128,12 @@ class SkuController extends Controller {
 
     public function actionUploadDetails($id) {
 
-        $this->pageTitle = 'Upload Sku Details';
+        $this->pageTitle = 'Upload ' . Sku::SKU_LABEL . ' Details';
 
         $this->menu = array(
-            array('label' => 'Upload Sku', 'url' => array('upload')),
-            array('label' => 'Create Sku', 'url' => array('create')),
-            array('label' => 'Manage Sku', 'url' => array('admin')),
+            array('label' => 'Upload ' . Sku::SKU_LABEL, 'url' => array('upload')),
+            array('label' => 'Create ' . Sku::SKU_LABEL, 'url' => array('create')),
+            array('label' => 'Manage ' . Sku::SKU_LABEL, 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
@@ -148,14 +150,14 @@ class SkuController extends Controller {
     public function actionUpload() {
 
         $this->layout = '//layouts/column1';
-        $this->pageTitle = 'Upload Sku';
+        $this->pageTitle = 'Upload ' . Sku::SKU_LABEL;
 
         $model = new SKUImportForm();
 
         if (isset($_POST) && count($_POST) > 0) {
             $model->attributes = $_POST['SKUImportForm'];
             if ($model->validate()) {
-//                    pre($_FILES);
+
                 if (isset($_FILES['SKUImportForm']['name']) && $_FILES['SKUImportForm']['name'] != "") {
 
                     $file = CUploadedFile::getInstance($model, 'doc_file');
@@ -219,13 +221,13 @@ class SkuController extends Controller {
     public function actionView($id) {
         $model = $this->loadModel($id);
 
-        $this->pageTitle = 'View Sku ' . $model->sku_name;
+        $this->pageTitle = 'View ' . Sku::SKU_LABEL . ' ' . $model->sku_name;
 
         $this->menu = array(
-            array('label' => 'Create Sku', 'url' => array('create')),
-            array('label' => 'Update Sku', 'url' => array('update', 'id' => $model->sku_id)),
-            array('label' => 'Delete Sku', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->sku_id), 'confirm' => 'Are you sure you want to delete this item?')),
-            array('label' => 'Manage Sku', 'url' => array('admin')),
+            array('label' => 'Create ' . Sku::SKU_LABEL, 'url' => array('create')),
+            array('label' => 'Update ' . Sku::SKU_LABEL, 'url' => array('update', 'id' => $model->sku_id)),
+            array('label' => 'Delete ' . Sku::SKU_LABEL, 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->sku_id), 'confirm' => 'Are you sure you want to delete this item?')),
+            array('label' => 'Manage ' . Sku::SKU_LABEL, 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
@@ -244,10 +246,10 @@ class SkuController extends Controller {
      */
     public function actionCreate() {
 
-        $this->pageTitle = 'Create Sku';
+        $this->pageTitle = 'Create ' . Sku::SKU_LABEL;
 
         $this->menu = array(
-            array('label' => 'Manage Sku', 'url' => array('admin')),
+            array('label' => 'Manage ' . Sku::SKU_LABEL, 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
@@ -263,6 +265,8 @@ class SkuController extends Controller {
         $brand = CHtml::listData(Brand::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'brand_name ASC')), 'brand_id', 'brand_name');
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $zone = CHtml::listData(Zone::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
+        $sku_category = CHtml::listData(Sku::model()->skuCategoryList(), 'value', 'name');
+        $infra_sub_category = CHtml::listData(Sku::model()->infraSubList(), 'value', 'name');
 
         if (isset($_POST['Sku'])) {
 
@@ -272,6 +276,7 @@ class SkuController extends Controller {
             unset($model->created_date);
             $model->sku_id = Globals::generateV4UUID();
             $model->default_unit_price = !empty($_POST['Sku']['default_unit_price']) ? $_POST['Sku']['default_unit_price'] : 0;
+            $model->sub_type = isset($model->type) && $model->type != Sku::INFRA ? "" : $model->sub_type;
 
             foreach ($custom_datas as $key => $val) {
                 $attr_name = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
@@ -309,6 +314,8 @@ class SkuController extends Controller {
             'zone' => $zone,
             'custom_datas' => $custom_datas,
             'sku_custom_data' => $sku_custom_data,
+            'sku_category' => $sku_category,
+            'infra_sub_category' => $infra_sub_category,
         ));
     }
 
@@ -321,14 +328,14 @@ class SkuController extends Controller {
         $model = $this->loadModel($id);
 
         $this->menu = array(
-            array('label' => 'Create Sku', 'url' => array('create')),
-            array('label' => 'View Sku', 'url' => array('view', 'id' => $model->sku_id)),
-            array('label' => 'Manage Sku', 'url' => array('admin')),
+            array('label' => 'Create ' . Sku::SKU_LABEL, 'url' => array('create')),
+            array('label' => 'View ' . Sku::SKU_LABEL, 'url' => array('view', 'id' => $model->sku_id)),
+            array('label' => 'Manage ' . Sku::SKU_LABEL, 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update Sku ' . $model->sku_name;
+        $this->pageTitle = 'Update ' . Sku::SKU_LABEL . ' ' . $model->sku_name;
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
@@ -342,6 +349,8 @@ class SkuController extends Controller {
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $zone = CHtml::listData(Zone::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
         $sku_convertion_uom = CHtml::listData(Uom::model()->getAllUOMNotInSkuConvertion(), 'uom_id', 'uom_name');
+        $sku_category = CHtml::listData(Sku::model()->skuCategoryList(), 'value', 'name');
+        $infra_sub_category = CHtml::listData(Sku::model()->infraSubList(), 'value', 'name');
 
         if (isset($_POST['Sku'])) {
 
@@ -349,6 +358,7 @@ class SkuController extends Controller {
             $model->updated_by = Yii::app()->user->name;
             $model->updated_date = date('Y-m-d H:i:s');
             $model->default_unit_price = !empty($_POST['Sku']['default_unit_price']) ? $_POST['Sku']['default_unit_price'] : 0;
+            $model->sub_type = isset($model->type) && $model->type != Sku::INFRA ? "" : $model->sub_type;
 
             foreach ($custom_datas as $key => $val) {
                 $attr_name = str_replace(' ', '_', strtolower($val['data_type'])) . "_" . str_replace(' ', '_', strtolower($val['name']));
@@ -403,6 +413,18 @@ class SkuController extends Controller {
             }
         }
 
+        $imgs_dp = new CActiveDataProvider('Images', array(
+            'pagination' => array('pageSize' => 6),
+        ));
+
+        $criteria = new CDbCriteria();
+        $criteria->addSearchCondition('t.sku_id', $id, true);
+        $criteria->compare('t.company_id', Yii::app()->user->company_id);
+        $sku_imgs_dp = new CActiveDataProvider('SkuImage', array(
+            'criteria' => $criteria,
+            'pagination' => array('pageSize' => 3),
+        ));
+
         $this->render('update', array(
             'model' => $model,
             'brand' => $brand,
@@ -413,7 +435,95 @@ class SkuController extends Controller {
             'sku_convertion_uom' => $sku_convertion_uom,
             'sku_location_restock' => $sku_location_restock,
             'sku_custom_data' => $sku_custom_data,
+            'sku_category' => $sku_category,
+            'infra_sub_category' => $infra_sub_category,
+            'imgs_dp' => $imgs_dp,
+            'sku_imgs_dp' => $sku_imgs_dp,
         ));
+    }
+
+    public function actionAjaxLoadImages() {
+        $imgs_dp = new CActiveDataProvider('Images', array(
+            'pagination' => array('pageSize' => 6),
+        ));
+
+        $this->renderPartial('_images', array('imgs_dp' => $imgs_dp,), false, true);
+    }
+
+    public function actionAjaxFilterImages() {
+        if (Yii::app()->request->isPostRequest) {
+
+            if (isset($_POST['file_name'])) {
+
+                $file_name = $_POST['file_name'];
+
+                $criteria = new CDbCriteria();
+                $criteria->addSearchCondition('t.file_name', $file_name, true);
+                $criteria->compare('t.company_id', Yii::app()->user->company_id);
+
+                $imgs_dp = new CActiveDataProvider('Images', array(
+                    'criteria' => $criteria,
+                    'pagination' => array('pageSize' => 6),
+                ));
+
+                $this->renderPartial('_images', array(
+                    'imgs_dp' => $imgs_dp,
+                        ), false, true);
+            }
+        }
+    }
+
+    public function actionSkuImage($sku_id) {
+
+        if (Yii::app()->request->isPostRequest) {
+
+            $img_id = isset($_POST['img_id']) ? $_POST['img_id'] : null;
+
+            $sku_image = new SkuImage;
+            $sku_image->company_id = Yii::app()->user->company_id;
+            $sku_image->sku_id = $sku_id;
+            $sku_image->image_id = $img_id;
+            $sku_image->created_by = Yii::app()->user->name;
+
+            if ($sku_image->save()) {
+
+                $image = Images::model()->findByAttributes(array("image_id" => $img_id));
+                $image->updated_by = Yii::app()->user->name;
+                $image->updated_date = date('Y-m-d H:i:s');
+                $image->save();
+
+                Yii::app()->user->setFlash('success', "Sku Image Successfully assign.");
+            }
+        }
+
+        $this->loadSkuImagesBySkuID($sku_id);
+    }
+
+    public function actionDeleteSkuImage($sku_id) {
+
+        if (Yii::app()->request->isPostRequest) {
+
+            $sku_img_id = isset($_POST['sku_img_id']) ? $_POST['sku_img_id'] : null;
+
+            $model = SkuImage::model()->findByAttributes(array('sku_image_id' => $sku_img_id, 'company_id' => Yii::app()->user->company_id));
+
+            $model->delete();
+        }
+
+        $this->loadSkuImagesBySkuID($sku_id);
+    }
+
+    public function loadSkuImagesBySkuID($sku_id) {
+
+        $criteria = new CDbCriteria();
+        $criteria->addSearchCondition('t.sku_id', $sku_id, true);
+        $criteria->compare('t.company_id', Yii::app()->user->company_id);
+        $sku_imgs_dp = new CActiveDataProvider('SkuImage', array(
+            'criteria' => $criteria,
+            'pagination' => array('pageSize' => 3),
+        ));
+
+        $this->renderPartial('_sku_images', array('sku_imgs_dp' => $sku_imgs_dp,), false, true);
     }
 
     /**
@@ -425,17 +535,14 @@ class SkuController extends Controller {
         if (Yii::app()->request->isPostRequest) {
 
             // delete sku custom data value by sku_id
-            SkuCustomDataValue::model()->deleteSkuCustomDataValueBySkuID($id);
-
+//            SkuCustomDataValue::model()->deleteSkuCustomDataValueBySkuID($id);
             // we only allow deletion via POST request
             $this->loadModel($id)->delete();
 
             // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
             if (!isset($_GET['ajax'])) {
                 Yii::app()->user->setFlash('success', "Successfully deleted");
-                $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] :
-                                array
-                            ('admin'));
+                $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
             } else {
 
                 echo "Successfully deleted";
@@ -463,7 +570,7 @@ class SkuController extends Controller {
     public function actionAdmin() {
 
         $this->layout = '//layouts/column1';
-        $this->pageTitle = 'Manage Sku';
+        $this->pageTitle = 'Merchandising Material';
 
         $model = new Sku('search');
         $model->unsetAttributes();  // clear any default values

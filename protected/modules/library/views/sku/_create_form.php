@@ -30,10 +30,8 @@
                                 ),
                                 'widgetOptions' => array(
                                     'data' => $brand,
-                                    'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Brand'),
-                                )
-                                    )
-                            );
+                                    'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Brand'
+                                    ),)));
                             ?>
                         </div>
 
@@ -69,10 +67,8 @@
                                 ),
                                 'widgetOptions' => array(
                                     'data' => $uom,
-                                    'htmlOptions' => array('multiple' => false, 'prompt' => 'Select UOM'),
-                                )
-                                    )
-                            );
+                                    'htmlOptions' => array('multiple' => false, 'prompt' => 'Select UOM'
+                                    ),)));
                             ?>
                         </div>
 
@@ -81,7 +77,32 @@
                         </div>
 
                         <div class="form-group">
-                            <?php echo $form->textFieldGroup($model, 'type', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 50)))); ?>
+                            <?php // echo $form->textFieldGroup($model, 'type', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 50)))); ?>
+                            <?php
+                            echo $form->dropDownListGroup(
+                                    $model, 'type', array(
+                                'wrapperHtmlOptions' => array(
+                                    'class' => 'col-sm-5',
+                                ),
+                                'widgetOptions' => array(
+                                    'data' => $sku_category,
+                                    'htmlOptions' => array('multiple' => false, 'prompt' => 'Select ' . Sku::SKU_LABEL . ' Category', 'id' => 'sku_category',
+                                    ),)));
+                            ?>
+                        </div>
+
+                        <div id="sku_sub_category" class="form-group" style="<?php echo isset($_POST['Sku']['type']) && $_POST['Sku']['type'] == Sku::INFRA ? "display: block;" : "display: none;"; ?>">
+                            <?php
+                            echo $form->dropDownListGroup(
+                                    $model, 'sub_type', array(
+                                'wrapperHtmlOptions' => array(
+                                    'class' => 'col-sm-5',
+                                ),
+                                'widgetOptions' => array(
+                                    'data' => $infra_sub_category,
+                                    'htmlOptions' => array('multiple' => false, 'prompt' => 'Select ' . Sku::SKU_LABEL . ' Sub Category', 'id' => 'sku_sub_type',
+                                    ),)));
+                            ?>
                         </div>
 
                         <div class="form-group">
@@ -94,10 +115,8 @@
                                 ),
                                 'widgetOptions' => array(
                                     'data' => $zone,
-                                    'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Zone'),
-                                )
-                                    )
-                            );
+                                    'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Zone'
+                                    ),)));
                             ?>
                         </div>
 
@@ -137,7 +156,7 @@
 <script type="text/javascript">
 
     function onlyDotsAndNumbers(txt, event, dots) {
-        
+
         var charCode = (event.which) ? event.which : event.keyCode;
 
         if (charCode == 46) {
@@ -165,6 +184,17 @@
 
         return true;
     }
+
+    $('#sku_category').change(function() {
+        var sku_category = $("#sku_category").val();
+
+        if (sku_category == "infra") {
+            $("#sku_sub_category").show();
+        } else {
+            $("#sku_sub_category").hide();
+            $("#sku_sub_type").val("");
+        }
+    });
 
 </script>
 

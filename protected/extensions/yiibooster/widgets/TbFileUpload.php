@@ -22,6 +22,9 @@ Yii::import('zii.widgets.jui.CJuiInputWidget');
  */
 class TbFileUpload extends CJuiInputWidget
 {
+    
+        private static $_callbackFnPrefix = 'fileupload';
+        
 	/**
 	 * the url to the upload handler
 	 * @var string
@@ -75,7 +78,8 @@ class TbFileUpload extends CJuiInputWidget
 	 * @var string name of the view to display images at bootstrap-slideshow
 	 */
 	public $previewImagesView = 'booster.views.gallery.preview';
-
+        
+        public $callbacks = array();
 	/**
 	 * Widget initialization
 	 */
@@ -185,6 +189,11 @@ class TbFileUpload extends CJuiInputWidget
 
 		$options = CJavaScript::encode($this->options);
 		Yii::app()->clientScript->registerScript(__CLASS__ . '#' . $id, "jQuery('#{$id}').fileupload({$options});");
+                Yii::app()->clientScript->registerScript(__CLASS__ . '#' . $id,
+                       "jQuery('#{$id}')
+                               .fileupload({$options})
+                               {$this->generateCallbackBindJSString()};"
+               );
 	}
 
 	/**
@@ -209,4 +218,16 @@ class TbFileUpload extends CJuiInputWidget
 		}
 		return isset($ret) ? $ret : null;
 	}
+        
+        private function generateCallbackBindJSString() {
+               if ( count($this->callbacks) > 0 ) {
+                       $output = '';
+                       foreach ( $this->callbacks as $callbackName => $fnCode ) {
+                               $output .= '.bind("' . self::$_callbackFnPrefix
+                                       . $callbackName . '", ' . $fnCode . ')';
+                        }
+                       return $output;
+               }
+               return '';
+       }
 }

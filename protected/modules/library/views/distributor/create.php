@@ -1,9 +1,9 @@
 <?php
-$this->breadcrumbs=array(
-	'Distributors'=>array('admin'),
-	'Create',
-);
 
+$this->breadcrumbs = array(
+    'Warehouse' => array('admin'),
+    'Create',
+);
 ?>
 
-<?php echo $this->renderPartial('_form', array('model'=>$model)); ?>
+<?php echo $this->renderPartial('_form', array('model' => $model)); ?>

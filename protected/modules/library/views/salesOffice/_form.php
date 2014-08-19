@@ -25,7 +25,7 @@
                         ),
                         'widgetOptions' => array(
                             'data' => $distributors,
-                            'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Distributor'),
+                            'htmlOptions' => array('multiple' => false, 'prompt' => 'Select ' . Distributor::DIST_LABEL),
                         )
                             )
                     );
@@ -161,7 +161,7 @@
         $('#municipal').append('<option value="">Select Municipal</option>');
         $('#barangay').append('<option value="">Select Barangay</option>');
     });
-    
+
     $('#province').change(function() {
         $('#barangay').empty();
         $('#barangay').append('<option value="">Select Barangay</option>');

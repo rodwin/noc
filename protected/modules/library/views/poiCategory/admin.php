@@ -1,6 +1,6 @@
 <?php
 $this->breadcrumbs = array(
-    'Poi Categories' => array('admin'),
+    Poi::POI_LABEL . ' Categories' => array('admin'),
     'Manage',
 );
 

@@ -1,6 +1,4 @@
 
-<h4 class="control-label text-primary"><b>Units of Measure Conversions for Calculating Restock Triggers</b></h4>
-
 <?php
 $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     'id' => 'sku-convertion-form',

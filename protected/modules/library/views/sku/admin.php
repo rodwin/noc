@@ -1,6 +1,6 @@
 <?php
 $this->breadcrumbs = array(
-    'Skus' => array('admin'),
+    Sku::SKU_LABEL => array('admin'),
     'Manage',
 );
 
@@ -31,7 +31,7 @@ return false;
     <ul class="dropdown-menu" role="menu">
         <li><a href="#">Download All Records</a></li>
         <li><a href="#">Download All Filtered Records</a></li>
-        <li><a href="<?php echo Yii::app()->createUrl($this->module->id . '/sku/upload');?>">Upload</a></li>
+        <li><a href="<?php echo Yii::app()->createUrl($this->module->id . '/sku/upload'); ?>">Upload</a></li>
     </ul>
 </div>
 
@@ -55,6 +55,9 @@ return false;
                 <th><?php echo $fields['sku_name']; ?></th>
                 <th><?php echo $fields['description']; ?></th>
                 <th><?php echo $fields['brand_id']; ?></th>
+                <th>Brand Category</th>
+                <th><?php echo $fields['type']; ?></th>
+                <th><?php echo $fields['sub_type']; ?></th>
                 <th><?php echo $fields['default_uom_id']; ?></th>
                 <th><?php echo $fields['supplier']; ?></th>
                 <th><?php echo $fields['default_zone_id']; ?></th>
@@ -76,7 +79,17 @@ return false;
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Sku/data'); ?>",
             "columns": [
 //                { "name": "sku_id","data": "sku_id"},
-                {"name": "sku_code", "data": "sku_code"}, {"name": "sku_name", "data": "sku_name"}, {"name": "description", "data": "description"}, {"name": "brand_name", "data": "brand_name"}, {"name": "default_uom_name", "data": "default_uom_name"}, {"name": "supplier", "data": "supplier"}, {"name": "default_zone_name", "data": "default_zone_name"}, {"name": "links", "data": "links", 'sortable': false}
+                {"name": "sku_code", "data": "sku_code"},
+                {"name": "sku_name", "data": "sku_name"},
+                {"name": "description", "data": "description"},
+                {"name": "brand_name", "data": "brand_name"},
+                {"name": "brand_category", "data": "brand_category", 'sortable': false},
+                {"name": "type", "data": "type"},
+                {"name": "sub_type", "data": "sub_type"},
+                {"name": "default_uom_name", "data": "default_uom_name"},
+                {"name": "supplier", "data": "supplier"},
+                {"name": "default_zone_name", "data": "default_zone_name"},
+                {"name": "links", "data": "links", 'sortable': false}
             ]
         });
 

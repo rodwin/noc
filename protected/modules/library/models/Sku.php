@@ -36,6 +36,8 @@ class Sku extends CActiveRecord {
     //types
     const TYPE_FIXED = 'fixed';
     const TYPE_CONSUMABLE = 'consumable';
+    const INFRA = "infra";
+    const SKU_LABEL = "MM";
 
     /**
      * @return string the associated database table name
@@ -53,10 +55,11 @@ class Sku extends CActiveRecord {
         return array(
             array('sku_id, sku_code, company_id, sku_name', 'required'),
             array('low_qty_threshold, high_qty_threshold', 'numerical', 'integerOnly' => true, 'max' => 9999999, 'min' => 0),
-            array('sku_id, sku_code, company_id, brand_id, default_uom_id, type, default_zone_id, created_by, updated_by', 'length', 'max' => 50),
+            array('sku_id, sku_code, company_id, brand_id, default_uom_id, type, sub_type, default_zone_id, created_by, updated_by', 'length', 'max' => 50),
             array('sku_name, description', 'length', 'max' => 150),
             array('sku_code', 'uniqueCode'),
-            array('type', 'isValidType'),
+//            array('type', 'isValidType'),
+//            array('sub_type', 'isValidSubType'),
             array('default_uom_id', 'isValidUOM'),
             array('default_zone_id', 'isValidZone'),
             array('brand_id', 'isValidBrand'),
@@ -66,7 +69,7 @@ class Sku extends CActiveRecord {
             array('created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('sku_id, sku_code, company_id, brand_id, sku_name, description, default_uom_id, default_unit_price, type, default_zone_id, supplier, created_date, created_by, updated_date, updated_by, low_qty_threshold, high_qty_threshold', 'safe', 'on' => 'search'),
+            array('sku_id, sku_code, company_id, brand_id, sku_name, description, default_uom_id, default_unit_price, type, sub_type, default_zone_id, supplier, created_date, created_by, updated_date, updated_by, low_qty_threshold, high_qty_threshold', 'safe', 'on' => 'search'),
         );
     }
 
@@ -80,6 +83,22 @@ class Sku extends CActiveRecord {
     }
 
     public function isValidType($attribute) {
+        $data = trim($this->$attribute);
+
+        if ($data == null) {
+            return;
+        }
+
+        $label = $this->attributeLabels();
+
+        if (!Validator::InArrayKey($data, $this->getOptions($attribute))) {
+            $this->addError($attribute, $label[$attribute] . ' ' . $this->$attribute . ' is invalid!');
+        }
+
+        return;
+    }
+
+    public function isValidSubType($attribute) {
         $data = trim($this->$attribute);
 
         if ($data == null) {
@@ -175,15 +194,16 @@ class Sku extends CActiveRecord {
      */
     public function attributeLabels() {
         return array(
-            'sku_id' => 'Sku',
-            'sku_code' => 'Sku Code',
+            'sku_id' => Sku::SKU_LABEL,
+            'sku_code' => Sku::SKU_LABEL . ' Code',
             'company_id' => 'Company',
-            'sku_name' => 'Sku Name',
+            'sku_name' => Sku::SKU_LABEL . ' Name',
             'brand_id' => 'Brand',
-            'description' => 'Description',
-            'default_uom_id' => 'Default Uom',
+            'description' => Sku::SKU_LABEL . ' Description',
+            'default_uom_id' => 'Unit of Measure',
             'default_unit_price' => 'Default Unit Price',
-            'type' => 'Type',
+            'type' => Sku::SKU_LABEL . ' Category',
+            'sub_type' => Sku::SKU_LABEL . ' Sub Category',
             'default_zone_id' => 'Default Zone',
             'supplier' => 'Supplier',
             'created_date' => 'Created Date',
@@ -281,6 +301,7 @@ class Sku extends CActiveRecord {
         $criteria->compare('default_uom_id', $this->default_uom_id, true);
         $criteria->compare('default_unit_price', $this->default_unit_price, true);
         $criteria->compare('type', $this->type, true);
+        $criteria->compare('sub_type', $this->sub_type, true);
         $criteria->compare('default_zone_id', $this->default_zone_id, true);
         $criteria->compare('supplier', $this->supplier, true);
         $criteria->compare('created_date', $this->created_date, true);
@@ -318,15 +339,23 @@ class Sku extends CActiveRecord {
                 $sort_column = 'brand.brand_name';
                 break;
 
-            case 4:
-                $sort_column = 'defaultUom.uom_name';
-                break;
-
             case 5:
-                $sort_column = 't.supplier';
+                $sort_column = 't.type';
                 break;
 
             case 6:
+                $sort_column = 't.sub_type';
+                break;
+
+            case 7:
+                $sort_column = 'defaultUom.uom_name';
+                break;
+
+            case 8:
+                $sort_column = 't.supplier';
+                break;
+
+            case 9:
                 $sort_column = 'defaultZone.zone_name';
                 break;
         }
@@ -338,9 +367,11 @@ class Sku extends CActiveRecord {
         $criteria->compare('t.sku_name', $columns[1]['search']['value'], true);
         $criteria->compare('t.description', $columns[2]['search']['value'], true);
         $criteria->compare('brand.brand_name', $columns[3]['search']['value'], true);
-        $criteria->compare('defaultUom.uom_name', $columns[4]['search']['value'], true);
-        $criteria->compare('t.supplier', $columns[5]['search']['value'], true);
-        $criteria->compare('defaultZone.zone_name', $columns[6]['search']['value'], true);
+        $criteria->compare('t.type', $columns[5]['search']['value'], true);
+        $criteria->compare('t.sub_type', $columns[6]['search']['value'], true);
+        $criteria->compare('defaultUom.uom_name', $columns[7]['search']['value'], true);
+        $criteria->compare('t.supplier', $columns[8]['search']['value'], true);
+        $criteria->compare('defaultZone.zone_name', $columns[9]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
@@ -580,6 +611,23 @@ class Sku extends CActiveRecord {
         $model->batch_upload_id = $batch_id;
         $model->message = $message;
         return $model->save();
+    }
+
+    public function skuCategoryList() {
+
+        return array(
+            array('value' => 'promo', 'name' => 'Promo'),
+            array('value' => 'merchandising', 'name' => 'Merchandising'),
+            array('value' => Sku::INFRA, 'name' => 'Infra'),
+        );
+    }
+
+    public function infraSubList() {
+
+        return array(
+            array('value' => 'infra assigned', 'name' => 'Infra Assigned'),
+            array('value' => 'infra on loan', 'name' => 'Infra On loan'),
+        );
     }
 
 }

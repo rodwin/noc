@@ -1,6 +1,6 @@
 <?php
 $this->breadcrumbs = array(
-    'Sku Statuses' => array('admin'),
+    Sku::SKU_LABEL . ' Status' => array('admin'),
     'Manage',
 );
 
