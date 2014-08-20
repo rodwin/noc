@@ -46,6 +46,8 @@ class Poi extends CActiveRecord {
     public $province_name;
     public $region_name;
 
+    const POI_LABEL = "Outlet";
+
     /**
      * @return string the associated database table name
      */
@@ -213,7 +215,7 @@ class Poi extends CActiveRecord {
      */
     public function attributeLabels() {
         return array(
-            'poi_id' => 'Poi',
+            'poi_id' => Poi::POI_LABEL,
             'company_id' => 'Company',
             'short_name' => 'Short Name',
             'long_name' => 'Long Name',
@@ -231,8 +233,8 @@ class Poi extends CActiveRecord {
             'zip' => 'Zip',
             'landline' => 'Landline',
             'mobile' => 'Mobile',
-            'poi_category_id' => 'Poi Category',
-            'poi_sub_category_id' => 'Poi Sub Category',
+            'poi_category_id' => Poi::POI_LABEL . ' Category',
+            'poi_sub_category_id' => Poi::POI_LABEL . ' Sub Category',
             'remarks' => 'Remarks',
             'status' => 'Status',
             'created_date' => 'Created Date',

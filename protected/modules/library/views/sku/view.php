@@ -1,6 +1,6 @@
 <?php
 $this->breadcrumbs = array(
-    'Skus' => array('admin'),
+    Sku::SKU_LABEL => array('admin'),
     $model->sku_name,
 );
 ?>
@@ -13,8 +13,8 @@ $this->breadcrumbs = array(
     <div class="nav-tabs-custom">
 
         <ul class="nav nav-tabs">
-            <li class="active"><a href="#tab_1" data-toggle="tab">SKU Details</a></li>
-            <li><a href="#tab_2" data-toggle="tab">SKU Custom Data</a></li>
+            <li class="active"><a href="#tab_1" data-toggle="tab"><?php echo Sku::SKU_LABEL; ?> Details</a></li>
+            <li><a href="#tab_2" data-toggle="tab"><?php echo Sku::SKU_LABEL; ?> Custom Data</a></li>
         </ul>
 
         <div class="tab-content">

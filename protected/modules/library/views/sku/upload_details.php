@@ -1,7 +1,7 @@
 <?php
 $this->breadcrumbs = array(
-    'Sku' => array('admin'),
-    'Sku Upload Details',
+    Sku::SKU_LABEL => array('admin'),
+    Sku::SKU_LABEL . ' Upload Details',
 );
 ?>
 

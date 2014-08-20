@@ -1,6 +1,6 @@
 <?php
 $this->breadcrumbs = array(
-    'Distributors' => array('admin'),
+    'Warehouse' => array('admin'),
     'Manage',
 );
 
@@ -54,10 +54,12 @@ return false;
                 <!--<th><?php echo $fields['distributor_id']; ?></th>-->
                 <th><?php echo $fields['distributor_code']; ?></th>
                 <th><?php echo $fields['distributor_name']; ?></th>
-                <th><?php echo $fields['created_date']; ?></th>
-                <th><?php echo $fields['created_by']; ?></th>
-                <th><?php echo $fields['updated_date']; ?></th>
-                <th><?php echo $fields['updated_by']; ?></th>
+                <th><?php echo $fields['latitude']; ?></th>
+                <th><?php echo $fields['longitude']; ?></th>
+                <!--<th><?php echo $fields['created_date']; ?></th>-->
+                <!--<th><?php echo $fields['created_by']; ?></th>-->
+                <!--<th><?php echo $fields['updated_date']; ?></th>-->
+                <!--<th><?php echo $fields['updated_by']; ?></th>-->
                 <th>Actions</th>
 
             </tr>
@@ -76,17 +78,31 @@ return false;
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Distributor/data'); ?>",
             "columns": [
 //                { "name": "distributor_id","data": "distributor_id"},
-                {"name": "distributor_code", "data": "distributor_code"}, {"name": "distributor_name", "data": "distributor_name"}, {"name": "created_date", "data": "created_date"}, {"name": "created_by", "data": "created_by"}, {"name": "updated_date", "data": "updated_date"}, {"name": "updated_by", "data": "updated_by"}, {"name": "links", "data": "links", 'sortable': false}
+                {"name": "distributor_code", "data": "distributor_code"},
+                {"name": "distributor_name", "data": "distributor_name"},
+                {"name": "latitude", "data": "latitude"},
+                {"name": "longitude", "data": "longitude"},
+//                {"name": "created_date", "data": "created_date"},
+//                {"name": "created_by", "data": "created_by"},
+//                {"name": "updated_date", "data": "updated_date"},
+//                {"name": "updated_by", "data": "updated_by"},
+                {"name": "links", "data": "links", 'sortable': false}
             ]
         });
 
         $('#btnSearch').click(function() {
             table.fnMultiFilter({
-//                "distributor_id": $("#Distributor_distributor_id").val(),
-                "distributor_code": $("#Distributor_distributor_code").val(), "distributor_name": $("#Distributor_distributor_name").val(), "created_date": $("#Distributor_created_date").val(), "created_by": $("#Distributor_created_by").val(), "updated_date": $("#Distributor_updated_date").val(), "updated_by": $("#Distributor_updated_by").val(), });
+                "distributor_id": $("#Distributor_distributor_id").val(),
+                "distributor_code": $("#Distributor_distributor_code").val(),
+                "distributor_name": $("#Distributor_distributor_name").val(),
+                "latitude": $("#Distributor_latitude").val(),
+                "longitude": $("#Distributor_longitude").val(),
+                "created_date": $("#Distributor_created_date").val(),
+                "created_by": $("#Distributor_created_by").val(),
+                "updated_date": $("#Distributor_updated_date").val(),
+                "updated_by": $("#Distributor_updated_by").val(),
+            });
         });
-
-
 
         jQuery(document).on('click', '#distributor_table a.delete', function() {
             if (!confirm('Are you sure you want to delete this item?'))

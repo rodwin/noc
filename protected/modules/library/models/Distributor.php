@@ -21,6 +21,8 @@ class Distributor extends CActiveRecord {
 
     public $search_string;
 
+    const DIST_LABEL = "Warehouse";
+
     /**
      * @return string the associated database table name
      */
@@ -38,24 +40,34 @@ class Distributor extends CActiveRecord {
             array('distributor_id, company_id, distributor_code, distributor_name', 'required'),
             array('distributor_id, company_id, distributor_code, created_by, updated_by', 'length', 'max' => 50),
             array('distributor_name', 'length', 'max' => 250),
+            array('latitude, longitude', 'length', 'max' => 9),
+            array('latitude, longitude', 'numerical'),
             array('distributor_code', 'uniqueCode'),
             array('created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('distributor_id, company_id, distributor_code, distributor_name, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('distributor_id, company_id, distributor_code, distributor_name, latitude, longitude, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
-    
+
     public function uniqueCode($attribute, $params) {
-        
+
         $model = Distributor::model()->findByAttributes(array('company_id' => $this->company_id, 'distributor_code' => $this->$attribute));
         if ($model && $model->distributor_id != $this->distributor_id) {
-            $this->addError($attribute, 'Distributor code selected already taken.');
+            $this->addError($attribute, 'Warehouse code selected already taken.');
         }
         return;
     }
 
     public function beforeValidate() {
+
+        if ($this->latitude == "") {
+            $this->latitude = 0;
+        }
+        if ($this->longitude == "") {
+            $this->longitude = 0;
+        }
+
         return parent::beforeValidate();
     }
 
@@ -76,10 +88,12 @@ class Distributor extends CActiveRecord {
      */
     public function attributeLabels() {
         return array(
-            'distributor_id' => 'Distributor',
+            'distributor_id' => Distributor::DIST_LABEL,
             'company_id' => 'Company',
-            'distributor_code' => 'Distributor Code',
-            'distributor_name' => 'Distributor Name',
+            'distributor_code' => Distributor::DIST_LABEL . ' Code',
+            'distributor_name' => Distributor::DIST_LABEL . ' Name',
+            'latitude' => 'Latitude',
+            'longitude' => 'Longitude',
             'created_date' => 'Created Date',
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
@@ -108,6 +122,8 @@ class Distributor extends CActiveRecord {
         $criteria->compare('company_id', Yii::app()->user->company_id);
         $criteria->compare('distributor_code', $this->distributor_code, true);
         $criteria->compare('distributor_name', $this->distributor_name, true);
+        $criteria->compare('latitude', $this->latitude, true);
+        $criteria->compare('longitude', $this->longitude, true);
         $criteria->compare('created_date', $this->created_date, true);
         $criteria->compare('created_by', $this->created_by, true);
         $criteria->compare('updated_date', $this->updated_date, true);
@@ -134,20 +150,28 @@ class Distributor extends CActiveRecord {
                 break;
 
             case 2:
-                $sort_column = 'created_date';
+                $sort_column = 'latitude';
                 break;
 
             case 3:
-                $sort_column = 'created_by';
+                $sort_column = 'longitude';
                 break;
 
-            case 4:
-                $sort_column = 'updated_date';
-                break;
-
-            case 5:
-                $sort_column = 'updated_by';
-                break;
+//            case 4:
+//                $sort_column = 'created_date';
+//                break;
+//
+//            case 5:
+//                $sort_column = 'created_by';
+//                break;
+//
+//            case 6:
+//                $sort_column = 'updated_date';
+//                break;
+//
+//            case 7:
+//                $sort_column = 'updated_by';
+//                break;
         }
 
 
@@ -156,10 +180,12 @@ class Distributor extends CActiveRecord {
 //        $criteria->compare('distributor_id', $columns[0]['search']['value'], true);
         $criteria->compare('distributor_code', $columns[0]['search']['value'], true);
         $criteria->compare('distributor_name', $columns[1]['search']['value'], true);
-        $criteria->compare('created_date', $columns[2]['search']['value'], true);
-        $criteria->compare('created_by', $columns[3]['search']['value'], true);
-        $criteria->compare('updated_date', $columns[4]['search']['value'], true);
-        $criteria->compare('updated_by', $columns[5]['search']['value'], true);
+        $criteria->compare('latitude', $columns[2]['search']['value'], true);
+        $criteria->compare('longitude', $columns[3]['search']['value'], true);
+//        $criteria->compare('created_date', $columns[4]['search']['value'], true);
+//        $criteria->compare('created_by', $columns[5]['search']['value'], true);
+//        $criteria->compare('updated_date', $columns[6]['search']['value'], true);
+//        $criteria->compare('updated_by', $columns[7]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;

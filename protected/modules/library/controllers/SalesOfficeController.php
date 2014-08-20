@@ -63,6 +63,7 @@ class SalesOfficeController extends Controller {
             $row = array();
             $row['sales_office_id'] = $value->sales_office_id;
             $row['distributor_id'] = $value->distributor_id;
+            $row['distributor_code'] = isset($value->distributor->distributor_code) ? $value->distributor->distributor_code : null;
             $row['distributor_name'] = isset($value->distributor->distributor_name) ? $value->distributor->distributor_name : null;
             $row['sales_office_code'] = $value->sales_office_code;
             $row['sales_office_name'] = $value->sales_office_name;

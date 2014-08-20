@@ -92,13 +92,13 @@ class SkuCustomDataController extends Controller {
     public function actionView($id) {
         $model = $this->loadModel($id);
 
-        $this->pageTitle = 'View SkuCustomData ' . $model->name;
+        $this->pageTitle = 'View ' . Sku::SKU_LABEL . ' Custom Data ' . $model->name;
 
         $this->menu = array(
-            array('label' => 'Create SkuCustomData', 'url' => array('create')),
-            array('label' => 'Update SkuCustomData', 'url' => array('update', 'id' => $model->custom_data_id)),
-            array('label' => 'Delete SkuCustomData', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->custom_data_id), 'confirm' => 'Are you sure you want to delete this item?')),
-            array('label' => 'Manage SkuCustomData', 'url' => array('admin')),
+            array('label' => 'Create ' . Sku::SKU_LABEL . ' Custom Data', 'url' => array('create')),
+            array('label' => 'Update ' . Sku::SKU_LABEL . ' Custom Data', 'url' => array('update', 'id' => $model->custom_data_id)),
+            array('label' => 'Delete ' . Sku::SKU_LABEL . ' Custom Data', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->custom_data_id), 'confirm' => 'Are you sure you want to delete this item?')),
+            array('label' => 'Manage ' . Sku::SKU_LABEL . ' Custom Data', 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
@@ -114,10 +114,10 @@ class SkuCustomDataController extends Controller {
      */
     public function actionCreate() {
 
-        $this->pageTitle = 'Create SkuCustomData';
+        $this->pageTitle = 'Create ' . Sku::SKU_LABEL . ' Custom Data';
 
         $this->menu = array(
-            array('label' => 'Manage SkuCustomData', 'url' => array('admin')),
+            array('label' => 'Manage ' . Sku::SKU_LABEL . ' Custom Data', 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
@@ -207,14 +207,14 @@ class SkuCustomDataController extends Controller {
         $model = $this->loadModel($id);
 
         $this->menu = array(
-            array('label' => 'Create SkuCustomData', 'url' => array('create')),
-            array('label' => 'View SkuCustomData', 'url' => array('view', 'id' => $model->custom_data_id)),
-            array('label' => 'Manage SkuCustomData', 'url' => array('admin')),
+            array('label' => 'Create ' . Sku::SKU_LABEL . ' Custom Data', 'url' => array('create')),
+            array('label' => 'View ' . Sku::SKU_LABEL . ' Custom Data', 'url' => array('view', 'id' => $model->custom_data_id)),
+            array('label' => 'Manage ' . Sku::SKU_LABEL . ' Custom Data', 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update SkuCustomData ' . $model->name;
+        $this->pageTitle = 'Update ' . Sku::SKU_LABEL . ' Custom Data ' . $model->name;
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
@@ -320,7 +320,7 @@ class SkuCustomDataController extends Controller {
      */
     public function actionAdmin() {
         $this->layout = '//layouts/column1';
-        $this->pageTitle = 'Manage SkuCustomData';
+        $this->pageTitle = 'Manage ' . Sku::SKU_LABEL . ' Custom Data';
 
         $model = new SkuCustomData('search');
         $model->unsetAttributes();  // clear any default values

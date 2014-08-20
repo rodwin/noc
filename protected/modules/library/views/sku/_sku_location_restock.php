@@ -1,6 +1,4 @@
 
-<h4 class="control-label text-primary"><b>Location Restock Levels</b></h4>
-
 <?php
 $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     'id' => 'sku-location-restock-form',

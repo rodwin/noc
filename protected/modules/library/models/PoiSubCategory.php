@@ -79,9 +79,9 @@ class PoiSubCategory extends CActiveRecord {
      */
     public function attributeLabels() {
         return array(
-            'poi_sub_category_id' => 'Poi Sub Category',
+            'poi_sub_category_id' => Poi::POI_LABEL . ' Sub Category',
             'company_id' => 'Company',
-            'poi_category_id' => 'Poi Category',
+            'poi_category_id' => Poi::POI_LABEL . ' Category',
             'sub_category_name' => 'Sub Category Name',
             'description' => 'Description',
             'created_date' => 'Created Date',
@@ -150,9 +150,9 @@ class PoiSubCategory extends CActiveRecord {
                 $sort_column = 't.created_by';
                 break;
 
-            case 5:
-                $sort_column = 't.updated_date';
-                break;
+//            case 5:
+//                $sort_column = 't.updated_date';
+//                break;
         }
 
 
@@ -165,7 +165,7 @@ class PoiSubCategory extends CActiveRecord {
         $criteria->compare('t.description', $columns[2]['search']['value'], true);
         $criteria->compare('t.created_date', $columns[3]['search']['value'], true);
         $criteria->compare('t.created_by', $columns[4]['search']['value'], true);
-        $criteria->compare('t.updated_date', $columns[5]['search']['value'], true);
+//        $criteria->compare('t.updated_date', $columns[5]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;

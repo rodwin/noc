@@ -1,6 +1,6 @@
 <?php
 $this->breadcrumbs = array(
-    'Pois' => array('admin'),
+    Poi::POI_LABEL => array('admin'),
     'Manage',
 );
 
@@ -31,7 +31,7 @@ return false;
     <ul class="dropdown-menu" role="menu">
         <li><a href="#">Download All Records</a></li>
         <li><a href="#">Download All Filtered Records</a></li>
-        <li><a href="<?php echo Yii::app()->createUrl($this->module->id . '/poi/upload');?>">Upload</a></li>
+        <li><a href="<?php echo Yii::app()->createUrl($this->module->id . '/poi/upload'); ?>">Upload</a></li>
     </ul>
 </div>
 

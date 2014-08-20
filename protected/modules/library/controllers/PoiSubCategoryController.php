@@ -91,13 +91,13 @@ class PoiSubCategoryController extends Controller {
         $poi_category = PoiCategory::model()->findByAttributes(array("poi_category_id" => $model->poi_category_id, "company_id" => Yii::app()->user->company_id));
         $model->poi_category_id = $poi_category->category_name;
 
-        $this->pageTitle = 'View PoiSubCategory ' . $model->sub_category_name;
+        $this->pageTitle = 'View ' . Poi::POI_LABEL . ' Sub Category ' . $model->sub_category_name;
 
         $this->menu = array(
-            array('label' => 'Create PoiSubCategory', 'url' => array('create')),
-            array('label' => 'Update PoiSubCategory', 'url' => array('update', 'id' => $model->poi_sub_category_id)),
-            array('label' => 'Delete PoiSubCategory', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->poi_sub_category_id), 'confirm' => 'Are you sure you want to delete this item?')),
-            array('label' => 'Manage PoiSubCategory', 'url' => array('admin')),
+            array('label' => 'Create ' . Poi::POI_LABEL . ' Sub Category', 'url' => array('create')),
+            array('label' => 'Update ' . Poi::POI_LABEL . ' Sub Category', 'url' => array('update', 'id' => $model->poi_sub_category_id)),
+            array('label' => 'Delete ' . Poi::POI_LABEL . ' Sub Category', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->poi_sub_category_id), 'confirm' => 'Are you sure you want to delete this item?')),
+            array('label' => 'Manage ' . Poi::POI_LABEL . ' Sub Category', 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
@@ -113,10 +113,10 @@ class PoiSubCategoryController extends Controller {
      */
     public function actionCreate() {
 
-        $this->pageTitle = 'Create PoiSubCategory';
+        $this->pageTitle = 'Create ' . Poi::POI_LABEL . ' Sub Category';
 
         $this->menu = array(
-            array('label' => 'Manage PoiSubCategory', 'url' => array('admin')),
+            array('label' => 'Manage ' . Poi::POI_LABEL . ' Sub Category', 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
@@ -156,14 +156,14 @@ class PoiSubCategoryController extends Controller {
         $model = $this->loadModel($id);
 
         $this->menu = array(
-            array('label' => 'Create PoiSubCategory', 'url' => array('create')),
-            array('label' => 'View PoiSubCategory', 'url' => array('view', 'id' => $model->poi_sub_category_id)),
-            array('label' => 'Manage PoiSubCategory', 'url' => array('admin')),
+            array('label' => 'Create ' . Poi::POI_LABEL . ' Sub Category', 'url' => array('create')),
+            array('label' => 'View ' . Poi::POI_LABEL . ' Sub Category', 'url' => array('view', 'id' => $model->poi_sub_category_id)),
+            array('label' => 'Manage ' . Poi::POI_LABEL . ' Sub Category', 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update PoiSubCategory ' . $model->sub_category_name;
+        $this->pageTitle = 'Update ' . Poi::POI_LABEL . ' Sub Category ' . $model->sub_category_name;
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
@@ -194,7 +194,7 @@ class PoiSubCategoryController extends Controller {
      */
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
-            
+
             try {
                 // we only allow deletion via POST request
                 $this->loadModel($id)->delete();
@@ -239,7 +239,7 @@ class PoiSubCategoryController extends Controller {
      */
     public function actionAdmin() {
         $this->layout = '//layouts/column1';
-        $this->pageTitle = 'Manage PoiSubCategory';
+        $this->pageTitle = 'Manage ' . Poi::POI_LABEL . ' Sub Category';
 
         $model = new PoiSubCategory('search');
         $model->unsetAttributes();  // clear any default values

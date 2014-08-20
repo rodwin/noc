@@ -1,7 +1,7 @@
 <?php
 
 $this->breadcrumbs = array(
-    'Sku Custom Datas' => array('admin'),
+    Sku::SKU_LABEL . ' Custom Datas' => array('admin'),
     $model->name => array('view', 'id' => $model->custom_data_id),
     'Update',
 );
