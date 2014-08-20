@@ -15,9 +15,7 @@ $this->breadcrumbs = array(
 $baseUrl = Yii::app()->baseUrl;
 $cs = Yii::app()->getClientScript();
 $cs->registerScriptFile($baseUrl . '/js/popModal.min.js', CClientScript::POS_END);
-//$cs->registerScriptFile($baseUrl . '/js/jquery.nyroModal.custom.min.js');
 $cs->registerCssFile($baseUrl . '/css/popModal.min.css');
-//$cs->registerCssFile($baseUrl . '/css/nyroModal.css');
 
 Yii::app()->clientScript->registerScript('search', "
 $('.search-button').click(function(){
@@ -133,16 +131,14 @@ return false;
   </div>
 </div>
 
-<a href="http://localhost/noc/index.php?r=library/Sku/create" class="nyroModal">Ajax</a>
-
 <script type="text/javascript">
     
     var inventory_id = null;
     var loaded = false;
-    
+    var table;
     $(function() {
         
-        var table = $('#inventory_table').dataTable({
+        table = $('#inventory_table').dataTable({
             "filter": false,
             "processing": true,
             "serverSide": true,

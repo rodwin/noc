@@ -6,6 +6,7 @@ class IncreaseInventoryForm extends CFormModel
 	public $transaction_date;
 	public $cost_per_unit;
         public $inventory_id;
+        public $created_by;
         
         public $inventoryObj = null;
 
@@ -18,7 +19,7 @@ class IncreaseInventoryForm extends CFormModel
 	{
 		return array(
 			// username and password are required
-			array('qty,transaction_date', 'required'),
+			array('created_by,qty,transaction_date', 'required'),
                         
                         array('inventory_id', 'isValidInventoryId'),
                     
@@ -91,7 +92,7 @@ class IncreaseInventoryForm extends CFormModel
                 $this->inventoryObj->qty = $qty;
                 $this->inventoryObj->save(false);
                 
-                InventoryHistory::model()->createHistory($this->inventoryObj->company_id, $this->inventoryObj->inventory_id,$this->transaction_date, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE);
+                InventoryHistory::model()->createHistory($this->inventoryObj->company_id, $this->inventoryObj->inventory_id,$this->transaction_date, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE,  $this->cost_per_unit,  $this->created_by);
                 
                 $transaction->commit();
                 

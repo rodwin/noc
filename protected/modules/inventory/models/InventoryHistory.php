@@ -83,6 +83,7 @@ class InventoryHistory extends CActiveRecord {
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
             'updated_by' => 'Updated By',
+            'transaction_date' => 'Transaction Date',
         );
     }
 
@@ -207,6 +208,18 @@ class InventoryHistory extends CActiveRecord {
             
         }
         
+    }
+    
+    public function getAllByInventoryID($id,$company_id){
+        
+        $criteria = new CDbCriteria;
+        $criteria->compare('t.company_id', $company_id);
+        $criteria->compare('t.inventory_id', $id, true);
+        $criteria->order = 'transaction_date desc';
+        
+        $history = InventoryHistory::model()->findAll($criteria);
+        
+        return $history;
     }
     
 }

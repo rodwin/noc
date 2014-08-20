@@ -25,7 +25,7 @@ class InventoryController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view','trans','test','increase'),
+                'actions' => array('index', 'view','trans','test','increase','history'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -40,6 +40,31 @@ class InventoryController extends Controller {
                 'users' => array('*'),
             ),
         );
+    }
+    
+    public function actionHistory($inventory_id){
+        
+        $model = $this->loadModel($inventory_id);
+        
+        $history = InventoryHistory::model()->getAllByInventoryID($inventory_id,Yii::app()->user->company_id);
+        
+        $this->pageTitle = 'Inventory Record History';
+
+        $this->menu = array(
+            array('label' => 'Create Inventory', 'url' => array('create')),
+            array('label' => 'Manage Inventory', 'url' => array('admin')),
+            '',
+            array('label' => 'Help', 'url' => '#'),
+        );
+        
+        $headers = InventoryHistory::model()->attributeLabels();
+        
+        $this->render('history', array(
+            'model' => $model,
+            'history' => $history,
+            'headers' => $headers,
+        ));
+        
     }
     
     public function actionTest($inventory_id,$transaction_type,$qty){
@@ -62,17 +87,24 @@ class InventoryController extends Controller {
         
         if (isset($_POST['IncreaseInventoryForm'])) {
             $model->attributes = $_POST['IncreaseInventoryForm'];
+            $model->created_by =Yii::app()->user->name;
             
             if(!$model->validate()){
-                echo CActiveForm::validate($model);
+                echo json_encode(CActiveForm::validate($model));
                 Yii::app()->end();
             }
             
+            $data['success'] = false;
+            
             if ($model->increase(false)) {
-                echo 'ok';
+                $data['message']= 'Successfully increased';
+                $data['success'] = true;
             }else{
-                echo 'bad';
+                $data['message']= 'An error occured!';
             }
+            
+            echo json_encode($data);
+            Yii::app()->end();
         }
         
     }
@@ -100,58 +132,18 @@ class InventoryController extends Controller {
                 
                 break;
             case 2:
-                $title= '<div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                            <h4 class="modal-title" id="myModalLabel">Decrease</h4>
-                          </div>';
-                
-                $body='<div class="modal-body">
-                        ...
-                      </div>';
 
                 break;
             case 3:
-                $title= '<div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                            <h4 class="modal-title" id="myModalLabel">Convert Unit of Measure</h4>
-                          </div>';
-                
-                $body='<div class="modal-body">
-                        ...
-                      </div>';
 
                 break;
             case 4:
-                $title= '<div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                            <h4 class="modal-title" id="myModalLabel">Move</h4>
-                          </div>';
-                
-                $body='<div class="modal-body">
-                        ...
-                      </div>';
 
                 break;
             case 5:
-                $title= '<div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                            <h4 class="modal-title" id="myModalLabel">Update Status</h4>
-                          </div>';
-                
-                $body='<div class="modal-body">
-                        ...
-                      </div>';
 
                 break;
             case 6:
-                $title= '<div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                            <h4 class="modal-title" id="myModalLabel">Apply</h4>
-                          </div>';
-                
-                $body='<div class="modal-body">
-                        ...
-                      </div>';
 
                 break;
 
@@ -159,13 +151,6 @@ class InventoryController extends Controller {
                 break;
         }
         
-        $return =$title.$body;
-        
-        
-//        echo "inventory_id: ".$inventory_id.'<br/>';
-//        echo "transaction_type: ".$transaction_type.'<br/>';
-//        echo "qty: ".$qty.'<br/>';
-        echo $return;
         Yii::app()->end();
         
     }
@@ -211,9 +196,12 @@ class InventoryController extends Controller {
             $row['reference_no'] = $value->reference_no;
 
 
-            $row['links'] = '<a class="view" title="View" data-toggle="tooltip" href="' . $this->createUrl('/inventory/inventory/view', array('id' => $value->inventory_id)) . '" data-original-title="View"><i class="fa fa-eye"></i></a>'
-                    . '&nbsp;<a class="update" title="Update" data-toggle="tooltip" href="' . $this->createUrl('/inventory/inventory/update', array('id' => $value->inventory_id)) . '" data-original-title="View"><i class="fa fa-pencil"></i></a>'
-                    . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="' . $this->createUrl('/inventory/inventory/delete', array('id' => $value->inventory_id)) . '" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
+            $row['links'] = '<a class="btn btn  btn-default" title="Inventory Record History" href="' . $this->createUrl('/inventory/inventory/history', array('inventory_id' => $value->inventory_id)) . '">
+                                <i class="fa fa-clock-o"></i>
+                            </a>
+                            <a class="btn btn  btn-default" title="Item Detail" href="' . $this->createUrl('/inventory/inventory/history', array('inventory_id' => $value->inventory_id)) . '">
+                                <i class="fa fa-wrench"></i>
+                            </a>';
 
             $output['data'][] = $row;
         }
@@ -270,6 +258,7 @@ class InventoryController extends Controller {
             
             $model->attributes = $_POST['CreateInventoryForm'];
             $model->company_id = Yii::app()->user->company_id;
+            $model->created_by = Yii::app()->user->name;
             if ($model->create()) {
                 
                 Yii::app()->user->setFlash('success', "Successfully created");
@@ -407,9 +396,10 @@ class InventoryController extends Controller {
      * @param integer the ID of the model to be loaded
      */
     public function loadModel($id) {
-        $model = Inventory::model()->findByAttributes(array('inventory_id' => $id, 'company_id' => Yii::app()->user->company_id));
-        if ($model === null)
+        $model = Inventory::model()->findByPk($id);
+        if ($model === null || $model->company_id != Yii::app()->user->company_id){
             throw new CHttpException(404, 'The requested page does not exist.');
+        }
 
         return $model;
     }
