@@ -198,7 +198,7 @@ class ImagesController extends Controller {
     public function actionView($id) {
         $model = $this->loadModel($id);
 
-        $this->pageTitle = 'View Images ' . $model->image_id;
+        $this->pageTitle = 'View Images ' . $model->file_name;
 
         $this->menu = array(
             array('label' => 'Create Images', 'url' => array('create')),

@@ -109,7 +109,7 @@ return false;
                                                 'onkeyup' => CHtml::ajax(
                                                         array(
                                                             'type' => 'POST',
-                                                            'url' => Yii::app()->createUrl('library/sku/ajaxFilterImages'),
+                                                            'url' => $this->createUrl('/library/sku/ajaxFilterImages', array('sku_id' => $model->sku_id)),
                                                             'data' => 'js:jQuery(this).serialize()',
                                                             'success' => 'js:function(data){ $("#image_thumbnails").html(data); }'
                                                 )),
@@ -130,7 +130,7 @@ return false;
                                     </button>
 
                                     <div>
-                                        <?php echo $this->renderPartial('_images', array('imgs_dp' => $imgs_dp,)); ?>
+                                        <?php echo $this->renderPartial('_images', array('imgs_dp' => $imgs_dp, 'sku_id' => $model->sku_id,)); ?>
                                     </div>
                                 </div>
                             </div>
@@ -320,48 +320,46 @@ return false;
 
 <script type="text/javascript">
 
-    $(function() {
-        $('#assign_img').click(function() {
-            $(':checkbox[name="img[]"]:checked').each(function() {
-                $.ajax({
-                    'url': '<?php echo $this->createUrl('/library/sku/skuImage', array('sku_id' => $model->sku_id)) ?>' + '&ajax=1',
-                    'type': 'POST',
-                    'data': {
-                        sku_id: $("#sku_id").val(),
-                        img_id: this.value
-                    },
-                    'dataType': 'text',
-                    'success': function(data) {
-                        $("#sku_image_thumbnails").html(data);
-                        ajaxLoadImages();
-                        $("#img_search").val("");
-                    },
-                    error: function(jqXHR, exception) {
-                    }
-                });
-            });
-        });
-
-        function ajaxLoadImages() {
+    $('#assign_img').click(function() {
+        $(':checkbox[name="img[]"]:checked').each(function() {
             $.ajax({
-                'url': '<?php echo CController::createUrl('sku/ajaxLoadImages') ?>',
+                'url': '<?php echo $this->createUrl('/library/sku/skuImage', array('sku_id' => $model->sku_id)) ?>' + '&ajax=1',
+                'type': 'POST',
+                'data': {
+                    sku_id: $("#sku_id").val(),
+                    img_id: this.value
+                },
                 'dataType': 'text',
                 'success': function(data) {
-                    $("#image_thumbnails").html(data);
+                    $("#sku_image_thumbnails").html(data);
+                    ajaxLoadImages();
+                    $("#img_search").val("");
                 },
                 error: function(jqXHR, exception) {
                 }
             });
-        }
-
-        $('.gallery-button').click(function() {
-            $(".gallery-button").hide();
         });
+    });
 
-        $('#close_img_gallery').click(function() {
-            $(".gallery-button").show();
-            $("#img_gallery").hide();
+    function ajaxLoadImages() {
+        $.ajax({
+            'url': '<?php echo $this->createUrl('/library/sku/ajaxLoadImages', array('sku_id' => $model->sku_id)) ?>' + '&ajax=1',
+            'dataType': 'text',
+            'success': function(data) {
+                $("#image_thumbnails").html(data);
+            },
+            error: function(jqXHR, exception) {
+            }
         });
+    }
+
+    $('.gallery-button').click(function() {
+        $(".gallery-button").hide();
+    });
+
+    $('#close_img_gallery').click(function() {
+        $(".gallery-button").show();
+        $("#img_gallery").hide();
     });
 
     function deleteSkuImg(sku_img_id) {
@@ -369,7 +367,6 @@ return false;
             'url': '<?php echo $this->createUrl('/library/sku/deleteSkuImage', array('sku_id' => $model->sku_id)) ?>' + '&ajax=1',
             'type': 'POST',
             'data': {
-                sku_id: $("#sku_id").val(),
                 sku_img_id: sku_img_id
             },
             'dataType': 'text',

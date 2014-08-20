@@ -5,6 +5,7 @@ $this->widget('booster.widgets.TbThumbnails', array(
     'dataProvider' => $imgs_dp,
     'itemView' => '_thumb',
     'id' => 'image_thumbnails',
+    'viewData' => array('sku_id' => $sku_id),
     'emptyText' => 'No image found.',
     'summaryText' => "Showing {start} to {end} of {count} entries",
     'tagName' => 'table',

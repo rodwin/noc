@@ -7,7 +7,7 @@
         <a id="sku_img_thumb" class="thumbnail panel panel-default text-center" style="margin-right: 3px; min-height: 150px; height: 200px;">
 
             <div class="panel-heading clearfix no-padding">
-                <i class="fa fa-fw fa-times-circle-o pull-right" onclick="deleteSkuImg(<?php echo CHtml::encode($data->sku_image_id); ?>);" style="cursor: pointer;"></i>         
+                <span class="fa fa-fw fa-times-circle-o pull-right" onclick="deleteSkuImg(<?php echo CHtml::encode($data->sku_image_id); ?>);" style="cursor: pointer;"></span>         
             </div>
 
             <div class="panel-body">

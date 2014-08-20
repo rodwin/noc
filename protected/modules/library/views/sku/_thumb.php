@@ -2,11 +2,16 @@
 <div class="col-xs-12 col-md-1 col-lg-4 pull-left">
     <div class="row">
 
+        <?php $sku_image = SkuImage::model()->findByAttributes(array("image_id" => $data->image_id, "sku_id" => $sku_id)); ?>
+
         <a id="img_thumb" class="thumbnail panel panel-default text-center" style="margin-right: 3px; min-height: 150px; height: 200px;">
 
             <div class="panel-heading clearfix no-padding">
-                <!--<i class="fa fa-fw fa-check-circle-o pull-right"></i>-->
-                <input type="checkbox" id="img_assign_chk" name='img[]' value="<?php echo CHtml::encode($data->image_id); ?>" class="img_assign_cls"/>           
+                <?php if (isset($sku_image)) { ?>
+                    <span class="glyphicon glyphicon-check"></span>  
+                <?php } else { ?>
+                    <input type="checkbox" id="img_assign_chk" name='img[]' value="<?php echo CHtml::encode($data->image_id); ?>" class="img_assign_cls"/> 
+                <?php } ?>
             </div>
 
             <div class="panel-body">

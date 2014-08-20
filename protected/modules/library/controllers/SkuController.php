@@ -442,15 +442,15 @@ class SkuController extends Controller {
         ));
     }
 
-    public function actionAjaxLoadImages() {
+    public function actionAjaxLoadImages($sku_id) {
         $imgs_dp = new CActiveDataProvider('Images', array(
             'pagination' => array('pageSize' => 6),
         ));
 
-        $this->renderPartial('_images', array('imgs_dp' => $imgs_dp,), false, true);
+        $this->renderPartial('_images', array('imgs_dp' => $imgs_dp, 'sku_id' => $sku_id), false, true);
     }
 
-    public function actionAjaxFilterImages() {
+    public function actionAjaxFilterImages($sku_id) {
         if (Yii::app()->request->isPostRequest) {
 
             if (isset($_POST['file_name'])) {
@@ -466,9 +466,7 @@ class SkuController extends Controller {
                     'pagination' => array('pageSize' => 6),
                 ));
 
-                $this->renderPartial('_images', array(
-                    'imgs_dp' => $imgs_dp,
-                        ), false, true);
+                $this->renderPartial('_images', array('imgs_dp' => $imgs_dp, 'sku_id' => $sku_id,), false, true);
             }
         }
     }
@@ -523,7 +521,7 @@ class SkuController extends Controller {
             'pagination' => array('pageSize' => 3),
         ));
 
-        $this->renderPartial('_sku_images', array('sku_imgs_dp' => $sku_imgs_dp,), false, true);
+        $this->renderPartial('_sku_images', array('sku_imgs_dp' => $sku_imgs_dp, 'sku_id' => $sku_id,), false, true);
     }
 
     /**
