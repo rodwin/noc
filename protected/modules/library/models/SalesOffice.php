@@ -97,7 +97,9 @@ class SalesOffice extends CActiveRecord {
     public function attributeLabels() {
         return array(
             'sales_office_id' => 'Sales Office',
-            'distributor_id' => 'Distributor',
+            'distributor_id' => 'Warehouse',
+            'distributor_code' => 'Warehouse Code',
+            'distributor_name' => 'Warehouse Name',
             'company_id' => 'Company',
             'sales_office_code' => 'Sales Office Code',
             'sales_office_name' => 'Sales Office Name',
@@ -159,32 +161,32 @@ class SalesOffice extends CActiveRecord {
     public function data($col, $order_dir, $limit, $offset, $columns) {
         switch ($col) {
 
-//            case 0:
-//                $sort_column = 't.sales_office_id';
-//                break;
-
             case 0:
-                $sort_column = 'distributor.distributor_name';
+                $sort_column = 'distributor.distributor_code';
                 break;
 
             case 1:
-                $sort_column = 't.sales_office_code';
+                $sort_column = 'distributor.distributor_name';
                 break;
 
             case 2:
-                $sort_column = 't.sales_office_name';
+                $sort_column = 't.sales_office_code';
                 break;
 
             case 3:
-                $sort_column = 't.address1';
+                $sort_column = 't.sales_office_name';
                 break;
 
             case 4:
-                $sort_column = 't.address2';
+                $sort_column = 't.address1';
                 break;
 
             case 5:
-                $sort_column = 't.barangay_id';
+                $sort_column = 't.latitude';
+                break;
+
+            case 6:
+                $sort_column = 't.longitude';
                 break;
         }
 
@@ -192,12 +194,13 @@ class SalesOffice extends CActiveRecord {
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
 //                $criteria->compare('t.sales_office_id',$columns[0]['search']['value'],true);
-        $criteria->compare('distributor.distributor_name', $columns[0]['search']['value'], true);
-        $criteria->compare('t.sales_office_code', $columns[1]['search']['value'], true);
-        $criteria->compare('t.sales_office_name', $columns[2]['search']['value'], true);
-        $criteria->compare('t.address1', $columns[3]['search']['value'], true);
-        $criteria->compare('t.address2', $columns[4]['search']['value'], true);
-        $criteria->compare('t.barangay_id', $columns[5]['search']['value']);
+        $criteria->compare('distributor.distributor_code', $columns[0]['search']['value'], true);
+        $criteria->compare('distributor.distributor_name', $columns[1]['search']['value'], true);
+        $criteria->compare('t.sales_office_code', $columns[2]['search']['value'], true);
+        $criteria->compare('t.sales_office_name', $columns[3]['search']['value'], true);
+        $criteria->compare('t.address1', $columns[4]['search']['value'], true);
+        $criteria->compare('t.latitude', $columns[5]['search']['value'], true);
+        $criteria->compare('t.longitude', $columns[6]['search']['value']);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;

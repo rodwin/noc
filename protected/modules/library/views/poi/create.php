@@ -1,7 +1,7 @@
 <?php
 
 $this->breadcrumbs = array(
-    'Pois' => array('admin'),
+    Poi::POI_LABEL => array('admin'),
     'Create',
 );
 ?>

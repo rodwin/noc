@@ -52,12 +52,15 @@ return false;
         <thead>
             <tr>
                 <!--<th><?php echo $fields['sales_office_id']; ?></th>-->
-                <th><?php echo $fields['distributor_id']; ?></th>
+                <th>Warehouse Code</th>
+                <th><?php echo $fields['distributor_name']; ?></th>
                 <th><?php echo $fields['sales_office_code']; ?></th>
                 <th><?php echo $fields['sales_office_name']; ?></th>
                 <th><?php echo $fields['address1']; ?></th>
-                <th><?php echo $fields['address2']; ?></th>
-                <th><?php echo $fields['barangay_id']; ?></th>
+                <!--<th><?php echo $fields['address2']; ?></th>-->
+                <!--<th><?php echo $fields['barangay_id']; ?></th>-->
+                <th><?php echo $fields['latitude']; ?></th>
+                <th><?php echo $fields['longitude']; ?></th>
                 <th>Actions</th>
 
             </tr>
@@ -76,14 +79,29 @@ return false;
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/SalesOffice/data'); ?>",
             "columns": [
 //                { "name": "sales_office_id","data": "sales_office_id"},
-                {"name": "distributor_name", "data": "distributor_name"}, {"name": "sales_office_code", "data": "sales_office_code"}, {"name": "sales_office_name", "data": "sales_office_name"}, {"name": "address1", "data": "address1"}, {"name": "address2", "data": "address2"}, {"name": "barangay_id", "data": "barangay_id"}, {"name": "links", "data": "links", 'sortable': false}
+                {"name": "distributor_code", "data": "distributor_code"},
+                {"name": "distributor_name", "data": "distributor_name"},
+                {"name": "sales_office_code", "data": "sales_office_code"},
+                {"name": "sales_office_name", "data": "sales_office_name"},
+                {"name": "address1", "data": "address1"},
+//                {"name": "address2", "data": "address2"},
+//                {"name": "barangay_id", "data": "barangay_id"},
+                {"name": "latitude", "data": "latitude"},
+                {"name": "longitude", "data": "longitude"},
+                {"name": "links", "data": "links", 'sortable': false}
             ]
         });
 
         $('#btnSearch').click(function() {
             table.fnMultiFilter({
-//                "sales_office_id": $("#SalesOffice_sales_office_id").val(),
-                "distributor_name": $("#SalesOffice_distributor_name").val(), "sales_office_code": $("#SalesOffice_sales_office_code").val(), "sales_office_name": $("#SalesOffice_sales_office_name").val(), "address1": $("#SalesOffice_address1").val(), "address2": $("#SalesOffice_address2").val(), "barangay_id": $("#SalesOffice_barangay_id").val(), });
+                "sales_office_id": $("#SalesOffice_sales_office_id").val(),
+                "distributor_name": $("#SalesOffice_distributor_name").val(),
+                "sales_office_code": $("#SalesOffice_sales_office_code").val(),
+                "sales_office_name": $("#SalesOffice_sales_office_name").val(),
+                "address1": $("#SalesOffice_address1").val(),
+                "address2": $("#SalesOffice_address2").val(),
+                "barangay_id": $("#SalesOffice_barangay_id").val(),
+            });
         });
 
 

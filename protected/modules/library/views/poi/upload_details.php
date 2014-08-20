@@ -1,7 +1,7 @@
 <?php
 $this->breadcrumbs = array(
-    'Sku' => array('admin'),
-    'Sku Upload Details',
+    Poi::POI_LABEL => array('admin'),
+    Poi::POI_LABEL . ' Upload Details',
 );
 ?>
 

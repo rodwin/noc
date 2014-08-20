@@ -94,14 +94,14 @@ class PoiCustomDataController extends Controller {
         $model = $this->loadModel($id);
         $poi_category = PoiCategory::model()->findByAttributes(array("poi_category_id" => $model->type, "company_id" => Yii::app()->user->company_id));
         $model->type = $poi_category->category_name;
-        
-        $this->pageTitle = 'View PoiCustomData ' . $model->name;
+
+        $this->pageTitle = 'View ' . Poi::POI_LABEL . ' Custom Data ' . $model->name;
 
         $this->menu = array(
-            array('label' => 'Create PoiCustomData', 'url' => array('create')),
-            array('label' => 'Update PoiCustomData', 'url' => array('update', 'id' => $model->custom_data_id)),
-            array('label' => 'Delete PoiCustomData', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->custom_data_id), 'confirm' => 'Are you sure you want to delete this item?')),
-            array('label' => 'Manage PoiCustomData', 'url' => array('admin')),
+            array('label' => 'Create ' . Poi::POI_LABEL . ' Custom Data', 'url' => array('create')),
+            array('label' => 'Update ' . Poi::POI_LABEL . ' Custom Data', 'url' => array('update', 'id' => $model->custom_data_id)),
+            array('label' => 'Delete ' . Poi::POI_LABEL . ' Custom Data', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->custom_data_id), 'confirm' => 'Are you sure you want to delete this item?')),
+            array('label' => 'Manage ' . Poi::POI_LABEL . ' Custom Data', 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
@@ -117,10 +117,10 @@ class PoiCustomDataController extends Controller {
      */
     public function actionCreate() {
 
-        $this->pageTitle = 'Create PoiCustomData';
+        $this->pageTitle = 'Create ' . Poi::POI_LABEL . ' Custom Data';
 
         $this->menu = array(
-            array('label' => 'Manage PoiCustomData', 'url' => array('admin')),
+            array('label' => 'Manage ' . Poi::POI_LABEL . ' Custom Data', 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
@@ -213,14 +213,14 @@ class PoiCustomDataController extends Controller {
         $model = $this->loadModel($id);
 
         $this->menu = array(
-            array('label' => 'Create PoiCustomData', 'url' => array('create')),
-            array('label' => 'View PoiCustomData', 'url' => array('view', 'id' => $model->custom_data_id)),
-            array('label' => 'Manage PoiCustomData', 'url' => array('admin')),
+            array('label' => 'Create ' . Poi::POI_LABEL . ' Custom Data', 'url' => array('create')),
+            array('label' => 'View ' . Poi::POI_LABEL . ' Custom Data', 'url' => array('view', 'id' => $model->custom_data_id)),
+            array('label' => 'Manage ' . Poi::POI_LABEL . ' Custom Data', 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update PoiCustomData ' . $model->name;
+        $this->pageTitle = 'Update ' . Poi::POI_LABEL . ' CustomData ' . $model->name;
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
@@ -279,7 +279,7 @@ class PoiCustomDataController extends Controller {
      */
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
-            
+
             // delete poi custom data value by custom_data_id
 //            PoiCustomDataValue::model()->deletePoiCustomDataValueByCustomDataID($id);
 
@@ -327,7 +327,7 @@ class PoiCustomDataController extends Controller {
      */
     public function actionAdmin() {
         $this->layout = '//layouts/column1';
-        $this->pageTitle = 'Manage PoiCustomData';
+        $this->pageTitle = 'Manage ' . Poi::POI_LABEL . ' Custom Data';
 
         $model = new PoiCustomData('search');
         $model->unsetAttributes();  // clear any default values

@@ -1,12 +1,15 @@
 <?php
-$this->breadcrumbs=array(
-	'Poi Custom Datas',
-);
 
+$this->breadcrumbs = array(
+    Poi::POI_LABEL . ' Custom Datas',
+);
 ?>
 
 
-<?php $this->widget('booster.widgets.TbListView',array(
-'dataProvider'=>$dataProvider,
-'itemView'=>'_view',
-)); ?>
+<?php
+
+$this->widget('booster.widgets.TbListView', array(
+    'dataProvider' => $dataProvider,
+    'itemView' => '_view',
+));
+?>

@@ -2,7 +2,7 @@
 <?php
 
 $this->breadcrumbs = array(
-    'Poi Custom Datas' => array('admin'),
+    Sku::SKU_LABEL . ' Custom Datas' => array('admin'),
     'Create',
 );
 ?>

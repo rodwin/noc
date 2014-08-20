@@ -46,8 +46,6 @@ class PoiController extends Controller {
     }
 
     public function actionData() {
-        
-        header('HTTP/1.1 200 OK');
 
         Poi::model()->search_string = $_GET['search']['value'] != "" ? $_GET['search']['value'] : null;
 
@@ -118,12 +116,12 @@ class PoiController extends Controller {
 
     public function actionUploadDetails($id) {
 
-        $this->pageTitle = 'Upload Poi Details';
+        $this->pageTitle = 'Upload ' . Poi::POI_LABEL . ' Details';
 
         $this->menu = array(
-            array('label' => 'Upload Poi', 'url' => array('upload')),
-            array('label' => 'Create Poi', 'url' => array('create')),
-            array('label' => 'Manage Poi', 'url' => array('admin')),
+            array('label' => 'Upload ' . Poi::POI_LABEL, 'url' => array('upload')),
+            array('label' => 'Create ' . Poi::POI_LABEL, 'url' => array('create')),
+            array('label' => 'Manage ' . Poi::POI_LABEL, 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
@@ -140,7 +138,7 @@ class PoiController extends Controller {
     public function actionUpload() {
 
         $this->layout = '//layouts/column1';
-        $this->pageTitle = 'Upload Poi';
+        $this->pageTitle = 'Upload ' . Poi::POI_LABEL;
 
         $model = new POIImportForm();
         $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'poi_category_id', 'category_name');
@@ -222,13 +220,13 @@ class PoiController extends Controller {
     public function actionView($id) {
         $model = $this->loadModel($id);
 
-        $this->pageTitle = 'View Poi ' . $model->short_name;
+        $this->pageTitle = 'View ' . Poi::POI_LABEL . ' ' . $model->short_name;
 
         $this->menu = array(
-            array('label' => 'Create Poi', 'url' => array('create')),
-            array('label' => 'Update Poi', 'url' => array('update', 'id' => $model->poi_id)),
-            array('label' => 'Delete Poi', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->poi_id), 'confirm' => 'Are you sure you want to delete this item?')),
-            array('label' => 'Manage Poi', 'url' => array('admin')),
+            array('label' => 'Create ' . Poi::POI_LABEL, 'url' => array('create')),
+            array('label' => 'Update ' . Poi::POI_LABEL, 'url' => array('update', 'id' => $model->poi_id)),
+            array('label' => 'Delete ' . Poi::POI_LABEL, 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->poi_id), 'confirm' => 'Are you sure you want to delete this item?')),
+            array('label' => 'Manage ' . Poi::POI_LABEL, 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
@@ -247,10 +245,10 @@ class PoiController extends Controller {
      */
     public function actionCreate() {
 
-        $this->pageTitle = 'Create Poi';
+        $this->pageTitle = 'Create ' . Poi::POI_LABEL;
 
         $this->menu = array(
-            array('label' => 'Manage Poi', 'url' => array('admin')),
+            array('label' => 'Manage ' . Poi::POI_LABEL, 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
@@ -335,14 +333,14 @@ class PoiController extends Controller {
         $model = $this->loadModel($id);
 
         $this->menu = array(
-            array('label' => 'Create Poi', 'url' => array('create')),
-            array('label' => 'View Poi', 'url' => array('view', 'id' => $model->poi_id)),
-            array('label' => 'Manage Poi', 'url' => array('admin')),
+            array('label' => 'Create ' . Poi::POI_LABEL, 'url' => array('create')),
+            array('label' => 'View ' . Poi::POI_LABEL, 'url' => array('view', 'id' => $model->poi_id)),
+            array('label' => 'Manage ' . Poi::POI_LABEL, 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update Poi ' . $model->short_name;
+        $this->pageTitle = 'Update ' . Poi::POI_LABEL . ' ' . $model->short_name;
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
@@ -419,8 +417,7 @@ class PoiController extends Controller {
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
             // delete poi custom data value by poi_id
-            PoiCustomDataValue::model()->deletePoiCustomDataValueByPoiID($id);
-
+//            PoiCustomDataValue::model()->deletePoiCustomDataValueByPoiID($id);
             // we only allow deletion via POST request
             $this->loadModel($id)->delete();
 
@@ -453,7 +450,7 @@ class PoiController extends Controller {
      */
     public function actionAdmin() {
         $this->layout = '//layouts/column1';
-        $this->pageTitle = 'Manage Poi';
+        $this->pageTitle = 'Manage ' . Poi::POI_LABEL;
 
         $model = new Poi('search');
         $model->unsetAttributes();  // clear any default values

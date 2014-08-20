@@ -1,7 +1,7 @@
 <?php
 
 $this->breadcrumbs = array(
-    'Skus' => array('admin'),
+    Sku::SKU_LABEL => array('admin'),
     'Create',
 );
 ?>
@@ -15,5 +15,7 @@ echo $this->renderPartial('_create_form', array(
     'zone' => $zone,
     'custom_datas' => $custom_datas,
     'sku_custom_data' => $sku_custom_data,
+    'sku_category' => $sku_category,
+    'infra_sub_category' => $infra_sub_category,
 ));
 ?>

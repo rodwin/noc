@@ -64,6 +64,8 @@ class DistributorController extends Controller {
             $row['distributor_id'] = $value->distributor_id;
             $row['distributor_code'] = $value->distributor_code;
             $row['distributor_name'] = $value->distributor_name;
+            $row['latitude'] = $value->latitude;
+            $row['longitude'] = $value->longitude;
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
@@ -87,13 +89,13 @@ class DistributorController extends Controller {
     public function actionView($id) {
         $model = $this->loadModel($id);
 
-        $this->pageTitle = 'View Distributor ' . $model->distributor_name;
+        $this->pageTitle = 'View ' . Distributor::DIST_LABEL . ' ' . $model->distributor_name;
 
         $this->menu = array(
-            array('label' => 'Create Distributor', 'url' => array('create')),
-            array('label' => 'Update Distributor', 'url' => array('update', 'id' => $model->distributor_id)),
-            array('label' => 'Delete Distributor', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->distributor_id), 'confirm' => 'Are you sure you want to delete this item?')),
-            array('label' => 'Manage Distributor', 'url' => array('admin')),
+            array('label' => 'Create ' . Distributor::DIST_LABEL, 'url' => array('create')),
+            array('label' => 'Update ' . Distributor::DIST_LABEL, 'url' => array('update', 'id' => $model->distributor_id)),
+            array('label' => 'Delete ' . Distributor::DIST_LABEL, 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->distributor_id), 'confirm' => 'Are you sure you want to delete this item?')),
+            array('label' => 'Manage ' . Distributor::DIST_LABEL, 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
@@ -109,10 +111,10 @@ class DistributorController extends Controller {
      */
     public function actionCreate() {
 
-        $this->pageTitle = 'Create Distributor';
+        $this->pageTitle = 'Create ' . Distributor::DIST_LABEL;
 
         $this->menu = array(
-            array('label' => 'Manage Distributor', 'url' => array('admin')),
+            array('label' => 'Manage ' . Distributor::DIST_LABEL, 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
@@ -149,14 +151,14 @@ class DistributorController extends Controller {
         $model = $this->loadModel($id);
 
         $this->menu = array(
-            array('label' => 'Create Distributor', 'url' => array('create')),
-            array('label' => 'View Distributor', 'url' => array('view', 'id' => $model->distributor_id)),
-            array('label' => 'Manage Distributor', 'url' => array('admin')),
+            array('label' => 'Create ' . Distributor::DIST_LABEL, 'url' => array('create')),
+            array('label' => 'View ' . Distributor::DIST_LABEL, 'url' => array('view', 'id' => $model->distributor_id)),
+            array('label' => 'Manage ' . Distributor::DIST_LABEL, 'url' => array('admin')),
             '',
             array('label' => 'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update Distributor ' . $model->distributor_name;
+        $this->pageTitle = 'Update ' . Distributor::DIST_LABEL . ' ' . $model->distributor_name;
 
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
@@ -229,7 +231,7 @@ class DistributorController extends Controller {
      */
     public function actionAdmin() {
         $this->layout = '//layouts/column1';
-        $this->pageTitle = 'Manage Distributor';
+        $this->pageTitle = 'Manage ' . Distributor::DIST_LABEL;
 
         $model = new Distributor('search');
         $model->unsetAttributes();  // clear any default values

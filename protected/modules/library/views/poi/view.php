@@ -1,6 +1,6 @@
 <?php
 $this->breadcrumbs = array(
-    'Pois' => array('admin'),
+    Poi::POI_LABEL => array('admin'),
     $model->short_name,
 );
 ?>
@@ -9,8 +9,8 @@ $this->breadcrumbs = array(
     <div class="nav-tabs-custom">
 
         <ul class="nav nav-tabs">
-            <li class="active"><a href="#tab_1" data-toggle="tab">POI</a></li>
-            <li><a href="#tab_2" data-toggle="tab">POI Custom Data</a></li>
+            <li class="active"><a href="#tab_1" data-toggle="tab"><?php echo Poi::POI_LABEL; ?></a></li>
+            <li><a href="#tab_2" data-toggle="tab"><?php echo Poi::POI_LABEL; ?> Custom Data</a></li>
         </ul>
 
         <div class="tab-content">

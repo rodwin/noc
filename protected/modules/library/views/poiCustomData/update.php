@@ -1,7 +1,7 @@
 <?php
 
 $this->breadcrumbs = array(
-    'Poi Custom Datas' => array('admin'),
+    Poi::POI_LABEL . ' Custom Datas' => array('admin'),
     $model->name => array('view', 'id' => $model->custom_data_id),
     'Update',
 );

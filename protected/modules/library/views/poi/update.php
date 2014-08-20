@@ -1,7 +1,7 @@
 <?php
 
 $this->breadcrumbs = array(
-    'Pois' => array('admin'),
+    Poi::POI_LABEL => array('admin'),
     $model->short_name => array('view', 'id' => $model->poi_id),
     'Update',
 );
