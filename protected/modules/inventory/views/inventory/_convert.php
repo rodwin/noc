@@ -91,7 +91,7 @@
                     ));
                     ?>
                 </div>
-                
+
                 <div class="pull-right" style="width: 65%;">
                     <?php
                     echo $form->dropDownListGroup(
@@ -112,7 +112,7 @@
             <dt class="text-convert">With these transaction details...</dt>
 
             <div class="form-group">
-                <?php echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => '')))); ?> 
+                <?php echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('id' => 'transaction_date_dp')))); ?> 
             </div>
 
         </div>
@@ -176,6 +176,14 @@
 
     $('#btn_convert_form_reset').click(function() {
         document.forms["convert-form"].reset();
+    });
+
+    $(function() {
+        $('#transaction_date_dp').datepicker({
+            timePicker: false,
+            format: 'YYYY-MM-DD',
+            applyClass: 'btn-primary'
+        });
     });
 
 </script>

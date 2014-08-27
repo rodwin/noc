@@ -5,13 +5,6 @@
     .modal-header h4 { font-weight: bolder; padding-left: 10px; }
 </style>
 
-<?php
-$baseUrl = Yii::app()->baseUrl;
-$cs = Yii::app()->getClientScript();
-//$cs->registerScriptFile($baseUrl . '/js/datepicker/datepicker.js', CClientScript::POS_END);
-//$cs->registerCssFile(Yii::app()->theme->baseUrl . '/css/daterangepicker/daterangepicker-bs3.css');
-?>
-
 <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header bg-apply clearfix no-padding small-box">
@@ -85,9 +78,13 @@ $cs = Yii::app()->getClientScript();
             </div>
 
             <div class="form-group">
+                <script type="text/javascript">
+                    $("#ApplyInventoryForm_unique_tag").val(<?php echo $inventoryObj->reference_no; ?>);
+                </script>
+
                 <?php
                 echo $form->labelEx($model, 'unique_tag', array('class' => 'text-apply'));
-                echo $form->textFieldGroup($model, 'unique_tag', array('widgetOptions' => array('htmlOptions' => array('class' => '')),
+                echo $form->textFieldGroup($model, 'unique_tag', array('widgetOptions' => array('htmlOptions' => array('id' => 'ApplyInventoryForm_unique_tag')),
                     'labelOptions' => array('label' => false)
                 ));
                 ?> 
@@ -96,7 +93,7 @@ $cs = Yii::app()->getClientScript();
             <div class="form-group">
                 <?php
                 echo $form->labelEx($model, 'unique_date', array('class' => 'text-apply'));
-                echo $form->textFieldGroup($model, 'unique_date', array('widgetOptions' => array('htmlOptions' => array('class' => '')),
+                echo $form->textFieldGroup($model, 'unique_date', array('widgetOptions' => array('htmlOptions' => array('id' => 'unique_date_dp')),
                     'labelOptions' => array('label' => false)
                 ));
                 ?> 
@@ -172,7 +169,11 @@ $cs = Yii::app()->getClientScript();
     });
 
     $(function() {
-//        $('#transaction_date_dp').datepicker();
+        $('#transaction_date_dp, #unique_date_dp').datepicker({
+            timePicker: false,
+            format: 'YYYY-MM-DD',
+            applyClass: 'btn-primary'
+        });
     });
 
 </script>

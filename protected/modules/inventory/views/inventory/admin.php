@@ -22,6 +22,9 @@
     .text-apply { color: #CC9900; }
 </style>
 
+<link href="<?php echo Yii::app()->theme->baseUrl; ?>/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
+<script src="<?php echo Yii::app()->baseUrl; ?>/js/datepicker/datepicker.js" type="text/javascript"></script>
+
 <?php
 $this->breadcrumbs = array(
     'Inventories' => array('admin'),
@@ -147,6 +150,7 @@ return false;
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
+            "order": [[0, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Inventory/data'); ?>",
             "columns": [
                 {"name": "sku_code", "data": "sku_code"},
