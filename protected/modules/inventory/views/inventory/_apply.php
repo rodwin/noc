@@ -5,6 +5,13 @@
     .modal-header h4 { font-weight: bolder; padding-left: 10px; }
 </style>
 
+<?php
+$baseUrl = Yii::app()->baseUrl;
+$cs = Yii::app()->getClientScript();
+//$cs->registerScriptFile($baseUrl . '/js/datepicker/datepicker.js', CClientScript::POS_END);
+//$cs->registerCssFile(Yii::app()->theme->baseUrl . '/css/daterangepicker/daterangepicker-bs3.css');
+?>
+
 <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header bg-apply clearfix no-padding small-box">
@@ -98,7 +105,7 @@
             <dt class="text-apply">With these transaction details...</dt>
 
             <div class="form-group">
-                <?php echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => '')))); ?> 
+                <?php echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('id' => 'transaction_date_dp')))); ?> 
             </div>
 
         </div>
@@ -162,6 +169,10 @@
 
     $('#btn_apply_form_reset').click(function() {
         document.forms["apply-form"].reset();
+    });
+
+    $(function() {
+//        $('#transaction_date_dp').datepicker();
     });
 
 </script>
