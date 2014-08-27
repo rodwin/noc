@@ -7,14 +7,14 @@
 
 <div class="modal-dialog">
     <div class="modal-content">
-        <div class="modal-header bg-green clearfix no-padding small-box">
-            <h4 class="modal-title pull-left margin">Increase</h4>
-            <button class="btn btn-sm btn-flat bg-green pull-right margin" data-dismiss="modal"><i class="fa fa-times"></i></button>
-        </div>  
+        <div class="modal-header bg-update_status clearfix no-padding small-box">
+            <h4 class="modal-title pull-left margin">Update Status</h4>
+            <button class="btn btn-sm btn-flat bg-update_status pull-right margin" data-dismiss="modal"><i class="fa fa-times"></i></button>
+        </div>   
 
         <?php
         $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
-            'id' => 'increase-form',
+            'id' => 'update_status-form',
             'enableAjaxValidation' => false,
             'htmlOptions' => array(
                 'onsubmit' => "return false;", /* Disable normal form submit */
@@ -26,8 +26,8 @@
         <div class="modal-body">
 
             <div class="well well-sm">
-                <?php echo CHtml::hiddenField("IncreaseInventoryForm[inventory_id]", $inventoryObj->inventory_id) ?>
-                <dt class="text-green">For this record</dt>
+                <?php echo CHtml::hiddenField("UpdateStatusInventoryForm[inventory_id]", $inventoryObj->inventory_id); ?>
+                <dt class="text-update_status">For this record</dt>
 
                 <table class="table table-condensed">
                     <thead>
@@ -55,22 +55,21 @@
                 </table>
             </div>
 
-            <div id="IncreaseInventoryForm_summaryError" class="alert alert-danger alert-dismissable no-margin" style="display: none; margin-bottom: 10px!important;">
-                <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
+            <div id="UpdateStatusInventoryForm_summaryError" class="alert alert-danger alert-dismissable no-margin" style="display: none; margin-bottom: 10px!important;">
                 <b></b>
             </div>
 
             <div class="form-group">
                 <script type="text/javascript">
-                    $("#IncreaseInventoryForm_qty").val(<?php echo $qty; ?>);
+                    $("#UpdateStatusInventoryForm_qty").val(<?php echo $qty; ?>);
                 </script>
 
                 <?php
-                echo $form->labelEx($model, 'qty', array('class' => 'text-green'));
+                echo $form->labelEx($model, 'qty', array('class' => 'text-update_status'));
                 echo $form->textFieldGroup(
                         $model, 'qty', array(
                     'wrapperHtmlOptions' => array(
-                        'class' => 'col-sm-5', 'id' => 'IncreaseInventoryForm_qty'
+                        'class' => 'col-sm-5', 'id' => 'UpdateStatusInventoryForm_qty'
                     ),
                     'labelOptions' => array('label' => false),
                     'append' => $inventoryObj->uom->uom_name
@@ -78,28 +77,37 @@
                 ?>
             </div>
 
-            <dt class="text-green">With these transaction details...</dt>
+            <div class="form-group">
+
+                <dt class="text-update_status">...to a new status of:</dt>
+                <?php
+                echo $form->dropDownListGroup(
+                        $model, 'status_id', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => 'col-sm-5',
+                    ),
+                    'widgetOptions' => array(
+                        'data' => $status,
+                        'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Status'),
+                    ),
+                    'labelOptions' => array('label' => false),
+                ));
+                ?>
+            </div>
+
+            <dt class="text-update_status">With these transaction details...</dt>
 
             <div class="form-group">
                 <?php echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => '')))); ?> 
             </div>
-
-            <?php
-            echo CHtml::label('Cost per ' . ucwords($inventoryObj->uom->uom_name), 'cost_per_unit');
-            echo $form->textFieldGroup($model, 'cost_per_unit', array(
-                'widgetOptions' => array('htmlOptions' => array('style' => 'width: 60%!important;')),
-                'labelOptions' => array('label' => false)
-                , 'prepend' => 'P'
-            ));
-            ?>
 
         </div>
 
         <div class="modal-footer clearfix" style="padding-top: 10px; padding-bottom: 10px;">
 
             <div class="pull-left"> 
-                <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-check"></i> Save', array('name' => 'save', 'class' => 'btn btn-primary', 'id' => 'btn_increase')); ?>
-                <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-mail-reply"></i> Reset', array('class' => 'btn btn-primary', 'id' => 'btn_increase_form_reset')); ?>
+                <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-check"></i> Save', array('name' => 'save', 'class' => 'btn btn-primary', 'id' => 'btn_update_status')); ?>
+                <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-mail-reply"></i> Reset', array('class' => 'btn btn-primary', 'id' => 'btn_update_status_form_reset')); ?>
             </div>
 
         </div>
@@ -113,17 +121,17 @@
 
     function send() {
 
-        var data = $("#increase-form").serialize();
+        var data = $("#update_status-form").serialize();
 
         $.ajax({
             type: 'POST',
-            url: '<?php echo Yii::app()->createUrl('/inventory/Inventory/increase'); ?>',
+            url: '<?php echo Yii::app()->createUrl('/inventory/Inventory/updateStatus'); ?>',
             data: data,
             dataType: "json",
             success: function(data) {
 
                 if (data.success === true) {
-                    $("#IncreaseInventoryForm_summaryError").hide();
+                    $("#UpdateStatusInventoryForm_summaryError").hide();
                     $('#myModal').modal('hide');
                     $.growl(data.message, {
                         icon: 'glyphicon glyphicon-info-sign',
@@ -131,13 +139,13 @@
                     });
                     table.fnMultiFilter();
                 } else if (data.success === false) {
-                    $("#IncreaseInventoryForm_summaryError").hide();
+                    $("#UpdateStatusInventoryForm_summaryError").hide();
                     alert(data.message);
                 }
 
                 if (data.error.length > 0) {
-                    $("#IncreaseInventoryForm_summaryError b").html(data.error);
-                    $('#IncreaseInventoryForm_summaryError').show().delay(3000).fadeOut('slow');
+                    $("#UpdateStatusInventoryForm_summaryError b").html(data.error);
+                    $('#UpdateStatusInventoryForm_summaryError').show().delay(3000).fadeOut('slow');
                 }
 
             },
@@ -148,12 +156,12 @@
 
     }
 
-    $('#btn_increase').click(function() {
+    $('#btn_update_status').click(function() {
         send();
     });
 
-    $('#btn_increase_form_reset').click(function() {
-        document.forms["increase-form"].reset();
+    $('#btn_update_status_form_reset').click(function() {
+        document.forms["updat_status-form"].reset();
     });
 
 </script>

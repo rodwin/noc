@@ -15,7 +15,7 @@ $this->breadcrumbs=array(
 		'sku.sku_code',
 		'sku.sku_name',
                 'zone.zone_name',
-                'sku_status.status_name',
+                'skuStatus.status_name',
 		'expiration_date',
 		'reference_no',
 ),

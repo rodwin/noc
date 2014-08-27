@@ -7,14 +7,14 @@
 
 <div class="modal-dialog">
     <div class="modal-content">
-        <div class="modal-header bg-green clearfix no-padding small-box">
-            <h4 class="modal-title pull-left margin">Increase</h4>
-            <button class="btn btn-sm btn-flat bg-green pull-right margin" data-dismiss="modal"><i class="fa fa-times"></i></button>
+        <div class="modal-header bg-convert clearfix no-padding small-box">
+            <h4 class="modal-title pull-left margin">Convert</h4>
+            <button class="btn btn-sm btn-flat bg-convert pull-right margin" data-dismiss="modal"><i class="fa fa-times"></i></button>
         </div>  
 
         <?php
         $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
-            'id' => 'increase-form',
+            'id' => 'convert-form',
             'enableAjaxValidation' => false,
             'htmlOptions' => array(
                 'onsubmit' => "return false;", /* Disable normal form submit */
@@ -26,8 +26,8 @@
         <div class="modal-body">
 
             <div class="well well-sm">
-                <?php echo CHtml::hiddenField("IncreaseInventoryForm[inventory_id]", $inventoryObj->inventory_id) ?>
-                <dt class="text-green">For this record</dt>
+                <?php echo CHtml::hiddenField("ConvertInventoryForm[inventory_id]", $inventoryObj->inventory_id); ?>
+                <dt class="text-convert">For this record</dt>
 
                 <table class="table table-condensed">
                     <thead>
@@ -55,22 +55,21 @@
                 </table>
             </div>
 
-            <div id="IncreaseInventoryForm_summaryError" class="alert alert-danger alert-dismissable no-margin" style="display: none; margin-bottom: 10px!important;">
-                <!--<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>-->
+            <div id="ConvertInventoryForm_summaryError" class="alert alert-danger alert-dismissable no-margin" style="display: none; margin-bottom: 10px!important;">
                 <b></b>
             </div>
 
             <div class="form-group">
                 <script type="text/javascript">
-                    $("#IncreaseInventoryForm_qty").val(<?php echo $qty; ?>);
+                    $("#ConvertInventoryForm_qty").val(<?php echo $qty; ?>);
                 </script>
 
                 <?php
-                echo $form->labelEx($model, 'qty', array('class' => 'text-green'));
+                echo $form->labelEx($model, 'qty', array('class' => 'text-convert'));
                 echo $form->textFieldGroup(
                         $model, 'qty', array(
                     'wrapperHtmlOptions' => array(
-                        'class' => 'col-sm-5', 'id' => 'IncreaseInventoryForm_qty'
+                        'class' => 'col-sm-5', 'id' => 'ConvertInventoryForm_qty'
                     ),
                     'labelOptions' => array('label' => false),
                     'append' => $inventoryObj->uom->uom_name
@@ -78,28 +77,51 @@
                 ?>
             </div>
 
-            <dt class="text-green">With these transaction details...</dt>
+            <dt class="text-convert">...into an equivalent quantity of:</dt>
+
+            <div class="form-group clearfix">
+                <div class="pull-left" style="width: 35%;">
+                    <?php
+                    echo $form->textFieldGroup(
+                            $model, 'equivalent_qty', array(
+                        'wrapperHtmlOptions' => array(
+                            'class' => 'col-sm-5', 'placeholder' => 'hello',
+                        ),
+                        'labelOptions' => array('label' => false)
+                    ));
+                    ?>
+                </div>
+                
+                <div class="pull-right" style="width: 65%;">
+                    <?php
+                    echo $form->dropDownListGroup(
+                            $model, 'new_uom_id', array(
+                        'wrapperHtmlOptions' => array(
+                            'class' => 'col-sm-5',
+                        ),
+                        'widgetOptions' => array(
+                            'data' => $uom,
+                            'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Unit of Measure'),
+                        ),
+                        'labelOptions' => array('label' => false)
+                    ));
+                    ?>
+                </div>
+            </div>
+
+            <dt class="text-convert">With these transaction details...</dt>
 
             <div class="form-group">
                 <?php echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => '')))); ?> 
             </div>
-
-            <?php
-            echo CHtml::label('Cost per ' . ucwords($inventoryObj->uom->uom_name), 'cost_per_unit');
-            echo $form->textFieldGroup($model, 'cost_per_unit', array(
-                'widgetOptions' => array('htmlOptions' => array('style' => 'width: 60%!important;')),
-                'labelOptions' => array('label' => false)
-                , 'prepend' => 'P'
-            ));
-            ?>
 
         </div>
 
         <div class="modal-footer clearfix" style="padding-top: 10px; padding-bottom: 10px;">
 
             <div class="pull-left"> 
-                <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-check"></i> Save', array('name' => 'save', 'class' => 'btn btn-primary', 'id' => 'btn_increase')); ?>
-                <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-mail-reply"></i> Reset', array('class' => 'btn btn-primary', 'id' => 'btn_increase_form_reset')); ?>
+                <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-check"></i> Save', array('name' => 'save', 'class' => 'btn btn-primary', 'id' => 'btn_convert')); ?>
+                <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-mail-reply"></i> Reset', array('class' => 'btn btn-primary', 'id' => 'btn_convert_form_reset')); ?>
             </div>
 
         </div>
@@ -113,17 +135,17 @@
 
     function send() {
 
-        var data = $("#increase-form").serialize();
+        var data = $("#convert-form").serialize();
 
         $.ajax({
             type: 'POST',
-            url: '<?php echo Yii::app()->createUrl('/inventory/Inventory/increase'); ?>',
+            url: '<?php echo Yii::app()->createUrl('/inventory/Inventory/convert'); ?>',
             data: data,
             dataType: "json",
             success: function(data) {
 
                 if (data.success === true) {
-                    $("#IncreaseInventoryForm_summaryError").hide();
+                    $("#ConvertInventoryForm_summaryError").hide();
                     $('#myModal').modal('hide');
                     $.growl(data.message, {
                         icon: 'glyphicon glyphicon-info-sign',
@@ -131,13 +153,13 @@
                     });
                     table.fnMultiFilter();
                 } else if (data.success === false) {
-                    $("#IncreaseInventoryForm_summaryError").hide();
+                    $("#ConvertInventoryForm_summaryError").hide();
                     alert(data.message);
                 }
 
                 if (data.error.length > 0) {
-                    $("#IncreaseInventoryForm_summaryError b").html(data.error);
-                    $('#IncreaseInventoryForm_summaryError').show().delay(3000).fadeOut('slow');
+                    $("#ConvertInventoryForm_summaryError b").html(data.error);
+                    $('#ConvertInventoryForm_summaryError').show().delay(3000).fadeOut('slow');
                 }
 
             },
@@ -148,12 +170,12 @@
 
     }
 
-    $('#btn_increase').click(function() {
+    $('#btn_convert').click(function() {
         send();
     });
 
-    $('#btn_increase_form_reset').click(function() {
-        document.forms["increase-form"].reset();
+    $('#btn_convert_form_reset').click(function() {
+        document.forms["convert-form"].reset();
     });
 
 </script>
