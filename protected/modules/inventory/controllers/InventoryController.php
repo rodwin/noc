@@ -25,7 +25,7 @@ class InventoryController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view','trans','test','increase','history'),
+                'actions' => array('index', 'view', 'trans', 'test', 'increase', 'history', 'decrease', 'convert', 'move', 'updateStatus', 'apply'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -41,13 +41,13 @@ class InventoryController extends Controller {
             ),
         );
     }
-    
-    public function actionHistory($inventory_id){
-        
+
+    public function actionHistory($inventory_id) {
+
         $model = $this->loadModel($inventory_id);
-        
-        $history = InventoryHistory::model()->getAllByInventoryID($inventory_id,Yii::app()->user->company_id);
-        
+
+        $history = InventoryHistory::model()->getAllByInventoryID($inventory_id, Yii::app()->user->company_id);
+
         $this->pageTitle = 'Inventory Record History';
 
         $this->menu = array(
@@ -56,20 +56,19 @@ class InventoryController extends Controller {
             '',
             array('label' => 'Help', 'url' => '#'),
         );
-        
+
         $headers = InventoryHistory::model()->attributeLabels();
-        
+
         $this->render('history', array(
             'model' => $model,
             'history' => $history,
             'headers' => $headers,
         ));
-        
     }
-    
-    public function actionTest($inventory_id,$transaction_type,$qty){
+
+    public function actionTest($inventory_id, $transaction_type, $qty) {
         $this->layout = '//layouts/column1';
-        
+
         $inventoryObj = $this->loadModel($inventory_id);
         $model = new IncreaseInventoryForm();
         $this->render('_increase', array(
@@ -77,82 +76,289 @@ class InventoryController extends Controller {
             'model' => $model,
             'qty' => $qty,
         ));
-        
-        
     }
-    
+
     public function actionIncrease() {
-        
+
         $model = new IncreaseInventoryForm();
-        
-        if (isset($_POST['IncreaseInventoryForm'])) {
+
+        if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
             $model->attributes = $_POST['IncreaseInventoryForm'];
-            $model->created_by =Yii::app()->user->name;
-            
-            if(!$model->validate()){
-                echo json_encode(CActiveForm::validate($model));
+            $model->created_by = Yii::app()->user->name;
+
+            if (!$model->validate()) {
+                $data = array();
+                foreach ($model->getErrors() as $key => $val) {
+                    $model->addError($key, $val[0]);
+                    $data['error'][] = $val[0] . "</br>";
+                }
+                echo json_encode($data);
                 Yii::app()->end();
             }
-            
+
             $data['success'] = false;
-            
+
             if ($model->increase(false)) {
-                $data['message']= 'Successfully increased';
+                $data['message'] = 'Successfully increased';
                 $data['success'] = true;
-            }else{
-                $data['message']= 'An error occured!';
+            } else {
+                $data['message'] = 'An error occured!';
             }
-            
+
             echo json_encode($data);
             Yii::app()->end();
         }
-        
     }
-    
-    public function actionTrans(){
-        
+
+    public function actionDecrease() {
+
+        $model = new DecreaseInventoryForm();
+
+        if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
+            $model->attributes = $_POST['DecreaseInventoryForm'];
+            $model->created_by = Yii::app()->user->name;
+
+            if (!$model->validate()) {
+                $data = array();
+                foreach ($model->getErrors() as $key => $val) {
+                    $model->addError($key, $val[0]);
+                    $data['error'][] = $val[0] . "</br>";
+                }
+                echo json_encode($data);
+                Yii::app()->end();
+            }
+
+            $data['success'] = false;
+
+            if ($model->decrease(false)) {
+                $data['message'] = 'Successfully decreased';
+                $data['success'] = true;
+            } else {
+                $data['message'] = 'An error occured!';
+            }
+
+            echo json_encode($data);
+            Yii::app()->end();
+        }
+    }
+
+    public function actionConvert() {
+
+        $model = new ConvertInventoryForm();
+
+        if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
+            $model->attributes = $_POST['ConvertInventoryForm'];
+            $model->created_by = Yii::app()->user->name;
+
+            if (!$model->validate()) {
+                $data = array();
+                foreach ($model->getErrors() as $key => $val) {
+                    $model->addError($key, $val[0]);
+                    $data['error'][] = $val[0] . "</br>";
+                }
+                echo json_encode($data);
+                Yii::app()->end();
+            }
+
+            $data['success'] = false;
+
+            if ($model->convert(false)) {
+                $data['message'] = 'Successfully converted';
+                $data['success'] = true;
+            } else {
+                $data['message'] = 'An error occured!';
+            }
+
+            echo json_encode($data);
+            Yii::app()->end();
+        }
+    }
+
+    public function actionMove() {
+
+        $model = new MoveInventoryForm();
+
+        if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
+            $model->attributes = $_POST['MoveInventoryForm'];
+            $model->created_by = Yii::app()->user->name;
+
+            if (!$model->validate()) {
+                $data = array();
+                foreach ($model->getErrors() as $key => $val) {
+                    $model->addError($key, $val[0]);
+                    $data['error'][] = $val[0] . "</br>";
+                }
+                echo json_encode($data);
+                Yii::app()->end();
+            }
+
+            $data['success'] = false;
+
+            if ($model->move(false)) {
+                $data['message'] = 'Successfully moved';
+                $data['success'] = true;
+            } else {
+                $data['message'] = 'An error occured!';
+            }
+
+            echo json_encode($data);
+            Yii::app()->end();
+        }
+    }
+
+    public function actionUpdateStatus() {
+
+        $model = new UpdateStatusInventoryForm();
+
+        if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
+            $model->attributes = $_POST['UpdateStatusInventoryForm'];
+            $model->created_by = Yii::app()->user->name;
+
+            if (!$model->validate()) {
+                $data = array();
+                foreach ($model->getErrors() as $key => $val) {
+                    $model->addError($key, $val[0]);
+                    $data['error'][] = $val[0] . "</br>";
+                }
+                echo json_encode($data);
+                Yii::app()->end();
+            }
+
+            $data['success'] = false;
+
+            if ($model->updateStatus(false)) {
+                $data['message'] = 'Successfully updated status';
+                $data['success'] = true;
+            } else {
+                $data['message'] = 'An error occured!';
+            }
+
+            echo json_encode($data);
+            Yii::app()->end();
+        }
+    }
+
+    public function actionApply() {
+
+        $model = new ApplyInventoryForm();
+
+        if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
+            $model->attributes = $_POST['ApplyInventoryForm'];
+            $model->created_by = Yii::app()->user->name;
+
+            if (!$model->validate()) {
+                $data = array();
+                foreach ($model->getErrors() as $key => $val) {
+                    $model->addError($key, $val[0]);
+                    $data['error'][] = $val[0] . "</br>";
+                }
+                echo json_encode($data);
+                Yii::app()->end();
+            }
+
+            $data['success'] = false;
+
+            if ($model->apply(false)) {
+                $data['message'] = 'Successfully apply';
+                $data['success'] = true;
+            } else {
+                $data['message'] = 'An error occured!';
+            }
+
+            echo json_encode($data);
+            Yii::app()->end();
+        }
+    }
+
+    public function actionTrans() {
+
         $inventory_id = Yii::app()->request->getParam('inventory_id');
         $transaction_type = Yii::app()->request->getParam('transaction_type');
         $qty = Yii::app()->request->getParam('qty');
-        
+
         $inventoryObj = $this->loadModel($inventory_id);
-        
+
         $title = "";
-        $body="";
+        $body = "";
         switch ($transaction_type) {
             case 1:
                 $model = new IncreaseInventoryForm();
                 echo CJSON::encode(array($this->renderPartial('_increase', array(
-                    'inventoryObj' => $inventoryObj,
-                    'model' => $model,
-                    'qty' => $qty,
-                ),true)));
-                
+                        'inventoryObj' => $inventoryObj,
+                        'model' => $model,
+                        'qty' => $qty,
+                            ), true)));
+
                 Yii::app()->end();
-                
+
                 break;
             case 2:
+                $model = new DecreaseInventoryForm();
+                echo CJSON::encode(array($this->renderPartial('_decrease', array(
+                        'inventoryObj' => $inventoryObj,
+                        'model' => $model,
+                        'qty' => $qty,
+                            ), true)));
+
+                Yii::app()->end();
 
                 break;
             case 3:
+                $model = new ConvertInventoryForm();
+                $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
+                echo CJSON::encode(array($this->renderPartial('_convert', array(
+                        'inventoryObj' => $inventoryObj,
+                        'model' => $model,
+                        'qty' => $qty,
+                        'uom' => $uom,
+                            ), true)));
+
+                Yii::app()->end();
 
                 break;
             case 4:
+                $model = new MoveInventoryForm();
+                $status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
+                echo CJSON::encode(array($this->renderPartial('_move', array(
+                        'inventoryObj' => $inventoryObj,
+                        'model' => $model,
+                        'qty' => $qty,
+                        'status' => $status,
+                            ), true)));
+
+                Yii::app()->end();
 
                 break;
             case 5:
+                $model = new UpdateStatusInventoryForm();
+                $status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
+                echo CJSON::encode(array($this->renderPartial('_update_status', array(
+                        'inventoryObj' => $inventoryObj,
+                        'model' => $model,
+                        'qty' => $qty,
+                        'status' => $status,
+                            ), true)));
+
+                Yii::app()->end();
 
                 break;
             case 6:
+                $model = new ApplyInventoryForm();
+                echo CJSON::encode(array($this->renderPartial('_apply', array(
+                        'inventoryObj' => $inventoryObj,
+                        'model' => $model,
+                        'qty' => $qty,
+                            ), true)));
+
+                Yii::app()->end();
 
                 break;
 
             default:
                 break;
         }
-        
+
         Yii::app()->end();
-        
     }
 
     public function actionData() {
@@ -172,21 +378,25 @@ class InventoryController extends Controller {
 
         foreach ($dataProvider->getData() as $key => $value) {
             $row = array();
-            $row['DT_RowId'] = $value->inventory_id;// Add an ID to the TR element
+            $row['DT_RowId'] = $value->inventory_id; // Add an ID to the TR element
             $row['inventory_id'] = $value->inventory_id;
             $row['sku_code'] = $value->sku->sku_code;
             $row['sku_id'] = $value->sku_id;
             $row['sku_name'] = $value->sku->sku_name;
-            $row['qty'] = $value->qty;
+            $row['qty'] = $value->qty == 0 ?
+                    '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/inventory/delete', array('id' => $value->inventory_id)) . '">
+                        <i class="fa fa-trash-o"></i>
+                    </a><br/>
+                    <p class="text-center">' . $value->qty . '</p>' : $value->qty;
             $row['uom_id'] = $value->uom_id;
             $row['uom_name'] = $value->uom->uom_name;
-            $row['action_qty'] = '<input type="text" data-id="'.$value->inventory_id.'" name="action_qty" id="action_qty_'.$value->inventory_id.'" />';
+            $row['action_qty'] = '<input type="text" data-id="' . $value->inventory_id . '" name="action_qty" id="action_qty_' . $value->inventory_id . '" />';
             $row['zone_id'] = $value->zone_id;
             $row['zone_name'] = $value->zone->zone_name;
             $row['sku_status_id'] = $value->sku_status_id;
-            $row['sku_status_name'] = isset($value->skuStatus->status_name) ? $value->skuStatus->status_name:'';
-            $row['sales_office_name'] = isset($value->zone->salesOffice->sales_office_name) ? $value->zone->salesOffice->sales_office_name:'';
-            $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name:'';
+            $row['sku_status_name'] = isset($value->skuStatus->status_name) ? $value->skuStatus->status_name : '';
+            $row['sales_office_name'] = isset($value->zone->salesOffice->sales_office_name) ? $value->zone->salesOffice->sales_office_name : '';
+            $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : '';
             $row['transaction_date'] = $value->transaction_date;
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
@@ -196,10 +406,10 @@ class InventoryController extends Controller {
             $row['reference_no'] = $value->reference_no;
 
 
-            $row['links'] = '<a class="btn btn  btn-default" title="Inventory Record History" href="' . $this->createUrl('/inventory/inventory/history', array('inventory_id' => $value->inventory_id)) . '">
+            $row['links'] = '<a class="btn btn-sm btn-default" title="Inventory Record History" href="' . $this->createUrl('/inventory/inventory/history', array('inventory_id' => $value->inventory_id)) . '">
                                 <i class="fa fa-clock-o"></i>
                             </a>
-                            <a class="btn btn  btn-default" title="Item Detail" href="' . $this->createUrl('/inventory/inventory/history', array('inventory_id' => $value->inventory_id)) . '">
+                            <a class="btn btn-sm btn-default" title="Item Detail" href="' . $this->createUrl('/library/sku/update', array('id' => $value->sku_id)) . '">
                                 <i class="fa fa-wrench"></i>
                             </a>';
 
@@ -255,32 +465,31 @@ class InventoryController extends Controller {
         $selectedSkuname = "";
         $selectedSkuBrand = "";
         if (isset($_POST['CreateInventoryForm'])) {
-            
+
             $model->attributes = $_POST['CreateInventoryForm'];
             $model->company_id = Yii::app()->user->company_id;
             $model->created_by = Yii::app()->user->name;
             if ($model->create()) {
-                
+
                 Yii::app()->user->setFlash('success', "Successfully created");
-                
+
                 if (isset($_POST['create'])) {
                     $this->redirect(array('/inventory/Inventory/create'));
                 } else if (isset($_POST['save'])) {
                     $this->redirect(array('/inventory/inventory/admin'));
                 }
             }
-            
-            if(isset($_POST['CreateInventoryForm']['sku_code'])){
-                $selectedSku = Sku::model()->findByAttributes(array('sku_code'=>$model->sku_code,'company_id'=>Yii::app()->user->company_id));
-                if($selectedSku){
+
+            if (isset($_POST['CreateInventoryForm']['sku_code'])) {
+                $selectedSku = Sku::model()->findByAttributes(array('sku_code' => $model->sku_code, 'company_id' => Yii::app()->user->company_id));
+                if ($selectedSku) {
                     $selectedSkuname = $selectedSku->sku_name;
-                    $selectedSkuBrand = isset($selectedSku->brand->brand_name) ? $selectedSku->brand->brand_name:'';
+                    $selectedSkuBrand = isset($selectedSku->brand->brand_name) ? $selectedSku->brand->brand_name : '';
                 }
             }
-            
         }
 
-        $sku = CHtml::listData(Sku::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'sku_name ASC')), 'sku_id', 'sku_name','brand.brand_name');
+        $sku = CHtml::listData(Sku::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'sku_name ASC')), 'sku_id', 'sku_name', 'brand.brand_name');
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $zone = CHtml::listData(Zone::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
@@ -290,7 +499,7 @@ class InventoryController extends Controller {
 //        foreach ($recentlyCreatedItems as $key => $value) {
 //            pr($value);
 //        }
-        
+
         $this->render('create', array(
             'model' => $model,
             'sku' => $sku,
@@ -302,8 +511,6 @@ class InventoryController extends Controller {
             'recentlyCreatedItems' => $recentlyCreatedItems,
         ));
     }
-    
-    
 
     /**
      * Updates a particular model.
@@ -346,17 +553,29 @@ class InventoryController extends Controller {
      */
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
-            // we only allow deletion via POST request
-            $this->loadModel($id)->delete();
+            try {
+                // we only allow deletion via POST request
+                $this->loadModel($id)->delete();
 
-            // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-            if (!isset($_GET['ajax'])) {
-                Yii::app()->user->setFlash('success', "Successfully deleted");
-                $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-            } else {
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
 
-                echo "Successfully deleted";
-                exit;
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    if (!isset($_GET['ajax'])) {
+                        Yii::app()->user->setFlash('danger', "Unable to deleted");
+                        $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('view', 'id' => $id));
+                    } else {
+                        echo "1451";
+                        exit;
+                    }
+                }
             }
         } else
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
@@ -384,7 +603,7 @@ class InventoryController extends Controller {
         $model->unsetAttributes();  // clear any default values
         if (isset($_GET['Inventory']))
             $model->attributes = $_GET['Inventory'];
-        
+
         $this->render('admin', array(
             'model' => $model,
         ));
@@ -397,7 +616,7 @@ class InventoryController extends Controller {
      */
     public function loadModel($id) {
         $model = Inventory::model()->findByPk($id);
-        if ($model === null || $model->company_id != Yii::app()->user->company_id){
+        if ($model === null || $model->company_id != Yii::app()->user->company_id) {
             throw new CHttpException(404, 'The requested page does not exist.');
         }
 

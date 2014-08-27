@@ -25,7 +25,7 @@ class ZoneController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view'),
+                'actions' => array('index', 'view', 'search'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -80,6 +80,30 @@ class ZoneController extends Controller {
         }
 
         echo json_encode($output);
+    }
+
+    public function actionSearch($value) {
+
+        $c = new CDbCriteria();
+        if ($value != "") {
+            $c->addSearchCondition('t.zone_name', $value, true);
+        }
+        $c->compare('t.company_id', Yii::app()->user->company_id);
+        $c->with = array('salesOffice');
+        $zone = Zone::model()->findAll($c);
+
+        $return = array();
+        foreach ($zone as $key => $val) {
+            $return[$key]['zone_id'] = $val->zone_id;
+            $return[$key]['zone_name'] = $val->zone_name;
+//            $return[$key]['value'] = $val->sku_name;
+//            $return[$key]['brand'] = isset($val->brand->brand_name) ? $val->brand->brand_name : '';
+//            $return[$key]['uom_id'] = isset($val->defaultUom->uom_id) ? $val->defaultUom->uom_id : '';
+            $return[$key]['sales_office'] = isset($val->salesOffice->sales_office_name) ? $val->salesOffice->sales_office_name : '';
+        }
+
+        echo json_encode($return);
+        Yii::app()->end();
     }
 
     /**

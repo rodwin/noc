@@ -83,7 +83,6 @@ return false;
                             <div class="box box-primary">
                                 <div class="box-header">
                                     <h4 class="box-title text-primary">Images</h4>
-
                                 </div>
                                 <div class="box-body">
 
@@ -91,8 +90,9 @@ return false;
 
                                 </div>
 
-                                <?php echo CHtml::link('Assign from Gallery', '#', array('class' => 'gallery-button btn btn-default btn-sm btn-flat')); ?>
                             </div>
+
+                            <?php echo CHtml::link('Assign from Gallery', '#', array('class' => 'gallery-button btn btn-default btn-sm btn-flat')); ?>
 
                             <div id="img_gallery" class="search-form panel panel-default" style="display:none">
                                 <div class="panel-heading">

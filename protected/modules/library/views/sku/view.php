@@ -51,6 +51,7 @@ $this->breadcrumbs = array(
                         'defaultUom.uom_name',
                         'default_unit_price',
                         'type',
+                        'sub_type',
                         'defaultZone.zone_name',
                         'supplier',
                     ),

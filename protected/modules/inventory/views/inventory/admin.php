@@ -1,11 +1,27 @@
 
-<style>
-    .action_qty{
-        width: 50px;
-    }
-    .popModal .popModal_content.popModal_contentOverflow {max-height:250px;}
-    
+<style type="text/css">
+    .action_qty { width: 50px; }
+
+    .popModal .popModal_content.popModal_contentOverflow { max-height:250px; }
+
+    #myModal .modal-body { padding-top: 0!important; padding-bottom: 0!important; }
+
+    .bg-decrease { background-color: #990000; color: #fff; opacity: .8; }
+    .text-decrease { color: #990000; }
+
+    .bg-convert { background-color: #CC0099; color: #fff; }
+    .text-convert { color: #CC0099; }
+
+    .bg-move { background-color: #CC3300; color: #fff; opacity: .8; }
+    .text-move { color: #CC3300; }
+
+    .bg-update_status { background-color: #330099; color: #fff; opacity: .8; }
+    .text-update_status { color: #330099; }
+
+    .bg-apply { background-color: #CC9900; color: #fff; opacity: .8; }
+    .text-apply { color: #CC9900; }
 </style>
+
 <?php
 $this->breadcrumbs = array(
     'Inventories' => array('admin'),
@@ -16,6 +32,8 @@ $baseUrl = Yii::app()->baseUrl;
 $cs = Yii::app()->getClientScript();
 $cs->registerScriptFile($baseUrl . '/js/popModal.min.js', CClientScript::POS_END);
 $cs->registerCssFile($baseUrl . '/css/popModal.min.css');
+$cs->registerScriptFile(Yii::app()->baseUrl . '/js/handlebars-v1.3.0.js', CClientScript::POS_END);
+$cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClientScript::POS_END);
 
 Yii::app()->clientScript->registerScript('search', "
 $('.search-button').click(function(){
@@ -83,61 +101,47 @@ return false;
 </div>
 
 <div style="display:none">
-<div id="content" >
-    <div class="box-body">
-                
-            <a class="btn btn-default btn-block btn-sm" onclick="LoadModal('1')">
-                <i class="fa fa-bitbucket"></i> Increase
+    <div id="content">
+        <div class="box-body">
+
+            <a class="btn btn-block btn-social btn-sm btn-default btn-flat" onclick="LoadModal('1')">
+                <i class="fa fa-fw fa-plus"></i>&nbsp; Increase
             </a>
-            <a class="btn btn-default btn-block btn-sm" onclick="LoadModal('2')">
-                <i class="fa fa-bitbucket"></i> Decrease
+            <a class="btn btn-block btn-social btn-sm btn-default btn-flat" onclick="LoadModal('2')">
+                <i class="fa fa-fw fa-minus"></i>&nbsp; Decrease
             </a>
-            <a class="btn btn-default btn-block btn-sm" onclick="LoadModal('3')">
-                <i class="fa fa-bitbucket"></i> Convert Unit of Measure
+            <a class="btn btn-block btn-social btn-sm btn-default btn-flat" onclick="LoadModal('3')">
+                <i class="fa fa-fw fa-random"></i>&nbsp; Convert Unit of Measure
             </a>
-            <a class="btn btn-default btn-block btn-sm" onclick="LoadModal('4')">
-                <i class="fa fa-bitbucket"></i> Move Items
+            <a class="btn btn-block btn-social btn-sm btn-default btn-flat" onclick="LoadModal('4')">
+                <i class="fa fa-fw fa-exchange"></i>&nbsp; Move Items
             </a>
-            <a class="btn btn-default btn-block btn-sm" onclick="LoadModal('5')">
-                <i class="fa fa-bitbucket"></i> Update Status
+            <a class="btn btn-social btn-block btn-sm btn-default btn-flat" onclick="LoadModal('5')">
+                <i class="fa fa-fw fa-retweet"></i>&nbsp; Update Status
             </a>
-            <a class="btn btn-default btn-block btn-sm" onclick="LoadModal('6')">
-                <i class="fa fa-bitbucket"></i> Apply
+            <a class="btn btn-social btn-block btn-sm btn-default btn-flat" onclick="LoadModal('6')">
+                <i class="fa fa-fw fa-tag"></i>&nbsp; Apply
             </a>
-            
-            
-	<div class="popModal_footer">
-		<button type="button" data-popModalBut="cancel">cancel</button>
-	</div>
+
+            <div class="popModal_footer no-padding" style="padding: 5px!important;">
+                <button type="button" data-popModalBut="cancel" class="btn btn-default btn-sm">cancel</button>
+            </div>
+        </div>
     </div>
-</div>
 </div>
 
 <!-- Modal -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-        
-        <div id="transactionDialogContainer">
-
-        </div>
-      
-<!--      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>-->
-        
-    </div>
-  </div>
+    <div id="transactionDialogContainer"></div>
 </div>
 
 <script type="text/javascript">
-    
+
     var inventory_id = null;
     var loaded = false;
     var table;
     $(function() {
-        
+
         table = $('#inventory_table').dataTable({
             "filter": false,
             "processing": true,
@@ -145,62 +149,64 @@ return false;
             "bAutoWidth": false,
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Inventory/data'); ?>",
             "columns": [
-                {"name": "sku_code", "data": "sku_code"}, 
+                {"name": "sku_code", "data": "sku_code"},
                 {"name": "sku_name", "data": "sku_name"},
                 {"name": "qty", "data": "qty"},
                 {"name": "uom_name", "data": "uom_name"},
-                {"name": "action_qty", "data": "action_qty", 'sortable': false,"class":'action_qty'},
+                {"name": "action_qty", "data": "action_qty", 'sortable': false, "class": 'action_qty'},
                 {"name": "zone_name", "data": "zone_name"},
                 {"name": "sku_status_name", "data": "sku_status_name"},
-                {"name": "expiration_date", "data": "expiration_date"}, 
-                {"name": "reference_no", "data": "reference_no"}, 
-                {"name": "brand_name", "data": "brand_name"}, 
-                {"name": "sales_office_name", "data": "sales_office_name"}, 
+                {"name": "expiration_date", "data": "expiration_date"},
+                {"name": "reference_no", "data": "reference_no"},
+                {"name": "brand_name", "data": "brand_name"},
+                {"name": "sales_office_name", "data": "sales_office_name"},
                 {"name": "links", "data": "links", 'sortable': false}
             ]
         });
 
         $('#btnSearch').click(function() {
             table.fnMultiFilter({
-                "sku_code": $("#Inventory_sku_code").val(), 
-                "sku_name": $("#Inventory_qty").val(), 
-                "qty": $("#Inventory_qty").val(), 
-                "zone_name": $("#Inventory_zone_name").val(), 
-                "sku_status_name": $("#Inventory_sku_status_name").val(), 
-                "expiration_date": $("#Inventory_expiration_date").val(), 
-                "reference_no": $("#Inventory_reference_no").val(), 
-                "brand_name": $("#Inventory_brand_name").val(), 
-                "sales_office_name": $("#Inventory_sales_office_name").val(), 
+                "sku_code": $("#Inventory_sku_code").val(),
+                "sku_name": $("#Inventory_qty").val(),
+                "qty": $("#Inventory_qty").val(),
+                "zone_name": $("#Inventory_zone_name").val(),
+                "sku_status_name": $("#Inventory_sku_status_name").val(),
+                "expiration_date": $("#Inventory_expiration_date").val(),
+                "reference_no": $("#Inventory_reference_no").val(),
+                "brand_name": $("#Inventory_brand_name").val(),
+                "sales_office_name": $("#Inventory_sales_office_name").val(),
             });
         });
 
         // Triggers the Click Event and Shows the Overlay Menu if the Input receives a digital or decimal value.          
-        $('table#inventory_table tbody').on('keypress', 'td.action_qty input', function (e) {
-            
+        $('table#inventory_table tbody').on('keypress', 'td.action_qty input', function(e) {
+
             if (fnIsQtyKeyOkay(e)) {
                 if ((e.which >= 48 && e.which <= 57) || e.which == 46) {
-                    
+
                     /*
                      * TODO:
                      * show context menu to increase, decrease,move, convert, apply
                      */
-                    if(loaded === false){
-                        
+                    if (loaded === false) {
+
                         inventory_id = $(this).attr("data-id");
-                        popModal_id = 
-                        $(this).popModal({
-                                html : $('#content'),
-                                placement : 'bottomLeft',
-                                showCloseBut : true,
-                                onDocumentClickClose : true,
-                                onOkBut : function(){},
-                                onCancelBut : function(){},
-                                onLoad : function(){
-                                    loaded = true;
-                                },
-                                onClose : function(){
-                                    loaded = false;
-                                }
+                        popModal_id =
+                                $(this).popModal({
+                            html: $('#content'),
+                            placement: 'bottomLeft',
+                            showCloseBut: false,
+                            onDocumentClickClose: true,
+                            onOkBut: function() {
+                            },
+                            onCancelBut: function() {
+                            },
+                            onLoad: function() {
+                                loaded = true;
+                            },
+                            onClose: function() {
+                                loaded = false;
+                            }
                         });
                     }
                 }
@@ -208,7 +214,7 @@ return false;
                 e.preventDefault();
             }
         });
-        
+
         jQuery(document).on('click', '#inventory_table a.delete', function() {
             if (!confirm('Are you sure you want to delete this item?'))
                 return false;
@@ -217,10 +223,17 @@ return false;
                 'type': 'POST',
                 'dataType': 'text',
                 'success': function(data) {
-                    $.growl(data, {
-                        icon: 'glyphicon glyphicon-info-sign',
-                        type: 'success'
-                    });
+                    if (data == "1451") {
+                        $.growl("Unable to deleted", {
+                            icon: 'glyphicon glyphicon-warning-sign',
+                            type: 'danger'
+                        });
+                    } else {
+                        $.growl(data, {
+                            icon: 'glyphicon glyphicon-info-sign',
+                            type: 'success'
+                        });
+                    }
 
                     table.fnMultiFilter();
                 },
@@ -230,34 +243,34 @@ return false;
             });
             return false;
         });
-        
+
     });
-    
-    function LoadModal(val){
-        
+
+    function LoadModal(val) {
+
 //        $('html').popModal("hide");
-        
-        var qty = $('#action_qty_'+inventory_id).val();
-        
+
+        var qty = $('#action_qty_' + inventory_id).val();
+
         $.ajax({
             data: {
-                inventory_id : inventory_id,
-                transaction_type : val,
-                qty : qty
+                inventory_id: inventory_id,
+                transaction_type: val,
+                qty: qty
             },
             type: "get",
-            dataType:"json",
+            dataType: "json",
             success: function(data) {
                 $('#transactionDialogContainer').html(data);
                 $('#myModal').modal('show');
-                $('#action_qty_'+inventory_id).popModal("hide");
+                $('#action_qty_' + inventory_id).popModal("hide");
             },
-            url:'<?php echo Yii::app()->createUrl($this->module->id . '/Inventory/Trans'); ?>',
-            error: function(jqXHR, exception)
-            {
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/Inventory/Trans'); ?>',
+            error: function(jqXHR, exception) {
                 alert('connection error')
             }
         });
-        
+
     }
+
 </script>

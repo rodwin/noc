@@ -12,7 +12,7 @@ $this->widget('booster.widgets.TbThumbnails', array(
         'class' => 'table',
     ),
     'template' =>
-    '<tr><td class="pull-right no-padding" style="border: none;">{summary}</td></tr>' .
+    '<tr><td class="pull-right no-padding" style="border: none; margin-top: -30px;">{summary}</td></tr>' .
     '<tr><td style="border: none;">{items}</td></tr>' .
     '<tr><td class="pull-right no-padding" style="border: none; margin-top: -50px; margin-bottom: -50px;">{pager}</td></tr>',
 ));

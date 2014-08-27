@@ -58,8 +58,8 @@ class Sku extends CActiveRecord {
             array('sku_id, sku_code, company_id, brand_id, default_uom_id, type, sub_type, default_zone_id, created_by, updated_by', 'length', 'max' => 50),
             array('sku_name, description', 'length', 'max' => 150),
             array('sku_code', 'uniqueCode'),
-//            array('type', 'isValidType'),
-//            array('sub_type', 'isValidSubType'),
+            array('type', 'isValidType'),
+            array('sub_type', 'isValidSubType'),
             array('default_uom_id', 'isValidUOM'),
             array('default_zone_id', 'isValidZone'),
             array('brand_id', 'isValidBrand'),
@@ -90,7 +90,7 @@ class Sku extends CActiveRecord {
         }
 
         $label = $this->attributeLabels();
-
+        
         if (!Validator::InArrayKey($data, $this->getOptions($attribute))) {
             $this->addError($attribute, $label[$attribute] . ' ' . $this->$attribute . ' is invalid!');
         }
@@ -101,16 +101,24 @@ class Sku extends CActiveRecord {
     public function isValidSubType($attribute) {
         $data = trim($this->$attribute);
 
-        if ($data == null) {
+        if ($data == null && $this->type == null) {
             return;
         }
-
+        
+        $sub_types = $this->getOptions($attribute);
         $label = $this->attributeLabels();
-
-        if (!Validator::InArrayKey($data, $this->getOptions($attribute))) {
-            $this->addError($attribute, $label[$attribute] . ' ' . $this->$attribute . ' is invalid!');
+        
+        if (isset($sub_types[$this->type]) && count($sub_types[$this->type]) > 0) {
+            
+            if (!Validator::InArrayKey($data, $sub_types[$this->type])) {
+                $this->addError($attribute, $label[$attribute] . ' ' . $this->$attribute . ' is invalid!');
+            }
+        } else {
+            if ($data != null) {
+                $this->addError($attribute, $label[$attribute] . ' ' . $this->$attribute . ' is invalid!');
+            }
         }
-
+        
         return;
     }
 
@@ -264,11 +272,27 @@ class Sku extends CActiveRecord {
     public function _getOptions($name) {
         $retval = NULL;
         switch ($name) {
-            case 'type':
+            case 'other_type':
                 $retval = array(
                     self::TYPE_CONSUMABLE => 'Consumable',
                     self::TYPE_FIXED => 'Fixed',
                 );
+                break;
+            case 'type':
+                foreach ($this->skuAllTypes() as $val) {
+                    $retval[$val] = ucwords($val);
+                }
+                break;
+            case 'sub_type':
+                foreach ($this->skuAllTypes() as $val) {
+                    $sub_type = $this->skuAllSubTypes($val);
+                    $retval[$val] = array();
+                    if (isset($sub_type)) {
+                        foreach ($this->skuAllSubTypes($val) as $v) {
+                            $retval[$val][$v] = ucwords($v);
+                        }
+                    }
+                }
                 break;
         }
 
@@ -479,6 +503,7 @@ class Sku extends CActiveRecord {
                         'default_uom_id' => isset($uom->uom_id) ? $uom->uom_id : $val[$required_headers['default_uom_id']],
                         'default_unit_price' => $val[$required_headers['default_unit_price']],
                         'type' => $val[$required_headers['type']],
+                        'sub_type' => $val[$required_headers['sub_type']],
                         'default_zone_id' => isset($zone->zone_id) ? $zone->zone_id : $val[$required_headers['default_zone_id']],
                         'supplier' => $val[$required_headers['supplier']],
                         'low_qty_threshold' => $val[$required_headers['low_qty_threshold']],
@@ -613,21 +638,48 @@ class Sku extends CActiveRecord {
         return $model->save();
     }
 
-    public function skuCategoryList() {
+    public function skuAllTypeList() {
+        $arr = array();
 
+        foreach ($this->skuAllTypes() as $val) {
+            $arr[$val] = ucwords($val);
+        }
+
+        return $arr;
+    }
+
+    public function skuAllSubTypeList() {
+        $arr = array();
+
+        foreach ($this->skuAllTypes() as $val) {
+            $sub_type = $this->skuAllSubTypes($val);
+            $arr[$val] = array();
+            if (isset($sub_type)) {
+                foreach ($this->skuAllSubTypes($val) as $v) {
+                    $arr[$val][$v] = ucwords($v);
+                }
+            }
+        }
+        return $arr[Sku::INFRA];
+    }
+
+    public function skuAllTypes() {
         return array(
-            array('value' => 'promo', 'name' => 'Promo'),
-            array('value' => 'merchandising', 'name' => 'Merchandising'),
-            array('value' => Sku::INFRA, 'name' => 'Infra'),
+            'promo',
+            'merchandising',
+            Sku::INFRA,
         );
     }
 
-    public function infraSubList() {
+    public function skuAllSubTypes($type) {
+        $types = $this->skuAllTypes();
 
-        return array(
-            array('value' => 'infra assigned', 'name' => 'Infra Assigned'),
-            array('value' => 'infra on loan', 'name' => 'Infra On loan'),
-        );
+        if ($type == $types[2]) {
+            return array(
+                'infra assigned',
+                'infra on loan',
+            );
+        }
     }
 
 }

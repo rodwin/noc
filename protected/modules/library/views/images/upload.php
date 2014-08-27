@@ -48,8 +48,6 @@ $this->widget('booster.widgets.TbFileUpload', array(
                                 'success' => 'js:function(data){ $("#image_thumbnails").html(data); }'
                             )
                     ),
-                    'onblur' => "if (this.value == '') {this.value = '';}",
-                    'onfocus' => "if (this.value == '') {this.value = '';}",
                 ));
                 ?>
             </div>
@@ -83,6 +81,10 @@ $this->widget('booster.widgets.TbFileUpload', array(
 
 <script type="text/javascript">
 
+    $(document).ready(function() {
+        ajaxLoadImages();
+    });
+
     function ajaxStopLoad() {
         $(document).ajaxStop(function() {
             window.location.reload();
@@ -101,53 +103,50 @@ $this->widget('booster.widgets.TbFileUpload', array(
         });
     }
 
-    $(function() {
+    $('#delete_img').click(function() {
+        if (!window.confirm("Are you sure you want to delete selected item(s)?"))
+            return false;
+        $(':checkbox[name="img[]"]:checked').each(function() {
+            $.ajax({
+                'url': '<?php echo CController::createUrl('images/deleteMultiple') ?>',
+                'type': 'POST',
+                'data': {img_id: this.value},
+                'dataType': 'text',
+                'success': function(data) {
 
-        $('#delete_img').click(function() {
-            if (!window.confirm("Are you sure you want to delete selected item(s)?"))
-                return false;
-            $(':checkbox[name="img[]"]:checked').each(function() {
-                $.ajax({
-                    'url': '<?php echo CController::createUrl('images/deleteMultiple') ?>',
-                    'type': 'POST',
-                    'data': {img_id: this.value},
-                    'dataType': 'text',
-                    'success': function(data) {
-
-                        if (data == "1451") {
-                            $.growl("Unable to deleted", {
-                                icon: 'glyphicon glyphicon-warning-sign',
-                                type: 'danger'
-                            });
-                        } else {
-                            $.growl(data, {
-                                icon: 'glyphicon glyphicon-info-sign',
-                                type: 'success'
-                            });
-                        }
-                    },
-                    error: function(jqXHR, exception) {
-//                        alert('An error occured: ' + exception);
+                    if (data == "1451") {
+                        $.growl("Unable to deleted", {
+                            icon: 'glyphicon glyphicon-warning-sign',
+                            type: 'danger'
+                        });
+                    } else {
+                        $.growl(data, {
+                            icon: 'glyphicon glyphicon-info-sign',
+                            type: 'success'
+                        });
                     }
-                });
-                ajaxLoadImages();
+                },
+                error: function(jqXHR, exception) {
+//                        alert('An error occured: ' + exception);
+                }
             });
 
+            ajaxLoadImages();
         });
 
-        $('#unCheckAll_img').click(function() {
-            $('[id=img_delete_chk]').prop('checked', false);
-        });
+    });
 
+    $('#unCheckAll_img').click(function() {
+        $('[id=img_delete_chk]').prop('checked', false);
     });
 
     $('#checkAll_img').click(function() {
-        $("[id^='img_delete_chk']").prop('checked', true);
-        $(':checkbox[name="img[]"]').each(function() {});
+        $("[id=img_delete_chk]").prop('checked', true);
+        $(':checkbox[name="img[]"]').each(function(){});
     });
 
     $('#checkAll_uploaded_img').click(function() {
-        $("[id^='uploaded_check_box']").prop('checked', true);
+        $("[id=uploaded_check_box]").prop('checked', true);
     });
 
 </script>

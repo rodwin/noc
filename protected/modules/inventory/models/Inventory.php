@@ -37,6 +37,7 @@ class Inventory extends CActiveRecord {
     const INVENTORY_ACTION_TYPE_MOVE = 'move';
     const INVENTORY_ACTION_TYPE_CONVERT = 'convert';
     const INVENTORY_ACTION_TYPE_UPDATE = 'update';
+    const INVENTORY_ACTION_TYPE_APPLY = 'apply';
     
     /**
      * @return string the associated database table name

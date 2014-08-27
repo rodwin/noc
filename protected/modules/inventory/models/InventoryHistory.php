@@ -215,7 +215,7 @@ class InventoryHistory extends CActiveRecord {
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', $company_id);
         $criteria->compare('t.inventory_id', $id, true);
-        $criteria->order = 'transaction_date desc';
+        $criteria->order = 'created_date desc';
         
         $history = InventoryHistory::model()->findAll($criteria);
         
