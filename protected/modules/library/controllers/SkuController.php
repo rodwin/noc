@@ -550,7 +550,7 @@ class SkuController extends Controller {
             } catch (CDbException $e) {
                 if ($e->errorInfo[1] == 1451) {
                     if (!isset($_GET['ajax'])) {
-                        Yii::app()->user->setFlash('danger', "Unable to deleted");
+                        Yii::app()->user->setFlash('danger', "Unable to delete");
                         $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('view', 'id' => $id));
                     } else {
                         echo "1451";
@@ -590,12 +590,16 @@ class SkuController extends Controller {
         $brand = CHtml::listData(Brand::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'brand_name ASC')), 'brand_name', 'brand_name');
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_name', 'uom_name');
         $zone = CHtml::listData(Zone::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_name', 'zone_name');
+        $sku_category = Sku::model()->skuAllTypeList();
+        $infra_sub_category = Sku::model()->skuAllSubTypeList();
 
         $this->render('admin', array(
             'model' => $model,
             'brand' => $brand,
             'uom' => $uom,
             'zone' => $zone,
+            'sku_category' => $sku_category,
+            'infra_sub_category' => $infra_sub_category,
         ));
     }
 

@@ -90,7 +90,7 @@ class Sku extends CActiveRecord {
         }
 
         $label = $this->attributeLabels();
-        
+
         if (!Validator::InArrayKey($data, $this->getOptions($attribute))) {
             $this->addError($attribute, $label[$attribute] . ' ' . $this->$attribute . ' is invalid!');
         }
@@ -104,12 +104,12 @@ class Sku extends CActiveRecord {
         if ($data == null && $this->type == null) {
             return;
         }
-        
+
         $sub_types = $this->getOptions($attribute);
         $label = $this->attributeLabels();
-        
+
         if (isset($sub_types[$this->type]) && count($sub_types[$this->type]) > 0) {
-            
+
             if (!Validator::InArrayKey($data, $sub_types[$this->type])) {
                 $this->addError($attribute, $label[$attribute] . ' ' . $this->$attribute . ' is invalid!');
             }
@@ -118,7 +118,7 @@ class Sku extends CActiveRecord {
                 $this->addError($attribute, $label[$attribute] . ' ' . $this->$attribute . ' is invalid!');
             }
         }
-        
+
         return;
     }
 
@@ -420,7 +420,7 @@ class Sku extends CActiveRecord {
     public function generateTemplate() {
 
         header('Content-Type: application/excel');
-        header('Content-Disposition: attachment; filename="sku.csv"');
+        header('Content-Disposition: attachment; filename="' . Sku::SKU_LABEL . '.csv"');
 
         $fp = fopen('php://output', 'w');
         $cols = "";
