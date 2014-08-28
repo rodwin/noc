@@ -64,7 +64,7 @@ class ZoneController extends Controller {
             $row['zone_id'] = $value->zone_id;
             $row['zone_name'] = $value->zone_name;
             $row['sales_office_id'] = $value->sales_office_id;
-            $row['sales_office_name'] = $value->salesOffice->sales_office_name;
+            $row['sales_office_name'] = isset($value->salesOffice->sales_office_name) ? $value->salesOffice->sales_office_name : null;
             $row['description'] = $value->description;
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
