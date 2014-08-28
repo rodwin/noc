@@ -39,7 +39,7 @@ class Zone extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('zone_id, zone_name, company_id, sales_office_id', 'required'),
+            array('zone_id, zone_name, company_id', 'required'),
             array('zone_id, company_id, sales_office_id, created_by, updated_by', 'length', 'max' => 50),
             array('zone_name', 'length', 'max' => 200),
             array('description', 'length', 'max' => 250),
