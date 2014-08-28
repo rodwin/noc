@@ -18,7 +18,7 @@ class UpdateStatusInventoryForm extends CFormModel {
     public function rules() {
         return array(
             // username and password are required
-            array('created_by, qty, transaction_date, status_id', 'required'),
+            array('created_by, qty, transaction_date', 'required'),
             array('inventory_id', 'isValidInventoryId'),
             array('status_id', 'isValidStatus'),
             array('transaction_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
@@ -62,6 +62,10 @@ class UpdateStatusInventoryForm extends CFormModel {
             $this->qty = 0;
         }
 
+        if ($this->status_id == "") {
+            $this->status_id = null;
+        }
+
         return parent::beforeValidate();
     }
 
@@ -86,19 +90,47 @@ class UpdateStatusInventoryForm extends CFormModel {
         }
 
         $inv_qty = 0;
+        $key = 0;
         $item_exist = false;
-        
-        $inventory = Inventory::model()->findByAttributes(
-                array(
-                    'company_id' => Yii::app()->user->company_id,
-                    'sku_id' => $this->inventoryObj->sku_id,
-                    'uom_id' => $this->inventoryObj->uom_id,
-                    'zone_id' => $this->inventoryObj->zone_id,
-                    'sku_status_id' => $this->status_id,
-                    'expiration_date' => $this->inventoryObj->expiration_date,
-                    'reference_no' => $this->inventoryObj->reference_no,
-                )
-        );
+
+        $c = new CDbCriteria;
+        $c->condition = 't.inventory_id != ' . $this->inventoryObj->inventory_id;
+
+        if ($this->status_id == "") {
+
+            $inv = Inventory::model()->findAllByAttributes(
+                    array(
+                'company_id' => Yii::app()->user->company_id,
+                'sku_id' => $this->inventoryObj->sku_id,
+                'uom_id' => $this->inventoryObj->uom_id,
+                'zone_id' => $this->inventoryObj->zone_id,
+                'sku_status_id' => $this->status_id,
+                'expiration_date' => $this->inventoryObj->expiration_date,
+                'reference_no' => $this->inventoryObj->reference_no,
+                    ), $c);
+        } else {
+
+            $inv = Inventory::model()->findAllByAttributes(
+                    array(
+                'company_id' => Yii::app()->user->company_id,
+                'sku_id' => $this->inventoryObj->sku_id,
+                'uom_id' => $this->inventoryObj->uom_id,
+                'zone_id' => $this->inventoryObj->zone_id,
+                'sku_status_id' => $this->status_id,
+                'expiration_date' => $this->inventoryObj->expiration_date,
+                'reference_no' => $this->inventoryObj->reference_no,
+                    ), $c);
+        }
+
+        if (count($inv) > 1) {
+            $created_date_arry = array();
+            foreach ($inv as $k => $v) {
+                $created_date_arry[$k] = $v['created_date'];
+            }
+
+            $tmp = array_keys($created_date_arry, min($created_date_arry));
+            $key = $tmp[0];
+        }
 
         $transaction = $this->inventoryObj->dbConnection->beginTransaction(); // Transaction begin
 
@@ -108,7 +140,8 @@ class UpdateStatusInventoryForm extends CFormModel {
             $this->inventoryObj->qty = $qty;
             $this->inventoryObj->save(false);
 
-            if ($inventory) {
+            if ($inv) {
+                $inventory = $inv[$key];
                 $item_exist = true;
                 $inv_qty = $this->qty + $inventory->qty;
                 InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_UPDATE, $inventory->cost_per_unit, $this->created_by);
@@ -144,7 +177,7 @@ class UpdateStatusInventoryForm extends CFormModel {
 
             return true;
         } catch (Exception $exc) {
-
+            
             Yii::log($exc->getTraceAsString(), 'error');
             $transaction->rollBack();
             return false;

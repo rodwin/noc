@@ -22,6 +22,9 @@
     .text-apply { color: #CC9900; }
 </style>
 
+<link href="<?php echo Yii::app()->theme->baseUrl; ?>/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
+<script src="<?php echo Yii::app()->baseUrl; ?>/js/datepicker/datepicker.js" type="text/javascript"></script>
+
 <?php
 $this->breadcrumbs = array(
     'Inventories' => array('admin'),
@@ -80,6 +83,22 @@ return false;
 <div class="box-body table-responsive">
     <table id="inventory_table" class="table table-bordered">
         <thead>
+
+<!--            <tr>
+                <th><input type="text" class="form-control input-sm" id="Inv_sku_code" placeholder="" name=""></th>
+                <th><input type="text" class="form-control input-sm" id="Inv_sku_name" placeholder="" name=""></th>
+                <th><input type="text" class="form-control input-sm" id="Inv_qty" placeholder="" name=""></th>
+                <th><input type="text" class="form-control input-sm" id="Inv_uom_name" placeholder="" name=""></th>
+                <th></th>
+                <th><input type="text" class="form-control input-sm" id="Inv_zone_name" placeholder="" name=""></th>
+                <th><input type="text" class="form-control input-sm" id="Inv_sku_status_name" placeholder="" name=""></th>
+                <th><input type="text" class="form-control input-sm" id="Inv_expiration_date" placeholder="" name=""></th>
+                <th><input type="text" class="form-control input-sm" id="Inv_reference_no" placeholder="" name=""></th>
+                <th><input type="text" class="form-control input-sm" id="Inv_brand_name" placeholder="" name=""></th>
+                <th><input type="text" class="form-control input-sm" id="Inv_sales_office_name" placeholder="" name=""></th>
+                <th><button type="button" id="btn_search" class="btn btn-default btn-flat">Search</button></th>
+            </tr>-->
+
             <tr>
                 <th><?php echo $fields['sku_code']; ?></th>
                 <th><?php echo $fields['sku_name']; ?></th>
@@ -93,7 +112,6 @@ return false;
                 <th><?php echo $fields['brand_name']; ?></th>
                 <th><?php echo $fields['sales_office_name']; ?></th>
                 <th>Actions</th>
-
             </tr>
         </thead>
 
@@ -131,7 +149,7 @@ return false;
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div id="transactionDialogContainer"></div>
 </div>
 
@@ -147,6 +165,7 @@ return false;
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
+            "order": [[0, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Inventory/data'); ?>",
             "columns": [
                 {"name": "sku_code", "data": "sku_code"},
@@ -164,21 +183,26 @@ return false;
             ]
         });
 
-        $('#btnSearch').click(function() {
+        function searchTable() {
             table.fnMultiFilter({
-                "sku_code": $("#Inventory_sku_code").val(),
-                "sku_name": $("#Inventory_qty").val(),
-                "qty": $("#Inventory_qty").val(),
-                "zone_name": $("#Inventory_zone_name").val(),
-                "sku_status_name": $("#Inventory_sku_status_name").val(),
-                "expiration_date": $("#Inventory_expiration_date").val(),
-                "reference_no": $("#Inventory_reference_no").val(),
-                "brand_name": $("#Inventory_brand_name").val(),
-                "sales_office_name": $("#Inventory_sales_office_name").val(),
+                "sku_code": $("#Inv_sku_code").val(),
+                "sku_name": $("#Inv_sku_name").val(),
+                "qty": $("#Inv_qty").val(),
+                "uom_name": $("#Inv_uom_name").val(),
+                "zone_name": $("#Inv_zone_name").val(),
+                "sku_status_name": $("#Inv_sku_status_name").val(),
+                "expiration_date": $("#Inv_expiration_date").val(),
+                "reference_no": $("#Inv_reference_no").val(),
+                "brand_name": $("#Inv_brand_name").val(),
+                "sales_office_name": $("#Inv_sales_office_name").val()
             });
+        }
+
+        $('#btn_search').click(function() {
+            searchTable();
         });
 
-        // Triggers the Click Event and Shows the Overlay Menu if the Input receives a digital or decimal value.          
+        // Triggers the Click Event and Shows the Overlay Menu if the Input receives a digital or decimal value.
         $('table#inventory_table tbody').on('keypress', 'td.action_qty input', function(e) {
 
             if (fnIsQtyKeyOkay(e)) {
@@ -224,7 +248,7 @@ return false;
                 'dataType': 'text',
                 'success': function(data) {
                     if (data == "1451") {
-                        $.growl("Unable to deleted", {
+                        $.growl("Unable to delete", {
                             icon: 'glyphicon glyphicon-warning-sign',
                             type: 'danger'
                         });

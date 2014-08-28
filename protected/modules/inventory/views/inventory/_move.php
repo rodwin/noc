@@ -3,7 +3,7 @@
     .form-group { width: 80%; }
 
     .modal-header h4 { font-weight: bolder; padding-left: 10px; }
-    
+
     .typeahead {
         background-color: #fff;
         width: 100%;
@@ -161,7 +161,7 @@
             <dt class="text-move">With these transaction details...</dt>
 
             <div class="form-group">
-                <?php echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => '')))); ?> 
+                <?php echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('id' => 'transaction_date_dp')))); ?> 
             </div>
 
         </div>
@@ -256,6 +256,14 @@
     jQuery('#MoveInventoryForm_zone_name').on('input', function() {
         var value = $("#MoveInventoryForm_zone_name").val();
         $("#MoveInventoryForm_zone_id").val(value);
+    });
+
+    $(function() {
+        $('#transaction_date_dp').datepicker({
+            timePicker: false,
+            format: 'YYYY-MM-DD',
+            applyClass: 'btn-primary'
+        });
     });
 
 </script>

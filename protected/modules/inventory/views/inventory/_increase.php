@@ -81,7 +81,7 @@
             <dt class="text-green">With these transaction details...</dt>
 
             <div class="form-group">
-                <?php echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => '')))); ?> 
+                <?php echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('id' => 'transaction_date_dp')))); ?> 
             </div>
 
             <?php
@@ -154,6 +154,14 @@
 
     $('#btn_increase_form_reset').click(function() {
         document.forms["increase-form"].reset();
+    });
+
+    $(function() {
+        $('#transaction_date_dp').datepicker({
+            timePicker: false,
+            format: 'YYYY-MM-DD',
+            applyClass: 'btn-primary'
+        });
     });
 
 </script>

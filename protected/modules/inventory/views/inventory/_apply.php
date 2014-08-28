@@ -78,9 +78,13 @@
             </div>
 
             <div class="form-group">
+                <script type="text/javascript">
+                    $("#ApplyInventoryForm_unique_tag").val(<?php echo $inventoryObj->reference_no; ?>);
+                </script>
+
                 <?php
                 echo $form->labelEx($model, 'unique_tag', array('class' => 'text-apply'));
-                echo $form->textFieldGroup($model, 'unique_tag', array('widgetOptions' => array('htmlOptions' => array('class' => '')),
+                echo $form->textFieldGroup($model, 'unique_tag', array('widgetOptions' => array('htmlOptions' => array('id' => 'ApplyInventoryForm_unique_tag')),
                     'labelOptions' => array('label' => false)
                 ));
                 ?> 
@@ -89,7 +93,7 @@
             <div class="form-group">
                 <?php
                 echo $form->labelEx($model, 'unique_date', array('class' => 'text-apply'));
-                echo $form->textFieldGroup($model, 'unique_date', array('widgetOptions' => array('htmlOptions' => array('class' => '')),
+                echo $form->textFieldGroup($model, 'unique_date', array('widgetOptions' => array('htmlOptions' => array('id' => 'unique_date_dp')),
                     'labelOptions' => array('label' => false)
                 ));
                 ?> 
@@ -98,7 +102,7 @@
             <dt class="text-apply">With these transaction details...</dt>
 
             <div class="form-group">
-                <?php echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => '')))); ?> 
+                <?php echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('id' => 'transaction_date_dp')))); ?> 
             </div>
 
         </div>
@@ -162,6 +166,14 @@
 
     $('#btn_apply_form_reset').click(function() {
         document.forms["apply-form"].reset();
+    });
+
+    $(function() {
+        $('#transaction_date_dp, #unique_date_dp').datepicker({
+            timePicker: false,
+            format: 'YYYY-MM-DD',
+            applyClass: 'btn-primary'
+        });
     });
 
 </script>
