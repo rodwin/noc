@@ -62,8 +62,8 @@ class SalesOffice extends CActiveRecord {
     public function uniqueCode($attribute, $params) {
 
         $model = Salesoffice::model()->findByAttributes(array('company_id' => $this->company_id, 'sales_office_code' => $this->$attribute));
-        if ($model && $model->sales_office_id != $this->sales_office_id && $model->distributor_id == $this->distributor_id) {
-            $this->addError($attribute, 'Sales Office code already exist in selected distributor');
+        if ($model && $model->sales_office_id != $this->sales_office_id) {
+            $this->addError($attribute, 'Sales Office code selected already taken.');
         }
         return;
     }

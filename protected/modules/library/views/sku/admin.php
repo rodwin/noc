@@ -41,7 +41,12 @@ return false;
 <div class="search-form" style="display:none">
     <?php
     $this->renderPartial('_search', array(
-        'model' => $model, 'brand' => $brand, 'uom' => $uom, 'zone' => $zone,
+        'model' => $model,
+        'brand' => $brand,
+        'uom' => $uom,
+        'zone' => $zone,
+        'sku_category' => $sku_category,
+        'infra_sub_category' => $infra_sub_category,
     ));
     ?>
 </div><!-- search-form -->
@@ -96,7 +101,16 @@ return false;
         $('#btnSearch').click(function() {
             table.fnMultiFilter({
 //                "sku_id": $("#Sku_sku_id").val(),
-                "sku_code": $("#Sku_sku_code").val(), "brand_name": $("#Sku_brand_name").val(), "sku_name": $("#Sku_sku_name").val(), "description": $("#Sku_description").val(), "default_uom_name": $("#Sku_default_uom_name").val(), "supplier": $("#Sku_supplier").val(), "default_zone_name": $("#Sku_default_zone_name").val(), });
+                "sku_code": $("#Sku_sku_code").val(),
+                "brand_name": $("#Sku_brand_name").val(),
+                "sku_name": $("#Sku_sku_name").val(),
+                "description": $("#Sku_description").val(),
+                "default_uom_name": $("#Sku_default_uom_name").val(),
+                "type": $("#Sku_type").val(),
+                "sub_type": $("#Sku_sub_type").val(),
+                "supplier": $("#Sku_supplier").val(),
+                "default_zone_name": $("#Sku_default_zone_name").val(),
+            });
         });
 
 
@@ -110,7 +124,7 @@ return false;
                 'dataType': 'text',
                 'success': function(data) {
                     if (data == "1451") {
-                        $.growl("Unable to deleted", {
+                        $.growl("Unable to delete", {
                             icon: 'glyphicon glyphicon-warning-sign',
                             type: 'danger'
                         });
