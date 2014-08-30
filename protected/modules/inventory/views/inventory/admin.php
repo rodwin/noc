@@ -104,7 +104,7 @@ return false;
                 <th><?php echo $fields['sku_name']; ?></th>
                 <th><?php echo $fields['qty']; ?></th>
                 <th><?php echo $fields['uom_id']; ?></th>
-                <th>Action Qty <i class="fa fa-fw fa-info-circle" data-toggle="popover" content="And here's some amazing content. It's very engaging. right?"></i></th>
+                <th>Action Qty <span title="Type a numeric value into a row's field below to see a list of Transaction options." data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
                 <th><?php echo $fields['zone_id']; ?></th>
                 <th><?php echo $fields['sku_status_id']; ?></th>
                 <th><?php echo $fields['expiration_date']; ?></th>
@@ -148,7 +148,7 @@ return false;
     </div>
 </div>
 
-<!-- Modal -->
+<!------------Modal------------>
 <div class="modal fade" data-keyboard="false" data-backdrop="static" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div id="transactionDialogContainer"></div>
 </div>
