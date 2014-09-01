@@ -33,6 +33,14 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="Salesman_sales_office_id" class="col-sm-2 control-label"><?php echo $fields['sales_office_id']; ?></label>
+                        <div class="col-sm-3">
+                            <!--<input type="text" class="form-control" id="Salesman_sales_office_id" placeholder="<?php echo $fields['sales_office_id']; ?>" name="Salesman[sales_office_id]">-->
+                            <?php echo CHtml::dropDownList('Salesman_sales_office_name', '', $sales_office, array('prompt' => 'Select Salesoffice', 'class' => 'form-control')); ?>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="Salesman_mobile_number" class="col-sm-2 control-label"><?php echo $fields['mobile_number']; ?></label>
                         <div class="col-sm-3">
                             <input type="text" class="form-control" id="Salesman_mobile_number" placeholder="<?php echo $fields['mobile_number']; ?>" name="Salesman[mobile_number]">
