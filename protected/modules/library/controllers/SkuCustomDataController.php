@@ -272,9 +272,8 @@ class SkuCustomDataController extends Controller {
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
 
-
             // delete sku custom data value by custom_data_id
-//            SkuCustomDataValue::model()->deleteSkuCustomDataValueByCustomDataID($id);
+            SkuCustomDataValue::model()->deleteSkuCustomDataValueByCustomDataID($id);
 
             try {
                 // we only allow deletion via POST request
