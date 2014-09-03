@@ -348,7 +348,7 @@ class SkuController extends Controller {
         $brand = CHtml::listData(Brand::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'brand_name ASC')), 'brand_id', 'brand_name');
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $zone = CHtml::listData(Zone::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
-        $sku_convertion_uom = CHtml::listData(Uom::model()->getAllUOMNotInSkuConvertion(), 'uom_id', 'uom_name');
+        $sku_convertion_uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '" AND uom_id != "' . $model->default_uom_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $sku_category = Sku::model()->skuAllTypeList();
         $infra_sub_category = Sku::model()->skuAllSubTypeList();
 
@@ -381,35 +381,59 @@ class SkuController extends Controller {
                     $sku_custom_data_value->value = $_POST[$post_name];
                     $sku_custom_data_value->save();
                 }
-
+                
                 if ($model->save()) {
                     Yii::app()->user->setFlash('success', "Successfully updated");
-//                    $this->redirect(array('view', 'id' => $model->sku_id));
                     $custom_datas = SkuCustomData::model()->getAllSkuCustomData($model->sku_id);
                 }
             }
         } else if (isset($_POST['SkuConvertion'])) {
 
-            $sku_convertion->attributes = $_POST['SkuConvertion'];
-            $sku_convertion->company_id = Yii::app()->user->company_id;
-            $sku_convertion->created_by = Yii::app()->user->name;
-            unset($sku_convertion->created_date);
+            $uom_id_convertion_exist = SkuConvertion::model()->findByAttributes(array('company_id' => Yii::app()->user->company_id, 'sku_id' => $model->sku_id, 'uom_id' => $_POST['SkuConvertion']['uom_id']));
 
-            $sku_convertion->id = Globals::generateV4UUID();
+            if ($uom_id_convertion_exist) {
+
+                $sku_convertion = $uom_id_convertion_exist;
+                $sku_convertion->updated_by = Yii::app()->user->name;
+                $sku_convertion->updated_date = date('Y-m-d H:i:s');
+            } else {
+
+                $sku_convertion->id = Globals::generateV4UUID();
+                $sku_convertion->sku_id = $model->sku_id;
+                $sku_convertion->company_id = Yii::app()->user->company_id;
+                $sku_convertion->created_by = Yii::app()->user->name;
+                unset($sku_convertion->created_date);
+            }
+
+            $sku_convertion->attributes = $_POST['SkuConvertion'];
 
             if ($sku_convertion->save()) {
                 Yii::app()->user->setFlash('success', "Sku Convertion Successfully created");
+                $sku_convertion = new SkuConvertion;
             }
         } else if (isset($_POST['SkuLocationRestock'])) {
 
+            $zone_id_restock_exist = SkuLocationRestock::model()->findByAttributes(array('company_id' => Yii::app()->user->company_id, 'sku_id' => $model->sku_id, 'zone_id' => $_POST['SkuLocationRestock']['zone_id']));
+
+            if ($zone_id_restock_exist) {
+
+                $sku_location_restock = $zone_id_restock_exist;
+                $sku_location_restock->updated_by = Yii::app()->user->name;
+                $sku_location_restock->updated_date = date('Y-m-d H:i:s');
+            } else {
+
+                $sku_location_restock->id = Globals::generateV4UUID();
+                $sku_location_restock->sku_id = $model->sku_id;
+                $sku_location_restock->company_id = Yii::app()->user->company_id;
+                $sku_location_restock->created_by = Yii::app()->user->name;
+                unset($sku_location_restock->created_date);
+            }
+
             $sku_location_restock->attributes = $_POST['SkuLocationRestock'];
-            $sku_location_restock->company_id = Yii::app()->user->company_id;
-            $sku_location_restock->created_by = Yii::app()->user->name;
-            unset($sku_location_restock->created_date);
-            $sku_location_restock->id = Globals::generateV4UUID();
 
             if ($sku_location_restock->save()) {
                 Yii::app()->user->setFlash('success', "Sku Location Restock Successfully created");
+                $sku_location_restock = new SkuLocationRestock;
             }
         }
 
