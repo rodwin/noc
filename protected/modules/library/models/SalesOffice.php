@@ -45,9 +45,9 @@ class SalesOffice extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('sales_office_id, distributor_id, company_id, sales_office_code, sales_office_name', 'required'),
+            array('sales_office_id, company_id, sales_office_code, sales_office_name', 'required'),
             array('barangay_id, municipal_id, province_id, region_id', 'numerical', 'integerOnly' => true),
-            array('sales_office_id, distributor_id, company_id, sales_office_code, created_by, updated_by', 'length', 'max' => 50),
+            array('sales_office_id, distributor_id, company_id, sales_office_code, default_zone_id, created_by, updated_by', 'length', 'max' => 50),
             array('sales_office_name, address1, address2', 'length', 'max' => 200),
             array('latitude, longitude', 'length', 'max' => 15),
             array('sales_office_code', 'uniqueCode'),
@@ -55,7 +55,7 @@ class SalesOffice extends CActiveRecord {
             array('created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('sales_office_id, distributor_id, company_id, sales_office_code, sales_office_name, address1, address2, barangay_id, municipal_id, province_id, region_id, latitude, longitude, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('sales_office_id, distributor_id, company_id, sales_office_code, sales_office_name, default_zone_id, address1, address2, barangay_id, municipal_id, province_id, region_id, latitude, longitude, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
 
@@ -75,6 +75,18 @@ class SalesOffice extends CActiveRecord {
         if ($this->longitude == "") {
             $this->longitude = 0;
         }
+        if ($this->default_zone_id == "") {
+            $this->default_zone_id = null;
+        }
+        
+        if (isset($this->default_zone_id)) {
+            $zone_already_tagged = Salesoffice::model()->findByAttributes(array('company_id' => Yii::app()->user->company_id, 'default_zone_id' => $this->default_zone_id));
+
+            if ($zone_already_tagged) {
+                $this->addError("default_zone_id", "Zone already tagged by other salesoffice.");
+            }
+        }
+        
         return parent::beforeValidate();
     }
 
@@ -86,7 +98,7 @@ class SalesOffice extends CActiveRecord {
         // class name for the relations automatically generated below.
         return array(
             'company' => array(self::BELONGS_TO, 'Company', 'company_id'),
-            'distributor' => array(self::BELONGS_TO, 'Distributor', 'distributor_id'),
+//            'distributor' => array(self::BELONGS_TO, 'Distributor', 'distributor_id'),
             'zones' => array(self::HAS_MANY, 'Zone', 'sales_office_id'),
         );
     }
@@ -103,6 +115,7 @@ class SalesOffice extends CActiveRecord {
             'company_id' => 'Company',
             'sales_office_code' => 'Sales Office Code',
             'sales_office_name' => 'Sales Office Name',
+            'default_zone_id' => 'Default Zone',
             'address1' => 'Address1',
             'address2' => 'Address2',
             'barangay_id' => 'Barangay',
@@ -140,6 +153,7 @@ class SalesOffice extends CActiveRecord {
         $criteria->compare('company_id', Yii::app()->user->company_id);
         $criteria->compare('sales_office_code', $this->sales_office_code, true);
         $criteria->compare('sales_office_name', $this->sales_office_name, true);
+        $criteria->compare('default_zone_id', $this->default_zone_id, true);
         $criteria->compare('address1', $this->address1, true);
         $criteria->compare('address2', $this->address2, true);
         $criteria->compare('barangay_id', $this->barangay_id);
@@ -162,11 +176,11 @@ class SalesOffice extends CActiveRecord {
         switch ($col) {
 
             case 0:
-                $sort_column = 'distributor.distributor_code';
+                $sort_column = 't.distributor_id';
                 break;
 
             case 1:
-                $sort_column = 'distributor.distributor_name';
+                $sort_column = 't.distributor_id';
                 break;
 
             case 2:
@@ -178,14 +192,18 @@ class SalesOffice extends CActiveRecord {
                 break;
 
             case 4:
-                $sort_column = 't.address1';
+//                $sort_column = 'zones.zone_name';
                 break;
 
             case 5:
-                $sort_column = 't.latitude';
+                $sort_column = 't.address1';
                 break;
 
             case 6:
+                $sort_column = 't.latitude';
+                break;
+
+            case 7:
                 $sort_column = 't.longitude';
                 break;
         }
@@ -193,19 +211,20 @@ class SalesOffice extends CActiveRecord {
 
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
-//                $criteria->compare('t.sales_office_id',$columns[0]['search']['value'],true);
-        $criteria->compare('distributor.distributor_code', $columns[0]['search']['value'], true);
-        $criteria->compare('distributor.distributor_name', $columns[1]['search']['value'], true);
+//        $criteria->compare('t.sales_office_id', $columns[0]['search']['value'], true);
+        $criteria->compare('t.distributor_id', $columns[0]['search']['value'], true);
+        $criteria->compare('t.distributor_id', $columns[1]['search']['value'], true);
         $criteria->compare('t.sales_office_code', $columns[2]['search']['value'], true);
         $criteria->compare('t.sales_office_name', $columns[3]['search']['value'], true);
-        $criteria->compare('t.address1', $columns[4]['search']['value'], true);
-        $criteria->compare('t.latitude', $columns[5]['search']['value'], true);
-        $criteria->compare('t.longitude', $columns[6]['search']['value']);
+//        $criteria->compare('zones.zone_name', $columns[4]['search']['value'], true);
+        $criteria->compare('t.address1', $columns[5]['search']['value'], true);
+        $criteria->compare('t.latitude', $columns[6]['search']['value'], true);
+        $criteria->compare('t.longitude', $columns[7]['search']['value']);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
-        $criteria->with = array('company', 'distributor', 'zones');
-
+        $criteria->with = array('company', 'zones');
+        
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
             'pagination' => false,

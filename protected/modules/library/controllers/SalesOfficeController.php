@@ -60,13 +60,18 @@ class SalesOfficeController extends Controller {
 
 
         foreach ($dataProvider->getData() as $key => $value) {
+
+            $sales_office = Salesoffice::model()->find(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '" AND sales_office_id = "' . $value->distributor_id . '"'));
+            $zone = Zone::model()->find(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '" AND zone_id = "' . $value->default_zone_id . '"'));
+
             $row = array();
             $row['sales_office_id'] = $value->sales_office_id;
             $row['distributor_id'] = $value->distributor_id;
-            $row['distributor_code'] = isset($value->distributor->distributor_code) ? $value->distributor->distributor_code : null;
-            $row['distributor_name'] = isset($value->distributor->distributor_name) ? $value->distributor->distributor_name : null;
+            $row['distributor_code'] = $value->distributor_id != "" ? $sales_office->sales_office_code : null;
+            $row['distributor_name'] = $value->distributor_id != "" ? $sales_office->sales_office_name : null;
             $row['sales_office_code'] = $value->sales_office_code;
             $row['sales_office_name'] = $value->sales_office_name;
+            $row['default_zone_name'] = isset($value->default_zone_id) ? $zone->zone_name : null;
             $row['address1'] = $value->address1;
             $row['address2'] = $value->address2;
             $row['barangay_id'] = $value->barangay_id;
@@ -97,6 +102,8 @@ class SalesOfficeController extends Controller {
      */
     public function actionView($id) {
         $model = $this->loadModel($id);
+        
+        $zone = Zone::model()->findByAttributes(array('company_id' => Yii::app()->user->company_id, 'zone_id' => $model->default_zone_id));
 
         $this->pageTitle = 'View SalesOffice ' . $model->sales_office_name;
 
@@ -111,6 +118,7 @@ class SalesOfficeController extends Controller {
 
         $this->render('view', array(
             'model' => $model,
+            'zone' => $zone,
         ));
     }
 
@@ -147,9 +155,12 @@ class SalesOfficeController extends Controller {
             $municipal = CHtml::listData(Municipal::model()->findAll(array('condition' => 'province_code = "' . $model->province_id . '"', 'order' => 'municipal_name ASC')), 'municipal_code', 'municipal_name');
             $barangay = CHtml::listData(Barangay::model()->findAll(array('condition' => 'municipal_code = "' . $model->municipal_id . '"', 'order' => 'barangay_name ASC')), 'barangay_code', 'barangay_name');
 
-            if ($model->save()) {
-                Yii::app()->user->setFlash('success', "Successfully created");
-                $this->redirect(array('view', 'id' => $model->sales_office_id));
+            if ($model->validate()) {
+
+                if ($model->save()) {
+                    Yii::app()->user->setFlash('success', "Successfully created");
+                    $this->redirect(array('view', 'id' => $model->sales_office_id));
+                }
             }
         } else {
             $province = array();
@@ -157,8 +168,8 @@ class SalesOfficeController extends Controller {
             $barangay = array();
         }
 
-        $distributors = CHtml::listData(Distributor::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'distributor_name ASC')), 'distributor_id', 'distributor_name');
-
+        $distributors = CHtml::listData(SalesOffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '" AND distributor_id = ""', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
+        
         $this->render('create', array(
             'model' => $model,
             'distributors' => $distributors,
@@ -166,6 +177,7 @@ class SalesOfficeController extends Controller {
             'province' => $province,
             'municipal' => $municipal,
             'barangay' => $barangay,
+            'zones' => array(),
         ));
     }
 
@@ -191,9 +203,9 @@ class SalesOfficeController extends Controller {
         // $this->performAjaxValidation($model);
 
         $region = CHtml::listData(Region::model()->findAll(array('order' => 'region_name ASC')), 'region_code', 'region_name');
-        $province = CHtml::listData(Province::model()->findAll(array('condition' => 'region_code = "' . $model->region_id . '"', 'order' => 'province_name ASC')), 'province_code', 'province_name');
-        $municipal = CHtml::listData(Municipal::model()->findAll(array('condition' => 'province_code = "' . $model->province_id . '"', 'order' => 'municipal_name ASC')), 'municipal_code', 'municipal_name');
-        $barangay = CHtml::listData(Barangay::model()->findAll(array('condition' => 'municipal_code = "' . $model->municipal_id . '"', 'order' => 'barangay_name ASC')), 'barangay_code', 'barangay_name');
+        $province = CHtml::listData(Province::model()->findAll(array('order' => 'province_name ASC')), 'province_code', 'province_name');
+        $municipal = CHtml::listData(Municipal::model()->findAll(array('order' => 'municipal_name ASC')), 'municipal_code', 'municipal_name');
+        $barangay = CHtml::listData(Barangay::model()->findAll(array('order' => 'barangay_name ASC')), 'barangay_code', 'barangay_name');
 
         if (isset($_POST['SalesOffice'])) {
 
@@ -207,7 +219,8 @@ class SalesOfficeController extends Controller {
             }
         }
 
-        $distributors = CHtml::listData(Distributor::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'distributor_name ASC')), 'distributor_id', 'distributor_name');
+        $distributors = CHtml::listData(SalesOffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '" AND distributor_id = ""', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
+        $zones = CHtml::listData(Zone::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '" AND sales_office_id = "'.$model->sales_office_id.'"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
 
         $this->render('update', array(
             'model' => $model,
@@ -216,6 +229,7 @@ class SalesOfficeController extends Controller {
             'province' => $province,
             'municipal' => $municipal,
             'barangay' => $barangay,
+            'zones' => $zones,
         ));
     }
 
@@ -243,7 +257,7 @@ class SalesOfficeController extends Controller {
             } catch (CDbException $e) {
                 if ($e->errorInfo[1] == 1451) {
                     if (!isset($_GET['ajax'])) {
-                        Yii::app()->user->setFlash('danger', "Unable to deleted");
+                        Yii::app()->user->setFlash('danger', "Unable to delete");
                         $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('view', 'id' => $id));
                     } else {
                         echo "1451";
@@ -279,10 +293,12 @@ class SalesOfficeController extends Controller {
             $model->attributes = $_GET['SalesOffice'];
 
         $distributors = CHtml::listData(Distributor::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'distributor_name ASC')), 'distributor_name', 'distributor_name');
-
+        $zones = CHtml::listData(Zone::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_name', 'zone_name');
+        
         $this->render('admin', array(
             'model' => $model,
             'distributors' => $distributors,
+            'zones' => $zones,
         ));
     }
 

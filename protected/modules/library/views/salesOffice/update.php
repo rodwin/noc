@@ -17,5 +17,6 @@ echo $this->renderPartial('_form', array(
     'province' => $province,
     'municipal' => $municipal,
     'barangay' => $barangay,
+    'zones' => $zones,
 ));
 ?>

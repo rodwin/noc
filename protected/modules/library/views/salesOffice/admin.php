@@ -41,7 +41,7 @@ return false;
 <div class="search-form" style="display:none">
     <?php
     $this->renderPartial('_search', array(
-        'model' => $model, 'distributors' => $distributors,
+        'model' => $model, 'distributors' => $distributors, 'zones' => $zones,
     ));
     ?>
 </div><!-- search-form -->
@@ -56,6 +56,7 @@ return false;
                 <th><?php echo $fields['distributor_name']; ?></th>
                 <th><?php echo $fields['sales_office_code']; ?></th>
                 <th><?php echo $fields['sales_office_name']; ?></th>
+                <th><?php echo $fields['default_zone_id']; ?></th>
                 <th><?php echo $fields['address1']; ?></th>
                 <!--<th><?php echo $fields['address2']; ?></th>-->
                 <!--<th><?php echo $fields['barangay_id']; ?></th>-->
@@ -83,6 +84,7 @@ return false;
                 {"name": "distributor_name", "data": "distributor_name"},
                 {"name": "sales_office_code", "data": "sales_office_code"},
                 {"name": "sales_office_name", "data": "sales_office_name"},
+                {"name": "default_zone_name", "data": "default_zone_name", 'sortable': false},
                 {"name": "address1", "data": "address1"},
 //                {"name": "address2", "data": "address2"},
 //                {"name": "barangay_id", "data": "barangay_id"},
@@ -98,6 +100,7 @@ return false;
                 "distributor_name": $("#SalesOffice_distributor_name").val(),
                 "sales_office_code": $("#SalesOffice_sales_office_code").val(),
                 "sales_office_name": $("#SalesOffice_sales_office_name").val(),
+                "default_zone_name": $("#SalesOffice_default_zone_id").val(),
                 "address1": $("#SalesOffice_address1").val(),
                 "address2": $("#SalesOffice_address2").val(),
                 "barangay_id": $("#SalesOffice_barangay_id").val(),
@@ -115,7 +118,7 @@ return false;
                 'dataType': 'text',
                 'success': function(data) {
                     if (data == "1451") {
-                        $.growl("Unable to deleted", {
+                        $.growl("Unable to delete", {
                             icon: 'glyphicon glyphicon-warning-sign',
                             type: 'danger'
                         });

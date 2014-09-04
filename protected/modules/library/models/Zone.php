@@ -24,6 +24,7 @@
 class Zone extends CActiveRecord {
 
     public $search_string;
+    public $default_zone;
 
     /**
      * @return string the associated database table name
@@ -39,7 +40,7 @@ class Zone extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('zone_id, zone_name, company_id', 'required'),
+            array('zone_id, zone_name, company_id, sales_office_id', 'required'),
             array('zone_id, company_id, sales_office_id, created_by, updated_by', 'length', 'max' => 50),
             array('zone_name', 'length', 'max' => 200),
             array('description', 'length', 'max' => 250),
@@ -50,7 +51,7 @@ class Zone extends CActiveRecord {
             array('zone_id, zone_name, company_id, sales_office_id, description, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
-    
+
     public function uniqueName($attribute, $params) {
 
         $model = Zone::model()->findByAttributes(array('company_id' => $this->company_id, 'zone_name' => $this->$attribute));
