@@ -34,6 +34,13 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="SalesOffice_default_zone_id" class="col-sm-2 control-label"><?php echo $fields['default_zone_id']; ?></label>
+                        <div class="col-sm-3">
+                            <?php echo CHtml::dropDownList('SalesOffice_default_zone_id', '', $zones, array('prompt' => 'Select Zone', 'class' => 'form-control')); ?>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="SalesOffice_address1" class="col-sm-2 control-label"><?php echo $fields['address1']; ?></label>
                         <div class="col-sm-3">
                             <input type="text" class="form-control" id="SalesOffice_address1" placeholder="<?php echo $fields['address1']; ?>" name="SalesOffice[address1]">

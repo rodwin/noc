@@ -105,7 +105,7 @@ return false;
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
-            "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/SkuLocationRestock/data'); ?>",
+            "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/SkuLocationRestock/skuLocationRestockData', array('sku_id' => $model->sku_id)); ?>",
             "columns": [
                 {"name": "zone_name", "data": "zone_name"}, {"name": "low_qty_threshold", "data": "low_qty_threshold"}, {"name": "high_qty_threshold", "data": "high_qty_threshold"}, {"name": "links", "data": "links", 'sortable': false}
             ]

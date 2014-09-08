@@ -144,28 +144,39 @@ class ZoneController extends Controller {
         );
 
         $model = new Zone('create');
-
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
         if (isset($_POST['Zone'])) {
+
             $model->attributes = $_POST['Zone'];
             $model->company_id = Yii::app()->user->company_id;
             $model->created_by = Yii::app()->user->name;
             unset($model->created_date);
             $model->zone_id = Globals::generateV4UUID();
 
-            if ($model->save()) {
-                Yii::app()->user->setFlash('success', "Successfully created");
-                $this->redirect(array('view', 'id' => $model->zone_id));
+            if ($model->validate()) {
+
+                if ($model->save()) {
+
+                    if ($_POST['Zone']['default_zone'] == 1) {
+
+                        $sales_office = SalesOffice::model()->findByAttributes(array('company_id' => Yii::app()->user->company_id, 'sales_office_id' => $model->sales_office_id));
+                        $sales_office->default_zone_id = $model->zone_id;
+                        $sales_office->save();
+                    }
+
+                    Yii::app()->user->setFlash('success', "Successfully created");
+                    $this->redirect(array('view', 'id' => $model->zone_id));
+                }
             }
         }
 
-        $sales_office = CHtml::listData(SalesOffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
+        $sales_office_list = CHtml::listData(SalesOffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
 
         $this->render('create', array(
             'model' => $model,
-            'sales_office' => $sales_office,
+            'sales_office_list' => $sales_office_list,
         ));
     }
 
@@ -190,22 +201,39 @@ class ZoneController extends Controller {
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
 
+        $sales_office = SalesOffice::model()->findByAttributes(array('company_id' => Yii::app()->user->company_id, 'sales_office_id' => $model->sales_office_id, 'default_zone_id' => $model->zone_id));
+        $model->default_zone = isset($sales_office->default_zone_id) ? 1 : 0;
+
         if (isset($_POST['Zone'])) {
+
             $model->attributes = $_POST['Zone'];
             $model->updated_by = Yii::app()->user->name;
             $model->updated_date = date('Y-m-d H:i:s');
 
-            if ($model->save()) {
-                Yii::app()->user->setFlash('success', "Successfully updated");
-                $this->redirect(array('view', 'id' => $model->zone_id));
+            if ($model->validate()) {
+
+                $sales_office = SalesOffice::model()->findByAttributes(array('company_id' => Yii::app()->user->company_id, 'sales_office_id' => $model->sales_office_id));
+
+                if ($_POST['Zone']['default_zone'] == 1) {
+
+                    $sales_office->default_zone_id = $model->zone_id;
+                } else if (isset($sales_office->default_zone_id) && $_POST['Zone']['default_zone'] == 0) {
+
+                    $sales_office->default_zone_id = null;
+                }
+
+                if ($model->save() && $sales_office->save()) {
+                    Yii::app()->user->setFlash('success', "Successfully updated");
+                    $this->redirect(array('view', 'id' => $model->zone_id));
+                }
             }
         }
 
-        $sales_office = CHtml::listData(SalesOffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
+        $sales_office_list = CHtml::listData(SalesOffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
 
         $this->render('update', array(
             'model' => $model,
-            'sales_office' => $sales_office,
+            'sales_office_list' => $sales_office_list,
         ));
     }
 
@@ -232,7 +260,7 @@ class ZoneController extends Controller {
             } catch (CDbException $e) {
                 if ($e->errorInfo[1] == 1451) {
                     if (!isset($_GET['ajax'])) {
-                        Yii::app()->user->setFlash('danger', "Unable to deleted");
+                        Yii::app()->user->setFlash('danger', "Unable to delete");
                         $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('view', 'id' => $id));
                     } else {
                         echo "1451";

@@ -80,11 +80,11 @@ class SkuConvertionController extends Controller {
         echo json_encode($output);
     }
 
-    public function actionSkuConvertionData($uom_name) {
+    public function actionSkuConvertionData($sku_id, $uom_name) {
 
         SkuConvertion::model()->search_string = $_GET['search']['value'] != "" ? $_GET['search']['value'] : null;
 
-        $dataProvider = SkuConvertion::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'], $_GET['columns']);
+        $dataProvider = SkuConvertion::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'], $_GET['columns'], $sku_id);
 
         $count = SkuConvertion::model()->countByAttributes(array('company_id' => Yii::app()->user->company_id));
 

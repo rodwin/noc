@@ -281,7 +281,7 @@ class PoiCustomDataController extends Controller {
         if (Yii::app()->request->isPostRequest) {
 
             // delete poi custom data value by custom_data_id
-//            PoiCustomDataValue::model()->deletePoiCustomDataValueByCustomDataID($id);
+            PoiCustomDataValue::model()->deletePoiCustomDataValueByCustomDataID($id);
 
             try {
                 // we only allow deletion via POST request

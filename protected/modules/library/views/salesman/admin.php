@@ -42,6 +42,7 @@ return false;
     <?php
     $this->renderPartial('_search', array(
         'model' => $model,
+        'sales_office' => $sales_office,
     ));
     ?>
 </div><!-- search-form -->
@@ -55,6 +56,8 @@ return false;
                 <th><?php echo $fields['team_leader_id']; ?></th>
                 <th><?php echo $fields['salesman_name']; ?></th>
                 <th><?php echo $fields['salesman_code']; ?></th>
+                <th><?php echo $fields['sales_office_id']; ?></th>
+                <th><?php echo $fields['zone_id']; ?></th>
                 <th><?php echo $fields['mobile_number']; ?></th>
                 <th><?php echo $fields['device_no']; ?></th>
                 <th><?php echo $fields['other_fields_1']; ?></th>
@@ -76,14 +79,29 @@ return false;
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Salesman/data'); ?>",
             "columns": [
 //                 "name": "salesman_id","data": "salesman_id"},
-                {"name": "team_leader_id", "data": "team_leader_id"}, {"name": "salesman_name", "data": "salesman_name"}, {"name": "salesman_code", "data": "salesman_code"}, {"name": "mobile_number", "data": "mobile_number"}, {"name": "device_no", "data": "device_no"}, {"name": "other_fields_1", "data": "other_fields_1"}, {"name": "links", "data": "links", 'sortable': false}
+                {"name": "team_leader_id", "data": "team_leader_id"},
+                {"name": "salesman_name", "data": "salesman_name"},
+                {"name": "salesman_code", "data": "salesman_code"},
+                {"name": "sales_office_name", "data": "sales_office_name"},
+                {"name": "zone_name", "data": "zone_name"},
+                {"name": "mobile_number", "data": "mobile_number"},
+                {"name": "device_no", "data": "device_no"},
+                {"name": "other_fields_1", "data": "other_fields_1"},
+                {"name": "links", "data": "links", 'sortable': false}
             ]
         });
 
         $('#btnSearch').click(function() {
             table.fnMultiFilter({
 //                "salesman_id": $("#Salesman_salesman_id").val(),
-                "team_leader_id": $("#Salesman_team_leader_id").val(), "salesman_name": $("#Salesman_salesman_name").val(), "salesman_code": $("#Salesman_salesman_code").val(), "mobile_number": $("#Salesman_mobile_number").val(), "device_no": $("#Salesman_device_no").val(), "other_fields_1": $("#Salesman_other_fields_1").val(), });
+                "team_leader_id": $("#Salesman_team_leader_id").val(),
+                "salesman_name": $("#Salesman_salesman_name").val(),
+                "salesman_code": $("#Salesman_salesman_code").val(),
+                "sales_office_name": $("#Salesman_sales_office_name").val(),
+                "mobile_number": $("#Salesman_mobile_number").val(),
+                "device_no": $("#Salesman_device_no").val(),
+                "other_fields_1": $("#Salesman_other_fields_1").val(),
+            });
         });
 
 

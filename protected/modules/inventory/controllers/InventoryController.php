@@ -29,7 +29,7 @@ class InventoryController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data'),
+                'actions' => array('create', 'update', 'data', 'transfer'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -392,7 +392,7 @@ class InventoryController extends Controller {
             $row['uom_name'] = $value->uom->uom_name;
             $row['action_qty'] = '<input type="text" data-id="' . $value->inventory_id . '" name="action_qty" id="action_qty_' . $value->inventory_id . '" />';
             $row['zone_id'] = $value->zone_id;
-            $row['zone_name'] = $value->zone->zone_name;
+            $row['zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
             $row['sku_status_id'] = $value->sku_status_id;
             $row['sku_status_name'] = isset($value->skuStatus->status_name) ? $value->skuStatus->status_name : '';
             $row['sales_office_name'] = isset($value->zone->salesOffice->sales_office_name) ? $value->zone->salesOffice->sales_office_name : '';
@@ -440,6 +440,14 @@ class InventoryController extends Controller {
         $this->render('view', array(
             'model' => $model,
         ));
+    }
+
+    public function actionTransfer() {
+        $this->layout = '//layouts/column1';
+        
+        $this->pageTitle = 'Transfer';
+
+        $this->render('transfer', array());
     }
 
     /**
@@ -554,6 +562,9 @@ class InventoryController extends Controller {
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
             try {
+
+                // delete inventory history by inventory_id
+                InventoryHistory::model()->deleteHistoryByInvID($id);
                 // we only allow deletion via POST request
                 $this->loadModel($id)->delete();
 
@@ -569,7 +580,7 @@ class InventoryController extends Controller {
             } catch (CDbException $e) {
                 if ($e->errorInfo[1] == 1451) {
                     if (!isset($_GET['ajax'])) {
-                        Yii::app()->user->setFlash('danger', "Unable to deleted");
+                        Yii::app()->user->setFlash('danger', "Unable to delete");
                         $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('view', 'id' => $id));
                     } else {
                         echo "1451";

@@ -41,8 +41,8 @@ class Salesman extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('salesman_id, company_id, salesman_name, salesman_code', 'required'),
-            array('salesman_id, team_leader_id, company_id, salesman_code, mobile_number, device_no, other_fields_1, other_fields_2, other_fields_3, created_by, updated_by', 'length', 'max' => 50),
+            array('salesman_id, company_id, salesman_name, salesman_code, sales_office_id, zone_id', 'required'),
+            array('salesman_id, team_leader_id, company_id, salesman_code, sales_office_id, zone_id, mobile_number, device_no, other_fields_1, other_fields_2, other_fields_3, created_by, updated_by', 'length', 'max' => 50),
             array('salesman_name', 'length', 'max' => 200),
             array('is_team_leader', 'length', 'max' => 1),
             array('mobile_number', 'numerical', 'integerOnly' => true),
@@ -50,7 +50,7 @@ class Salesman extends CActiveRecord {
             array('created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('salesman_id, team_leader_id, company_id, salesman_name, salesman_code, mobile_number, device_no, other_fields_1, other_fields_2, other_fields_3, created_date, created_by, updated_date, updated_by, is_team_leader', 'safe', 'on' => 'search'),
+            array('salesman_id, team_leader_id, company_id, salesman_name, salesman_code, sales_office_id, zone_id, mobile_number, device_no, other_fields_1, other_fields_2, other_fields_3, created_date, created_by, updated_date, updated_by, is_team_leader', 'safe', 'on' => 'search'),
         );
     }
 
@@ -75,6 +75,8 @@ class Salesman extends CActiveRecord {
         // class name for the relations automatically generated below.
         return array(
             'company' => array(self::BELONGS_TO, 'Company', 'company_id'),
+            'salesOffice' => array(self::BELONGS_TO, 'SalesOffice', 'sales_office_id'),
+            'zone' => array(self::BELONGS_TO, 'Zone', 'zone_id'),
         );
     }
 
@@ -88,6 +90,8 @@ class Salesman extends CActiveRecord {
             'company_id' => 'Company',
             'salesman_name' => 'Salesman Name',
             'salesman_code' => 'Salesman Code',
+            'sales_office_id' => 'Sales Office',
+            'zone_id' => 'Zone',
             'mobile_number' => 'Mobile Number',
             'device_no' => 'Device No',
             'other_fields_1' => 'Other Fields 1',
@@ -147,43 +151,54 @@ class Salesman extends CActiveRecord {
 //                break;
 
             case 0:
-                $sort_column = 'team_leader_id';
+                $sort_column = 't.team_leader_id';
                 break;
 
             case 1:
-                $sort_column = 'salesman_name';
+                $sort_column = 't.salesman_name';
                 break;
 
             case 2:
-                $sort_column = 'salesman_code';
+                $sort_column = 't.salesman_code';
                 break;
 
             case 3:
-                $sort_column = 'mobile_number';
+                $sort_column = 'salesOffice.sales_office_name';
                 break;
 
             case 4:
-                $sort_column = 'device_no';
+                $sort_column = 'zone.zone_name';
                 break;
 
             case 5:
-                $sort_column = 'other_fields_1';
+                $sort_column = 't.mobile_number';
+                break;
+
+            case 6:
+                $sort_column = 't.device_no';
+                break;
+
+            case 7:
+                $sort_column = 't.other_fields_1';
                 break;
         }
 
 
         $criteria = new CDbCriteria;
-        $criteria->compare('company_id', Yii::app()->user->company_id);
+        $criteria->compare('t.company_id', Yii::app()->user->company_id);
 //        $criteria->compare('salesman_id', $columns[0]['search']['value'], true);
-        $criteria->compare('team_leader_id', $columns[0]['search']['value'], true);
-        $criteria->compare('salesman_name', $columns[1]['search']['value'], true);
-        $criteria->compare('salesman_code', $columns[2]['search']['value'], true);
-        $criteria->compare('mobile_number', $columns[3]['search']['value'], true);
-        $criteria->compare('device_no', $columns[4]['search']['value'], true);
-        $criteria->compare('other_fields_1', $columns[5]['search']['value'], true);
+        $criteria->compare('t.team_leader_id', $columns[0]['search']['value'], true);
+        $criteria->compare('t.salesman_name', $columns[1]['search']['value'], true);
+        $criteria->compare('t.salesman_code', $columns[2]['search']['value'], true);
+        $criteria->compare('salesOffice.sales_office_name', $columns[3]['search']['value'], true);
+        $criteria->compare('zone.zone_name', $columns[4]['search']['value'], true);
+        $criteria->compare('t.mobile_number', $columns[5]['search']['value'], true);
+        $criteria->compare('t.device_no', $columns[6]['search']['value'], true);
+        $criteria->compare('t.other_fields_1', $columns[7]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
+        $criteria->with = array('salesOffice', 'zone');
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,

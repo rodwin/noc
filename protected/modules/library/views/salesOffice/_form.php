@@ -39,6 +39,23 @@
                 <div class="form-group">
                     <?php echo $form->textFieldGroup($model, 'sales_office_name', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 200)))); ?>
                 </div>
+                
+                <div class="form-group">
+                    <?php //echo $form->textFieldGroup($model,'default_zone_id',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
+                    <?php
+                    echo $form->dropDownListGroup(
+                            $model, 'default_zone_id', array(
+                        'wrapperHtmlOptions' => array(
+                            'class' => 'col-sm-5',
+                        ),
+                        'widgetOptions' => array(
+                            'data' => $zones,
+                            'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Zone'),
+                        )
+                            )
+                    );
+                    ?>
+                </div>
 
                 <div class="form-group">
                     <?php echo $form->textFieldGroup($model, 'address1', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 200)))); ?>

@@ -44,7 +44,7 @@ class InventoryHistory extends CActiveRecord {
             array('cost_unit', 'length', 'max' => 18),
             array('ave_cost_per_unit', 'length', 'max' => 19),
             array('created_date, updated_date', 'safe'),
-            array('transaction_date','type', 'type' => 'date', 'message' => '{attribute}: is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
+            array('transaction_date', 'type', 'type' => 'date', 'message' => '{attribute}: is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('inventory_history_id, company_id, inventory_id, quantity_change, running_total, action, cost_unit, ave_cost_per_unit, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
@@ -183,9 +183,9 @@ class InventoryHistory extends CActiveRecord {
     public static function model($className = __CLASS__) {
         return parent::model($className);
     }
-    
-    public function createHistory($company_id,$inventory_id,$transaction_date,$quantity_change,$running_total,$action,$cost_unit =0,$created_by = null) {
-        
+
+    public function createHistory($company_id, $inventory_id, $transaction_date, $quantity_change, $running_total, $action, $cost_unit = 0, $created_by = null) {
+
         $inventory_history = new InventoryHistory;
         $inventory_history->company_id = $company_id;
         $inventory_history->inventory_id = $inventory_id;
@@ -199,27 +199,35 @@ class InventoryHistory extends CActiveRecord {
          */
         $inventory_history->ave_cost_per_unit = 0;
         $inventory_history->created_by = $created_by;
-        
-        
-        if($inventory_history->validate()){
+
+
+        if ($inventory_history->validate()) {
             return $inventory_history->save();
-        }else{
+        } else {
             return $inventory_history->getErrors();
-            
         }
-        
     }
-    
-    public function getAllByInventoryID($id,$company_id){
-        
+
+    public function getAllByInventoryID($id, $company_id) {
+
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', $company_id);
         $criteria->compare('t.inventory_id', $id, true);
         $criteria->order = 'created_date desc';
-        
+
         $history = InventoryHistory::model()->findAll($criteria);
-        
+
         return $history;
     }
-    
+
+    public function deleteHistoryByInvID($inventory_id) {
+
+        $sql = "DELETE FROM noc.inventory_history
+                        WHERE inventory_id = :inventory_id";
+
+        $command = Yii::app()->db->createCommand($sql);
+        $command->bindParam(':inventory_id', $inventory_id, PDO::PARAM_STR);
+        $command->execute();
+    }
+
 }

@@ -97,7 +97,7 @@ return false;
                 'dataType': 'text',
                 'success': function(data) {
                     if (data == "1451") {
-                        $.growl("Unable to deleted", {
+                        $.growl("Unable to delete", {
                             icon: 'glyphicon glyphicon-warning-sign',
                             type: 'danger'
                         });

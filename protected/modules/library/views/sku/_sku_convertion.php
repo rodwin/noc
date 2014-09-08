@@ -89,7 +89,7 @@ return false;
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
-            "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/SkuConvertion/skuConvertionData', array('uom_name' => !empty($model->defaultUom->uom_name) ? $model->defaultUom->uom_name : null)); ?>",
+            "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/SkuConvertion/skuConvertionData', array('sku_id' => $model->sku_id,  'uom_name' => !empty($model->defaultUom->uom_name) ? $model->defaultUom->uom_name : null)); ?>",
             "columns": [
                 {"name": "quantity", "data": "quantity"}, {"name": "uom_name", "data": "uom_name"}, {"name": "equals", "data": "equals", 'sortable': false}, {"name": "new_quantity", "data": "new_quantity"}, {"name": "default_of_unit_measure", "data": "default_of_unit_measure", 'sortable': false}, {"name": "links", "data": "links", 'sortable': false}
             ]

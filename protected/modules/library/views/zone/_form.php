@@ -20,7 +20,6 @@
                     <?php echo $form->textFieldGroup($model, 'zone_name', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 200)))); ?>
                 </div>
 
-
                 <div class="form-group">
                     <?php //echo $form->textFieldGroup($model,'sales_office_id',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
                     <?php
@@ -30,7 +29,7 @@
                             'class' => 'col-sm-5',
                         ),
                         'widgetOptions' => array(
-                            'data' => $sales_office,
+                            'data' => $sales_office_list,
                             'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Salesoffice'),
                         )
                             )
@@ -38,11 +37,13 @@
                     ?>
                 </div>
 
-
                 <div class="form-group">
                     <?php echo $form->textFieldGroup($model, 'description', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 250)))); ?>
                 </div>
 
+                <div class="form-group">
+                    <?php echo $form->checkboxGroup($model, 'default_zone'); ?>
+                </div>
 
                 <div class="form-group">
                     <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save', array('class' => 'btn btn-primary btn-flat')); ?>
