@@ -2,17 +2,76 @@
 
 class CreateInventoryForm extends CFormModel
 {
+        /**
+        * @var string company_id
+        * @soap
+        */
         public $company_id;
+        
+        /**
+        * @var string sku_code
+        * @soap
+        */
 	public $sku_code;
+        
+        /**
+        * @var string sku_id
+        * @soap
+        */
 	public $sku_id;
+        
+        /**
+        * @var int qty
+        * @soap
+        */
         public $qty;
+        
+        /**
+        * @var string default_uom_id
+        * @soap
+        */
 	public $default_uom_id;
+        
+        /**
+        * @var string default_zone_id
+        * @soap
+        */
 	public $default_zone_id;
+        
+        /**
+        * @var date transaction_date
+        * @soap
+        */
 	public $transaction_date;
+        
+        /**
+        * @var double cost_per_unit
+        * @soap
+        */
 	public $cost_per_unit;
+        
+        /**
+        * @var string sku_status_id
+        * @soap
+        */
         public $sku_status_id;
+        
+        /**
+        * @var string unique_tag
+        * @soap
+        */
         public $unique_tag;
+        
+        /**
+        * @var date unique_date
+        * @soap
+        */
         public $unique_date;
+        
+        /**
+        * @var string created_by
+        * @soap
+        */
         public $created_by;
         
 
@@ -39,7 +98,7 @@ class CreateInventoryForm extends CFormModel
                         array('cost_per_unit', 'length', 'max' => 18),
                         array('cost_per_unit', 'match', 'pattern'=>'/^[0-9]{1,9}(\.[0-9]{0,3})?$/'),
                     
-                        array('unique_date,transaction_date', 'type', 'type' => 'date', 'message' => '{attribute}: is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
+                        array('unique_date,transaction_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date.', 'dateFormat' => 'yyyy-MM-dd'),
                     
 			array('qty', 'numerical', 'integerOnly' => true,'max'=>9999999,'min'=> 0),
 		);
@@ -50,7 +109,7 @@ class CreateInventoryForm extends CFormModel
             $model = Sku::model()->findByAttributes(array('sku_code'=>$this->$attribute,'company_id'=> $this->company_id));
 
             if (!Validator::isResultSetWithRows($model)) {
-                $this->addError($attribute, 'Sku not found');
+                $this->addError($attribute, 'Sku not found.');
             }else{
                 $this->sku_id = $model->sku_id;
             }
@@ -66,7 +125,7 @@ class CreateInventoryForm extends CFormModel
             $model = SkuStatus::model()->findbypk($this->$attribute);
 
             if (!Validator::isResultSetWithRows($model)) {
-                $this->addError($attribute, 'Status is invalid');
+                $this->addError($attribute, 'Status is invalid.');
             }
 
             return;
@@ -77,7 +136,7 @@ class CreateInventoryForm extends CFormModel
             $model = Zone::model()->findByPk($this->$attribute);
 
             if (!Validator::isResultSetWithRows($model)) {
-                $this->addError($attribute, 'Zone is invalid');
+                $this->addError($attribute, 'Zone is invalid.');
             }
 
             return;
@@ -88,7 +147,7 @@ class CreateInventoryForm extends CFormModel
             $model = Uom::model()->findByPk($this->$attribute);
 
             if (!Validator::isResultSetWithRows($model)) {
-                $this->addError($attribute, 'UOM is invalid');
+                $this->addError($attribute, 'UOM is invalid.');
             }
 
             return;

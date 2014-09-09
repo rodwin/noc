@@ -562,7 +562,7 @@ class InventoryController extends Controller {
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
             try {
-
+                
                 // delete inventory history by inventory_id
                 InventoryHistory::model()->deleteHistoryByInvID($id);
                 // we only allow deletion via POST request

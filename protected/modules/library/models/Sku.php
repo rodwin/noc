@@ -31,6 +31,44 @@
  */
 class Sku extends CActiveRecord {
 
+    /**
+     * @var string sku_id
+     * @soap
+     */
+    public $sku_id;
+    
+    /**
+     * @var string sku_code
+     * @soap
+     */
+    public $sku_code;
+    
+    /**
+     * @var string company_id
+     * @soap
+     */
+    public $company_id;
+    
+    /**
+     * @var Brand brandObj
+     * @soap
+     */
+    public $brandObj;
+    
+    /**
+     * @var string sku_name
+     * @soap
+     */
+    public $sku_name;
+    
+    /**
+     * @var string description
+     * @soap
+     */
+    public $description;
+    
+    
+    
     public $search_string;
 
     //types
@@ -696,6 +734,21 @@ class Sku extends CActiveRecord {
                 'infra on loan',
             );
         }
+    }
+    
+    public function retrieveSkusByCriteria(SkuCriteria $SkuCriteria){
+        
+        $cdbcriteria = new CDbCriteria();
+        $cdbcriteria->together = true;
+        $cdbcriteria->with = array('brand');
+        $cdbcriteria->compare('t.company_id', $SkuCriteria->company_id);
+        $cdbcriteria->compare('t.sku_name', $SkuCriteria->sku_name,true);
+        $cdbcriteria->compare('t.type', $SkuCriteria->type);
+        $cdbcriteria->compare('t.sub_type', $SkuCriteria->sub_type);
+        $cdbcriteria->compare('brand.brand_id', $SkuCriteria->brand_id);
+        
+        return Sku::model()->findAll($cdbcriteria);
+        
     }
 
 }

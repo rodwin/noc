@@ -20,7 +20,31 @@
  * @property Sku[] $skus
  */
 class Brand extends CActiveRecord {
-
+    
+    /**
+     * @var string brand_id
+     * @soap
+     */
+    public $brand_id;
+    
+    /**
+     * @var string brand_code
+     * @soap
+     */
+    public $brand_code;
+    
+    /**
+     * @var string brand_name
+     * @soap
+     */
+    public $brand_name;
+    
+    /**
+     * @var string company_id
+     * @soap
+     */
+    public $company_id;
+    
     public $search_string;
 
     /**
