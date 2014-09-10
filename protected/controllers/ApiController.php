@@ -29,6 +29,9 @@ class ApiController extends Controller {
      * @soap
      */
     public function login($company_id, $name, $password) {
+        
+        Yii::log('API call login entered', 'info', 'webservice');
+        
         $model = new LoginForm();
         $model->company = $company_id;
         $model->username = $name;
@@ -54,16 +57,23 @@ class ApiController extends Controller {
      */
     public function createInventory(CreateInventoryForm $CreateInventoryForm){
         
+        Yii::log('API call createInventory entered', 'info', 'webservice');
+        
         $model = new CreateInventoryForm();
         $model->attributes = $CreateInventoryForm->attributes;
         if (!$model->create()) {
-
+            
             $error = "";
             foreach($model->getErrors() as $k => $err){
                 $error .= $err[0];
             }
+            
+            Yii::log('createInventory failed: '.$error, 'warning', 'webservice');
+            
             throw new SoapFault("createInventory error", $error);
         }
+        
+        Yii::log('API call createInventory completed', 'info', 'webservice');
         
     }
 
@@ -74,6 +84,8 @@ class ApiController extends Controller {
      */
     public function retrieveSkusByCriteria(SkuCriteria $SkuCriteria) {
         
+        Yii::log('API call retrieveSkusByCriteria entered', 'info', 'webservice');
+        
         $data = Sku::model()->retrieveSkusByCriteria($SkuCriteria);
         
         $ret = array();
@@ -82,10 +94,12 @@ class ApiController extends Controller {
             
             $sku = new Sku;
             $sku->attributes = $val->attributes;
-            $sku->brandObj = $val->brand->attributes;
+            //$sku->brandObj = $val->brand->attributes;
+            $sku->brandObj = isset($val->brand) ?  $val->brand->attributes: null;
             $ret[] = $sku;
         }
         
+        Yii::log('API call retrieveSkusByCriteria completed', 'info', 'webservice');
         return $ret;
     }
 }
