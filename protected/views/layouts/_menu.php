@@ -1,202 +1,89 @@
 <?php
 $main_menu = array(
-    array('label' => 'Dashboard', 'url' => array('/site/index'), 'visible' => !Yii::app()->user->isGuest),
-    array('label' => 'Widgets', 'url' => array('/tracker'), 'visible' => !Yii::app()->user->isGuest),
-    array('label' => 'Charts', 'url' => '#', 'visible' => !Yii::app()->user->isGuest, 'items' => array(
-            array('label' => 'Morris', 'url' => array('/transaction/salesorder/admin'), 'visible' => !Yii::app()->user->isGuest),
-            array('label' => 'Flot', 'url' => array('/transaction/salesorder/admin'), 'visible' => !Yii::app()->user->isGuest),
-            array('label' => 'Inline charts', 'url' => array('/transaction/salesorder/admin'), 'visible' => !Yii::app()->user->isGuest),
+    array('label' => 'Dashboard', 'url' => array('site/index'),'icon'=>'fa fa-dashboard', 'visible' => !Yii::app()->user->isGuest),
+    array('label' => 'Location Viewer', 'url' => array('locationviewer'),'icon'=>'fa fa-map-marker', 'visible' => !Yii::app()->user->isGuest),
+    array('label' => 'Inventory', 'url' => array('inventory/inventory/admin'),'icon'=>'fa fa-list-alt', 'visible' => !Yii::app()->user->isGuest),
+    array('label' => 'Library', 'url' => '#','icon'=>'fa fa-book', 'visible' => !Yii::app()->user->isGuest, 'items' => array(
+            array('label' => 'Supplier','icon'=>'fa fa-angle-double-right', 'url' => array('library/supplier/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => 'Sales Office','icon'=>'fa fa-angle-double-right', 'url' => array('library/salesoffice/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => 'Zone','icon'=>'fa fa-angle-double-right', 'url' => array('library/zone/admin'), 'visible' => !Yii::app()->user->isGuest),
+            '---',
+            array('label' => 'Employee Status','icon'=>'fa fa-angle-double-right', 'url' => array('library/employeestatus/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => 'Employee Type','icon'=>'fa fa-angle-double-right', 'url' => array('library/employeetype/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => 'Employee','icon'=>'fa fa-angle-double-right', 'url' => array('library/employee/admin'), 'visible' => !Yii::app()->user->isGuest),
+            '---',
+            array('label' => Poi::POI_LABEL .' '.'Category','icon'=>'fa fa-angle-double-right', 'url' => array('library/poicategory/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => Poi::POI_LABEL .' '.'Sub Category','icon'=>'fa fa-angle-double-right', 'url' => array('library/poisubcategory/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => Poi::POI_LABEL .' '.'Custom Data','icon'=>'fa fa-angle-double-right', 'url' => array('library/poicustomdata/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => Poi::POI_LABEL,'icon'=>'fa fa-angle-double-right', 'url' => array('library/poi/admin'), 'visible' => !Yii::app()->user->isGuest),
+            '---',
+            array('label' => 'Brand Category','icon'=>'fa fa-angle-double-right', 'url' => array('library/brandcategory/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => 'Brand','icon'=>'fa fa-angle-double-right', 'url' => array('library/brand/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => 'UOM','icon'=>'fa fa-angle-double-right', 'url' => array('library/uom/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => 'Images','icon'=>'fa fa-angle-double-right', 'url' => array('library/images/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => Sku::SKU_LABEL .' '.'Status','icon'=>'fa fa-angle-double-right', 'url' => array('library/skustatus/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => Sku::SKU_LABEL .' '.'Custom Data','icon'=>'fa fa-angle-double-right', 'url' => array('library/skuCustomData/create'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => 'Merchandising Material','icon'=>'fa fa-angle-double-right', 'url' => array('library/sku/admin'), 'visible' => !Yii::app()->user->isGuest),
+        )),
+    array('label' => 'Admin', 'url' => '#','icon'=>'fa fa-users', 'visible' => !Yii::app()->user->isGuest, 'items' => array(
+            array('label' => 'Users','icon'=>'fa fa-angle-double-right', 'url' => array('admin/user/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => 'Company','icon'=>'fa fa-angle-double-right', 'url' => array('admin/company/update', array('id' => Yii::app()->user->company_id)), 'visible' => !Yii::app()->user->isGuest),
         )),
 );
 ?>
 
 <!-- sidebar menu: : style can be found in sidebar.less -->
 <ul class="sidebar-menu">
-    <?php
-//foreach ($main_menu as $key => $value) {
-//    if($value['url'] != '#'){
-    ?>
-
-
-
-    <?php
-    //}
-    //}
-    ?>
-
-    <li class="active">
-        <a href="<?php echo Yii::app()->createUrl("site/index") ?>">
-            <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+<?php
+foreach ($main_menu as $key => $value) {
+if($value['url'] != '#'){ ?>
+    
+    <li class="<?php echo Yii::app()->getRequest()->getQuery('r') == $value['url'][0] ? 'active':''?>">
+        <a href="<?php echo Yii::app()->createUrl($value['url'][0]) ?>">
+            <i class="<?php echo $value['icon']; ?>"></i> <span><?php echo $value['label']; ?></span>
         </a>
     </li>
-    <?php
-    if (isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['locationviewer'])) {
-        ?>
-        <li class="">
-            <a href="<?php echo Yii::app()->createUrl("locationviewer") ?>">
-                <i class="fa fa-map-marker"></i> <span>Location Viewer</span>
-            </a>
-        </li>
-        <?php
-    }
-    ?>
-    <?php
-    if (isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['inventory'])) {
-        ?>
-        <li class="">
-            <a href="<?php echo Yii::app()->createUrl("/inventory/inventory/admin") ?>">
-                <i class="fa fa-list-alt"></i> <span>Inventory</span>
-            </a>
-        </li>
-        <?php
-    }
-    ?>
-    <?php
-    if (isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['library'])) {
-        ?>
-        <li class="treeview">
-            <a href="#">
-                <i class="fa fa-book"></i> <span>Library</span>
-                <i class="fa fa-angle-left pull-right"></i>
-            </a>
-            <ul class="treeview-menu">
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/distributor/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span><?php echo Distributor::DIST_LABEL; ?></span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/salesoffice/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span>Sales Office</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/zone/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span>Zone</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/supplier/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span>Supplier</span>
-                    </a>
-                </li>
-                <li>
-                    <hr/>
-                </li>
-<!--                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/salesman/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span>Salesman</span>
-                    </a>
-                </li>-->
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/employeestatus/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span>Employee Status</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/employeetype/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span>Employee Type</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/employee/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span>Employee</span>
-                    </a>
-                </li>
-                <li>
-                    <hr/>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/poicategory/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span><?php echo Poi::POI_LABEL; ?> Category</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/poisubcategory/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span><?php echo Poi::POI_LABEL; ?> Sub Category</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/PoiCustomData/create") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span><?php echo Poi::POI_LABEL; ?> Custom Data</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/poi/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span><?php echo Poi::POI_LABEL; ?></span>
-                    </a>
-                </li>
-                <li>
-                    <hr/>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/brandcategory/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span>Brand Category</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/brand/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span>Brand</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/uom/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span>UOM</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/images/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span>Images</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/skustatus/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span><?php echo Sku::SKU_LABEL; ?> Status</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/skuCustomData/create") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span><?php echo Sku::SKU_LABEL; ?> Custom Data</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/library/sku/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span>Merchandising Material</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <?php
-    }
-    ?>
-    <?php
-    if (isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['admin'])) {
-        ?>
-        <li class="treeview">
-            <a href="#">
-                <i class="fa fa-users"></i> <span>Admin</span>
-                <i class="fa fa-angle-left pull-right"></i>
-            </a>
-            <ul class="treeview-menu">
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/admin/user/admin") ?>">
-                        <i class="fa fa-angle-double-right"></i> <span>Users</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="<?php echo Yii::app()->createUrl("/admin/company/update", array('id' => Yii::app()->user->company_id)) ?>">
-                        <i class="fa fa-angle-double-right"></i> <span>Company</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="fa fa-angle-double-right"></i> <span>Settings</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <?php
-    }
-    ?>
+    
 
+<?php }else{?>
+    
+    <?php
+    $tv_active='';
+    foreach ($value['items'] as $i => $item) {
+        if(!is_array($item)){
+            continue;
+        }
+        if($item['url'][0] == Yii::app()->getRequest()->getQuery('r')){
+            $tv_active = 'active';
+            break;
+        }
+    }
+ 
+    ?>
+    <li class="treeview <?php echo $tv_active; ?>">
+        <a href="#">
+            <i class="<?php echo $value['icon']; ?>"></i> <span><?php echo $value['label']; ?></span>
+            <i class="fa fa-angle-left pull-right"></i>
+            <ul class="treeview-menu">
+            <?php foreach ($value['items'] as $i => $item) { 
+                if(!is_array($item)){
+                    echo '<hr/>';
+                    continue;
+                }
+                ?>
+                
+                <li class="<?php echo Yii::app()->getRequest()->getQuery('r') == $item['url'][0] ? 'active':''?>">
+                    <a href="<?php echo Yii::app()->createUrl($item['url'][0],isset($item['url'][1]) ? $item['url'][1]:array()) ?>">
+                        <i class="fa fa-angle-double-right"></i> <span><?php echo $item['label']; ?></span>
+                    </a>
+                </li>
+                
+            <?php }?>
+            </ul>
+        </a>
+    </li>
+<?php }?>
+    
+    
+<?php } ?>
 </ul>
