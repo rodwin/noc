@@ -378,10 +378,10 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
         <!-- Bootstrap -->
         <script src="<?php echo Yii::app()->theme->baseUrl;?>/js/bootstrap.min.js" type="text/javascript"></script>
         <!-- DATA TABES SCRIPT -->
-        <script src="<?php echo Yii::app()->theme->baseUrl;?>/js/plugins/datatables/jquery.dataTables.js" type="text/javascript"></script>
-        <script src="<?php echo Yii::app()->baseUrl;?>/js/fnMultiFilter.js" type="text/javascript"></script>
-<!--        <script src="http://cdn.datatables.net/1.10.0/js/jquery.dataTables.js" type="text/javascript"></script>-->
-<!--        <script src="http://cdn.datatables.net/plug-ins/28e7751dbec/api/fnMultiFilter.js" type="text/javascript"></script>-->
+<!--        <script src="<?php //echo Yii::app()->theme->baseUrl;?>/js/plugins/datatables/jquery.dataTables.js" type="text/javascript"></script>
+        <script src="<?php //echo Yii::app()->baseUrl;?>/js/fnMultiFilter.js" type="text/javascript"></script>-->
+        <script src="http://cdn.datatables.net/1.10.0/js/jquery.dataTables.js" type="text/javascript"></script>
+        <script src="http://cdn.datatables.net/plug-ins/28e7751dbec/api/fnMultiFilter.js" type="text/javascript"></script>
         <script src="<?php echo Yii::app()->theme->baseUrl;?>/js/plugins/datatables/dataTables.bootstrap.js" type="text/javascript"></script>
         <script src="<?php echo Yii::app()->baseUrl;?>/js/jquery.validate.js" type="text/javascript"></script>
 <!--        <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.js" type="text/javascript"></script>-->

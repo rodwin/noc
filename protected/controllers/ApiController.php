@@ -25,7 +25,7 @@ class ApiController extends Controller {
      * @param string the company_id
      * @param string the username
      * @param string the password
-     * @return string a sessionkey
+     * @return bool
      * @soap
      */
     public function login($company_id, $name, $password) {
