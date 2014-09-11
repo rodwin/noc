@@ -15,8 +15,8 @@
                 ?>
 
             </div>
-            
-            <!--<p><?php // echo CHtml::encode(str_replace("_", " ", $data->file_name)); ?></p>-->
+
+<!--<p><?php // echo CHtml::encode(str_replace("_", " ", $data->file_name));   ?></p>-->
             <p><?php echo CHtml::encode($data->file_name); ?></p>
 
         </a>

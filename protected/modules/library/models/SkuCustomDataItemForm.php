@@ -27,14 +27,15 @@ class SkuCustomDataItemForm extends CFormModel {
             'customItemName' => 'What is the name of this data?',
         );
     }
-    
+
     public function uniqueName($attribute, $params) {
-        
+
         $model = SkuCustomData::model()->findByAttributes(array('company_id' => Yii::app()->user->company_id, 'name' => $this->$attribute));
-        
+
         if ($model) {
             $this->addError($attribute, 'Custom data name selected already taken.');
         }
         return;
     }
+
 }

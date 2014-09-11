@@ -408,9 +408,9 @@ class SkuCustomData extends CActiveRecord {
                 $parse_value = explode(".", trim($value));
 
                 if (isset($parse_value[1])) {
-                    
+
                     if (strlen($parse_value[1]) > $attr['decimal_place']) {
-                        
+
                         $sku_custom_data->addError($post_name, $field_name . " must be less than " . $attr['decimal_place'] . " decimal place(s).");
                     }
                 }

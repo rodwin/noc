@@ -348,9 +348,9 @@ class PoiController extends Controller {
         $poi_custom_data = new PoiCustomData;
 
         $region = CHtml::listData(Region::model()->findAll(array('order' => 'region_name ASC')), 'region_code', 'region_name');
-        $province = CHtml::listData(Province::model()->findAll(array('condition' => 'region_code = "' . $model->region_id . '"', 'order' => 'province_name ASC')), 'province_code', 'province_name');
-        $municipal = CHtml::listData(Municipal::model()->findAll(array('condition' => 'province_code = "' . $model->province_id . '"', 'order' => 'municipal_name ASC')), 'municipal_code', 'municipal_name');
-        $barangay = CHtml::listData(Barangay::model()->findAll(array('condition' => 'municipal_code = "' . $model->municipal_id . '"', 'order' => 'barangay_name ASC')), 'barangay_code', 'barangay_name');
+        $province = CHtml::listData(Province::model()->findAll(array('order' => 'province_name ASC')), 'province_code', 'province_name');
+        $municipal = CHtml::listData(Municipal::model()->findAll(array('order' => 'municipal_name ASC')), 'municipal_code', 'municipal_name');
+        $barangay = CHtml::listData(Barangay::model()->findAll(array('order' => 'barangay_name ASC')), 'barangay_code', 'barangay_name');
         $poi_category = CHtml::listData(PoiCategory::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'category_name ASC')), 'poi_category_id', 'category_name');
         $poi_sub_category = PoiSubCategory::model()->getSubCategoryOptionListByCategoryID($model->poi_category_id);
 
@@ -359,9 +359,9 @@ class PoiController extends Controller {
             $model->attributes = $_POST['Poi'];
             $model->edited_by = Yii::app()->user->name;
 
-            $province = CHtml::listData(Province::model()->findAll(array('condition' => 'region_code = "' . $model->region_id . '"', 'order' => 'province_name ASC')), 'province_code', 'province_name');
-            $municipal = CHtml::listData(Municipal::model()->findAll(array('condition' => 'province_code = "' . $model->province_id . '"', 'order' => 'municipal_name ASC')), 'municipal_code', 'municipal_name');
-            $barangay = CHtml::listData(Barangay::model()->findAll(array('condition' => 'municipal_code = "' . $model->municipal_id . '"', 'order' => 'barangay_name ASC')), 'barangay_code', 'barangay_name');
+//            $province = CHtml::listData(Province::model()->findAll(array('condition' => 'region_code = "' . $model->region_id . '"', 'order' => 'province_name ASC')), 'province_code', 'province_name');
+//            $municipal = CHtml::listData(Municipal::model()->findAll(array('condition' => 'province_code = "' . $model->province_id . '"', 'order' => 'municipal_name ASC')), 'municipal_code', 'municipal_name');
+//            $barangay = CHtml::listData(Barangay::model()->findAll(array('condition' => 'municipal_code = "' . $model->municipal_id . '"', 'order' => 'barangay_name ASC')), 'barangay_code', 'barangay_name');
             $poi_sub_category = PoiSubCategory::model()->getSubCategoryOptionListByCategoryID($model->poi_category_id);
             $custom_datas = PoiCustomData::model()->getPoiCustomData($model->poi_id, $model->poi_category_id);
 
@@ -416,8 +416,9 @@ class PoiController extends Controller {
      */
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
+
             // delete poi custom data value by poi_id
-//            PoiCustomDataValue::model()->deletePoiCustomDataValueByPoiID($id);
+            PoiCustomDataValue::model()->deletePoiCustomDataValueByPoiID($id);
             // we only allow deletion via POST request
             $this->loadModel($id)->delete();
 

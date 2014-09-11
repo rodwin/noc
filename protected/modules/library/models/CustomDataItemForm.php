@@ -29,14 +29,15 @@ class CustomDataItemForm extends CFormModel {
             'type' => 'Poi Category Type',
         );
     }
-    
+
     public function uniqueName($attribute, $params) {
-        
+
         $model = PoiCustomData::model()->findByAttributes(array('company_id' => Yii::app()->user->company_id, 'name' => $this->$attribute));
-        
+
         if ($model) {
             $this->addError($attribute, 'Custom data name selected already taken.');
         }
         return;
     }
+
 }
