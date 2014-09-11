@@ -24,6 +24,7 @@
 class InventoryHistory extends CActiveRecord {
 
    public $search_string;
+   public $selected_inventory_id;
 
    /**
     * @return string the associated database table name
@@ -186,6 +187,7 @@ class InventoryHistory extends CActiveRecord {
 
    public function createHistory($company_id, $inventory_id, $transaction_date, $quantity_change, $running_total, $action, $cost_unit = 0, $created_by = null) {
 
+
       $inventory_history = new InventoryHistory;
       $inventory_history->company_id = $company_id;
       $inventory_history->inventory_id = $inventory_id;
@@ -203,13 +205,26 @@ class InventoryHistory extends CActiveRecord {
             $curq = $value['running_total'];
             $curavgc = $value['ave_cost_per_unit'];
          }
-         $avg = ((floatval($quantity_change) * floatval($cost_unit)) + (floatval($curq) * floatval($curavgc))) / ((floatval($quantity_change) + floatval($curq)));
+         if (isset($curq)) {
+            $avg = ((floatval($quantity_change) * floatval($cost_unit)) + (floatval($curq) * floatval($curavgc))) / ((floatval($quantity_change) + floatval($curq)));
+         } else {
+            $avg = $cost_unit;
+         }
+      } elseif ($action == 'apply') {
+         $data = $this->selectHistory($this->selected_inventory_id);
+         foreach ($data as $key => $value) {
+            $curavgc = $value['ave_cost_per_unit'];
+         }
+
+         $avg = floatval($curavgc);
       } else {
+         $curavgc = 0;
          $data = $this->selectHistory($inventory_id);
          foreach ($data as $key => $value) {
             $curavgc = $value['ave_cost_per_unit'];
          }
-         $avg = $curavgc;
+
+         $avg = floatval($curavgc);
       }
 
       $inventory_history->ave_cost_per_unit = $avg;
