@@ -130,7 +130,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($incoming, 'pr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo $form->textFieldGroup($incoming, 'pr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($incoming, 'pr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php
                 echo $form->dropDownListGroup(
@@ -468,6 +468,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     transaction_table.fnDeleteRow(0, null, true);
                 }
 
+                growlAlert(data.type, data.message);
+
             } else if (data.form == "details") {
                 $('#formModal').modal('hide');
 
@@ -491,21 +493,27 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 total_amount = (parseFloat(total_amount) + parseFloat(data.details.amount));
                 $("#IncomingInventory_total_amount").val(total_amount);
+
+                growlAlert(data.type, data.message);
             }
         } else {
+
+            if (data.form == "transaction") {
+                growlAlert(data.type, data.message);
+            }
 
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
                 element.classList.add("error");
             });
         }
+    }
 
-        if (data.error.length == 0) {
-            $.growl(data.message, {
-                icon: 'glyphicon glyphicon-info-sign',
-                type: data.type
-            });
-        }
+    function growlAlert(type, message) {
+        $.growl(message, {
+            icon: 'glyphicon glyphicon-info-sign',
+            type: type
+        });
     }
 
     function showDeleteRowBtn() {
