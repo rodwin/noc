@@ -20,6 +20,8 @@
 
    .bg-apply { background-color: #CC9900; color: #fff; opacity: .8; }
    .text-apply { color: #CC9900; }
+   
+   #hide_textbox input {display:none;}
 </style>
 
 <link href="<?php echo Yii::app()->theme->baseUrl; ?>/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
@@ -126,6 +128,9 @@ return false;
             <td class="filter"></td>
             <td class="filter"></td>
             <td class="filter"></td>
+            <td class="filter" id="hide_textbox"></td>
+            <td class="filter" id="hide_textbox"></td>
+            <td class="filter" id="hide_textbox"></td>
             
          </tr>
       </thead>
