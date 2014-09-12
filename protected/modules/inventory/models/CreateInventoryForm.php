@@ -248,7 +248,7 @@ class CreateInventoryForm extends CFormModel
                 $inventory->attributes = $inventory_data;
                 $inventory->save(false);
                 
-                InventoryHistory::model()->createHistory($this->company_id, $inventory->inventory_id,$this->transaction_date, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE,  $this->cost_per_unit,  $this->created_by);
+                InventoryHistory::model()->createHistory($this->company_id, $inventory->inventory_id,$this->transaction_date, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE,  $this->cost_per_unit,  $this->created_by, $this->default_zone_id);
                 
                 $transaction->commit();
                 return true;

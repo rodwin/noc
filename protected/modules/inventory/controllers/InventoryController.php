@@ -29,7 +29,7 @@ class InventoryController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'transfer'),
+                'actions' => array('create', 'update', 'data'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -389,7 +389,7 @@ class InventoryController extends Controller {
                     </a><br/>
                     <p class="text-center">' . $value->qty . '</p>' : $value->qty;
             $row['uom_id'] = $value->uom_id;
-            $row['uom_name'] = $value->uom->uom_name;
+            $row['uom_name'] = isset($value->uom->uom_name) ? $value->uom->uom_name : null;
             $row['action_qty'] = '<input type="text" data-id="' . $value->inventory_id . '" name="action_qty" id="action_qty_' . $value->inventory_id . '" />';
             $row['zone_id'] = $value->zone_id;
             $row['zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
@@ -440,14 +440,6 @@ class InventoryController extends Controller {
         $this->render('view', array(
             'model' => $model,
         ));
-    }
-
-    public function actionTransfer() {
-        $this->layout = '//layouts/column1';
-        
-        $this->pageTitle = 'Transfer';
-
-        $this->render('transfer', array());
     }
 
     /**

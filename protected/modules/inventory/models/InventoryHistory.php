@@ -209,7 +209,7 @@ class InventoryHistory extends CActiveRecord {
             $curq = $value['running_total'];
             $curavgc = $value['ave_cost_per_unit'];
          }
-         if (isset($curq)) {
+         if (isset($curq) && $curq != 0) {
             $avg = ((floatval($quantity_change) * floatval($cost_unit)) + (floatval($curq) * floatval($curavgc))) / ((floatval($quantity_change) + floatval($curq)));
          } else {
             $avg = $cost_unit;

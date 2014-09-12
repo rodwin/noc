@@ -192,7 +192,7 @@ class IncreaseInventoryFormUpload extends CFormModel
                     $inventoryObj->attributes = $inventory_data;
                     $inventoryObj->save(false);
                     
-                    InventoryHistory::model()->createHistory($this->company_id, $inventoryObj->inventory_id, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE);
+                    InventoryHistory::model()->createHistory($this->company_id, $inventoryObj->inventory_id, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $this->default_zone_id);
                     
                     $transaction->commit();
                     return true;
