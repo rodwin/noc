@@ -43,7 +43,8 @@ class IncreaseTest extends CDbTestCase
             $data = array(
                         'inventory_id'=>999999,
 			'qty'=>100,
-			'transaction_date'=>date('Y-m-d')
+			'transaction_date'=>date('Y-m-d'),
+			'created_by'=>'rodwin'
 		);
             
             $model = new IncreaseInventoryForm();
