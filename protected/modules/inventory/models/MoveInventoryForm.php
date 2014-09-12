@@ -128,7 +128,7 @@ class MoveInventoryForm extends CFormModel {
             if ($inventory) {
                 $item_exist = true;
                 $inv_qty = $this->qty + $inventory->qty;
-                InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_MOVE, $inventory->cost_per_unit, $this->created_by);
+                InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_MOVE, $inventory->cost_per_unit, $this->created_by, $this->zone_id);
             } else {
                 $inventory = new Inventory();
                 $inv_qty = $this->qty;
@@ -151,11 +151,11 @@ class MoveInventoryForm extends CFormModel {
             if ($inventory->save(false)) {
                 
                 if ($item_exist == false) {
-                    InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_MOVE, $inventory->cost_per_unit, $this->created_by);
+                    InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_MOVE, $inventory->cost_per_unit, $this->created_by, $this->zone_id);
                 }
             }
 
-            InventoryHistory::model()->createHistory($this->inventoryObj->company_id, $this->inventoryObj->inventory_id, $this->transaction_date, "-" . $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_MOVE, $this->cost_per_unit, $this->created_by);
+            InventoryHistory::model()->createHistory($this->inventoryObj->company_id, $this->inventoryObj->inventory_id, $this->transaction_date, "-" . $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_MOVE, $this->cost_per_unit, $this->created_by, $this->zone_id);
 
             $transaction->commit();
 

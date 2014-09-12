@@ -41,14 +41,14 @@ class InventoryHistory extends CActiveRecord {
       // will receive user inputs.
       return array(
           array('inventory_id, quantity_change, running_total', 'numerical', 'integerOnly' => true),
-          array('company_id, action, created_by, updated_by', 'length', 'max' => 50),
+          array('company_id, action, created_by, updated_by, destination_zone_id', 'length', 'max' => 50),
           array('cost_unit', 'length', 'max' => 18),
           array('ave_cost_per_unit', 'length', 'max' => 19),
           array('created_date, updated_date', 'safe'),
           array('transaction_date', 'type', 'type' => 'date', 'message' => '{attribute}: is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
           // The following rule is used by search().
           // @todo Please remove those attributes that should not be searched.
-          array('inventory_history_id, company_id, inventory_id, quantity_change, running_total, action, cost_unit, ave_cost_per_unit, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+          array('inventory_history_id, company_id, inventory_id, quantity_change, running_total, action, cost_unit, ave_cost_per_unit, destination_zone_id, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
       );
    }
 
@@ -64,6 +64,7 @@ class InventoryHistory extends CActiveRecord {
       // class name for the relations automatically generated below.
       return array(
           'inventory' => array(self::BELONGS_TO, 'Inventory', 'inventory_id'),
+          'zone' => array(self::BELONGS_TO, 'Zone', 'destination_zone_id'),
       );
    }
 
@@ -80,6 +81,7 @@ class InventoryHistory extends CActiveRecord {
           'action' => 'Action',
           'cost_unit' => 'Cost Unit',
           'ave_cost_per_unit' => 'Ave Cost Per Unit',
+          'destination_zone_id' => 'Destination Zone',
           'created_date' => 'Created Date',
           'created_by' => 'Created By',
           'updated_date' => 'Updated Date',
@@ -113,6 +115,7 @@ class InventoryHistory extends CActiveRecord {
       $criteria->compare('action', $this->action, true);
       $criteria->compare('cost_unit', $this->cost_unit, true);
       $criteria->compare('ave_cost_per_unit', $this->ave_cost_per_unit, true);
+      $criteria->compare('destination_zone_id', $this->destination_zone_id, true);
       $criteria->compare('created_date', $this->created_date, true);
       $criteria->compare('created_by', $this->created_by, true);
       $criteria->compare('updated_date', $this->updated_date, true);
@@ -185,7 +188,7 @@ class InventoryHistory extends CActiveRecord {
       return parent::model($className);
    }
 
-   public function createHistory($company_id, $inventory_id, $transaction_date, $quantity_change, $running_total, $action, $cost_unit = 0, $created_by = null) {
+   public function createHistory($company_id, $inventory_id, $transaction_date, $quantity_change, $running_total, $action, $cost_unit = 0, $created_by = null, $zone_id) {
 
 
       $inventory_history = new InventoryHistory;
@@ -196,6 +199,7 @@ class InventoryHistory extends CActiveRecord {
       $inventory_history->action = $action;
       $inventory_history->cost_unit = $cost_unit;
       $inventory_history->transaction_date = $transaction_date;
+      $inventory_history->destination_zone_id = $zone_id;
       /*
        * compute this!
        */
