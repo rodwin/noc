@@ -8,7 +8,7 @@ class IncreaseInventoryForm extends CFormModel {
     public $inventory_id;
     public $created_by;
     public $inventoryObj = null;
-
+    
     /**
      * Declares the validation rules.
      * The rules state that username and password are required,
@@ -84,13 +84,13 @@ class IncreaseInventoryForm extends CFormModel {
             $this->inventoryObj->qty = $qty;
             $this->inventoryObj->save(false);
 
-            InventoryHistory::model()->createHistory($this->inventoryObj->company_id, $this->inventoryObj->inventory_id, $this->transaction_date, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $this->cost_per_unit, $this->created_by);
+            InventoryHistory::model()->createHistory($this->inventoryObj->company_id, $this->inventoryObj->inventory_id, $this->transaction_date, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $this->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id);
 
             $transaction->commit();
 
             return true;
         } catch (Exception $exc) {
-
+           pr($exc);
             Yii::log($exc->getTraceAsString(), 'error');
             $transaction->rollBack();
             return false;
