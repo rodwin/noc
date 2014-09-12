@@ -98,7 +98,7 @@ class ConvertInventoryForm extends CFormModel {
             if ($inventory) {
                 $item_exist = true;
                 $inv_qty = $this->equivalent_qty + $inventory->qty;
-                InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->equivalent_qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_CONVERT, $inventory->cost_per_unit, $this->created_by);
+                InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->equivalent_qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_CONVERT, $inventory->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id);
             } else {
                 $inventory = new Inventory();
                 $inv_qty = $this->equivalent_qty;
@@ -121,11 +121,11 @@ class ConvertInventoryForm extends CFormModel {
             if ($inventory->save(false)) {
 
                 if ($item_exist == false) {
-                    InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->equivalent_qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_CONVERT, $inventory->cost_per_unit, $this->created_by);
+                    InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->equivalent_qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_CONVERT, $inventory->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id);
                 }
             }
 
-            InventoryHistory::model()->createHistory($this->inventoryObj->company_id, $this->inventoryObj->inventory_id, $this->transaction_date, "-" . $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_CONVERT, $this->cost_per_unit, $this->created_by);
+            InventoryHistory::model()->createHistory($this->inventoryObj->company_id, $this->inventoryObj->inventory_id, $this->transaction_date, "-" . $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_CONVERT, $this->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id);
 
             $transaction->commit();
 
