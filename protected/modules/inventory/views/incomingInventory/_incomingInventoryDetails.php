@@ -80,7 +80,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             <?php
             echo $form->textFieldGroup($transaction_detail, 'quantity_received', array(
                 'widgetOptions' => array(
-                    'htmlOptions' => array("class" => "span5 input-sm", "onkeypress" => "return onlyNumbers(this, event)")
+                    'htmlOptions' => array("class" => "span5 input-sm", "onkeypress" => "return onlyNumbers(this, event, false)")
                 ),
                 'labelOptions' => array('label' => false),
                 'append' => '<b class="sku_uom_selected"></b>'
@@ -92,7 +92,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             <?php
             echo $form->textFieldGroup($transaction_detail, 'unit_price', array(
                 'widgetOptions' => array(
-                    'htmlOptions' => array("class" => "span5 input-sm", "onkeypress" => "return onlyNumbers(this, event)", 'value' => 0)
+                    'htmlOptions' => array("class" => "span5 input-sm", "onkeypress" => "return onlyNumbers(this, event, true)", 'value' => 0)
                 ),
                 'labelOptions' => array('label' => false),
                 'prepend' => '&#8369',
@@ -135,7 +135,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 <script type="text/javascript">
     $(function() {
         $("[data-mask]").inputmask();
-        
+
         $('#IncomingInventoryDetail_expiration_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
@@ -162,7 +162,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 $("#IncomingInventoryDetail_uom_id").val(data.sku_default_uom_id);
                 $(".sku_uom_selected").html(data.sku_default_uom_name);
                 $("#IncomingInventoryDetail_inventory_on_hand").val(data.inventory_on_hand);
-                
+
                 $("#IncomingInventoryDetail_quantity_received").val(0);
             },
             error: function(data) {
@@ -192,7 +192,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         if ($("#IncomingInventoryDetail_unit_price").val() != "") {
             var unit_price = $("#IncomingInventoryDetail_unit_price").val();
         }
-        
+
         var amount = ($("#IncomingInventoryDetail_quantity_received").val() * unit_price);
         $("#IncomingInventoryDetail_amount").val(amount);
     });
@@ -202,9 +202,9 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         if ($("#IncomingInventoryDetail_quantity_received").val() != "") {
             var qty = $("#IncomingInventoryDetail_quantity_received").val();
         }
-        
+
         var amount = (qty * $("#IncomingInventoryDetail_unit_price").val());
         $("#IncomingInventoryDetail_amount").val(amount);
-});
+    });
 
 </script>

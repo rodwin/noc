@@ -234,7 +234,6 @@ class IncomingInventoryDetail extends CActiveRecord {
 
     public function createInventory($company_id, $sku_id, $uom_id, $unit_price, $quantity_received, $zone_id, $transaction_date, $created_by, $expiration_date, $reference_no) {
 
-
         $sku = Sku::model()->findByAttributes(array("company_id" => $company_id, "sku_id" => $sku_id));
 
         $create_inventory = new CreateInventoryForm();

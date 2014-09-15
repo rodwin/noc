@@ -1,6 +1,6 @@
 <?php
 $this->breadcrumbs = array(
-    'Incoming Inventories' => array('admin'),
+    'Received Inventories' => array('admin'),
     'Manage',
 );
 

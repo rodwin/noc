@@ -7,9 +7,13 @@ $this->breadcrumbs = array(
 ?>
 
 <?php
+$baseUrl = Yii::app()->theme->baseUrl;
 $cs = Yii::app()->getClientScript();
 $cs->registerScriptFile(Yii::app()->baseUrl . '/js/handlebars-v1.3.0.js', CClientScript::POS_END);
 $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClientScript::POS_END);
+$cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.js', CClientScript::POS_END);
+$cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.date.extensions.js', CClientScript::POS_END);
+$cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.extensions.js', CClientScript::POS_END);
 ?>
 
 <style type="text/css">
@@ -67,11 +71,16 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
         max-height: 150px;
         overflow-y: auto;
     }
+
+    .process_position { text-align: center; position: absolute; }
 </style>
 
 <style type="text/css">
 
     #sku_table tbody tr { cursor: pointer }
+
+    #transaction_table td { text-align:center; }
+    #transaction_table td + td { text-align: left; }
 
     .span5  { width: 200px; }
 
@@ -81,17 +90,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
 
     .sku_uom_selected { width: 20px; }
 
-    /*    #IncomingInventoryDetail_unit_price { width: 100px!important; }*/
-
 </style>   
-
-<?php
-$baseUrl = Yii::app()->theme->baseUrl;
-$cs = Yii::app()->getClientScript();
-$cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.js', CClientScript::POS_END);
-$cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.date.extensions.js', CClientScript::POS_END);
-$cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.extensions.js', CClientScript::POS_END);
-?>
 
 <div class="box box-primary">
     <div class="box-header">
@@ -169,7 +168,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             <div class="pull-right col-md-7">
 
-                <?php echo $form->textFieldGroup($incoming, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50, 'value' => date('Y-m-d'), 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($incoming, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($incoming, 'dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
@@ -239,7 +238,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             </table>                            
         </div>
 
-        <div class="pull-right col-md-4">
+        <div class="pull-right col-md-4 no-padding">
             <?php echo $form->labelEx($incoming, 'total_amount', array("class" => "pull-left")); ?>
             <?php echo $form->textFieldGroup($incoming, 'total_amount', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm pull-right', 'maxlength' => 50, 'value' => 0, 'readonly' => true)), 'labelOptions' => array('label' => false))); ?>
         </div>
@@ -342,7 +341,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         sku_table = $('#sku_table').dataTable({
             "filter": true,
-            "dom": '<"text-center"r>t<"pull-left"i><"pull-right"p>',
+            "dom": '<"process_position"r>t<"pull-left"i><"pull-right"p>',
             "bSort": true,
             "processing": true,
             "serverSide": true,
@@ -572,10 +571,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     function showDeleteRowBtn() {
         var atLeastOneIsChecked = $("input[name='transaction_row[]']").is(":checked");
         if (atLeastOneIsChecked === true) {
-            $("#delete_row_btn").show();
+            $('#delete_row_btn').fadeIn('slow');
         }
         if (atLeastOneIsChecked === false) {
-            $("#delete_row_btn").hide();
+            $('#delete_row_btn').fadeOut('slow');
         }
     }
 
@@ -604,7 +603,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     function confirmModal() {
-        $('#confirmModal').modal('show');
+//        $('#confirmModal').modal('show');
+        $('#formModal').modal('hide');
     }
 
     function closeModal() {
@@ -647,11 +647,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         });
     });
 
-    function onlyNumbers(txt, event) {
+    function onlyNumbers(txt, event, point) {
 
         var charCode = (event.which) ? event.which : event.keyCode;
 
-        if ((charCode >= 48 && charCode <= 57) || charCode == 46) {
+        if ((charCode >= 48 && charCode <= 57) || (point === true && charCode == 46)) {
             return true;
         }
 
@@ -659,7 +659,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     $(function() {
-        $('#IncomingInventory_pr_date, #IncomingInventory_plan_delivery_date, #IncomingInventory_revised_delivery_date, #IncomingInventory_actual_delivery_date, #IncomingInventory_plan_arrival_date, #IncomingInventory_transaction_date').datepicker({
+        $('#IncomingInventory_pr_date, #IncomingInventory_plan_delivery_date, #IncomingInventory_revised_delivery_date, #IncomingInventory_actual_delivery_date, #IncomingInventory_plan_arrival_date, #IncomingInventory_transaction_date, #MovingInventoryDetail_expiration_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'
