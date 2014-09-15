@@ -92,7 +92,7 @@ class SkuController extends Controller {
             $row['sku_code'] = $value->sku_code;
             $row['brand_id'] = $value->brand_id;
             $row['brand_name'] = isset($value->brand->brand_name) ? $value->brand->brand_name : null;
-            $row['brand_category'] = "";
+            $row['brand_category'] = isset($value->brand->brandCategory->category_name) ? $value->brand->brandCategory->category_name : null;
             $row['sku_name'] = $value->sku_name;
             $row['description'] = $value->description;
             $row['default_uom_id'] = $value->default_uom_id;
@@ -381,7 +381,7 @@ class SkuController extends Controller {
                     $sku_custom_data_value->value = $_POST[$post_name];
                     $sku_custom_data_value->save();
                 }
-                
+
                 if ($model->save()) {
                     Yii::app()->user->setFlash('success', "Successfully updated");
                     $custom_datas = SkuCustomData::model()->getAllSkuCustomData($model->sku_id);

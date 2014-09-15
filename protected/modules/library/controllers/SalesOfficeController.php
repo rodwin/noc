@@ -102,7 +102,7 @@ class SalesOfficeController extends Controller {
      */
     public function actionView($id) {
         $model = $this->loadModel($id);
-        
+
         $zone = Zone::model()->findByAttributes(array('company_id' => Yii::app()->user->company_id, 'zone_id' => $model->default_zone_id));
 
         $this->pageTitle = 'View SalesOffice ' . $model->sales_office_name;
@@ -169,7 +169,7 @@ class SalesOfficeController extends Controller {
         }
 
         $distributors = CHtml::listData(SalesOffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '" AND distributor_id = ""', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
-        
+
         $this->render('create', array(
             'model' => $model,
             'distributors' => $distributors,
@@ -220,7 +220,7 @@ class SalesOfficeController extends Controller {
         }
 
         $distributors = CHtml::listData(SalesOffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '" AND distributor_id = ""', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
-        $zones = CHtml::listData(Zone::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '" AND sales_office_id = "'.$model->sales_office_id.'"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
+        $zones = CHtml::listData(Zone::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '" AND sales_office_id = "' . $model->sales_office_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
 
         $this->render('update', array(
             'model' => $model,
@@ -294,7 +294,7 @@ class SalesOfficeController extends Controller {
 
         $distributors = CHtml::listData(Distributor::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'distributor_name ASC')), 'distributor_name', 'distributor_name');
         $zones = CHtml::listData(Zone::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_name', 'zone_name');
-        
+
         $this->render('admin', array(
             'model' => $model,
             'distributors' => $distributors,

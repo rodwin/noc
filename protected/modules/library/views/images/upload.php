@@ -142,7 +142,8 @@ $this->widget('booster.widgets.TbFileUpload', array(
 
     $('#checkAll_img').click(function() {
         $("[id=img_delete_chk]").prop('checked', true);
-        $(':checkbox[name="img[]"]').each(function(){});
+        $(':checkbox[name="img[]"]').each(function() {
+        });
     });
 
     $('#checkAll_uploaded_img').click(function() {

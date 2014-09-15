@@ -385,9 +385,9 @@ class PoiCustomData extends CActiveRecord {
         $criteria->select = 't.*, poi_category.category_name as category_name';
         $criteria->join = 'INNER JOIN poi_category ON poi_category.poi_category_id = t.type';
         $custom_data = PoiCustomData::model()->findByAttributes(array('name' => $attr_name, 'company_id' => $company_id), $criteria);
-        
+
         $post_name = str_replace(' ', '_', strtolower($custom_data->category_name)) . "_" . str_replace(' ', '_', strtolower($custom_data->data_type)) . "_" . str_replace(' ', '_', strtolower($attr_name));
-        
+
         $field_name = ucwords($attr_name);
         $attr = CJSON::decode($custom_data->attribute);
 
@@ -413,9 +413,9 @@ class PoiCustomData extends CActiveRecord {
                 $parse_value = explode(".", trim($value));
 
                 if (isset($parse_value[1])) {
-                    
+
                     if (strlen($parse_value[1]) > $attr['decimal_place']) {
-                        
+
                         $poi_custom_data->addError($post_name, $field_name . " must be less than " . $attr['decimal_place'] . " decimal place(s).");
                     }
                 }

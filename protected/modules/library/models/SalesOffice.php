@@ -78,7 +78,7 @@ class SalesOffice extends CActiveRecord {
         if ($this->default_zone_id == "") {
             $this->default_zone_id = null;
         }
-        
+
         if (isset($this->default_zone_id)) {
             $zone_already_tagged = Salesoffice::model()->findByAttributes(array('company_id' => Yii::app()->user->company_id, 'default_zone_id' => $this->default_zone_id));
 
@@ -86,7 +86,7 @@ class SalesOffice extends CActiveRecord {
                 $this->addError("default_zone_id", "Zone already tagged by other salesoffice.");
             }
         }
-        
+
         return parent::beforeValidate();
     }
 
@@ -224,7 +224,7 @@ class SalesOffice extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
         $criteria->with = array('company', 'zones');
-        
+
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
             'pagination' => false,

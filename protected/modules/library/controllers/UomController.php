@@ -29,7 +29,7 @@ class UomController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data'),
+                'actions' => array('create', 'update', 'data', 'getUomByID'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -261,6 +261,19 @@ class UomController extends Controller {
             echo CActiveForm::validate($model);
             Yii::app()->end();
         }
+    }
+
+    public function actionGetUomByID() {
+        $uom_id = Yii::app()->request->getParam('uom_id');
+
+        $uom = Uom::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $uom_id));
+
+        $data = array(
+            "uom_id" => isset($uom->uom_id) ? $uom->uom_id : null,
+            "uom_name" => isset($uom->uom_name) ? $uom->uom_name : null,
+        );
+
+        echo json_encode($data);
     }
 
 }

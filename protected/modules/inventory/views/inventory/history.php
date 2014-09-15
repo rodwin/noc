@@ -30,7 +30,6 @@ $this->breadcrumbs=array(
                     <th><?php echo $headers['running_total']; ?></th>
                     <th><?php echo $headers['action']; ?></th>
                     <th><?php echo $headers['transaction_date']; ?></th>
-                    <th><?php echo $headers['destination_zone_id']; ?></th>
                     <th><?php echo $headers['created_by']; ?></th>
                     <th><?php echo $headers['cost_unit']; ?></th>
                     <th><?php echo $headers['ave_cost_per_unit']; ?></th>
@@ -45,7 +44,6 @@ $this->breadcrumbs=array(
                     <td><?php echo $value->running_total; ?></td>
                     <td><?php echo $value->action; ?></td>
                     <td><?php echo $value->transaction_date; ?></td>
-                    <td><?php echo isset( $value->zone->zone_name)?  $value->zone->zone_name: null; ?></td>
                     <td><?php echo $value->created_by; ?></td>
                     <td><?php echo $value->cost_unit; ?></td>
                     <td><?php echo $value->ave_cost_per_unit; ?></td>

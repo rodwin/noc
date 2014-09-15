@@ -90,15 +90,15 @@ $this->breadcrumbs = array(
                     <td><?php echo $value->error_message; ?></td>
                     <td>
                         <div align="center">
-                                <?php if ($value->failed_rows > 0) { ?>
+                            <?php if ($value->failed_rows > 0) { ?>
                                 <a class="view" title="View" data-toggle="tooltip" href="<?php echo $this->createUrl('/library/sku/UploadDetails', array('id' => $value->id)); ?>" data-original-title="View"><i class="glyphicon glyphicon-eye-open"></i></a>
-    <?php } ?>
+                                <?php } ?>
                         </div>
 
 
                     </td>
                 </tr>  
-<?php } ?>
+            <?php } ?>
         </tbody>
     </table>
 </div>

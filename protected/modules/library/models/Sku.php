@@ -103,7 +103,7 @@ class Sku extends CActiveRecord {
             array('brand_id', 'isValidBrand'),
             array('default_unit_price', 'length', 'max' => 18),
             array('supplier', 'length', 'max' => 250),
-            array('default_unit_price', 'match', 'pattern' => '/^[0-9]{1,9}(\.[0-9]{0,3})?$/'),
+            array('default_unit_price', 'match', 'pattern' => '/^[0-9]{1,9}(\.[0-9]{0,2})?$/'),
             array('created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.

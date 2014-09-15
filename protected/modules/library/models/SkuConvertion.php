@@ -114,7 +114,7 @@ class SkuConvertion extends CActiveRecord {
     }
 
     public function data($col, $order_dir, $limit, $offset, $columns, $sku_id) {
-        
+
         switch ($col) {
 
             case 0:

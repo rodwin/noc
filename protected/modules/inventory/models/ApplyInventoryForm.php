@@ -80,8 +80,7 @@ class ApplyInventoryForm extends CFormModel {
                 return false;
             }
         }
-        InventoryHistory::model()->selected_inventory_id = $this->inventoryObj->inventory_id;
-        
+
         $inv_qty = 0;
         $key = 0;
         $item_exist = false;

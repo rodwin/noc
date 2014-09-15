@@ -39,7 +39,7 @@
                 <div class="form-group">
                     <?php echo $form->textFieldGroup($model, 'sales_office_name', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 200)))); ?>
                 </div>
-                
+
                 <div class="form-group">
                     <?php //echo $form->textFieldGroup($model,'default_zone_id',array('widgetOptions'=>array('htmlOptions'=>array('class'=>'span5','maxlength'=>50)))); ?>
                     <?php

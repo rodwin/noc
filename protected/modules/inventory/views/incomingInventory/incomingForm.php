@@ -7,9 +7,13 @@ $this->breadcrumbs = array(
 ?>
 
 <?php
+$baseUrl = Yii::app()->theme->baseUrl;
 $cs = Yii::app()->getClientScript();
 $cs->registerScriptFile(Yii::app()->baseUrl . '/js/handlebars-v1.3.0.js', CClientScript::POS_END);
 $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClientScript::POS_END);
+$cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.js', CClientScript::POS_END);
+$cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.date.extensions.js', CClientScript::POS_END);
+$cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.extensions.js', CClientScript::POS_END);
 ?>
 
 <style type="text/css">
@@ -48,11 +52,12 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
     }
 
     .tt-suggestions .repo-name {
-        font-size: 14px;
+        font-size: 15px;
         font-weight: bold;
     }
 
     .tt-suggestions .repo-description {
+        font-size: 14px;
         margin: 0;
         font-style: italic;
     }
@@ -66,11 +71,16 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
         max-height: 150px;
         overflow-y: auto;
     }
+
+    .process_position { text-align: center; position: absolute; }
 </style>
 
 <style type="text/css">
 
     #sku_table tbody tr { cursor: pointer }
+
+    #transaction_table td { text-align:center; }
+    #transaction_table td + td { text-align: left; }
 
     .span5  { width: 200px; }
 
@@ -78,7 +88,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
 
     .hide_row { display: none; }
 
-    /*    #IncomingInventoryDetail_unit_price { width: 100px!important; }*/
+    .sku_uom_selected { width: 20px; }
 
 </style>   
 
@@ -119,15 +129,26 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
 
                 <?php echo $form->textFieldGroup($incoming, 'pr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo $form->textFieldGroup($incoming, 'pr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($incoming, 'pr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo $form->textFieldGroup($incoming, 'requestor', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+                <?php
+                echo $form->dropDownListGroup(
+                        $incoming, 'requestor', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => '',
+                    ),
+                    'widgetOptions' => array(
+                        'data' => array(),
+                        'htmlOptions' => array('class' => 'span5 input-sm', 'multiple' => false, 'prompt' => 'Select Requestor'),
+                    ),
+                    'labelOptions' => array('label' => false)));
+                ?>
 
-                <?php echo $form->textFieldGroup($incoming, 'plan_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($incoming, 'plan_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo $form->textFieldGroup($incoming, 'revised_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($incoming, 'revised_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo $form->textFieldGroup($incoming, 'actual_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($incoming, 'actual_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
 
             </div>
@@ -147,14 +168,14 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
 
             <div class="pull-right col-md-7">
 
-                <?php echo $form->textFieldGroup($incoming, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($incoming, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($incoming, 'dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo CHtml::textField('zone_name', '', array('id' => 'IncomingInventory_zone_id', 'class' => 'typeahead form-control span5 input-sm', 'placeholder' => "Zone")); ?>
                 <?php echo $form->textFieldGroup($incoming, 'zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'incomingInventory_zone_id', 'class' => 'span5 input-sm', 'maxlength' => 50, 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo $form->textFieldGroup($incoming, 'plan_arrival_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($incoming, 'plan_arrival_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php
                 echo $form->dropDownListGroup(
@@ -169,7 +190,18 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
                     'labelOptions' => array('label' => false)));
                 ?>
 
-                <?php echo $form->textFieldGroup($incoming, 'delivery_remarks', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+                <?php
+                echo $form->dropDownListGroup(
+                        $incoming, 'delivery_remarks', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => '',
+                    ),
+                    'widgetOptions' => array(
+                        'data' => $delivery_remarks,
+                        'htmlOptions' => array('class' => 'span5 input-sm', 'multiple' => false, 'prompt' => 'Select Delivery Remarks'),
+                    ),
+                    'labelOptions' => array('label' => false)));
+                ?>
 
             </div>
         </div>
@@ -180,25 +212,35 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
         <button id="delete_row_btn" class="btn btn-danger btn-sm" onclick="deleteTransactionRow()" style="display: none;"><i class="fa fa-trash-o"></i> DELETE</button><br/><br/>
 
         <?php $fields = Sku::model()->attributeLabels(); ?>
+        <?php $incomingDetailFields = IncomingInventoryDetail::model()->attributeLabels(); ?>
+        <h4 class="control-label text-primary"><b>Transaction Table</b></h4>
+
         <div class="table-responsive">            
             <table id="transaction_table" class="table table-bordered table-hover table-striped">
                 <thead>
                     <tr>
                         <th></th>
-                        <th class=""><?php echo $fields['sku_id']; ?></th>
+                        <th class="hide_row"><?php echo $fields['sku_id']; ?></th>
                         <th><?php echo $fields['sku_code']; ?></th>
                         <th><?php echo $fields['description']; ?></th>
                         <th><?php echo $fields['brand_id']; ?></th>
-                        <th class="">Unit Price</th>
-                        <th class="">Batch No</th>
-                        <th class="">Expiration Date</th>
-                        <th>Quantity</th>
-                        <th>Amount</th>
-                        <th class="">Inventory On Hand</th>
-                        <th class="">Remarks</th>
+                        <th><?php echo $incomingDetailFields['unit_price']; ?></th>
+                        <th class="hide_row"><?php echo $incomingDetailFields['batch_no']; ?></th>
+                        <th class="hide_row"><?php echo $incomingDetailFields['expiration_date']; ?></th>
+                        <th><?php echo $incomingDetailFields['quantity_received']; ?></th>
+                        <th class="hide_row"><?php echo $incomingDetailFields['uom_id']; ?></th>
+                        <th><?php echo $incomingDetailFields['uom_id']; ?></th>
+                        <th><?php echo $incomingDetailFields['amount']; ?></th>
+                        <th class="hide_row"><?php echo $incomingDetailFields['inventory_on_hand']; ?></th>
+                        <th class="hide_row"><?php echo $incomingDetailFields['remarks']; ?></th>
                     </tr>                                    
                 </thead>
             </table>                            
+        </div>
+
+        <div class="pull-right col-md-4 no-padding">
+            <?php echo $form->labelEx($incoming, 'total_amount', array("class" => "pull-left")); ?>
+            <?php echo $form->textFieldGroup($incoming, 'total_amount', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5 input-sm pull-right', 'maxlength' => 50, 'value' => 0, 'readonly' => true)), 'labelOptions' => array('label' => false))); ?>
         </div>
 
     </div>
@@ -231,7 +273,6 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
 
                 <div class="modal-body clearfix">
 
-                    <?php $fields = Sku::model()->attributeLabels(); ?>
                     <div class="table-responsive">
                         <table id="sku_table" class="table table-bordered table-hover">
                             <thead>
@@ -296,10 +337,11 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
     var sku_table;
     var transaction_table;
     $(function() {
+        $("[data-mask]").inputmask();
 
         sku_table = $('#sku_table').dataTable({
             "filter": true,
-            "dom": '<"text-center"r>t<"pull-left"i><"pull-right"p>',
+            "dom": '<"process_position"r>t<"pull-left"i><"pull-right"p>',
             "bSort": true,
             "processing": true,
             "serverSide": true,
@@ -347,7 +389,26 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
             "bSort": false,
             "processing": false,
             "serverSide": false,
-            "bAutoWidth": false
+            "bAutoWidth": false,
+            "columnDefs": [{
+                    "targets": [1],
+                    "visible": false
+                }, {
+                    "targets": [6],
+                    "visible": false
+                }, {
+                    "targets": [7],
+                    "visible": false
+                }, {
+                    "targets": [9],
+                    "visible": false
+                }, {
+                    "targets": [12],
+                    "visible": false
+                }, {
+                    "targets": [13],
+                    "visible": false
+                }]
         });
     });
 
@@ -357,7 +418,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
 
         $.ajax({
             type: 'POST',
-            url: '<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/createIncomingInventory'); ?>',
+            url: '<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/create'); ?>',
             data: data,
             dataType: "json",
             success: function(data) {
@@ -369,6 +430,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
         });
     }
 
+    var total_amount = 0;
     function addItem() {
 
         var data = $("#add-item-form").serialize();
@@ -397,6 +459,16 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
 
             if (data.form == "transaction") {
 
+                document.forms["incoming-inventory-form"].reset();
+
+                var oSettings = transaction_table.fnSettings();
+                var iTotalRecords = oSettings.fnRecordsTotal();
+                for (var i = 0; i <= iTotalRecords; i++) {
+                    transaction_table.fnDeleteRow(0, null, true);
+                }
+
+                growlAlert(data.type, data.message);
+
             } else if (data.form == "details") {
                 $('#formModal').modal('hide');
 
@@ -410,24 +482,37 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
                     data.details.batch_no,
                     data.details.expiration_date,
                     data.details.quantity_received,
+                    data.details.uom_id,
+                    data.details.uom_name,
                     data.details.amount,
                     data.details.inventory_on_hand,
                     data.details.remarks
                 ]);
-                console.log(transaction_table.fnGetData());
-            }
+//                console.log(transaction_table.fnGetData());
 
-            $.growl(data.message, {
-                icon: 'glyphicon glyphicon-info-sign',
-                type: 'success'
-            });
+                total_amount = (parseFloat(total_amount) + parseFloat(data.details.amount));
+                $("#IncomingInventory_total_amount").val(total_amount);
+
+                growlAlert(data.type, data.message);
+            }
         } else {
+
+            if (data.form == "transaction") {
+                growlAlert(data.type, data.message);
+            }
 
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
                 element.classList.add("error");
             });
         }
+    }
+
+    function growlAlert(type, message) {
+        $.growl(message, {
+            icon: 'glyphicon glyphicon-info-sign',
+            type: type
+        });
     }
 
     function showDeleteRowBtn() {
@@ -454,10 +539,10 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
                 "batch_no": row_data[6],
                 "expiration_date": row_data[7],
                 "qty_received": row_data[8],
-                "amount": row_data[9],
-                "inventory_on_hand": row_data[10],
-                "item_remarks": row_data[11],
-                "remarks": row_data[12],
+                "uom_id": row_data[9],
+                "amount": row_data[11],
+                "inventory_on_hand": row_data[12],
+                "remarks": row_data[13],
             });
         }
 
@@ -472,6 +557,10 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
 
         for (var i = 0; i < aTrs.length; i++) {
             $(aTrs[i]).find('input:checkbox:checked').each(function() {
+                var row_data = transaction_table.fnGetData(aTrs[i]);
+                total_amount = (parseFloat(total_amount) - parseFloat(row_data[11]));
+                $("#IncomingInventory_total_amount").val(total_amount);
+
                 transaction_table.fnDeleteRow(aTrs[i]);
             });
         }
@@ -482,12 +571,11 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
     function showDeleteRowBtn() {
         var atLeastOneIsChecked = $("input[name='transaction_row[]']").is(":checked");
         if (atLeastOneIsChecked === true) {
-            $("#delete_row_btn").show();
+            $('#delete_row_btn').fadeIn('slow');
         }
         if (atLeastOneIsChecked === false) {
-            $("#delete_row_btn").hide();
+            $('#delete_row_btn').fadeOut('slow');
         }
-
     }
 
     $('#btn_save').click(function() {
@@ -497,30 +585,6 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
     $('#btn_add_item').click(function() {
         addItem();
     });
-    
-    function loadSkuDetails(sku_id) {
-
-        $("#IncomingInventoryDetail_sku_id").val(sku_id);
-
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/loadSkuDetails'); ?>',
-            data: {"sku_id": sku_id},
-            dataType: "json",
-            success: function(data) {
-                $("#Sku_type").val(data.sku_category);
-                $("#Sku_sub_type").val(data.sku_sub_category);
-                $("#Sku_brand_id").val(data.brand_name);
-                $("#Sku_sku_code").val(data.sku_code);
-                $("#Sku_description").val(data.sku_description);
-                $("#IncomingInventoryDetail_unit_price").val(data.default_unit_price);
-                $(".sku_uom_selected").html(data.sku_default_uom);
-            },
-            error: function(data) {
-                alert("Error occured: Please try again.");
-            }
-        });
-    }
 
     function openFormModal() {
 
@@ -539,7 +603,8 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
     }
 
     function confirmModal() {
-        $('#confirmModal').modal('show');
+//        $('#confirmModal').modal('show');
+        $('#formModal').modal('hide');
     }
 
     function closeModal() {
@@ -547,9 +612,9 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
         $('#formModal').modal('hide');
     }
 
-    window.onbeforeunload = function() {
-        return ""
-    }
+//    window.onbeforeunload = function() {
+//        return ""
+//    }
 
     $(function() {
         var zone = new Bloodhound({
@@ -582,8 +647,19 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/typeahead.bundle.js', CClient
         });
     });
 
+    function onlyNumbers(txt, event, point) {
+
+        var charCode = (event.which) ? event.which : event.keyCode;
+
+        if ((charCode >= 48 && charCode <= 57) || (point === true && charCode == 46)) {
+            return true;
+        }
+
+        return false;
+    }
+
     $(function() {
-        $('#IncomingInventory_pr_date, #IncomingInventory_plan_delivery_date, #IncomingInventory_revised_delivery_date, #IncomingInventory_actual_delivery_date, #IncomingInventory_plan_arrival_date, #IncomingInventory_transaction_date').datepicker({
+        $('#IncomingInventory_pr_date, #IncomingInventory_plan_delivery_date, #IncomingInventory_revised_delivery_date, #IncomingInventory_actual_delivery_date, #IncomingInventory_plan_arrival_date, #IncomingInventory_transaction_date, #MovingInventoryDetail_expiration_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'

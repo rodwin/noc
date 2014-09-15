@@ -100,16 +100,16 @@
                         </script>
                     </div>
 
-                <?php
+                    <?php
                 } else if ($data_type == 'Date') {
                     
                 }
             }
             ?>
 
-<?php } else { ?>
+        <?php } else { ?>
             <h6><em>No Custom Data Available.</em></h6>
-<?php } ?>
+        <?php } ?>
 
     </div>
 </div>

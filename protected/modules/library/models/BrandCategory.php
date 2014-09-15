@@ -43,9 +43,9 @@ class BrandCategory extends CActiveRecord {
             array('brand_category_id, company_id, category_name, created_date, created_by, updated_by, updated_date', 'safe', 'on' => 'search'),
         );
     }
-    
+
     public function uniqueName($attribute, $params) {
-        
+
         $model = BrandCategory::model()->findByAttributes(array('company_id' => $this->company_id, 'category_name' => $this->$attribute));
         if ($model && $model->brand_category_id != $this->brand_category_id) {
             $this->addError($attribute, 'Brand category name selected already taken');

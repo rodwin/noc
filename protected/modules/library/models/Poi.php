@@ -62,13 +62,13 @@ class Poi extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('poi_id, company_id, short_name, primary_code, poi_category_id, poi_sub_category_id', 'required'),
+            array('poi_id, company_id, short_name, primary_code', 'required'),
             array('sales_region_id', 'numerical', 'integerOnly' => true),
             array('poi_id, company_id, zip, landline, mobile, poi_category_id, poi_sub_category_id, status', 'length', 'max' => 50),
             array('short_name, address1, address2', 'length', 'max' => 200),
             array('long_name, remarks', 'length', 'max' => 250),
             array('primary_code, secondary_code, created_by, edited_by, verified_by', 'length', 'max' => 100),
-            array('latitude, longitude', 'length', 'max' => 9),
+//            array('latitude, longitude', 'length', 'max' => 9),
             array('latitude, longitude', 'numerical'),
             array('primary_code', 'uniquePrimaryCode'),
             array('poi_category_id', 'isValidPoiCategory'),
@@ -100,7 +100,7 @@ class Poi extends CActiveRecord {
         $model = PoiCategory::model()->findByAttributes(array("poi_category_id" => $this->$attribute));
 
         if (!Validator::isResultSetWithRows($model)) {
-            $this->addError($attribute, 'Poi Category ' . $this->$attribute . ' is invalid.');
+            $this->addError($attribute, 'Poi Category is invalid.');
         }
 
         return;
@@ -113,7 +113,7 @@ class Poi extends CActiveRecord {
         $model = PoiSubCategory::model()->findByAttributes(array("poi_sub_category_id" => $this->$attribute, "poi_category_id" => $this->poi_category_id));
 
         if (!Validator::isResultSetWithRows($model)) {
-            $this->addError($attribute, 'Poi Sub Category ' . $this->$attribute . ' is invalid.');
+            $this->addError($attribute, 'Poi Sub Category is invalid.');
         }
 
         return;
@@ -126,7 +126,7 @@ class Poi extends CActiveRecord {
         $model = Region::model()->findByAttributes(array("region_code" => $this->$attribute));
 
         if (!Validator::isResultSetWithRows($model)) {
-            $this->addError($attribute, 'Region code ' . $this->$attribute . ' is invalid.');
+            $this->addError($attribute, 'Region name is invalid.');
         }
 
         return;
@@ -138,10 +138,10 @@ class Poi extends CActiveRecord {
             return;
         }
 
-        $model = Province::model()->findByAttributes(array("province_code" => $this->$attribute, "region_code" => $this->region_id));
+        $model = Province::model()->findByAttributes(array("province_code" => $this->$attribute));
 
         if (!Validator::isResultSetWithRows($model)) {
-            $this->addError($attribute, 'Province code ' . $this->$attribute . ' is invalid.');
+            $this->addError($attribute, 'Province name is invalid.');
         }
 
         return;
@@ -153,10 +153,10 @@ class Poi extends CActiveRecord {
             return;
         }
 
-        $model = Municipal::model()->findByAttributes(array("municipal_code" => $this->$attribute, "province_code" => $this->province_id));
+        $model = Municipal::model()->findByAttributes(array("municipal_code" => $this->$attribute));
 
         if (!Validator::isResultSetWithRows($model)) {
-            $this->addError($attribute, 'Municpal code ' . $this->$attribute . ' is invalid.');
+            $this->addError($attribute, 'Municpal name is invalid.');
         }
 
         return;
@@ -168,10 +168,10 @@ class Poi extends CActiveRecord {
             return;
         }
 
-        $model = Barangay::model()->findByAttributes(array("barangay_code" => $this->$attribute, "municipal_code" => $this->municipal_id));
+        $model = Barangay::model()->findByAttributes(array("barangay_code" => $this->$attribute));
 
         if (!Validator::isResultSetWithRows($model)) {
-            $this->addError($attribute, 'Barangay code ' . $this->$attribute . ' is invalid.');
+            $this->addError($attribute, 'Barangay name is invalid.');
         }
 
         return;
@@ -193,6 +193,13 @@ class Poi extends CActiveRecord {
         }
         if ($this->longitude == "") {
             $this->longitude = 0;
+        }
+
+        if ($this->poi_category_id == "") {
+            $this->poi_category_id = null;
+        }
+        if ($this->poi_sub_category_id == "") {
+            $this->poi_sub_category_id = null;
         }
         return parent::beforeValidate();
     }
@@ -251,7 +258,7 @@ class Poi extends CActiveRecord {
         $headers = $this->attributeLabels();
         unset($headers['poi_id']);
         unset($headers['company_id']);
-        unset($headers['poi_category_id']);
+//        unset($headers['poi_category_id']);
         unset($headers['created_date']);
         unset($headers['created_by']);
         unset($headers['edited_date']);
@@ -541,6 +548,7 @@ class Poi extends CActiveRecord {
                     $province = Province::model()->findByAttributes(array(), $condition = 'trim(t.province_name) = "' . trim($val[$required_headers['province_id']]) . '"');
                     $municipal = Municipal::model()->findByAttributes(array(), $condition = 'trim(t.municipal_name) = "' . trim($val[$required_headers['municipal_id']]) . '"');
                     $barangay = Barangay::model()->findByAttributes(array(), $condition = 'trim(t.barangay_name) = "' . trim($val[$required_headers['barangay_id']]) . '"');
+                    $poi_category = PoiCategory::model()->findByAttributes(array("category_name" => trim($val[$required_headers['poi_category_id']]), 'company_id' => $company_id));
                     $poi_sub_category = PoiSubCategory::model()->findByAttributes(array("sub_category_name" => trim($val[$required_headers['poi_sub_category_id']]), 'company_id' => $company_id));
 
                     $data = array(
@@ -561,7 +569,8 @@ class Poi extends CActiveRecord {
                         'zip' => $val[$required_headers['zip']],
                         'landline' => $val[$required_headers['landline']],
                         'mobile' => $val[$required_headers['mobile']],
-                        'poi_category_id' => $category_id,
+//                        'poi_category_id' => $category_id,
+                        'poi_category_id' => isset($poi_category->poi_category_id) ? $poi_category->poi_category_id : $val[$required_headers['poi_category_id']],
                         'poi_sub_category_id' => isset($poi_sub_category->poi_sub_category_id) ? $poi_sub_category->poi_sub_category_id : $val[$required_headers['poi_sub_category_id']],
                         'remarks' => $val[$required_headers['remarks']],
                         'status' => $val[$required_headers['status']],

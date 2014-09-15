@@ -20,8 +20,8 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
         <!-- Theme style -->
         <link href="<?php echo Yii::app()->theme->baseUrl;?>/css/AdminLTE.css" rel="stylesheet" type="text/css" />
         <link href="<?php echo Yii::app()->baseUrl;?>/css/custom.css" rel="stylesheet" type="text/css" />
-<!--         daterange picker 
-        <link href="<?php //echo Yii::app()->theme->baseUrl;?>/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />-->
+        <!--daterange picker--> 
+        <link href="<?php echo Yii::app()->theme->baseUrl;?>/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
         <!-- jQuery 2.0.2 -->
 <!--        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>-->
         
@@ -391,7 +391,8 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
         <script src="<?php echo Yii::app()->baseUrl;?>/js/bootstrap-growl.min.js" type="text/javascript"></script>
         <script src="<?php echo Yii::app()->baseUrl;?>/js/global.js" type="text/javascript"></script>
         <!-- date-picker -->
-<!--        <script src="<?php //echo Yii::app()->theme->baseUrl;?>/js/plugins/datepicker/datepicker.js" type="text/javascript"></script>-->
+        <script src="<?php echo Yii::app()->baseUrl;?>/js/datepicker/datepicker.js" type="text/javascript"></script>
+        
         <script type="text/javascript">
         $(function() {
         <?php
