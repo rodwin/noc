@@ -218,7 +218,7 @@ class Sku extends CActiveRecord {
         }
 
         if (isset($this->default_uom_id)) {
-            $uom_id_already_convert = SkuConvertion::model()->findByAttributes(array('company_id' => Yii::app()->user->company_id, 'sku_id' => $this->sku_id, 'uom_id' => $this->default_uom_id));
+            $uom_id_already_convert = SkuConvertion::model()->findByAttributes(array('company_id' => $this->company_id, 'sku_id' => $this->sku_id, 'uom_id' => $this->default_uom_id));
 
             if ($uom_id_already_convert) {
                 $this->addError("default_uom_id", "UOM already used as Unit of Measure in Convertion.");
@@ -226,7 +226,7 @@ class Sku extends CActiveRecord {
         }
 
         if (isset($this->default_zone_id)) {
-            $zone_id_already_restock = SkuLocationRestock::model()->findByAttributes(array('company_id' => Yii::app()->user->company_id, 'sku_id' => $this->sku_id, 'zone_id' => $this->default_zone_id));
+            $zone_id_already_restock = SkuLocationRestock::model()->findByAttributes(array('company_id' => $this->company_id, 'sku_id' => $this->sku_id, 'zone_id' => $this->default_zone_id));
 
             if ($zone_id_already_restock) {
                 $this->addError("default_zone_id", "Zone already used in Location Restock Levels.");

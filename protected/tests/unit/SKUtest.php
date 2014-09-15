@@ -255,7 +255,7 @@ class SKUtest extends CDbTestCase
 		'description'=>'description',
 		'default_uom_id'=>'carton(s)',
 		'default_unit_price'=>100.54,
-		'type'=>  Sku::TYPE_CONSUMABLE,
+		'type'=>  'promo',
 		'default_zone_id'=>'zone1',
 		'supplier'=>'supplier',
 		'low_qty_threshold'=>10,
@@ -264,6 +264,7 @@ class SKUtest extends CDbTestCase
             
             $model = new Sku;
             $model->attributes = $data;
+            
             $this->assertTrue($model->save());
             
         }

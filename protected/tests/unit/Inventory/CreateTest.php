@@ -73,10 +73,12 @@ class CreateTest extends CDbTestCase
 			'sku_status_id'=>null,
 			'unique_tag'=>null,
 			'unique_date'=>null,
+                        'created_by' => 'rodwin'
 		);
             
             $model = new CreateInventoryForm();
             $model->attributes = $data;
+            
             $this->assertTrue($model->validate());
             $this->assertTrue($model->create());
             
@@ -95,6 +97,7 @@ class CreateTest extends CDbTestCase
 			'sku_status_id'=>'in-stock',
 			'unique_tag'=>null,
 			'unique_date'=>null,
+                        'created_by' => 'rodwin'
 		);
             
             $model = new CreateInventoryForm();
