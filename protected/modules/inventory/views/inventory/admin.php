@@ -84,22 +84,6 @@ return false;
 <div class="box-body table-responsive">
    <table id="inventory_table" class="table table-bordered">
       <thead>
-
-<!--            <tr>
-                <th><input type="text" class="form-control input-sm" id="Inv_sku_code" placeholder="" name=""></th>
-                <th><input type="text" class="form-control input-sm" id="Inv_sku_name" placeholder="" name=""></th>
-                <th><input type="text" class="form-control input-sm" id="Inv_qty" placeholder="" name=""></th>
-                <th><input type="text" class="form-control input-sm" id="Inv_uom_name" placeholder="" name=""></th>
-                <th></th>
-                <th><input type="text" class="form-control input-sm" id="Inv_zone_name" placeholder="" name=""></th>
-                <th><input type="text" class="form-control input-sm" id="Inv_sku_status_name" placeholder="" name=""></th>
-                <th><input type="text" class="form-control input-sm" id="Inv_expiration_date" placeholder="" name=""></th>
-                <th><input type="text" class="form-control input-sm" id="Inv_reference_no" placeholder="" name=""></th>
-                <th><input type="text" class="form-control input-sm" id="Inv_brand_name" placeholder="" name=""></th>
-                <th><input type="text" class="form-control input-sm" id="Inv_sales_office_name" placeholder="" name=""></th>
-                <th><button type="button" id="btn_search" class="btn btn-default btn-flat">Search</button></th>
-            </tr>-->
-
          <tr>
             <th><?php echo $fields['sku_code']; ?></th>
             <th><?php echo $fields['sku_name']; ?></th>
@@ -115,22 +99,20 @@ return false;
             <th>Actions</th>
          </tr>
       </thead>
-
       <thead>
          <tr id="filter_row">
             <td class="filter"></td>
             <td class="filter"></td>
             <td class="filter"></td>
             <td class="filter"></td>
-            <td class="filter" style="visibility: hidden" disabled="disabled"></td>
+            <td class="filter" id="hide_textbox"></td>
             <td class="filter"></td>
             <td class="filter"></td>
             <td class="filter"></td>
             <td class="filter"></td>
             <td class="filter" id="hide_textbox"></td>
             <td class="filter" id="hide_textbox"></td>
-            <td class="filter" id="hide_textbox"></td>
-            
+            <td class="filter" id="hide_textbox"></td>            
          </tr>
       </thead>
 
