@@ -62,6 +62,12 @@ class Supplier extends CActiveRecord {
    }
 
    public function beforeValidate() {
+      if ($this->latitude == "") {
+            $this->latitude = 0;
+        }
+        if ($this->longitude == "") {
+            $this->longitude = 0;
+        }
       return parent::beforeValidate();
    }
 

@@ -157,14 +157,14 @@
             </div>
 
 
-            <div class="form-group">
+<!--            <div class="form-group">
 <?php echo $form->textFieldGroup($model, 'updated_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5')))); ?>
             </div>
 
 
             <div class="form-group">
 <?php echo $form->textFieldGroup($model, 'updated_by', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 100)))); ?>
-            </div>
+            </div>-->
 
 
             <div class="form-group">
