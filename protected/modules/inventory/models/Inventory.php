@@ -334,4 +334,8 @@ class Inventory extends CActiveRecord {
         return false;
     }
 
+    public function updateInvByInvID($inventory_id, $company_id, $quantity) {
+        Inventory::model()->updateAll(array('qty' => $quantity), 'inventory_id = ' . $inventory_id . ' AND company_id = "' . $company_id . '"');
+    }
+
 }

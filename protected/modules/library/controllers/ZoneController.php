@@ -25,7 +25,7 @@ class ZoneController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view', 'search'),
+                'actions' => array('index', 'view', 'search', 'searchByWarehouse'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -96,9 +96,28 @@ class ZoneController extends Controller {
         foreach ($zone as $key => $val) {
             $return[$key]['zone_id'] = $val->zone_id;
             $return[$key]['zone_name'] = $val->zone_name;
-//            $return[$key]['value'] = $val->sku_name;
-//            $return[$key]['brand'] = isset($val->brand->brand_name) ? $val->brand->brand_name : '';
-//            $return[$key]['uom_id'] = isset($val->defaultUom->uom_id) ? $val->defaultUom->uom_id : '';
+            $return[$key]['sales_office'] = isset($val->salesOffice->sales_office_name) ? $val->salesOffice->sales_office_name : '';
+        }
+
+        echo json_encode($return);
+        Yii::app()->end();
+    }
+
+    public function actionSearchByWarehouse($value) {
+
+        $c = new CDbCriteria();
+        if ($value != "") {
+            $c->condition = 'salesOffice.distributor_id = :distributor_id AND t.zone_name LIKE :zone_name';
+            $c->params = array(':distributor_id' => "", ":zone_name" => '%' . $value . '%');
+        }
+        $c->compare('t.company_id', Yii::app()->user->company_id);
+        $c->with = array('salesOffice');
+        $zone = Zone::model()->findAll($c);
+
+        $return = array();
+        foreach ($zone as $key => $val) {
+            $return[$key]['zone_id'] = $val->zone_id;
+            $return[$key]['zone_name'] = $val->zone_name;
             $return[$key]['sales_office'] = isset($val->salesOffice->sales_office_name) ? $val->salesOffice->sales_office_name : '';
         }
 
