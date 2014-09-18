@@ -371,9 +371,19 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             ));
                             ?>
                         </div>
-
-                        <?php echo $form->textFieldGroup($transaction_detail, 'unit_price', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'value' => 0, "onkeypress" => "return onlyNumbers(this, event, true)")), 'labelOptions' => array('label' => false))); ?>
-
+                        
+                        <div class="span5">
+                            <?php
+                            echo $form->textFieldGroup($transaction_detail, 'unit_price', array(
+                                'widgetOptions' => array(
+                                    'htmlOptions' => array("class" => "span5", "onkeypress" => "return onlyNumbers(this, event, true)", 'value' => 0)
+                                ),
+                                'labelOptions' => array('label' => false),
+                                'append' => '<b class="inventory_uom_selected"></b>'
+                            ));
+                            ?>
+                        </div>
+                        
                         <?php echo $form->textFieldGroup($transaction_detail, 'amount', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'readonly' => true, 'value' => 0)), 'labelOptions' => array('label' => false))); ?>
 
                         <?php echo $form->textFieldGroup($transaction_detail, 'return_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
