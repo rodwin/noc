@@ -79,7 +79,7 @@
 
             <div class="form-group">
                 <script type="text/javascript">
-                    $("#ApplyInventoryForm_unique_tag").val(<?php echo $inventoryObj->reference_no; ?>);
+                    $("#ApplyInventoryForm_unique_tag").val(<?php echo '"'.$inventoryObj->reference_no.'"'; ?>);
                 </script>
 
                 <?php

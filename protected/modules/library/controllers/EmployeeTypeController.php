@@ -91,7 +91,7 @@ class EmployeeTypeController extends Controller
     {
         $model=$this->loadModel($id);
 
-        $this->pageTitle = 'View EmployeeType '.$model->employee_type_id;
+        $this->pageTitle = 'View EmployeeType '.$model->employee_type_code;
 
         $this->menu=array(
                 array('label'=>'Create EmployeeType', 'url'=>array('create')),
@@ -164,7 +164,7 @@ class EmployeeTypeController extends Controller
                 array('label'=>'Help', 'url' => '#'),
         );
 
-        $this->pageTitle = 'Update EmployeeType '.$model->employee_type_id;
+        $this->pageTitle = 'Update EmployeeType '.$model->employee_type_code;
         
         // Uncomment the following line if AJAX validation is needed
         // $this->performAjaxValidation($model);
