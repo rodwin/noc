@@ -274,7 +274,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'planned_quantity', array(
                                 'widgetOptions' => array(
-                                    'htmlOptions' => array("class" => "ignore span5", "onkeypress" => "return onlyNumbers(this, event, false)", 'readonly' => true)
+                                    'htmlOptions' => array("class" => "ignore span5", "onkeypress" => "return onlyNumbers(this, event, false)", 'readonly' => true, "value" => 0)
                                 ),
                                 'labelOptions' => array('label' => false),
                                 'append' => '<b class="sku_uom_selected"></b>'
@@ -286,7 +286,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'quantity_received', array(
                                 'widgetOptions' => array(
-                                    'htmlOptions' => array("class" => "span5", "onkeypress" => "return onlyNumbers(this, event, false)")
+                                    'htmlOptions' => array("class" => "span5", "onkeypress" => "return onlyNumbers(this, event, false)", "value" => 0)
                                 ),
                                 'labelOptions' => array('label' => false),
                                 'append' => '<b class="sku_uom_selected"></b>'
@@ -329,7 +329,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'inventory_on_hand', array(
                                 'widgetOptions' => array(
-                                    'htmlOptions' => array("class" => "span5", 'readonly' => true)
+                                    'htmlOptions' => array("class" => "span5", 'readonly' => true, "value" => 0)
                                 ),
                                 'labelOptions' => array('label' => false),
                                 'append' => '<b class="sku_uom_selected"></b>'
@@ -556,7 +556,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $('#receiving-inventory-form select:not(.ignore), input:not(.ignore)').val('');
                 $('.sku_uom_selected').html('');
 
-                $("#ReceivingInventoryDetail_quantity_received, #ReceivingInventoryDetail_unit_price, #ReceivingInventoryDetail_amount").val(0);
+                $("#ReceivingInventoryDetail_planned_quantity, #ReceivingInventoryDetail_quantity_received, #ReceivingInventoryDetail_unit_price, #ReceivingInventoryDetail_amount").val(0);
 
             }
 

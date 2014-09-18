@@ -281,7 +281,6 @@ class OutgoingInventory extends CActiveRecord {
 
             return true;
         } catch (Exception $exc) {
-            pr($exc);
             Yii::log($exc->getTraceAsString(), 'error');
             return false;
         }
