@@ -3,9 +3,9 @@ $main_menu = array(
     array('label' => 'Dashboard', 'url' => array('site/index'), 'icon' => 'fa fa-dashboard', 'visible' => !Yii::app()->user->isGuest),
     array('label' => 'Location Viewer', 'url' => array('locationviewer'), 'icon' => 'fa fa-map-marker', 'visible' => !Yii::app()->user->isGuest),
     array('label' => 'Inventory', 'url' => '#', 'icon' => 'fa fa-list-alt', 'visible' => !Yii::app()->user->isGuest, 'items' => array(
-            array('label' => 'Inventory', 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/inventory/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => 'Dashboard', 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/inventory/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => 'Receiving', 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/receivingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
             array('label' => 'Incoming', 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/incomingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
-            array('label' => 'Moving', 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/movingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
             array('label' => 'Outgoing', 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/outgoingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
         )),
     array('label' => 'Library', 'url' => '#', 'icon' => 'fa fa-book', 'visible' => !Yii::app()->user->isGuest, 'items' => array(
