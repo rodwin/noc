@@ -76,19 +76,19 @@ return false;
 
 <h4 class="control-label text-primary"><b>Item Details Table</b></h4>
 <?php $skuFields = Sku::model()->attributeLabels(); ?>
-<?php $incomingInvFields = IncomingInventoryDetail::model()->attributeLabels(); ?>
+<?php $receivingInvFields = ReceivingInventoryDetail::model()->attributeLabels(); ?>
 <div class="box-body table-responsive">
     <table id="receiving-inventory-details_table" class="table table-bordered">
         <thead>
             <tr>
-                <th><?php echo $incomingInvFields['batch_no']; ?></th>
+                <th><?php echo $receivingInvFields['batch_no']; ?></th>
                 <th><?php echo $skuFields['sku_code']; ?></th>
                 <th><?php echo $skuFields['sku_name']; ?></th>
                 <th><?php echo $skuFields['brand_id']; ?></th>
-                <th><?php echo $incomingInvFields['unit_price']; ?></th>
-                <th><?php echo $incomingInvFields['quantity_received']; ?></th>
-                <th><?php echo $incomingInvFields['uom_id']; ?></th>
-                <th><?php echo $incomingInvFields['amount']; ?></th>
+                <th><?php echo $receivingInvFields['unit_price']; ?></th>
+                <th><?php echo $receivingInvFields['quantity_received']; ?></th>
+                <th><?php echo $receivingInvFields['uom_id']; ?></th>
+                <th><?php echo $receivingInvFields['amount']; ?></th>
             </tr>
         </thead>
         <thead>

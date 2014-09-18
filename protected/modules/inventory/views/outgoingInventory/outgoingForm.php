@@ -138,7 +138,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             <div class="pull-right col-md-7">
 
-                <?php echo $form->textFieldGroup($outgoing, 'rra_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 10, "value" => "")), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($outgoing, 'rra_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, "value" => "")), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($outgoing, 'rra_name', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
@@ -188,9 +188,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             <div class="pull-right col-md-7">
 
-                <?php echo $form->textFieldGroup($outgoing, 'campaign_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 10, "value" => "")), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($outgoing, 'campaign_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, "value" => "")), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo $form->textFieldGroup($outgoing, 'pr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 10)), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($outgoing, 'pr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($outgoing, 'pr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
@@ -413,26 +413,23 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><?php echo $skuFields['description']; ?></th>
                         <th><?php echo $skuFields['brand_id']; ?></th>
                         <th><?php echo $outgoingDetailFields['unit_price']; ?></th>
-                        <th class=""><?php echo $outgoingDetailFields['batch_no']; ?></th>
-                        <th class="">Source Zone ID</th>
+                        <th><?php echo $outgoingDetailFields['batch_no']; ?></th>
+                        <th class="hide_row">Source Zone ID</th>
                         <th><?php echo $outgoingDetailFields['source_zone_id']; ?></th>
-<!--                        <th class="">Destination Zone ID</th>
-                        <th>Destination Zone</th>-->
                         <th><?php echo $outgoingDetailFields['expiration_date']; ?></th>
                         <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
                         <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
                         <th><?php echo $outgoingDetailFields['amount']; ?></th>
                         <th><?php echo $outgoingDetailFields['inventory_on_hand']; ?></th>
-                        <!--<th class="">Reference no</th>-->
                         <th class=""><?php echo $outgoingDetailFields['return_date']; ?></th>
-                        <th class=""><?php echo $outgoingDetailFields['remarks']; ?></th>
-                        <th class="">Inventory</th>
+                        <th class="hide_row"><?php echo $outgoingDetailFields['remarks']; ?></th>
+                        <th class="hide_row">Inventory</th>
                     </tr>                                    
                 </thead>
             </table>                            
         </div>
 
-        <div class="pull-right col-md-4 no-padding">
+        <div class="pull-right col-md-4 no-padding" style='margin-top: 10px;'>
             <?php echo $form->labelEx($outgoing, 'total_amount', array("class" => "pull-left")); ?>
             <?php echo $form->textFieldGroup($outgoing, 'total_amount', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5 pull-right', 'value' => 0, 'readonly' => true)), 'labelOptions' => array('label' => false))); ?>
         </div>
@@ -527,6 +524,15 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             "bAutoWidth": false,
             "columnDefs": [{
                     "targets": [1],
+                    "visible": false
+                }, {
+                    "targets": [7],
+                    "visible": false
+                }, {
+                    "targets": [15],
+                    "visible": false
+                }, {
+                    "targets": [16],
                     "visible": false
                 }]
         });
@@ -660,12 +666,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     function showDeleteRowBtn() {
         var atLeastOneIsChecked = $("input[name='transaction_row[]']").is(":checked");
         if (atLeastOneIsChecked === true) {
-            $("#delete_row_btn").show();
+            $('#delete_row_btn').fadeIn('slow');
         }
         if (atLeastOneIsChecked === false) {
-            $("#delete_row_btn").hide();
+            $('#delete_row_btn').fadeOut('slow');
         }
-
     }
 
     function deleteTransactionRow() {

@@ -359,7 +359,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="clearfix"></div><br/>
 
-        <?php $receivingDetailFields = IncomingInventoryDetail::model()->attributeLabels(); ?>
+        <?php $receivingDetailFields = ReceivingInventoryDetail::model()->attributeLabels(); ?>
         <h4 class="control-label text-primary"><b>Transaction Table</b></h4>
 
         <div class="table-responsive">            

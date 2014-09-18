@@ -48,9 +48,8 @@ class OutgoingInventory extends CActiveRecord {
         // will receive user inputs.
         return array(
             array('company_id, rra_no, rra_name, dr_no, destination_zone_id, campaign_no, pr_no, pr_date, transaction_date', 'required'),
-            array('company_id, rra_name, dr_no, destination_zone_id, contact_person, contact_no, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, campaign_no, rra_no, pr_no, dr_no, rra_name, destination_zone_id, contact_person, contact_no, created_by, updated_by', 'length', 'max' => 50),
             array('address', 'length', 'max' => 200),
-            array('campaign_no, rra_no, pr_no', 'length', 'max' => 10),
             array('total_amount', 'length', 'max' => 18),
             array('destination_zone_id', 'isValidZone'),
             array('pr_date, transaction_date, plan_delivery_date, revised_delivery_date, actual_delivery_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
