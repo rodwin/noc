@@ -52,6 +52,7 @@ return false;
             <tr>
                 <th><?php echo $fields['rra_no']; ?></th>
                 <th><?php echo $fields['rra_name']; ?></th>
+                <th><?php echo $fields['dr_no']; ?></th>
                 <th><?php echo $fields['destination_zone_id']; ?></th>
                 <th><?php echo $fields['campaign_no']; ?></th>
                 <th><?php echo $fields['pr_no']; ?></th>
@@ -63,6 +64,7 @@ return false;
         </thead>
         <thead>
             <tr id="filter_row">
+                <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
@@ -124,11 +126,12 @@ return false;
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
-            "order": [[7, "desc"]],
+            "order": [[8, "desc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/data'); ?>",
             "columns": [
                 {"name": "rra_no", "data": "rra_no"},
                 {"name": "rra_name", "data": "rra_name"},
+                {"name": "dr_no", "data": "dr_no"},
                 {"name": "destination_zone_name", "data": "destination_zone_name"},
                 {"name": "campaign_no", "data": "campaign_no"},
                 {"name": "pr_no", "data": "pr_no"},
@@ -138,7 +141,7 @@ return false;
 //                {"name": "links", "data": "links", 'sortable': false}
             ],
             "columnDefs": [{
-                    "targets": [7],
+                    "targets": [8],
                     "visible": false
                 }]
         });

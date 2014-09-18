@@ -232,29 +232,4 @@ class OutgoingInventoryDetail extends CActiveRecord {
         }
     }
 
-    public function createInventory($company_id, $sku_id, $uom_id, $unit_price, $quantity_received, $zone_id, $transaction_date, $created_by, $expiration_date, $reference_no) {
-
-        $sku = Sku::model()->findByAttributes(array("company_id" => $company_id, "sku_id" => $sku_id));
-
-        $create_inventory = new CreateInventoryForm();
-        $create_inventory->company_id = $company_id;
-        $create_inventory->sku_code = isset($sku->sku_code) ? $sku->sku_code : null;
-        $create_inventory->sku_id = $sku_id;
-        $create_inventory->qty = $quantity_received;
-        $create_inventory->default_uom_id = $uom_id;
-        $create_inventory->default_zone_id = $zone_id;
-        $create_inventory->transaction_date = $transaction_date;
-        $create_inventory->cost_per_unit = $unit_price;
-        $create_inventory->sku_status_id = null;
-        $create_inventory->unique_tag = $reference_no;
-        $create_inventory->unique_date = $expiration_date != "" ? $expiration_date : null;
-        $create_inventory->created_by = $created_by;
-
-        if ($create_inventory->create(false)) {
-            return true;
-        } else {
-            return $create_inventory->getErrors();
-        }
-    }
-
 }

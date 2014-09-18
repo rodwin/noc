@@ -131,6 +131,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->labelEx($outgoing, 'rra_no'); ?><br/>
                 <?php echo $form->labelEx($outgoing, 'rra_name'); ?><br/>
+                <?php echo $form->labelEx($outgoing, 'dr_no'); ?><br/>
                 <?php echo $form->labelEx($outgoing, 'destination_zone_id'); ?>
 
             </div>
@@ -140,6 +141,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->textFieldGroup($outgoing, 'rra_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 10, "value" => "")), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($outgoing, 'rra_name', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+
+                <?php echo $form->textFieldGroup($outgoing, 'dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo CHtml::textField('destination_zone', '', array('id' => 'OutgoingInventory_destination_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone")); ?>
                 <?php echo $form->textFieldGroup($outgoing, 'destination_zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'OutgoingInventoryl_destination_zone', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
@@ -200,7 +203,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->labelEx($outgoing, 'plan_delivery_date'); ?><br/>
                 <?php echo $form->labelEx($outgoing, 'revised_delivery_date'); ?><br/>
-                <?php echo $form->labelEx($outgoing, 'actual_delivery_date'); ?>
+                <?php // echo $form->labelEx($outgoing, 'actual_delivery_date'); ?>
 
             </div>
             <div class="pull-right col-md-7">
@@ -209,7 +212,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($outgoing, 'revised_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo $form->textFieldGroup($outgoing, 'actual_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+                <?php // echo $form->textFieldGroup($outgoing, 'actual_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
             </div>
         </div>
