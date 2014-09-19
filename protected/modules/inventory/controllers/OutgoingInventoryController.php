@@ -181,44 +181,46 @@ class OutgoingInventoryController extends Controller {
                     if ($validatedReceivingDetail != '[]') {
 
                         $data['error'] = $validatedReceivingDetail;
+                        $data['message'] = 'Unable to process';
+                        $data['success'] = false;
+                        $data["type"] = "danger";
                     } else {
 
                         $c = new CDbCriteria;
-                        $c->select = 't.*, sum(t.qty) AS inventory_on_hand';
                         $c->compare('t.company_id', Yii::app()->user->company_id);
                         $c->compare('t.inventory_id', $transaction_detail->inventory_id);
-                        $c->group = "t.sku_id";
                         $c->with = array("sku");
                         $inventory = Inventory::model()->find($c);
 
-//                        if (isset($transaction_detail->inventory_on_hand) && isset($transaction_detail->quantity_issued)) {
-//                            $qty = $transaction_detail->inventory_on_hand - $transaction_detail->quantity_issued;
-//                            $this->updateInvByInvID($transaction_detail->inventory_id, $transaction_detail->company_id, $qty);
-//                        }
+                        if ($transaction_detail->quantity_issued <= $inventory->qty) {
+                            $data['message'] = 'Successfully Added Item';
+                            $data['success'] = true;
 
-                        $data['form'] = "details";
-                        $data['message'] = 'Successfully Added Item';
-                        $data['success'] = true;
-
-                        $data['details'] = array(
-                            "inventory_id" => isset($inventory->inventory_id) ? $inventory->inventory_id : null,
-                            "sku_id" => isset($inventory->sku->sku_id) ? $inventory->sku->sku_id : null,
-                            "sku_code" => isset($inventory->sku->sku_code) ? $inventory->sku->sku_code : null,
-                            "sku_description" => isset($inventory->sku->description) ? $inventory->sku->description : null,
-                            'brand_name' => isset($inventory->sku->brand->brand_name) ? $inventory->sku->brand->brand_name : null,
-                            'unit_price' => isset($transaction_detail->unit_price) ? $transaction_detail->unit_price : 0,
-                            'batch_no' => isset($transaction_detail->batch_no) ? $transaction_detail->batch_no : null,
-                            'source_zone_id' => isset($transaction_detail->source_zone_id) ? $transaction_detail->source_zone_id : null,
-                            'source_zone_name' => isset($transaction_detail->zone->zone_name) ? $transaction_detail->zone->zone_name : null,
-                            'expiration_date' => isset($transaction_detail->expiration_date) ? $transaction_detail->expiration_date : null,
-                            'planned_quantity' => isset($transaction_detail->planned_quantity) ? $transaction_detail->planned_quantity : 0,
-                            'quantity_issued' => isset($transaction_detail->quantity_issued) ? $transaction_detail->quantity_issued : 0,
-                            'amount' => isset($transaction_detail->amount) ? $transaction_detail->amount : 0,
-                            'inventory_on_hand' => isset($transaction_detail->inventory_on_hand) ? $transaction_detail->inventory_on_hand : 0,
-                            'reference_no' => isset($transaction_detail->pr_no) ? $transaction_detail->pr_no : null,
-                            'return_date' => isset($transaction_detail->return_date) ? $transaction_detail->return_date : null,
-                            'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
-                        );
+                            $data['details'] = array(
+                                "inventory_id" => isset($inventory->inventory_id) ? $inventory->inventory_id : null,
+                                "sku_id" => isset($inventory->sku->sku_id) ? $inventory->sku->sku_id : null,
+                                "sku_code" => isset($inventory->sku->sku_code) ? $inventory->sku->sku_code : null,
+                                "sku_description" => isset($inventory->sku->description) ? $inventory->sku->description : null,
+                                'brand_name' => isset($inventory->sku->brand->brand_name) ? $inventory->sku->brand->brand_name : null,
+                                'unit_price' => isset($transaction_detail->unit_price) ? $transaction_detail->unit_price : 0,
+                                'batch_no' => isset($transaction_detail->batch_no) ? $transaction_detail->batch_no : null,
+                                'source_zone_id' => isset($transaction_detail->source_zone_id) ? $transaction_detail->source_zone_id : null,
+                                'source_zone_name' => isset($transaction_detail->zone->zone_name) ? $transaction_detail->zone->zone_name : null,
+                                'expiration_date' => isset($transaction_detail->expiration_date) ? $transaction_detail->expiration_date : null,
+                                'planned_quantity' => isset($transaction_detail->planned_quantity) ? $transaction_detail->planned_quantity : 0,
+                                'quantity_issued' => isset($transaction_detail->quantity_issued) ? $transaction_detail->quantity_issued : 0,
+                                'amount' => isset($transaction_detail->amount) ? $transaction_detail->amount : 0,
+                                'inventory_on_hand' => isset($transaction_detail->inventory_on_hand) ? $transaction_detail->inventory_on_hand : 0,
+                                'reference_no' => isset($transaction_detail->pr_no) ? $transaction_detail->pr_no : null,
+                                'return_date' => isset($transaction_detail->return_date) ? $transaction_detail->return_date : null,
+                                'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
+                            );
+                        } else {
+                            
+                            $data['message'] = 'Quantity Issued greater than inventory on hand';
+                            $data['success'] = false;
+                            $data["type"] = "danger";
+                        }
                     }
                 }
             }
@@ -303,7 +305,6 @@ class OutgoingInventoryController extends Controller {
     public function actionAfterDeleteTransactionRow($inventory_id, $quantity) {
 //        $inventory = Inventory::model()->findbyAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $inventory_id));
 //        $qty = ($inventory->qty + $quantity);
-
 //        $this->updateInvByInvID($inventory_id, Yii::app()->user->company_id, $qty);
     }
 

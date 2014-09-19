@@ -71,6 +71,17 @@ class OutgoingInventory extends CActiveRecord {
     }
 
     public function beforeValidate() {
+
+        if ($this->plan_delivery_date == "") {
+            $this->plan_delivery_date = null;
+        }
+        if ($this->revised_delivery_date == "") {
+            $this->revised_delivery_date = null;
+        }
+        if ($this->actual_delivery_date == "") {
+            $this->actual_delivery_date = null;
+        }
+        
         return parent::beforeValidate();
     }
 
@@ -257,9 +268,9 @@ class OutgoingInventory extends CActiveRecord {
                 'campaign_no' => $this->campaign_no,
                 'pr_no' => $this->pr_no,
                 'pr_date' => $this->pr_date,
-                'plan_delivery_date' => $this->plan_delivery_date != "" ? $this->plan_delivery_date : null,
-                'revised_delivery_date' => $this->revised_delivery_date != "" ? $this->revised_delivery_date : null,
-                'actual_delivery_date' => $this->actual_delivery_date != "" ? $this->actual_delivery_date : null,
+                'plan_delivery_date' => $this->plan_delivery_date,
+                'revised_delivery_date' => $this->revised_delivery_date,
+                'actual_delivery_date' => $this->actual_delivery_date,
                 'transaction_date' => $this->transaction_date,
                 'total_amount' => $this->total_amount,
                 'created_by' => $this->created_by,

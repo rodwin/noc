@@ -85,9 +85,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     #transaction_table td + td { text-align: left; }
 
     .span5  { width: 200px; }
-
-    .processing_bg { position: absolute; text-align: center; }
-
+    
     .hide_row { display: none; }
 
     .inventory_uom_selected { width: 20px; }
@@ -221,7 +219,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div id="inventory_bg" class="panel panel-default col-md-12 no-padding">    
             <div class="panel-body" style="padding-top: 10px;">
-                <h4 class="control-label text-primary"><b>Select Inventory</b></h4>
+                <h4 class="control-label text-primary pull-left"><b>Select Inventory</b></h4>
+                <button class="btn btn-default btn-sm pull-right" onclick="inventory_table.fnMultiFilter();">Reload Table</button>
 
                 <?php $invFields = Inventory::model()->attributeLabels(); ?>                    
                 <div class="table-responsive">
@@ -371,7 +370,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             ));
                             ?>
                         </div>
-                        
+
                         <div class="span5">
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'unit_price', array(
@@ -383,7 +382,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             ));
                             ?>
                         </div>
-                        
+
                         <?php echo $form->textFieldGroup($transaction_detail, 'amount', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'readonly' => true, 'value' => 0)), 'labelOptions' => array('label' => false))); ?>
 
                         <?php echo $form->textFieldGroup($transaction_detail, 'return_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
@@ -472,7 +471,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         inventory_table = $('#inventory_table').dataTable({
             "filter": true,
-            "dom": '<"process_position"r>t<"pull-left"i><"pull-right"p>',
+            "dom": '<"text-center"r>t<"pull-left"i><"pull-right"p>',
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
@@ -625,9 +624,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             inventory_table.fnMultiFilter();
         } else {
 
-            if (data.form == headers) {
-                growlAlert(data.type, data.message);
-            }
+            growlAlert(data.type, data.message);
 
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);

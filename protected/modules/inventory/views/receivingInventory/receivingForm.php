@@ -84,9 +84,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     #transaction_table td + td { text-align: left; }
 
     .span5  { width: 200px; }
-
-    .processing_bg { position: absolute; text-align: center; }
-
     .hide_row { display: none; }
 
     .sku_uom_selected { width: 20px; }
@@ -214,8 +211,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div id="sku_bg" class="panel panel-default col-md-12 no-padding">    
             <div class="panel-body" style="padding-top: 10px;">
-                <h4 class="control-label text-primary"><b>Select <?php echo Sku::SKU_LABEL; ?> Product</b></h4>
-
+                <h4 class="control-label text-primary pull-left"><b>Select <?php echo Sku::SKU_LABEL; ?> Product</b></h4>
+                <button class="btn btn-default btn-sm pull-right" onclick="sku_table.fnMultiFilter();">Reload Table</button>
+                
                 <?php $fields = Sku::model()->attributeLabels(); ?>
                 <div class="table-responsive">
                     <table id="sku_table" class="table table-bordered table-hover">
@@ -436,7 +434,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         sku_table = $('#sku_table').dataTable({
             "filter": true,
-            "dom": '<"process_position"r>t<"pull-left"i><"pull-right"p>',
+            "dom": '<"text-center"r>t<"pull-left"i><"pull-right"p>',
             "bSort": true,
             "processing": true,
             "serverSide": true,
