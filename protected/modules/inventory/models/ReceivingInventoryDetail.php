@@ -46,7 +46,7 @@ class ReceivingInventoryDetail extends CActiveRecord {
         return array(
             array('company_id, sku_id, uom_id, quantity_received, amount', 'required'),
             array('receiving_inventory_id, planned_quantity, quantity_received, inventory_on_hand', 'numerical', 'integerOnly' => true),
-            array('company_id, batch_no, sku_id, uom_id, item_remarks, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, batch_no, sku_id, uom_id, sku_status_id, item_remarks, created_by, updated_by', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
             array('unit_price, amount', 'match', 'pattern' => '/^[0-9]{1,9}(\.[0-9]{0,2})?$/'),
@@ -72,6 +72,7 @@ class ReceivingInventoryDetail extends CActiveRecord {
             'receivingInventory' => array(self::BELONGS_TO, 'ReceivingInventory', 'receiving_inventory_id'),
             'sku' => array(self::BELONGS_TO, 'Sku', 'sku_id'),
             'uom' => array(self::BELONGS_TO, 'Uom', 'uom_id'),
+            'skuStatus' => array(self::BELONGS_TO, 'SkuStatus', 'sku_status_id'),
         );
     }
 
@@ -86,6 +87,7 @@ class ReceivingInventoryDetail extends CActiveRecord {
             'batch_no' => 'Batch No',
             'sku_id' => 'Sku',
             'uom_id' => 'Uom',
+            'sku_status_id' => 'Status',
             'unit_price' => 'Unit Price',
             'expiration_date' => 'Expiration Date',
             'planned_quantity' => 'Planned Quantity',
@@ -124,6 +126,7 @@ class ReceivingInventoryDetail extends CActiveRecord {
         $criteria->compare('batch_no', $this->batch_no, true);
         $criteria->compare('sku_id', $this->sku_id, true);
         $criteria->compare('uom_id', $this->uom_id, true);
+        $criteria->compare('sku_status_id', $this->sku_status_id, true);
         $criteria->compare('unit_price', $this->unit_price, true);
         $criteria->compare('expiration_date', $this->expiration_date, true);
         $criteria->compare('planned_quantity', $this->planned_quantity);
@@ -204,18 +207,20 @@ class ReceivingInventoryDetail extends CActiveRecord {
         return parent::model($className);
     }
 
-    public function createReceivingTransactionDetails($incoming_inventory_id, $company_id, $sku_id, $uom_id, $zone_id, $batch_no, $unit_price, $transaction_date, $expiration_date, $quantity_received, $amount, $inventory_on_hand, $remarks, $pr_no, $pr_date, $created_by = null) {
+    public function createReceivingTransactionDetails($incoming_inventory_id, $company_id, $sku_id, $uom_id, $status_id, $zone_id, $batch_no, $unit_price, $transaction_date, $expiration_date, $planned_quantity, $quantity_received, $amount, $inventory_on_hand, $remarks, $pr_no, $pr_date, $created_by = null) {
 
         $incoming_transaction_detail = new ReceivingInventoryDetail;
         $incoming_transaction_detail->receiving_inventory_id = $incoming_inventory_id;
         $incoming_transaction_detail->company_id = $company_id;
         $incoming_transaction_detail->sku_id = $sku_id;
         $incoming_transaction_detail->uom_id = $uom_id;
+        $incoming_transaction_detail->sku_status_id = $status_id;
         $incoming_transaction_detail->batch_no = $batch_no;
-        $incoming_transaction_detail->unit_price = isset($unit_price) ? $unit_price : "";
+        $incoming_transaction_detail->unit_price = $unit_price;
         $incoming_transaction_detail->expiration_date = $expiration_date != "" ? $expiration_date : null;
+        $incoming_transaction_detail->planned_quantity = $planned_quantity;
         $incoming_transaction_detail->quantity_received = $quantity_received;
-        $incoming_transaction_detail->amount = isset($amount) ? $amount : "";
+        $incoming_transaction_detail->amount = $amount;
         $incoming_transaction_detail->inventory_on_hand = $inventory_on_hand + $quantity_received;
         $incoming_transaction_detail->remarks = $remarks;
         $incoming_transaction_detail->created_by = $created_by;

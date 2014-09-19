@@ -58,6 +58,7 @@ return false;
                 <th><?php echo $fields['requestor']; ?></th>
                 <th><?php echo $fields['supplier_id']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
+                <th><?php echo $fields['created_date']; ?></th>
             </tr>
         </thead>
         <thead>
@@ -88,11 +89,13 @@ return false;
                 <th><?php echo $receivingInvFields['unit_price']; ?></th>
                 <th><?php echo $receivingInvFields['quantity_received']; ?></th>
                 <th><?php echo $receivingInvFields['uom_id']; ?></th>
+                <th><?php echo $receivingInvFields['sku_status_id']; ?></th>
                 <th><?php echo $receivingInvFields['amount']; ?></th>
             </tr>
         </thead>
         <thead>
             <tr id="filter_row">
+                <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
@@ -117,7 +120,7 @@ return false;
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
-            "order": [[0, "asc"]],
+            "order": [[7, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/ReceivingInventory/data'); ?>",
             "columns": [
                 {"name": "campaign_no", "data": "campaign_no"},
@@ -127,8 +130,13 @@ return false;
                 {"name": "requestor_name", "data": "requestor_name"},
                 {"name": "supplier_name", "data": "supplier_name"},
                 {"name": "total_amount", "data": "total_amount"},
+                {"name": "created_date", "data": "created_date"},
 //                {"name": "links", "data": "links", 'sortable': false}
-            ]
+            ],
+            "columnDefs": [{
+                    "targets": [7],
+                    "visible": false
+                }]
         });
 
         $('#receiving-inventory_table tbody').on('click', 'tr', function() {
@@ -224,6 +232,7 @@ return false;
                         v.unit_price,
                         v.quantity_received,
                         v.uom_name,
+                        v.sku_status_name,
                         v.amount
                     ]);
                 });

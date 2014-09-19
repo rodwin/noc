@@ -164,7 +164,8 @@ class ReceivingInventoryController extends Controller {
             $row['unit_price'] = $value->unit_price;
             $row['expiration_date'] = $value->expiration_date;
             $row['quantity_received'] = $value->quantity_received;
-            $row['uom_name'] = $value->uom->uom_name;
+            $row['uom_name'] = isset($value->uom->uom_name) ? $value->uom->uom_name : null;
+            $row['sku_status_name'] = isset($value->skuStatus->status_name) ? $value->skuStatus->status_name : null;
             $row['planned_quantity'] = $value->planned_quantity;
             $row['quantity_received'] = $value->quantity_received;
             $row['amount'] = $value->amount;
@@ -255,7 +256,8 @@ class ReceivingInventoryController extends Controller {
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $supplier_list = CHtml::listData(Supplier::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'supplier_name ASC')), 'supplier_id', 'supplier_name');
         $delivery_remarks = CHtml::listData(ReceivingInventory::model()->getDeliveryRemarks(), 'id', 'title');
-
+        $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
+        
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
             $data = array();
@@ -317,20 +319,23 @@ class ReceivingInventoryController extends Controller {
 
                         $data['message'] = 'Added Item Successfully';
                         $data['success'] = true;
-
+                        
                         $data['details'] = array(
                             "sku_id" => isset($sku_details->sku_id) ? $sku_details->sku_id : null,
                             "sku_code" => isset($sku_details->sku_code) ? $sku_details->sku_code : null,
                             "sku_description" => isset($sku_details->description) ? $sku_details->description : null,
                             'brand_name' => isset($sku_details->brand->brand_name) ? $sku_details->brand->brand_name : null,
-                            'unit_price' => isset($transaction_detail->unit_price) ? $transaction_detail->unit_price : 0,
+                            'unit_price' => $transaction_detail->unit_price != "" ? $transaction_detail->unit_price : 0,
                             'batch_no' => isset($transaction_detail->batch_no) ? $transaction_detail->batch_no : null,
                             'expiration_date' => isset($transaction_detail->expiration_date) ? $transaction_detail->expiration_date : null,
-                            'quantity_received' => isset($transaction_detail->quantity_received) ? $transaction_detail->quantity_received : 0,
+                            'planned_quantity' => $transaction_detail->planned_quantity != "" ? $transaction_detail->planned_quantity : 0,
+                            'quantity_received' => $transaction_detail->quantity_received != "" ? $transaction_detail->quantity_received : 0,
                             'uom_id' => isset($transaction_detail->uom->uom_id) ? $transaction_detail->uom->uom_id : null,
                             'uom_name' => isset($transaction_detail->uom->uom_name) ? $transaction_detail->uom->uom_name : null,
-                            'amount' => isset($transaction_detail->amount) ? $transaction_detail->amount : 0,
-                            'inventory_on_hand' => isset($transaction_detail->inventory_on_hand) ? $transaction_detail->inventory_on_hand : 0,
+                            'sku_status_id' => isset($transaction_detail->skuStatus->sku_status_id) ? $transaction_detail->skuStatus->sku_status_id : null,
+                            'sku_status_name' => isset($transaction_detail->skuStatus->status_name) ? $transaction_detail->skuStatus->status_name : null,
+                            'amount' => $transaction_detail->amount != "" ? $transaction_detail->amount : 0,
+                            'inventory_on_hand' => $transaction_detail->inventory_on_hand != "" ? $transaction_detail->inventory_on_hand : 0,
                             'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
                         );
                     }
@@ -349,6 +354,7 @@ class ReceivingInventoryController extends Controller {
             'sku' => $sku,
             'uom' => $uom,
             'employee' => $employee,
+            'sku_status' => $sku_status,
         ));
     }
 

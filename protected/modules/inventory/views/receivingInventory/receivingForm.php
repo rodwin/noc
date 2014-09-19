@@ -251,6 +251,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <?php echo $form->labelEx($transaction_detail, 'uom_id'); ?><br/>
                         <?php echo $form->labelEx($transaction_detail, 'planned_quantity'); ?><br/>
                         <?php echo $form->labelEx($transaction_detail, 'quantity_received'); ?><br/>
+                        <?php echo $form->labelEx($transaction_detail, 'sku_status_id'); ?><br/>
                         <?php echo $form->labelEx($transaction_detail, 'unit_price'); ?>
 
                     </div>
@@ -293,6 +294,18 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             ));
                             ?>
                         </div>
+
+                        <?php
+                        echo $form->dropDownListGroup($transaction_detail, 'sku_status_id', array(
+                            'wrapperHtmlOptions' => array(
+                                'class' => '',
+                            ),
+                            'widgetOptions' => array(
+                                'data' => $sku_status,
+                                'htmlOptions' => array('class' => 'span5', 'multiple' => false, 'prompt' => 'Select ' . Sku::SKU_LABEL . ' Status'),
+                            ),
+                            'labelOptions' => array('label' => false)));
+                        ?>
 
                         <div class="span5">
                             <?php
@@ -372,11 +385,14 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><?php echo $fields['description']; ?></th>
                         <th><?php echo $fields['brand_id']; ?></th>
                         <th><?php echo $receivingDetailFields['unit_price']; ?></th>
-                        <th class="hide_row"><?php echo $receivingDetailFields['batch_no']; ?></th>
-                        <th class="hide_row"><?php echo $receivingDetailFields['expiration_date']; ?></th>
+                        <th><?php echo $receivingDetailFields['batch_no']; ?></th>
+                        <th><?php echo $receivingDetailFields['expiration_date']; ?></th>
+                        <th><?php echo $receivingDetailFields['planned_quantity']; ?></th>
                         <th><?php echo $receivingDetailFields['quantity_received']; ?></th>
                         <th class="hide_row"><?php echo $receivingDetailFields['uom_id']; ?></th>
                         <th><?php echo $receivingDetailFields['uom_id']; ?></th>
+                        <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
+                        <th><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th><?php echo $receivingDetailFields['amount']; ?></th>
                         <th class="hide_row"><?php echo $receivingDetailFields['inventory_on_hand']; ?></th>
                         <th class="hide_row"><?php echo $receivingDetailFields['remarks']; ?></th>
@@ -385,7 +401,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             </table>                            
         </div>
 
-        <div class="pull-right col-md-4 no-padding">
+        <div class="pull-right col-md-4 no-padding" style='margin-top: 10px;'>
             <?php echo $form->labelEx($receiving, 'total_amount', array("class" => "pull-left")); ?>
             <?php echo $form->textFieldGroup($receiving, 'total_amount', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5 pull-right', 'value' => 0, 'readonly' => true)), 'labelOptions' => array('label' => false))); ?>
         </div>
@@ -472,19 +488,16 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     "targets": [1],
                     "visible": false
                 }, {
-                    "targets": [6],
-                    "visible": false
-                }, {
-                    "targets": [7],
-                    "visible": false
-                }, {
-                    "targets": [9],
+                    "targets": [10],
                     "visible": false
                 }, {
                     "targets": [12],
                     "visible": false
                 }, {
-                    "targets": [13],
+                    "targets": [15],
+                    "visible": false
+                }, {
+                    "targets": [16],
                     "visible": false
                 }]
         });
@@ -540,9 +553,12 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     data.details.unit_price,
                     data.details.batch_no,
                     data.details.expiration_date,
+                    data.details.planned_quantity,
                     data.details.quantity_received,
                     data.details.uom_id,
                     data.details.uom_name,
+                    data.details.sku_status_id,
+                    data.details.sku_status_name,
                     data.details.amount,
                     data.details.inventory_on_hand,
                     data.details.remarks
@@ -566,15 +582,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             if (data.form == headers) {
                 growlAlert(data.type, data.message);
             }
-            
+
             var error_count = 0;
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
                 element.classList.add("error");
                 error_count++;
             });
-
-            console.log(error_count);
         }
     }
 
@@ -608,11 +622,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 "unit_price": row_data[5],
                 "batch_no": row_data[6],
                 "expiration_date": row_data[7],
-                "qty_received": row_data[8],
-                "uom_id": row_data[9],
-                "amount": row_data[11],
-                "inventory_on_hand": row_data[12],
-                "remarks": row_data[13],
+                "planned_quantity": row_data[8],
+                "qty_received": row_data[9],
+                "uom_id": row_data[10],
+                "sku_status_id": row_data[12],
+                "amount": row_data[14],
+                "inventory_on_hand": row_data[15],
+                "remarks": row_data[16],
             });
         }
 
@@ -628,7 +644,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         for (var i = 0; i < aTrs.length; i++) {
             $(aTrs[i]).find('input:checkbox:checked').each(function() {
                 var row_data = transaction_table.fnGetData(aTrs[i]);
-                total_amount = (parseFloat(total_amount) - parseFloat(row_data[11]));
+                total_amount = (parseFloat(total_amount) - parseFloat(row_data[14]));
                 $("#ReceivingInventory_total_amount").val(total_amount);
 
                 transaction_table.fnDeleteRow(aTrs[i]);
