@@ -29,7 +29,7 @@ class ReceivingInventoryController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'oldCreate', 'loadSkuDetails', 'skuData', 'receivingInvDetailData'),
+                'actions' => array('create', 'update', 'data', 'oldCreate', 'loadSkuDetails', 'skuData', 'receivingInvDetailData', 'uploadAttachment'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -71,9 +71,9 @@ class ReceivingInventoryController extends Controller {
             $row['pr_date'] = $value->pr_date;
             $row['dr_no'] = $value->dr_no;
             $row['requestor'] = $value->requestor;
-            $row['requestor_name'] = $employee->fullname;
+            $row['requestor_name'] = isset($employee->fullname) ? $employee->fullname : null;
             $row['supplier_id'] = $value->supplier_id;
-            $row['supplier_name'] = $value->supplier->supplier_name;
+            $row['supplier_name'] = isset($value->supplier->supplier_name) ? $value->supplier->supplier_name : null;
             $row['zone_id'] = $value->zone_id;
             $row['plan_delivery_date'] = $value->plan_delivery_date;
             $row['revised_delivery_date'] = $value->revised_delivery_date;
@@ -241,6 +241,8 @@ class ReceivingInventoryController extends Controller {
     public function actionCreate() {
         $this->pageTitle = 'Create Receiving Inventory';
         $this->layout = '//layouts/column1';
+         
+        $model = new Attachment;
 
         $receiving = new ReceivingInventory;
         $transaction_detail = new ReceivingInventoryDetail;
@@ -349,6 +351,7 @@ class ReceivingInventoryController extends Controller {
             'sku' => $sku,
             'uom' => $uom,
             'employee' => $employee,
+            'model' => $model,
         ));
     }
 
@@ -493,5 +496,68 @@ class ReceivingInventoryController extends Controller {
             Yii::app()->end();
         }
     }
+    
+    public function actionUploadAttachment() {
+      header('Vary: Accept');
+      if (isset($_SERVER['HTTP_ACCEPT']) &&
+              (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
+         header('Content-type: application/json');
+      } else {
+         header('Content-type: text/plain');
+      }
+
+      $data = array();
+      $model = new Attachment;
+      
+      if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
+         
+         $file = CUploadedFile::getInstance($model, 'file');
+//         $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'attachment' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR .Yii::app()->session['tid'];
+         $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . 'receiving' . DIRECTORY_SEPARATOR .Yii::app()->session['tid'];
+         if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+         }
+
+         $file_name = str_replace(' ', '_', strtolower($file->name));
+//         $url = Yii::app()->getBaseUrl(true) . '/attachment/' . Yii::app()->user->company_id . '/' . Yii::app()->session['tid'] . '/' . $file_name;
+         $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/receiving/' . Yii::app()->session['tid'] . '/' . $file_name;
+         $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
+         
+         $model->attachment_id = Globals::generateV4UUID();
+         
+         $model->company_id = Yii::app()->user->company_id;
+         $model->file_name = $file_name;
+         $model->url = $url;
+         $model->transaction_id =Yii::app()->session['tid'];
+         $model->transaction_type = 'receiving';
+         $model->created_by = Yii::app()->user->name;
+        
+         if ($model->save()) {
+            
+            $data[] = array(
+                'name' => $file->name,
+                'type' => $file->type,
+                'size' => $file->size,
+                'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
+                'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name,
+                
+//                    'delete_url' => $this->createUrl('my/delete', array('id' => 1, 'method' => 'uploader')),
+//                    'delete_type' => 'POST',
+            );
+         } else {
+
+            if ($model->hasErrors()) {
+
+               $data[] = array('error', $model->getErrors());
+            }
+         }
+      } else {
+
+         throw new CHttpException(500, "Could not upload file " . CHtml::errorSummary($model));
+      }
+      
+   
+      echo json_encode($data);
+   }
 
 }
