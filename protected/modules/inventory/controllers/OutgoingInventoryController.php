@@ -60,6 +60,22 @@ class OutgoingInventoryController extends Controller {
 
         foreach ($dataProvider->getData() as $key => $value) {
             $row = array();
+
+            $status = "";
+            switch ($value->status) {
+                case BatchUpload::STATUS_PENDING:
+                    $status = '<span class="label label-warning">' . OutgoingInventory::OUTGOING_PENDING_STATUS . '</span>';
+                    break;
+                case BatchUpload::STATUS_DONE:
+                    $status = '<span class="label label-success">' . OutgoingInventory::OUTGOING_COMPLETE_STATUS . '</span>';
+                    break;
+                case BatchUpload::STATUS_WARNING:
+                    $status = '<span class="label label-primary">' . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . '</span>';
+                    break;
+                default:
+                    break;
+            }
+
             $row['outgoing_inventory_id'] = $value->outgoing_inventory_id;
             $row['rra_no'] = $value->rra_no;
             $row['rra_name'] = $value->rra_name;
@@ -77,6 +93,7 @@ class OutgoingInventoryController extends Controller {
             $row['actual_delivery_date'] = $value->actual_delivery_date;
             $row['plan_arrival_date'] = $value->plan_arrival_date;
             $row['transaction_date'] = $value->transaction_date;
+            $row['status'] = $status;
             $row['total_amount'] = $value->total_amount;
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
@@ -262,7 +279,7 @@ class OutgoingInventoryController extends Controller {
                                 'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
                             );
                         } else {
-                            
+
                             $data['message'] = 'Quantity Issued greater than inventory on hand';
                             $data['success'] = false;
                             $data["type"] = "danger";

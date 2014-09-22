@@ -312,7 +312,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'planned_quantity', array(
                                 'widgetOptions' => array(
-                                    'htmlOptions' => array("class" => "ignore span5", "onkeypress" => "return onlyNumbers(this, event, false)", 'readonly' => true, "value" => 0)
+                                    'htmlOptions' => array("class" => "ignore span5", "onkeypress" => "return onlyNumbers(this, event, false)", "value" => 0)
                                 ),
                                 'labelOptions' => array('label' => false),
                                 'append' => '<b class="inventory_uom_selected"></b>'
