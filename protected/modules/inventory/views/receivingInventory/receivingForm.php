@@ -711,6 +711,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     $('#btn_add_item').click(function() {
         send(details);
     });
+   
+   $('#btn-upload').click(function() {
+      $('#file_uploads').click();
+   });
 
     function loadSkuDetails(sku_id) {
 
