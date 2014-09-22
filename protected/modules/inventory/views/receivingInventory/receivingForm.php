@@ -1,4 +1,3 @@
-
 <?php
 $this->breadcrumbs = array(
     'Receiving Inventories' => array('admin'),

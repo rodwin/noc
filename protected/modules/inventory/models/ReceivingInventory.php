@@ -318,7 +318,7 @@ class ReceivingInventory extends CActiveRecord {
 
             if (count($transaction_details) > 0) {
                 if ($receiving_inventory->save(false)) {
-
+                    Yii::app()->session['tid'] = $receiving_inventory->receiving_inventory_id;
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         ReceivingInventoryDetail::model()->createReceivingTransactionDetails($receiving_inventory->receiving_inventory_id, $receiving_inventory->company_id, $transaction_details[$i]['sku_id'], $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $receiving_inventory->zone_id, $transaction_details[$i]['batch_no'], $transaction_details[$i]['unit_price'], $receiving_inventory->transaction_date, $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['qty_received'], $transaction_details[$i]['amount'], $transaction_details[$i]['inventory_on_hand'], $transaction_details[$i]['remarks'], $receiving_inventory->pr_no, $receiving_inventory->pr_date, $receiving_inventory->created_by);
                     }
@@ -330,6 +330,7 @@ class ReceivingInventory extends CActiveRecord {
 
             return true;
         } catch (Exception $exc) {
+           pr($exc);
             Yii::log($exc->getTraceAsString(), 'error');
             return false;
         }

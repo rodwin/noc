@@ -62,6 +62,15 @@ class Employee extends CActiveRecord {
    }
 
    public function beforeValidate() {
+      if ($this->birth_date == "") {
+         $this->birth_date = null;
+      }
+      if ($this->date_start == "") {
+         $this->date_start = null;
+      }
+      if ($this->date_termination == "") {
+         $this->date_termination = null;
+      }
       return parent::beforeValidate();
    }
 
@@ -74,7 +83,6 @@ class Employee extends CActiveRecord {
       return array(
           'company' => array(self::BELONGS_TO, 'Company', 'company_id'),
           'employeeType' => array(self::BELONGS_TO, 'EmployeeType', 'employee_type'),
-          
           'salesOffice' => array(self::BELONGS_TO, 'SalesOffice', 'sales_office_id'),
           'zone' => array(self::BELONGS_TO, 'Zone', 'default_zone_id'),
       );
@@ -107,7 +115,6 @@ class Employee extends CActiveRecord {
           'created_by' => 'Created By',
           'updated_date' => 'Updated Date',
           'updated_by' => 'Updated By',
-          
           'sales_office_id' => 'Sales Office',
           'default_zone_id' => 'Zone',
       );
@@ -152,10 +159,10 @@ class Employee extends CActiveRecord {
       $criteria->compare('created_by', $this->created_by, true);
       $criteria->compare('updated_date', $this->updated_date, true);
       $criteria->compare('updated_by', $this->updated_by, true);
-      
-      $criteria->compare('default_zone_id',  $this->zone,true);
-      $criteria->compare('sales_office_id',  $this->sales_office,true);
-      
+
+      $criteria->compare('default_zone_id', $this->zone, true);
+      $criteria->compare('sales_office_id', $this->sales_office, true);
+
 
       return new CActiveDataProvider($this, array(
                   'criteria' => $criteria,
@@ -188,7 +195,7 @@ class Employee extends CActiveRecord {
          case 4:
             $sort_column = 'zone.zone_name';
             break;
-         
+
          case 5:
             $sort_column = 't.first_name';
             break;
@@ -200,7 +207,7 @@ class Employee extends CActiveRecord {
          case 7:
             $sort_column = 't.middle_name';
             break;
-         
+
          case 8:
             $sort_column = 't.supervisor_id';
             break;
@@ -222,7 +229,7 @@ class Employee extends CActiveRecord {
       $criteria->order = "$sort_column $order_dir";
       $criteria->limit = $limit;
       $criteria->offset = $offset;
-      $criteria->with = array('employeeType','salesOffice','zone');
+      $criteria->with = array('employeeType', 'salesOffice', 'zone');
       $criteria->join = 'left join employee_status ON employee_status.employee_status_id = t.employee_status';
 
       return new CActiveDataProvider($this, array(
