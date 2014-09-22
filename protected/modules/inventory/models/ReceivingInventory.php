@@ -105,9 +105,9 @@ class ReceivingInventory extends CActiveRecord {
             'receiving_inventory_id' => 'Receiving Inventory',
             'company_id' => 'Company',
             'campaign_no' => 'Campaign No',
-            'pr_no' => 'Pr No',
-            'pr_date' => 'Pr Date',
-            'dr_no' => 'Dr No',
+            'pr_no' => 'PR No',
+            'pr_date' => 'PR Date',
+            'dr_no' => 'DR No',
             'requestor' => 'Requestor',
             'supplier_id' => 'Supplier',
             'zone_id' => 'Zone',
@@ -172,42 +172,53 @@ class ReceivingInventory extends CActiveRecord {
         switch ($col) {
 
             case 0:
-                $sort_column = 'campaign_no';
+                $sort_column = 't.campaign_no';
                 break;
 
             case 1:
-                $sort_column = 'pr_no';
+                $sort_column = 't.pr_no';
                 break;
 
             case 2:
-                $sort_column = 'pr_date';
+                $sort_column = 't.pr_date';
                 break;
 
             case 3:
-                $sort_column = 'dr_no';
+                $sort_column = 't.dr_no';
                 break;
 
             case 4:
-                $sort_column = 'requestor';
+                $sort_column = 't.requestor';
                 break;
 
             case 5:
-                $sort_column = 'supplier_id';
+                $sort_column = 'supplier.supplier_name';
+                break;
+
+            case 6:
+                $sort_column = 't.total_amount';
+                break;
+
+            case 7:
+                $sort_column = 't.created_date';
                 break;
         }
 
 
         $criteria = new CDbCriteria;
-        $criteria->compare('company_id', Yii::app()->user->company_id);
-        $criteria->compare('campaign_no', $columns[0]['search']['value'], true);
-        $criteria->compare('pr_no', $columns[1]['search']['value'], true);
-        $criteria->compare('pr_date', $columns[2]['search']['value'], true);
-        $criteria->compare('dr_no', $columns[3]['search']['value'], true);
-        $criteria->compare('requestor', $columns[4]['search']['value'], true);
-        $criteria->compare('supplier_id', $columns[5]['search']['value'], true);
+        $criteria->compare('t.company_id', Yii::app()->user->company_id);
+        $criteria->compare('t.campaign_no', $columns[0]['search']['value'], true);
+        $criteria->compare('t.pr_no', $columns[1]['search']['value'], true);
+        $criteria->compare('t.pr_date', $columns[2]['search']['value'], true);
+        $criteria->compare('t.dr_no', $columns[3]['search']['value'], true);
+        $criteria->compare('t.requestor', $columns[4]['search']['value'], true);
+        $criteria->compare('supplier.supplier_name', $columns[5]['search']['value'], true);
+        $criteria->compare('t.total_amount', $columns[6]['search']['value'], true);
+        $criteria->compare('t.created_date', $columns[7]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
+        $criteria->with = array("supplier", "employee");
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -309,7 +320,7 @@ class ReceivingInventory extends CActiveRecord {
                 if ($receiving_inventory->save(false)) {
                     Yii::app()->session['tid'] = $receiving_inventory->receiving_inventory_id;
                     for ($i = 0; $i < count($transaction_details); $i++) {
-                        ReceivingInventoryDetail::model()->createReceivingTransactionDetails($receiving_inventory->receiving_inventory_id, $receiving_inventory->company_id, $transaction_details[$i]['sku_id'], $transaction_details[$i]['uom_id'], $receiving_inventory->zone_id, $transaction_details[$i]['batch_no'], $transaction_details[$i]['unit_price'], $receiving_inventory->transaction_date, $transaction_details[$i]['expiration_date'], $transaction_details[$i]['qty_received'], $transaction_details[$i]['amount'], $transaction_details[$i]['inventory_on_hand'], $transaction_details[$i]['remarks'], $receiving_inventory->pr_no, $receiving_inventory->pr_date, $receiving_inventory->created_by);
+                        ReceivingInventoryDetail::model()->createReceivingTransactionDetails($receiving_inventory->receiving_inventory_id, $receiving_inventory->company_id, $transaction_details[$i]['sku_id'], $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $receiving_inventory->zone_id, $transaction_details[$i]['batch_no'], $transaction_details[$i]['unit_price'], $receiving_inventory->transaction_date, $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['qty_received'], $transaction_details[$i]['amount'], $transaction_details[$i]['inventory_on_hand'], $transaction_details[$i]['remarks'], $receiving_inventory->pr_no, $receiving_inventory->pr_date, $receiving_inventory->created_by);
                     }
                 }
                 return true;
@@ -319,7 +330,6 @@ class ReceivingInventory extends CActiveRecord {
 
             return true;
         } catch (Exception $exc) {
-           pr($exc);
             Yii::log($exc->getTraceAsString(), 'error');
             return false;
         }

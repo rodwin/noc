@@ -56,6 +56,7 @@ return false;
                 <th><?php echo $fields['destination_zone_id']; ?></th>
                 <th><?php echo $fields['campaign_no']; ?></th>
                 <th><?php echo $fields['pr_no']; ?></th>
+                <th><?php echo $fields['status']; ?></th>
                 <th><?php echo $fields['contact_person']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
                 <th><?php echo $fields['created_date']; ?></th>
@@ -64,6 +65,7 @@ return false;
         </thead>
         <thead>
             <tr id="filter_row">
+                <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
@@ -126,7 +128,7 @@ return false;
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
-            "order": [[8, "desc"]],
+            "order": [[9, "desc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/data'); ?>",
             "columns": [
                 {"name": "rra_no", "data": "rra_no"},
@@ -135,13 +137,14 @@ return false;
                 {"name": "destination_zone_name", "data": "destination_zone_name"},
                 {"name": "campaign_no", "data": "campaign_no"},
                 {"name": "pr_no", "data": "pr_no"},
+                {"name": "status", "data": "status"},
                 {"name": "contact_person", "data": "contact_person"},
                 {"name": "total_amount", "data": "total_amount"},
                 {"name": "created_date", "data": "created_date"},
 //                {"name": "links", "data": "links", 'sortable': false}
             ],
             "columnDefs": [{
-                    "targets": [8],
+                    "targets": [9],
                     "visible": false
                 }]
         });

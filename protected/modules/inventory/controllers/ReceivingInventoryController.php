@@ -29,7 +29,7 @@ class ReceivingInventoryController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'oldCreate', 'loadSkuDetails', 'skuData', 'receivingInvDetailData', 'uploadAttachment'),
+                'actions' => array('create', 'update', 'data', 'oldCreate', 'loadSkuDetails', 'skuData', 'receivingInvDetailData', 'uploadAttachment', 'preview'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -63,7 +63,7 @@ class ReceivingInventoryController extends Controller {
             $c->select = new CDbExpression('t.*, CONCAT(t.first_name, " ", t.last_name) AS fullname');
             $c->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND employee_id = "' . $value->requestor . '"';
             $employee = Employee::model()->find($c);
-            
+
             $row = array();
             $row['receiving_inventory_id'] = $value->receiving_inventory_id;
             $row['campaign_no'] = $value->campaign_no;
@@ -71,9 +71,9 @@ class ReceivingInventoryController extends Controller {
             $row['pr_date'] = $value->pr_date;
             $row['dr_no'] = $value->dr_no;
             $row['requestor'] = $value->requestor;
-            $row['requestor_name'] = isset($employee->fullname) ? $employee->fullname : null;
+            $row['requestor_name'] = $employee->fullname;
             $row['supplier_id'] = $value->supplier_id;
-            $row['supplier_name'] = isset($value->supplier->supplier_name) ? $value->supplier->supplier_name : null;
+            $row['supplier_name'] = $value->supplier->supplier_name;
             $row['zone_id'] = $value->zone_id;
             $row['plan_delivery_date'] = $value->plan_delivery_date;
             $row['revised_delivery_date'] = $value->revised_delivery_date;
@@ -164,7 +164,8 @@ class ReceivingInventoryController extends Controller {
             $row['unit_price'] = $value->unit_price;
             $row['expiration_date'] = $value->expiration_date;
             $row['quantity_received'] = $value->quantity_received;
-            $row['uom_name'] = $value->uom->uom_name;
+            $row['uom_name'] = isset($value->uom->uom_name) ? $value->uom->uom_name : null;
+            $row['sku_status_name'] = isset($value->skuStatus->status_name) ? $value->skuStatus->status_name : null;
             $row['planned_quantity'] = $value->planned_quantity;
             $row['quantity_received'] = $value->quantity_received;
             $row['amount'] = $value->amount;
@@ -239,14 +240,13 @@ class ReceivingInventoryController extends Controller {
     }
 
     public function actionCreate() {
-        $this->pageTitle = 'Create Receiving Inventory';
+        $this->pageTitle = 'Receiving Inventory';
         $this->layout = '//layouts/column1';
-         
-        $model = new Attachment;
 
         $receiving = new ReceivingInventory;
         $transaction_detail = new ReceivingInventoryDetail;
         $sku = new Sku;
+        $model = new Attachment;
 
         $c = new CDbCriteria;
         $c->select = new CDbExpression('t.*, CONCAT(t.first_name, " ", t.last_name) AS fullname');
@@ -257,6 +257,7 @@ class ReceivingInventoryController extends Controller {
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $supplier_list = CHtml::listData(Supplier::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'supplier_name ASC')), 'supplier_id', 'supplier_name');
         $delivery_remarks = CHtml::listData(ReceivingInventory::model()->getDeliveryRemarks(), 'id', 'title');
+        $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
 
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
@@ -325,14 +326,17 @@ class ReceivingInventoryController extends Controller {
                             "sku_code" => isset($sku_details->sku_code) ? $sku_details->sku_code : null,
                             "sku_description" => isset($sku_details->description) ? $sku_details->description : null,
                             'brand_name' => isset($sku_details->brand->brand_name) ? $sku_details->brand->brand_name : null,
-                            'unit_price' => isset($transaction_detail->unit_price) ? $transaction_detail->unit_price : 0,
+                            'unit_price' => $transaction_detail->unit_price != "" ? $transaction_detail->unit_price : 0,
                             'batch_no' => isset($transaction_detail->batch_no) ? $transaction_detail->batch_no : null,
                             'expiration_date' => isset($transaction_detail->expiration_date) ? $transaction_detail->expiration_date : null,
-                            'quantity_received' => isset($transaction_detail->quantity_received) ? $transaction_detail->quantity_received : 0,
+                            'planned_quantity' => $transaction_detail->planned_quantity != "" ? $transaction_detail->planned_quantity : 0,
+                            'quantity_received' => $transaction_detail->quantity_received != "" ? $transaction_detail->quantity_received : 0,
                             'uom_id' => isset($transaction_detail->uom->uom_id) ? $transaction_detail->uom->uom_id : null,
                             'uom_name' => isset($transaction_detail->uom->uom_name) ? $transaction_detail->uom->uom_name : null,
-                            'amount' => isset($transaction_detail->amount) ? $transaction_detail->amount : 0,
-                            'inventory_on_hand' => isset($transaction_detail->inventory_on_hand) ? $transaction_detail->inventory_on_hand : 0,
+                            'sku_status_id' => isset($transaction_detail->skuStatus->sku_status_id) ? $transaction_detail->skuStatus->sku_status_id : null,
+                            'sku_status_name' => isset($transaction_detail->skuStatus->status_name) ? $transaction_detail->skuStatus->status_name : null,
+                            'amount' => $transaction_detail->amount != "" ? $transaction_detail->amount : 0,
+                            'inventory_on_hand' => $transaction_detail->inventory_on_hand != "" ? $transaction_detail->inventory_on_hand : 0,
                             'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
                         );
                     }
@@ -351,6 +355,7 @@ class ReceivingInventoryController extends Controller {
             'sku' => $sku,
             'uom' => $uom,
             'employee' => $employee,
+            'sku_status' => $sku_status,
             'model' => $model,
         ));
     }
@@ -496,68 +501,112 @@ class ReceivingInventoryController extends Controller {
             Yii::app()->end();
         }
     }
-    
+
     public function actionUploadAttachment() {
-      header('Vary: Accept');
-      if (isset($_SERVER['HTTP_ACCEPT']) &&
-              (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
-         header('Content-type: application/json');
-      } else {
-         header('Content-type: text/plain');
-      }
+        header('Vary: Accept');
+        if (isset($_SERVER['HTTP_ACCEPT']) &&
+                (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
+            header('Content-type: application/json');
+        } else {
+            header('Content-type: text/plain');
+        }
 
-      $data = array();
-      $model = new Attachment;
-      
-      if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
-         
-         $file = CUploadedFile::getInstance($model, 'file');
+        $data = array();
+        $model = new Attachment;
+
+        if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
+
+            $file = CUploadedFile::getInstance($model, 'file');
 //         $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'attachment' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR .Yii::app()->session['tid'];
-         $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . 'receiving' . DIRECTORY_SEPARATOR .Yii::app()->session['tid'];
-         if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-         }
+            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . 'receiving' . DIRECTORY_SEPARATOR . Yii::app()->session['tid'];
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
 
-         $file_name = str_replace(' ', '_', strtolower($file->name));
+            $file_name = str_replace(' ', '_', strtolower($file->name));
 //         $url = Yii::app()->getBaseUrl(true) . '/attachment/' . Yii::app()->user->company_id . '/' . Yii::app()->session['tid'] . '/' . $file_name;
-         $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/receiving/' . Yii::app()->session['tid'] . '/' . $file_name;
-         $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
-         
-         $model->attachment_id = Globals::generateV4UUID();
-         
-         $model->company_id = Yii::app()->user->company_id;
-         $model->file_name = $file_name;
-         $model->url = $url;
-         $model->transaction_id =Yii::app()->session['tid'];
-         $model->transaction_type = 'receiving';
-         $model->created_by = Yii::app()->user->name;
-        
-         if ($model->save()) {
-            
-            $data[] = array(
-                'name' => $file->name,
-                'type' => $file->type,
-                'size' => $file->size,
-                'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
-                'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name,
-                
+            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/receiving/' . Yii::app()->session['tid'] . '/' . $file_name;
+            $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
+
+            $model->attachment_id = Globals::generateV4UUID();
+
+            $model->company_id = Yii::app()->user->company_id;
+            $model->file_name = $file_name;
+            $model->url = $url;
+            $model->transaction_id = Yii::app()->session['tid'];
+            $model->transaction_type = 'receiving';
+            $model->created_by = Yii::app()->user->name;
+
+            if ($model->save()) {
+
+                $data[] = array(
+                    'name' => $file->name,
+                    'type' => $file->type,
+                    'size' => $file->size,
+                    'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
+                    'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name,
 //                    'delete_url' => $this->createUrl('my/delete', array('id' => 1, 'method' => 'uploader')),
 //                    'delete_type' => 'POST',
-            );
-         } else {
+                );
+            } else {
 
-            if ($model->hasErrors()) {
+                if ($model->hasErrors()) {
 
-               $data[] = array('error', $model->getErrors());
+                    $data[] = array('error', $model->getErrors());
+                }
             }
-         }
-      } else {
+        } else {
 
-         throw new CHttpException(500, "Could not upload file " . CHtml::errorSummary($model));
-      }
-      
-   
-      echo json_encode($data);
-   }
+            throw new CHttpException(500, "Could not upload file " . CHtml::errorSummary($model));
+        }
+
+
+        echo json_encode($data);
+    }
+
+    function actionPreview($id) {
+        $c = new CDbCriteria;
+        $c->compare("company_id", Yii::app()->user->company_id);
+        $c->compare("transaction_id", $id);
+        $attachment = Attachment::model()->findAll($c);
+
+        $output = array();
+        foreach ($attachment as $key => $value) {
+            $row = array();
+            $row['file_name'] = $value->file_name;
+            $row['links'] = '<a class="view" title="Download" data-toggle="tooltip" href="" data-original-title="Download"><button type="submit" class="btn btn-primary btn-sm btn-flat start">
+            <i class="icon-download icon-white"></i>
+            <i class="glyphicon glyphicon-download"></i>
+            <span>Download File</span>
+            </button></a>'
+                    . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="' . $this->createUrl('/inventory/receivinginventory/deletebyurl', array('id' => $value->attachment_id)) . '" data-original-title="Delete"><button type="button" class="btn btn-danger btn-sm btn-flat delete">
+            <i class="glyphicon glyphicon-trash"></i>
+            <span>Delete</span>
+            </button></a>';
+
+            $output['data'][] = $row;
+        }
+
+        echo json_encode($output);
+    }
+
+    function deletebyurl($id) {
+
+        $sql = "SELECT url FROM noc.attachment WHERE attachment = :attachment_id";
+
+        $command = Yii::app()->db->createCommand($sql);
+        $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
+        $data = $command->queryAll();
+        foreach ($data as $key => $value) {
+            $url = $value['url'];
+        }
+        //$url = substr($url, 16);
+        $base = Yii::app()->getBaseUrl(true);
+        $arr = explode("/", $base);
+        $base = $arr[count($arr) - 1];
+        $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
+        //pre('../' .$base . $url);
+        unlink('../' . $base . $url);
+    }
 
 }
