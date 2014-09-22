@@ -212,7 +212,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             <div class="panel-body" style="padding-top: 10px;">
                 <h4 class="control-label text-primary pull-left"><b>Select <?php echo Sku::SKU_LABEL; ?> Product</b></h4>
                 <button class="btn btn-default btn-sm pull-right" onclick="sku_table.fnMultiFilter();">Reload Table</button>
-                
+
                 <?php $fields = Sku::model()->attributeLabels(); ?>
                 <div class="table-responsive">
                     <table id="sku_table" class="table table-bordered table-hover">
@@ -417,6 +417,36 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
     </div>
     <?php $this->endWidget(); ?>
+
+    <div id="upload">
+        <?php
+        $this->widget('booster.widgets.TbFileUpload', array(
+            'url' => $this->createUrl('ReceivingInventory/uploadAttachment'),
+            'model' => $model,
+            'attribute' => 'file',
+            'multiple' => true,
+            'options' => array(
+                'maxFileSize' => 2000000,
+                'acceptFileTypes' => 'js:/(\.|\/)(gif|jpe?g|png|pdf|doc|docx)$/i',
+            ),
+            'formView' => 'application.modules.inventory.views.receivingInventory._form',
+            'uploadView' => 'application.modules.inventory.views.receivingInventory._upload',
+            'downloadView' => 'application.modules.inventory.views.receivingInventory._download',
+            'callbacks' => array(
+                'done' => new CJavaScriptExpression(
+                        'function(e, data) { 
+                         file_upload_count--;
+                         console.log(file_upload_count);
+                         
+                         if(file_upload_count == 0) {$("#tbl tr").remove();}
+                     }'
+                ),
+                'fail' => new CJavaScriptExpression(
+                        'function(e, data) { console.log("fail"); }'
+                ),
+        )));
+        ?>
+    </div>
 </div>
 
 
@@ -500,6 +530,12 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         });
     });
 
+    var files = new Array();
+    var ctr;
+    function removebyID($id) {
+        files.splice($id - 1, 1);
+    }
+
     function send(form) {
 
         var data = $("#receiving-inventory-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable()});
@@ -518,6 +554,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         });
     }
 
+    var file_upload_count = 0;
     function validateForm(data) {
 
         var e = $(".error");
@@ -528,6 +565,12 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         if (data.success === true) {
 
             if (data.form == headers) {
+
+                if (files != "") {
+                    file_upload_count = files.length;
+
+                    $('#uploading').click();
+                }
 
                 document.forms["receiving-inventory-form"].reset();
 
