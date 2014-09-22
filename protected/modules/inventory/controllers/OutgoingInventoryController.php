@@ -30,7 +30,7 @@ class OutgoingInventoryController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'loadInventoryDetails', 'outgoingInvDetailData', 'afterDeleteTransactionRow'),
+                'actions' => array('create', 'update', 'data', 'loadInventoryDetails', 'outgoingInvDetailData', 'afterDeleteTransactionRow', 'invData'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -94,6 +94,52 @@ class OutgoingInventoryController extends Controller {
         echo json_encode($output);
     }
 
+    public function actionInvData() {
+
+        Inventory::model()->search_string = $_GET['search']['value'] != "" ? $_GET['search']['value'] : null;
+
+        $dataProvider = Inventory::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'], $_GET['columns']);
+
+        $count = Inventory::model()->countByAttributes(array('company_id' => Yii::app()->user->company_id));
+
+        $output = array(
+            "draw" => intval($_GET['draw']),
+            "recordsTotal" => $count,
+            "recordsFiltered" => $dataProvider->totalItemCount,
+            "data" => array()
+        );
+
+        foreach ($dataProvider->getData() as $key => $value) {
+            $row = array();
+            $row['DT_RowId'] = $value->inventory_id; // Add an ID to the TR element
+            $row['inventory_id'] = $value->inventory_id;
+            $row['sku_code'] = $value->sku->sku_code;
+            $row['sku_id'] = $value->sku_id;
+            $row['sku_name'] = $value->sku->sku_name;
+            $row['qty'] = $value->qty;
+            $row['uom_id'] = $value->uom_id;
+            $row['uom_name'] = isset($value->uom->uom_name) ? $value->uom->uom_name : null;
+            $row['action_qty'] = '';
+            $row['zone_id'] = $value->zone_id;
+            $row['zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
+            $row['sku_status_id'] = $value->sku_status_id;
+            $row['sku_status_name'] = isset($value->skuStatus->status_name) ? $value->skuStatus->status_name : '';
+            $row['sales_office_name'] = isset($value->zone->salesOffice->sales_office_name) ? $value->zone->salesOffice->sales_office_name : '';
+            $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : '';
+            $row['transaction_date'] = $value->transaction_date;
+            $row['created_date'] = $value->created_date;
+            $row['created_by'] = $value->created_by;
+            $row['updated_date'] = $value->updated_date;
+            $row['updated_by'] = $value->updated_by;
+            $row['expiration_date'] = $value->expiration_date;
+            $row['reference_no'] = $value->reference_no;
+
+            $output['data'][] = $row;
+        }
+
+        echo json_encode($output);
+    }
+
     /**
      * Displays a particular model.
      * @param integer $id the ID of the model to be displayed
@@ -123,7 +169,7 @@ class OutgoingInventoryController extends Controller {
      */
     public function actionCreate() {
 
-        $this->pageTitle = 'Create Outgoing Inventory';
+        $this->pageTitle = 'Outgoing Inventory';
         $this->layout = '//layouts/column1';
 
         $outgoing = new OutgoingInventory;
@@ -263,6 +309,7 @@ class OutgoingInventoryController extends Controller {
             'source_zone_name' => isset($inventory->zone->zone_name) ? $inventory->zone->zone_name : null,
             'unit_price' => isset($inventory->cost_per_unit) ? $inventory->cost_per_unit : 0,
             'reference_no' => isset($inventory->reference_no) ? $inventory->reference_no : null,
+            'expiration_date' => isset($inventory->expiration_date) ? $inventory->expiration_date : null,
             'inventory_on_hand' => isset($inventory->inventory_on_hand) ? $inventory->inventory_on_hand : 0,
         );
 

@@ -85,7 +85,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     #transaction_table td + td { text-align: left; }
 
     .span5  { width: 200px; }
-    
+
     .hide_row { display: none; }
 
     .inventory_uom_selected { width: 20px; }
@@ -238,7 +238,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 <th><?php echo $invFields['reference_no']; ?></th>
                                 <th><?php echo $invFields['brand_name']; ?></th>
                                 <th><?php echo $invFields['sales_office_name']; ?></th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
                         <thead>
@@ -254,7 +253,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 <td class="filter"></td>
                                 <td class="filter" id="hide_textbox"></td>
                                 <td class="filter" id="hide_textbox"></td>
-                                <td class="filter hide_row"></td>
                             </tr>
                         </thead>
 
@@ -477,7 +475,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             "bAutoWidth": false,
             'iDisplayLength': 5,
             "order": [[0, "asc"]],
-            "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Inventory/data'); ?>",
+            "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/invData'); ?>",
             "columns": [
                 {"name": "sku_code", "data": "sku_code"},
                 {"name": "sku_name", "data": "sku_name"},
@@ -489,14 +487,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 {"name": "expiration_date", "data": "expiration_date"},
                 {"name": "reference_no", "data": "reference_no"},
                 {"name": "brand_name", "data": "brand_name"},
-                {"name": "sales_office_name", "data": "sales_office_name"},
-                {"name": "links", "data": "links", 'sortable': false}
+                {"name": "sales_office_name", "data": "sales_office_name"}
             ],
             "columnDefs": [{
                     "targets": [4],
-                    "visible": false
-                }, {
-                    "targets": [11],
                     "visible": false
                 }]
         });
@@ -614,7 +608,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 growlAlert(data.type, data.message);
 
-                $('#outgoing-inventory-form select:not(.ignore), input:not(.ignore)').val('');
+                $('#outgoing-inventory-form select:not(.ignore), input:not(.ignore), textarea:not(.ignore)').val('');
                 $('.inventory_uom_selected').html('');
 
                 $("#OutgoingInventoryDetail_quantity_issued, #OutgoingInventoryDetail_unit_price, #OutgoingInventoryDetail_amount").val(0);
@@ -655,6 +649,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $(".inventory_uom_selected").html(data.inventory_uom_selected);
                 $("#OutgoingInventoryDetail_inventory_on_hand").val(data.inventory_on_hand);
                 $("#OutgoingInventoryDetail_batch_no").val(data.reference_no);
+                $("#OutgoingInventoryDetail_expiration_date").val(data.expiration_date);
                 $("#OutgoingInventoryDetail_amount").val(0);
             },
             error: function(data) {

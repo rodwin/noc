@@ -567,7 +567,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 growlAlert(data.type, data.message);
 
-                $('#receiving-inventory-form select:not(.ignore), input:not(.ignore)').val('');
+                $('#receiving-inventory-form select:not(.ignore), input:not(.ignore), textarea:not(.ignore)').val('');
                 $('.sku_uom_selected').html('');
 
                 $("#ReceivingInventoryDetail_planned_quantity, #ReceivingInventoryDetail_quantity_received, #ReceivingInventoryDetail_unit_price, #ReceivingInventoryDetail_amount").val(0);

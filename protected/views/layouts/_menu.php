@@ -7,6 +7,7 @@ $main_menu = array(
             array('label' => 'Receiving', 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/receivingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
             array('label' => 'Incoming', 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/incomingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
             array('label' => 'Outgoing', 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/outgoingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => 'Customer Item', 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/customerItem/admin'), 'visible' => !Yii::app()->user->isGuest),
         )),
     array('label' => 'Library', 'url' => '#', 'icon' => 'fa fa-book', 'visible' => !Yii::app()->user->isGuest, 'items' => array(
             array('label' => 'Supplier', 'icon' => 'fa fa-angle-double-right', 'url' => array('library/supplier/admin'), 'visible' => !Yii::app()->user->isGuest),

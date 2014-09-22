@@ -240,7 +240,7 @@ class ReceivingInventoryController extends Controller {
     }
 
     public function actionCreate() {
-        $this->pageTitle = 'Create Receiving Inventory';
+        $this->pageTitle = 'Receiving Inventory';
         $this->layout = '//layouts/column1';
 
         $receiving = new ReceivingInventory;
