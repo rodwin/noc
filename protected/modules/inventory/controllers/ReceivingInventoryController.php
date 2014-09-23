@@ -435,7 +435,7 @@ class ReceivingInventoryController extends Controller {
    public function actionDelete($id) {
       if (Yii::app()->request->isPostRequest) {
          // we only allow deletion via POST request
-         $this->deleteByUrl($id);
+         $this->deleteByUrl($id); ///julius code
          $this->loadModel($id)->delete();
 
          // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
@@ -502,7 +502,7 @@ class ReceivingInventoryController extends Controller {
          Yii::app()->end();
       }
    }
-
+//julius code
    public function actionUploadAttachment() {
       header('Vary: Accept');
       if (isset($_SERVER['HTTP_ACCEPT']) &&
@@ -591,24 +591,6 @@ class ReceivingInventoryController extends Controller {
       echo json_encode($output);
    }
 
-   function deletebyurl($id) {
-
-      $sql = "SELECT url FROM noc.attachment WHERE attachment = :attachment_id";
-
-      $command = Yii::app()->db->createCommand($sql);
-      $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
-      $data = $command->queryAll();
-      foreach ($data as $key => $value) {
-         $url = $value['url'];
-      }
-      //$url = substr($url, 16);
-      $base = Yii::app()->getBaseUrl(true);
-      $arr = explode("/", $base);
-      $base = $arr[count($arr) - 1];
-      $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
-      //pre('../' .$base . $url);
-      unlink('../' . $base . $url);
-   }
    
    function actionDeleteByUrl($id) {
 
@@ -665,5 +647,6 @@ class ReceivingInventoryController extends Controller {
          
       }
    }
+   ///////////////////////
 
 }

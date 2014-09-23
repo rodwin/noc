@@ -74,7 +74,7 @@ return false;
       </thead>
    </table>
 </div><br/><br/><br/>
-
+<!--julius code-->
 <div class="nav-tabs-custom" id ="custTabs">
    <ul class="nav nav-tabs">
       <li class="active"><a href="#tab_1" data-toggle="tab">Item Details Table</a></li>
@@ -129,12 +129,13 @@ return false;
    </div>
 
 </div>
+<!-- -->
 
 <script type="text/javascript">
 
    var receiving_inventory_table;
    var receiving_inv_detail_table;
-   var receiving_inv_attachment_table;
+   var receiving_inv_attachment_table; //julius code
    $(function() {
       receiving_inventory_table = $('#receiving-inventory_table').dataTable({
          "filter": true,
@@ -193,7 +194,7 @@ return false;
          "serverSide": false,
          "bAutoWidth": false
       });
-      
+      // julius code
       receiving_inv_attachment_table = $('#receiving-inventory-attachment_table').dataTable({
          "filter": true,
          "dom": '<"text-center"r>t',
@@ -201,7 +202,7 @@ return false;
          "processing": false,
          "serverSide": false,
          "bAutoWidth": false
-      });
+      }); //////
 
       var i = 0;
       $('#receiving-inventory-details_table thead tr#filter_row td.filter').each(function() {
@@ -274,7 +275,7 @@ return false;
          }
       });
    }
-   
+   /// julius code
    function loadAttachmentPreview(receiving_inv_id) {
       $.ajax({
          type: 'POST',
