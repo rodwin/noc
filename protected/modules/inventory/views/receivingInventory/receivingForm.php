@@ -417,7 +417,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
     </div>
     <?php $this->endWidget(); ?>
-
+<!--   julius code-->
     <div id="upload">
         <?php
         $this->widget('booster.widgets.TbFileUpload', array(
@@ -446,6 +446,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 ),
         )));
         ?>
+<!--       -->
     </div>
 </div>
 
@@ -529,13 +530,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 }]
         });
     });
-
+    //////julius code
     var files = new Array();
     var ctr;
     function removebyID($id) {
         files.splice($id - 1, 1);
     }
-
+    ///////
     function send(form) {
 
         var data = $("#receiving-inventory-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable()});
@@ -554,7 +555,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         });
     }
 
-    var file_upload_count = 0;
+    var file_upload_count = 0; // julius code
     function validateForm(data) {
 
         var e = $(".error");
@@ -565,13 +566,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         if (data.success === true) {
 
             if (data.form == headers) {
-
+//                  julius code
                 if (files != "") {
                     file_upload_count = files.length;
 
                     $('#uploading').click();
                 }
-
+///////////////////////////////////
                 document.forms["receiving-inventory-form"].reset();
 
                 var oSettings = transaction_table.fnSettings();
@@ -711,11 +712,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     $('#btn_add_item').click(function() {
         send(details);
     });
-   
+//   julius code
    $('#btn-upload').click(function() {
       $('#file_uploads').click();
    });
-
+/////////////
     function loadSkuDetails(sku_id) {
 
         $("#ReceivingInventoryDetail_sku_id").val(sku_id);
