@@ -45,7 +45,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
         return array(
             array('company_id, inventory_id, sku_id, source_zone_id, quantity_issued', 'required'),
             array('outgoing_inventory_id, inventory_id, planned_quantity, quantity_issued, inventory_on_hand', 'numerical', 'integerOnly' => true),
-            array('company_id, batch_no, sku_id, source_zone_id, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, batch_no, sku_id, source_zone_id, status, created_by, updated_by', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
             array('unit_price, amount', 'match', 'pattern' => '/^[0-9]{1,9}(\.[0-9]{0,2})?$/'),
@@ -53,7 +53,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
             array('expiration_date, return_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('outgoing_inventory_detail_id, outgoing_inventory_id, company_id, batch_no, sku_id, source_zone_id, unit_price, expiration_date, quantity_issued, amount, inventory_on_hand, return_date, remarks, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('outgoing_inventory_detail_id, outgoing_inventory_id, company_id, batch_no, sku_id, source_zone_id, unit_price, expiration_date, quantity_issued, amount, inventory_on_hand, return_date, status, remarks, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
 
@@ -93,6 +93,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
             'amount' => 'Amount',
             'inventory_on_hand' => 'Inventory On Hand',
             'return_date' => 'Return Date',
+            'status' => 'Status',
             'remarks' => 'Remarks',
             'created_date' => 'Created Date',
             'created_by' => 'Created By',
@@ -132,6 +133,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
         $criteria->compare('amount', $this->amount, true);
         $criteria->compare('inventory_on_hand', $this->inventory_on_hand);
         $criteria->compare('return_date', $this->return_date, true);
+        $criteria->compare('status', $this->status, true);
         $criteria->compare('remarks', $this->remarks, true);
         $criteria->compare('created_date', $this->created_date, true);
         $criteria->compare('created_by', $this->created_by, true);
@@ -221,6 +223,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
         $outgoing_transaction_detail->amount = $amount;
         $outgoing_transaction_detail->inventory_on_hand = $inventory_on_hand;
         $outgoing_transaction_detail->return_date = $return_date != "" ? $return_date : null;
+        $outgoing_transaction_detail->status = OutgoingInventory::OUTGOING_PENDING_STATUS;
         $outgoing_transaction_detail->remarks = $remarks;
         $outgoing_transaction_detail->created_by = $created_by;
 

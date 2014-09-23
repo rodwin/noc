@@ -29,7 +29,7 @@ class IncomingInventoryController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'loadAllOutgoingTransactionDetailsByDRNo', 'loadInventoryDetails', 'uploadAttachment', 'preview', 'deleteByUrl', 'download'),
+                'actions' => array('create', 'update', 'data', 'loadAllOutgoingTransactionDetailsByDRNo', 'loadInventoryDetails', 'incomingInvDetailData', 'uploadAttachment', 'preview', 'deleteByUrl', 'download'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -59,6 +59,25 @@ class IncomingInventoryController extends Controller {
 
         foreach ($dataProvider->getData() as $key => $value) {
             $row = array();
+
+            $status = "";
+            switch ($value->status) {
+                case OutgoingInventory::OUTGOING_PENDING_STATUS:
+                    $status = '<span class="label label-warning">' . OutgoingInventory::OUTGOING_PENDING_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_COMPLETE_STATUS:
+                    $status = '<span class="label label-success">' . OutgoingInventory::OUTGOING_COMPLETE_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_INCOMPLETE_STATUS:
+                    $status = '<span class="label label-danger">' . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS:
+                    $status = '<span class="label label-primary">' . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . '</span>';
+                    break;
+                default:
+                    break;
+            }
+
             $row['incoming_inventory_id'] = $value->incoming_inventory_id;
             $row['campaign_no'] = $value->campaign_no;
             $row['pr_no'] = $value->pr_no;
@@ -67,6 +86,7 @@ class IncomingInventoryController extends Controller {
             $row['zone_id'] = $value->zone_id;
             $row['zone_name'] = $value->zone->zone_name;
             $row['transaction_date'] = $value->transaction_date;
+            $row['status'] = $status;
             $row['total_amount'] = $value->total_amount;
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
@@ -152,6 +172,8 @@ class IncomingInventoryController extends Controller {
                         $data["type"] = "danger";
                     } else {
 
+                        $incoming->outgoing_inventory_id = $_POST['IncomingInventory']['outgoing_inventory_id'];
+
                         $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
 
                         if ($incoming->create($transaction_details)) {
@@ -211,6 +233,8 @@ class IncomingInventoryController extends Controller {
                                 'reference_no' => isset($transaction_detail->pr_no) ? $transaction_detail->pr_no : null,
                                 'return_date' => isset($transaction_detail->return_date) ? $transaction_detail->return_date : null,
                                 'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
+                                'outgoing_inventory_detail_id' => "",
+                                'status' => "",
                             );
                         } else {
 
@@ -232,7 +256,6 @@ class IncomingInventoryController extends Controller {
             'sku' => $sku,
             'outgoing_inv_dr_nos' => $outgoing_inv_dr_nos,
             'model' => $model,
-            
         ));
     }
 
@@ -248,6 +271,7 @@ class IncomingInventoryController extends Controller {
         if (count($outgoing_inv_details) > 0) {
             foreach ($outgoing_inv_details as $key => $value) {
                 $row = array();
+
                 $row['outgoing_inventory_detail_id'] = $value->outgoing_inventory_detail_id;
                 $row['outgoing_inventory_id'] = $value->outgoing_inventory_id;
                 $row['inventory_id'] = $value->inventory_id;
@@ -267,6 +291,7 @@ class IncomingInventoryController extends Controller {
                 $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
                 $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
                 $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
+                $row['status'] = $value->status;
 
                 $output['transaction_details'][] = $row;
             }
@@ -279,6 +304,7 @@ class IncomingInventoryController extends Controller {
             "zone_id" => isset($value->outgoingInventory->destination_zone_id) ? $value->outgoingInventory->destination_zone_id : null,
             "zone_name" => isset($value->outgoingInventory->zone->zone_name) ? $value->outgoingInventory->zone->zone_name : null,
             "plan_delivery_date" => isset($value->outgoingInventory->plan_delivery_date) ? $value->outgoingInventory->plan_delivery_date : null,
+            "outgoing_inventory_id" => isset($value->outgoingInventory->outgoing_inventory_id) ? $value->outgoingInventory->outgoing_inventory_id : null,
         );
 
         $output['headers'] = $header;
@@ -317,6 +343,59 @@ class IncomingInventoryController extends Controller {
         );
 
         echo json_encode($data);
+    }
+
+    public function actionIncomingInvDetailData($incoming_inv_id) {
+
+        $c = new CDbCriteria;
+        $c->compare("company_id", Yii::app()->user->company_id);
+        $c->compare("incoming_inventory_id", $incoming_inv_id);
+        $incoming_inv_details = IncomingInventoryDetail::model()->findAll($c);
+
+        $output = array();
+        foreach ($incoming_inv_details as $key => $value) {
+            $row = array();
+
+            $status = "";
+            switch ($value->status) {
+                case OutgoingInventory::OUTGOING_PENDING_STATUS:
+                    $status = '<span class="label label-warning">' . OutgoingInventory::OUTGOING_PENDING_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_COMPLETE_STATUS:
+                    $status = '<span class="label label-success">' . OutgoingInventory::OUTGOING_COMPLETE_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_INCOMPLETE_STATUS:
+                    $status = '<span class="label label-danger">' . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS:
+                    $status = '<span class="label label-primary">' . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . '</span>';
+                    break;
+                default:
+                    break;
+            }
+
+            $row['incoming_inventory_detail_id'] = $value->incoming_inventory_detail_id;
+            $row['incoming_inventory_id'] = $value->incoming_inventory_id;
+            $row['batch_no'] = $value->batch_no;
+            $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
+            $row['sku_name'] = isset($value->sku->sku_name) ? $value->sku->sku_name : null;
+            $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
+            $row['source_zone_id'] = $value->source_zone_id;
+            $row['source_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
+            $row['unit_price'] = $value->unit_price;
+            $row['expiration_date'] = $value->expiration_date;
+            $row['planned_quantity'] = $value->planned_quantity;
+            $row['quantity_received'] = $value->quantity_received;
+            $row['amount'] = $value->amount;
+            $row['inventory_on_hand'] = $value->inventory_on_hand;
+            $row['return_date'] = $value->return_date;
+            $row['status'] = $status;
+            $row['remarks'] = $value->remarks;
+
+            $output['data'][] = $row;
+        }
+
+        echo json_encode($output);
     }
 
     /**
@@ -364,8 +443,8 @@ class IncomingInventoryController extends Controller {
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
             // we only allow deletion via POST request
-           $this->deleteByUrl($id); 
-           $this->loadModel($id)->delete();
+            $this->deleteByUrl($id);
+            $this->loadModel($id)->delete();
 
             // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
             if (!isset($_GET['ajax'])) {
@@ -431,149 +510,149 @@ class IncomingInventoryController extends Controller {
             Yii::app()->end();
         }
     }
-    
+
     public function actionUploadAttachment() {
-      header('Vary: Accept');
-      if (isset($_SERVER['HTTP_ACCEPT']) &&
-              (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
-         header('Content-type: application/json');
-      } else {
-         header('Content-type: text/plain');
-      }
+        header('Vary: Accept');
+        if (isset($_SERVER['HTTP_ACCEPT']) &&
+                (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
+            header('Content-type: application/json');
+        } else {
+            header('Content-type: text/plain');
+        }
 
-      $data = array();
-      $model = new Attachment;
+        $data = array();
+        $model = new Attachment;
 
-      if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
+        if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
 
-         $file = CUploadedFile::getInstance($model, 'file');
+            $file = CUploadedFile::getInstance($model, 'file');
 //         $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'attachment' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR .Yii::app()->session['tid'];
-         $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . 'incoming' . DIRECTORY_SEPARATOR . Yii::app()->session['tid'];
-         if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-         }
+            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . 'incoming' . DIRECTORY_SEPARATOR . Yii::app()->session['tid'];
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
 
-         $file_name = str_replace(' ', '_', strtolower($file->name));
+            $file_name = str_replace(' ', '_', strtolower($file->name));
 //         $url = Yii::app()->getBaseUrl(true) . '/attachment/' . Yii::app()->user->company_id . '/' . Yii::app()->session['tid'] . '/' . $file_name;
-         $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/incoming/' . Yii::app()->session['tid'] . '/' . $file_name;
-         $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
+            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/incoming/' . Yii::app()->session['tid'] . '/' . $file_name;
+            $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
-         $model->attachment_id = Globals::generateV4UUID();
+            $model->attachment_id = Globals::generateV4UUID();
 
-         $model->company_id = Yii::app()->user->company_id;
-         $model->file_name = $file_name;
-         $model->url = $url;
-         $model->transaction_id = Yii::app()->session['tid'];
-         $model->transaction_type = 'incoming';
-         $model->created_by = Yii::app()->user->name;
+            $model->company_id = Yii::app()->user->company_id;
+            $model->file_name = $file_name;
+            $model->url = $url;
+            $model->transaction_id = Yii::app()->session['tid'];
+            $model->transaction_type = 'incoming';
+            $model->created_by = Yii::app()->user->name;
 
-         if ($model->save()) {
+            if ($model->save()) {
 
-            $data[] = array(
-                'name' => $file->name,
-                'type' => $file->type,
-                'size' => $file->size,
-                'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
-                'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name,
+                $data[] = array(
+                    'name' => $file->name,
+                    'type' => $file->type,
+                    'size' => $file->size,
+                    'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
+                    'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name,
 //                    'delete_url' => $this->createUrl('my/delete', array('id' => 1, 'method' => 'uploader')),
 //                    'delete_type' => 'POST',
-            );
-         } else {
+                );
+            } else {
 
-            if ($model->hasErrors()) {
+                if ($model->hasErrors()) {
 
-               $data[] = array('error', $model->getErrors());
+                    $data[] = array('error', $model->getErrors());
+                }
             }
-         }
-      } else {
+        } else {
 
-         throw new CHttpException(500, "Could not upload file " . CHtml::errorSummary($model));
-      }
+            throw new CHttpException(500, "Could not upload file " . CHtml::errorSummary($model));
+        }
 
 
-      echo json_encode($data);
-   }
-   function actionPreview($id) {
-      $c = new CDbCriteria;
-      $c->compare("company_id", Yii::app()->user->company_id);
-      $c->compare("transaction_id", $id);
-      $attachment = Attachment::model()->findAll($c);
+        echo json_encode($data);
+    }
 
-      $output = array();
-      foreach ($attachment as $key => $value) {
-         $row = array();
-         $row['file_name'] = $value->file_name;
-         $row['links'] = '<a class="view" title="Download" data-toggle="tooltip" href="' . $this->createUrl('/inventory/incominginventory/download', array('id' => $value->attachment_id)) . '" data-original-title="Download"><button type="submit" class="btn btn-default btn-flat">
+    function actionPreview($id) {
+        $c = new CDbCriteria;
+        $c->compare("company_id", Yii::app()->user->company_id);
+        $c->compare("transaction_id", $id);
+        $attachment = Attachment::model()->findAll($c);
+
+        $output = array();
+        foreach ($attachment as $key => $value) {
+            $row = array();
+            $row['file_name'] = $value->file_name;
+            $row['links'] = '<a class="view" title="Download" data-toggle="tooltip" href="' . $this->createUrl('/inventory/incominginventory/download', array('id' => $value->attachment_id)) . '" data-original-title="Download"><button type="submit" class="btn btn-default btn-flat">
             <i class="icon-download icon-white"></i>
             <i class="glyphicon glyphicon-download"></i>
            
             </button></a>'
-                 . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="' . $this->createUrl('/inventory/incominginventory/deletebyurl', array('id' => $value->attachment_id)) . '" data-original-title="Delete"><button type="button" class="btn btn-default btn-flat">
+                    . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="' . $this->createUrl('/inventory/incominginventory/deletebyurl', array('id' => $value->attachment_id)) . '" data-original-title="Delete"><button type="button" class="btn btn-default btn-flat">
             <i class="glyphicon glyphicon-trash"></i>
             
             </button></a>';
 
-         $output['data'][] = $row;
-      }
+            $output['data'][] = $row;
+        }
 
-      echo json_encode($output);
-   }
-   function actionDeleteByUrl($id) {
+        echo json_encode($output);
+    }
 
-      $sql = "SELECT url FROM noc.attachment WHERE attachment_id = :attachment_id AND company_id = '". Yii::app()->user->company_id ."'";
+    function actionDeleteByUrl($id) {
 
-      $command = Yii::app()->db->createCommand($sql);
-      $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
-      $data = $command->queryAll();
-      foreach ($data as $key => $value) {
-         $url = $value['url'];
-      }
-      //$url = substr($url, 16);
-      $base = Yii::app()->getBaseUrl(true);
-      $arr = explode("/", $base);
-      $base = $arr[count($arr) - 1];
-      $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
-      //pre('../' .$base . $url);
-      unlink('../' . $base . $url);
+        $sql = "SELECT url FROM noc.attachment WHERE attachment_id = :attachment_id AND company_id = '" . Yii::app()->user->company_id . "'";
 
-      $sql = "DELETE FROM noc.attachment WHERE attachment_id = :attachment_id AND company_id = '". Yii::app()->user->company_id ."'";
+        $command = Yii::app()->db->createCommand($sql);
+        $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
+        $data = $command->queryAll();
+        foreach ($data as $key => $value) {
+            $url = $value['url'];
+        }
+        //$url = substr($url, 16);
+        $base = Yii::app()->getBaseUrl(true);
+        $arr = explode("/", $base);
+        $base = $arr[count($arr) - 1];
+        $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
+        //pre('../' .$base . $url);
+        unlink('../' . $base . $url);
 
-      $command = Yii::app()->db->createCommand($sql);
-      $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
-      $data = $command->query();
+        $sql = "DELETE FROM noc.attachment WHERE attachment_id = :attachment_id AND company_id = '" . Yii::app()->user->company_id . "'";
 
-      $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-   }
-   public function actionDownload($id) {
+        $command = Yii::app()->db->createCommand($sql);
+        $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
+        $data = $command->query();
 
-      $sql = "SELECT url, file_name FROM noc.attachment WHERE attachment_id = :attachment_id AND company_id = '". Yii::app()->user->company_id ."'";
+        $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+    }
 
-      $command = Yii::app()->db->createCommand($sql);
-      $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
-      $data = $command->queryAll();
-      foreach ($data as $key => $value) {
-         $url = $value['url'];
-         $name = $value['file_name'];
-      }
-      $model = new ReceivingInventory;
+    public function actionDownload($id) {
+
+        $sql = "SELECT url, file_name FROM noc.attachment WHERE attachment_id = :attachment_id AND company_id = '" . Yii::app()->user->company_id . "'";
+
+        $command = Yii::app()->db->createCommand($sql);
+        $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
+        $data = $command->queryAll();
+        foreach ($data as $key => $value) {
+            $url = $value['url'];
+            $name = $value['file_name'];
+        }
+        $model = new ReceivingInventory;
 
 
 //      $name = $_GET['file'];
 //      $upload_path = Yii::app()->params['uploadPath'];
-       $base = Yii::app()->getBaseUrl(true);
-      $arr = explode("/", $base);
-      $base = $arr[count($arr) - 1];
-      $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
-     
-      if (file_exists('../' . $base . $url)) {
-         Yii::app()->getRequest()->sendFile($name, file_get_contents('../' . $base . $url));
-         $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-      } else {
-         
-      }
-   }
-   
-   
-   
+        $base = Yii::app()->getBaseUrl(true);
+        $arr = explode("/", $base);
+        $base = $arr[count($arr) - 1];
+        $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
+
+        if (file_exists('../' . $base . $url)) {
+            Yii::app()->getRequest()->sendFile($name, file_get_contents('../' . $base . $url));
+            $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+        } else {
+            
+        }
+    }
 
 }
