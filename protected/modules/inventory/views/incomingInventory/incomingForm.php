@@ -80,8 +80,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
     #inventory_table tbody tr { cursor: pointer }
 
-    #transaction_table td { text-align:center; }
-    #transaction_table td + td { text-align: left; }
+    #transaction_table td, th { text-align:center; }
+    #transaction_table td + td, th + th { text-align: left; }
 
     .span5  { width: 200px; }
 
@@ -166,7 +166,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->labelEx($incoming, 'campaign_no'); ?><br/>
                 <?php echo $form->labelEx($incoming, 'pr_no'); ?><br/>
-                <?php echo $form->labelEx($incoming, 'pr_date'); ?>
+                <?php echo $form->labelEx($incoming, 'pr_date'); ?><br/>
+                <?php echo $form->labelEx($incoming, 'zone_id'); ?>
 
             </div>
 
@@ -178,6 +179,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($incoming, 'pr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
+                <?php echo CHtml::textField('zone_id', '', array('id' => 'IncomingInventory_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone", 'readonly' => true)); ?>
+                <?php echo $form->textFieldGroup($incoming, 'zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'IncomingInventory_zone', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
+
             </div>
 
         </div>
@@ -185,20 +189,29 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         <div class="col-md-6">
             <div id="input_label" class="pull-left col-md-5">
 
-                <?php echo $form->labelEx($incoming, 'zone_id'); ?><br/>
                 <?php echo $form->labelEx($incoming, 'plan_delivery_date'); ?><br/>
-                <?php echo $form->labelEx($incoming, 'revised_delivery_date'); ?>
+                <?php echo $form->labelEx($incoming, 'revised_delivery_date'); ?><br/>
+                <?php echo $form->labelEx($incoming, 'remarks'); ?>
 
             </div>
             <div class="pull-right col-md-7">
-
-                <?php echo CHtml::textField('zone_id', '', array('id' => 'IncomingInventory_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone", 'readonly' => true)); ?>
-                <?php echo $form->textFieldGroup($incoming, 'zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'IncomingInventory_zone', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($incoming, 'plan_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($incoming, 'revised_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
+                <?php
+                echo $form->textAreaGroup($incoming, 'remarks', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => 'span5',
+                    ),
+                    'widgetOptions' => array(
+                        'htmlOptions' => array('style' => 'resize: none; width: 200px;'),
+                    ),
+                    'labelOptions' => array('label' => false)));
+                ?>
+
+                <?php echo $form->textFieldGroup($incoming, 'outgoing_inventory_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'style' => "display: none;")), 'labelOptions' => array('label' => false))); ?>
             </div>
         </div>
 
@@ -401,20 +414,22 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><button id="delete_row_btn" class="btn btn-danger btn-sm" onclick="deleteTransactionRow()" style="display: none;"><i class="fa fa-trash-o"></i></button></th>
                         <th class="hide_row"><?php echo $skuFields['sku_id']; ?></th>
                         <th><?php echo $skuFields['sku_code']; ?></th>
-                        <th><?php echo $skuFields['description']; ?></th>
-                        <th><?php echo $skuFields['brand_id']; ?></th>
+                        <th class="hide_row"><?php echo $skuFields['description']; ?></th>
+                        <th class="hide_row"><?php echo $skuFields['brand_id']; ?></th>
                         <th><?php echo $incomingDetailFields['unit_price']; ?></th>
                         <th><?php echo $incomingDetailFields['batch_no']; ?></th>
                         <th class="hide_row">Source Zone ID</th>
-                        <th><?php echo $incomingDetailFields['source_zone_id']; ?></th>
+                        <th class="hide_row"><?php echo $incomingDetailFields['source_zone_id']; ?></th>
                         <th><?php echo $incomingDetailFields['expiration_date']; ?></th>
                         <th><?php echo $incomingDetailFields['planned_quantity']; ?></th>
                         <th><?php echo $incomingDetailFields['quantity_received']; ?></th>
                         <th><?php echo $incomingDetailFields['amount']; ?></th>
-                        <th><?php echo $incomingDetailFields['inventory_on_hand']; ?></th>
-                        <th><?php echo $incomingDetailFields['return_date']; ?></th>
-                        <th class="hide_row"><?php echo $incomingDetailFields['remarks']; ?></th>
+                        <th class="hide_row"><?php echo $incomingDetailFields['inventory_on_hand']; ?></th>
+                        <th class="hide_row"><?php echo $incomingDetailFields['return_date']; ?></th>
+                        <th><?php echo $incomingDetailFields['status']; ?></th>
+                        <th><?php echo $incomingDetailFields['remarks']; ?></th>
                         <th class="hide_row">Inventory</th>
+                        <th class="hide_row">Outgoing Inventory Detail</th>
                     </tr>                                    
                 </thead>
             </table>                            
@@ -433,7 +448,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             <div class="col-xs-12">
                 <button class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
                 <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload</button>
-                <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="fa fa-fw fa-check"></i> Save</button>  
+                <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;">Save</button>  
             </div>
         </div>
 
@@ -513,38 +528,38 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             "serverSide": false,
             "bAutoWidth": false,
             "columnDefs": [{
-                    "targets": [1],
-                    "visible": false
-                }, {
-                    "targets": [7],
-                    "visible": false
-                }, {
-                    "targets": [15],
-                    "visible": false
-                }, {
-                    "targets": [16],
+                    "targets": [1, 3, 4, 7, 8, 13, 14, 17, 18],
                     "visible": false
                 }]
         });
-
     });
 
     function send(form) {
 
         var data = $("#incoming-inventory-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable()});
 
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/create'); ?>',
-            data: data,
-            dataType: "json",
-            success: function(data) {
-                validateForm(data);
-            },
-            error: function(data) {
-                alert("Error occured: Please try again.");
-            }
-        });
+        if ($("#btn_save, #btn_add_item").is("[disabled=disabled]")) {
+            return false;
+        } else {
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/create'); ?>',
+                data: data,
+                dataType: "json",
+                beforeSend: function(data) {
+                    $("#btn_save, #btn_add_item").attr("disabled", "disabled");
+                    $('#btn_save').text('Submitting Form...');
+                },
+                success: function(data) {
+                    validateForm(data);
+                },
+                error: function(data) {
+                    alert("Error occured: Please try again.");
+                    $("#btn_save, #btn_add_item").attr('disabled', false);
+                    $('#btn_save').text('Save');
+                }
+            });
+        }
     }
 
     function validateForm(data) {
@@ -586,22 +601,24 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     data.details.amount,
                     data.details.inventory_on_hand,
                     data.details.return_date,
+                    data.details.status,
                     data.details.remarks,
-                    data.details.inventory_id
+                    data.details.inventory_id,
+                    data.details.outgoing_inventory_detail_id
                 ]);
 
                 var oSettings = transaction_table.fnSettings();
-                $('td:eq(9)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
-                    if (value == "") {
-                        return(0);
-                    } else {
-                        return(value);
-                    }
+                $('td:eq(6), td:eq(9)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
+                    var pos = transaction_table.fnGetPosition(this);
+
+                    transaction_table.fnUpdate(value, pos[0], pos[2]);
                 }, {
                     placeholder: '',
                     indicator: '',
                     tooltip: 'Click to edit',
-                    submit: 'Ok',
+                    onblur: 'submit',
+                    width: "100%",
+                    height: "30px"
                 });
 
                 total_amount = (parseFloat(total_amount) + parseFloat(data.details.amount));
@@ -621,11 +638,17 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             growlAlert(data.type, data.message);
 
+            $("#btn_save, #btn_add_item").attr('disabled', false);
+            $('#btn_save').text('Save');
+
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
                 element.classList.add("error");
             });
         }
+
+        $("#btn_save, #btn_add_item").attr('disabled', false);
+        $('#btn_save').text('Save');
     }
 
     function growlAlert(type, message) {
@@ -641,7 +664,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         var aTrs = transaction_table.fnGetNodes();
         for (var i = 0; i < aTrs.length; i++) {
             var row_data = transaction_table.fnGetData(aTrs[i]);
-            console.log(row_data);
+
             row_datas.push({
                 "sku_id": row_data[1],
                 "unit_price": row_data[5],
@@ -653,8 +676,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 "amount": row_data[12],
                 "inventory_on_hand": row_data[13],
                 "return_date": row_data[14],
-                "remarks": row_data[15],
-                "inventory_id": row_data[16],
+                "status": row_data[15],
+                "remarks": row_data[16],
+                "inventory_id": row_data[17],
+                "outgoing_inventory_detail_id": row_data[18]
             });
         }
 
@@ -692,6 +717,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     $('#btn_save').click(function() {
+        if (!confirm('Are you sure you want to submit?'))
+            return false;
         send(headers);
     });
 
@@ -738,6 +765,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $("#IncomingInventory_zone_id").val(data.headers.zone_name);
                 $("#IncomingInventory_zone").val(data.headers.zone_id);
                 $("#IncomingInventory_plan_delivery_date").val(data.headers.plan_delivery_date);
+                $("#IncomingInventory_outgoing_inventory_id").val(data.headers.outgoing_inventory_id);
 
                 total_amount = 0;
                 $("#IncomingInventory_total_amount").val(total_amount);
@@ -765,24 +793,56 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             v.amount,
                             v.inventory_on_hand,
                             v.return_date,
+                            v.status,
                             v.remarks,
-                            v.inventory_id
+                            v.inventory_id,
+                            v.outgoing_inventory_detail_id
                         ]);
 
-                        var oSettings = transaction_table.fnSettings();
-                        $('td:eq(9)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
-//                            transaction_table.fnUpdate('Updated text', 9, 5);
-                            if (value == "") {
-                                return 0;
-                            } else {
-                                return value;
+                        $.editable.addInputType('numberOnly', {
+                            element: $.editable.types.text.element,
+                            plugin: function(settings, original) {
+                                $('input', this).bind('keypress', function(event) {
+                                    return onlyNumbers(this, event, false);
+                                });
                             }
+                        });
+
+                        var oSettings = transaction_table.fnSettings();
+                        $('td:eq(6)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
+                            var pos = transaction_table.fnGetPosition(this);
+                            var rowData = transaction_table.fnGetData(pos);
+
+                            if (value >= rowData[10]) {
+                                transaction_table.fnUpdate("COMPLETE", pos[0], pos[2] + 4);
+                            } else {
+                                transaction_table.fnUpdate("INCOMPLETE", pos[0], pos[2] + 4);
+                            }
+
+                            transaction_table.fnUpdate(value, pos[0], pos[2]);
+
                         }, {
+                            type: 'numberOnly',
                             placeholder: '',
                             indicator: '',
                             tooltip: 'Click to edit',
-//                            type: 'textarea',
+//                            onblur: 'submit',
                             submit: 'Ok',
+                            width: "100%",
+                            height: "30px"
+                        });
+
+                        $('td:eq(9)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
+                            var pos = transaction_table.fnGetPosition(this);
+                            transaction_table.fnUpdate(value, pos[0], pos[2]);
+                        }, {
+                            type: 'text',
+                            placeholder: '',
+                            indicator: '',
+                            tooltip: 'Click to edit',
+                            width: "100%",
+                            submit: 'Ok',
+                            height: "30px"
                         });
                     });
 
@@ -796,6 +856,16 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             }
         });
     });
+
+    function actualQtyRow(el, event, point, row) {
+
+        var numberOnly = onlyNumbers(el, event, point);
+
+        if (numberOnly === true) {
+            return true;
+        }
+        return false;
+    }
 
     function showDeleteRowBtn() {
         var atLeastOneIsChecked = $("input[name='transaction_row[]']").is(":checked");

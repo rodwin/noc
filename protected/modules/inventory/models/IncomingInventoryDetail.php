@@ -47,7 +47,7 @@ class IncomingInventoryDetail extends CActiveRecord {
         return array(
             array('company_id, inventory_id, sku_id, source_zone_id, quantity_received', 'required'),
             array('incoming_inventory_id, inventory_id, planned_quantity, quantity_received, inventory_on_hand', 'numerical', 'integerOnly' => true),
-            array('company_id, batch_no, sku_id, source_zone_id, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, batch_no, sku_id, source_zone_id, status, created_by, updated_by', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
             array('source_zone_id', 'isValidZone'),
@@ -56,7 +56,7 @@ class IncomingInventoryDetail extends CActiveRecord {
             array('expiration_date, return_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('incoming_inventory_detail_id, incoming_inventory_id, company_id, inventory_id, batch_no, sku_id, source_zone_id, unit_price, expiration_date, planned_quantity, quantity_received, amount, inventory_on_hand, return_date, remarks, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('incoming_inventory_detail_id, incoming_inventory_id, company_id, inventory_id, batch_no, sku_id, source_zone_id, unit_price, expiration_date, planned_quantity, quantity_received, amount, inventory_on_hand, return_date, status, remarks, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
 
@@ -71,7 +71,7 @@ class IncomingInventoryDetail extends CActiveRecord {
     }
 
     public function beforeValidate() {
-        
+
         if ($this->return_date == "") {
             $this->return_date = null;
         }
@@ -81,7 +81,7 @@ class IncomingInventoryDetail extends CActiveRecord {
         if ($this->unit_price == "") {
             $this->unit_price = 0;
         }
-        
+
         return parent::beforeValidate();
     }
 
@@ -117,6 +117,7 @@ class IncomingInventoryDetail extends CActiveRecord {
             'amount' => 'Amount',
             'inventory_on_hand' => 'Inventory On Hand',
             'return_date' => 'Return Date',
+            'status' => 'Status',
             'remarks' => 'Remarks',
             'created_date' => 'Created Date',
             'created_by' => 'Created By',
@@ -156,6 +157,7 @@ class IncomingInventoryDetail extends CActiveRecord {
         $criteria->compare('amount', $this->amount, true);
         $criteria->compare('inventory_on_hand', $this->inventory_on_hand);
         $criteria->compare('return_date', $this->return_date, true);
+        $criteria->compare('status', $this->status, true);
         $criteria->compare('remarks', $this->remarks, true);
         $criteria->compare('created_date', $this->created_date, true);
         $criteria->compare('created_by', $this->created_by, true);
@@ -229,7 +231,7 @@ class IncomingInventoryDetail extends CActiveRecord {
         return parent::model($className);
     }
 
-    public function createIncomingTransactionDetails($incoming_inventory_id, $company_id, $inventory_id, $batch_no, $sku_id, $unit_price, $expiration_date, $planned_quantity, $quantity_received, $amount, $inventory_on_hand, $return_date, $remarks, $created_by = null) {
+    public function createIncomingTransactionDetails($incoming_inventory_id, $company_id, $inventory_id, $batch_no, $sku_id, $source_zone_id, $unit_price, $expiration_date, $planned_quantity, $quantity_received, $amount, $inventory_on_hand, $return_date, $remarks, $created_by = null, $status, $outgoing_inventory_detail_id) {
 
         $incoming_transaction_detail = new IncomingInventoryDetail;
         $incoming_transaction_detail->incoming_inventory_id = $incoming_inventory_id;
@@ -237,18 +239,20 @@ class IncomingInventoryDetail extends CActiveRecord {
         $incoming_transaction_detail->inventory_id = $inventory_id;
         $incoming_transaction_detail->batch_no = $batch_no;
         $incoming_transaction_detail->sku_id = $sku_id;
+        $incoming_transaction_detail->source_zone_id = $source_zone_id;
         $incoming_transaction_detail->unit_price = isset($unit_price) ? $unit_price : "";
         $incoming_transaction_detail->expiration_date = $expiration_date != "" ? $expiration_date : null;
         $incoming_transaction_detail->planned_quantity = $planned_quantity;
-        $incoming_transaction_detail->quantity_received = $quantity_received;
+        $incoming_transaction_detail->quantity_received = $quantity_received != "" ? $quantity_received : 0;
         $incoming_transaction_detail->amount = $amount;
         $incoming_transaction_detail->inventory_on_hand = $inventory_on_hand;
         $incoming_transaction_detail->return_date = $return_date != "" ? $return_date : null;
+        $incoming_transaction_detail->status = $status;
         $incoming_transaction_detail->remarks = $remarks;
         $incoming_transaction_detail->created_by = $created_by;
 
         if ($incoming_transaction_detail->save(false)) {
-            
+            OutgoingInventoryDetail::model()->updateAll(array('status' => $incoming_transaction_detail->status, 'remarks' => $incoming_transaction_detail->remarks), 'outgoing_inventory_detail_id = ' . $outgoing_inventory_detail_id . ' AND company_id = "' . $incoming_transaction_detail->company_id . '"');
         } else {
             return $incoming_transaction_detail->getErrors();
         }

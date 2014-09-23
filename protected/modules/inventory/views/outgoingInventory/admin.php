@@ -4,19 +4,6 @@ $this->breadcrumbs = array(
     'Manage',
 );
 
-
-Yii::app()->clientScript->registerScript('search', "
-$('.search-button').click(function(){
-$('.search-form').toggle();
-return false;
-});
-$('.search-form form').submit(function(){
-$.fn.yiiGridView.update('outgoing-inventory-grid', {
-data: $(this).serialize()
-});
-return false;
-});
-");
 ?>
 
 <style type="text/css">
@@ -128,7 +115,7 @@ return false;
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
-            "order": [[9, "desc"]],
+            "order": [[9, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/data'); ?>",
             "columns": [
                 {"name": "rra_no", "data": "rra_no"},
@@ -244,7 +231,7 @@ return false;
                         v.planned_quantity,
                         v.quantity_issued,
                         v.amount,
-                        v.return_date,
+                        v.status,
                         v.remarks
                     ]);
                 });

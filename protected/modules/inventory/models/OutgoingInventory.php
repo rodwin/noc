@@ -36,6 +36,7 @@ class OutgoingInventory extends CActiveRecord {
     const OUTGOING_PENDING_STATUS = 'PENDING';
     const OUTGOING_INCOMPLETE_STATUS = 'INCOMPLETE';
     const OUTGOING_COMPLETE_STATUS = 'COMPLETE';
+    const OUTGOING_OVER_DELIVERY_STATUS = 'OVER DELIVERY';
 
     /**
      * @return string the associated database table name
@@ -55,12 +56,13 @@ class OutgoingInventory extends CActiveRecord {
             array('company_id, campaign_no, rra_no, pr_no, dr_no, rra_name, destination_zone_id, contact_person, contact_no, status, created_by, updated_by', 'length', 'max' => 50),
             array('address', 'length', 'max' => 200),
             array('total_amount', 'length', 'max' => 18),
+            array('remarks', 'length', 'max' => 150),
             array('destination_zone_id', 'isValidZone'),
             array('pr_date, transaction_date, plan_delivery_date, revised_delivery_date, actual_delivery_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('pr_date, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('outgoing_inventory_id, company_id, rra_no, rra_name, dr_no, destination_zone_id, contact_person, contact_no, address, campaign_no, pr_no, pr_date, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date, status, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('outgoing_inventory_id, company_id, rra_no, rra_name, dr_no, destination_zone_id, contact_person, contact_no, address, campaign_no, pr_no, pr_date, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date, status, remarks, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
 
@@ -124,6 +126,7 @@ class OutgoingInventory extends CActiveRecord {
             'plan_arrival_date' => 'Plan Arrival Date',
             'transaction_date' => 'Transaction Date',
             'status' => 'Status',
+            'remarks' => 'Remarks',
             'total_amount' => 'Total Amount',
             'created_date' => 'Created Date',
             'created_by' => 'Created By',
@@ -167,6 +170,7 @@ class OutgoingInventory extends CActiveRecord {
         $criteria->compare('plan_arrival_date', $this->plan_arrival_date, true);
         $criteria->compare('transaction_date', $this->transaction_date, true);
         $criteria->compare('status', $this->status, true);
+        $criteria->compare('remarks', $this->remarks, true);
         $criteria->compare('total_amount', $this->total_amount, true);
         $criteria->compare('created_date', $this->created_date, true);
         $criteria->compare('created_by', $this->created_by, true);

@@ -63,14 +63,17 @@ class OutgoingInventoryController extends Controller {
 
             $status = "";
             switch ($value->status) {
-                case BatchUpload::STATUS_PENDING:
+                case OutgoingInventory::OUTGOING_PENDING_STATUS:
                     $status = '<span class="label label-warning">' . OutgoingInventory::OUTGOING_PENDING_STATUS . '</span>';
                     break;
-                case BatchUpload::STATUS_DONE:
+                case OutgoingInventory::OUTGOING_COMPLETE_STATUS:
                     $status = '<span class="label label-success">' . OutgoingInventory::OUTGOING_COMPLETE_STATUS . '</span>';
                     break;
-                case BatchUpload::STATUS_WARNING:
-                    $status = '<span class="label label-primary">' . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . '</span>';
+                case OutgoingInventory::OUTGOING_INCOMPLETE_STATUS:
+                    $status = '<span class="label label-danger">' . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS:
+                    $status = '<span class="label label-primary">' . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . '</span>';
                     break;
                 default:
                     break;
@@ -343,6 +346,25 @@ class OutgoingInventoryController extends Controller {
         $output = array();
         foreach ($outgoing_inv_details as $key => $value) {
             $row = array();
+
+            $status = "";
+            switch ($value->status) {
+                case OutgoingInventory::OUTGOING_PENDING_STATUS:
+                    $status = '<span class="label label-warning">' . OutgoingInventory::OUTGOING_PENDING_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_COMPLETE_STATUS:
+                    $status = '<span class="label label-success">' . OutgoingInventory::OUTGOING_COMPLETE_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_INCOMPLETE_STATUS:
+                    $status = '<span class="label label-danger">' . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS:
+                    $status = '<span class="label label-primary">' . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . '</span>';
+                    break;
+                default:
+                    break;
+            }
+            
             $row['outgoing_inventory_detail_id'] = $value->outgoing_inventory_detail_id;
             $row['outgoing_inventory_id'] = $value->outgoing_inventory_id;
             $row['batch_no'] = $value->batch_no;
@@ -358,6 +380,7 @@ class OutgoingInventoryController extends Controller {
             $row['amount'] = $value->amount;
             $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['return_date'] = $value->return_date;
+            $row['status'] = $status;
             $row['remarks'] = $value->remarks;
 
             $output['data'][] = $row;

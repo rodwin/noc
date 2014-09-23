@@ -411,7 +411,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             <div class="col-xs-12">
                 <button class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
                 <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload PR/DR</button>
-                <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="fa fa-fw fa-check"></i> Save</button>  
+                <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;">Save</button>  
             </div>
         </div>
 
@@ -540,18 +540,28 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         var data = $("#receiving-inventory-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable()});
 
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo Yii::app()->createUrl('/inventory/ReceivingInventory/create'); ?>',
-            data: data,
-            dataType: "json",
-            success: function(data) {
-                validateForm(data);
-            },
-            error: function(data) {
-                alert("Error occured: Please try again.");
-            }
-        });
+        if ($("#btn_save, #btn_add_item").is("[disabled=disabled]")) {
+            return false;
+        } else {
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo Yii::app()->createUrl('/inventory/ReceivingInventory/create'); ?>',
+                data: data,
+                dataType: "json",
+                beforeSend: function(data) {
+                    $("#btn_save, #btn_add_item").attr("disabled", "disabled");
+                    $('#btn_save').text('Submitting Form...');
+                },
+                success: function(data) {
+                    validateForm(data);
+                },
+                error: function(data) {
+                    alert("Error occured: Please try again.");
+                    $("#btn_save, #btn_add_item").attr('disabled', false);
+                    $('#btn_save').text('Save');
+                }
+            });
+        }
     }
 
     var file_upload_count = 0;
@@ -623,6 +633,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 growlAlert(data.type, data.message);
             }
 
+            $("#btn_save, #btn_add_item").attr('disabled', false);
+            $('#btn_save').text('Save');
+
             var error_count = 0;
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
@@ -630,6 +643,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 error_count++;
             });
         }
+
+        $("#btn_save, #btn_add_item").attr('disabled', false);
+        $('#btn_save').text('Save');
     }
 
     function growlAlert(type, message) {
@@ -705,16 +721,18 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     $('#btn_save').click(function() {
+        if (!confirm('Are you sure you want to submit?'))
+            return false;
         send(headers);
     });
 
     $('#btn_add_item').click(function() {
         send(details);
     });
-   
-   $('#btn-upload').click(function() {
-      $('#file_uploads').click();
-   });
+
+    $('#btn-upload').click(function() {
+        $('#file_uploads').click();
+    });
 
     function loadSkuDetails(sku_id) {
 

@@ -5,6 +5,14 @@ $this->breadcrumbs = array(
 );
 ?>
 
+<style type="text/css">
+
+    #incoming-inventory_table tbody tr { cursor: pointer }
+
+    .hide_row { display: none; }
+
+</style>  
+
 <?php // echo CHtml::link('Advanced Search','#',array('class'=>'search-button btn btn-primary btn-flat')); ?>
 <?php echo CHtml::link('Create', array('IncomingInventory/create'), array('class' => 'btn btn-primary btn-flat')); ?>
 
@@ -28,16 +36,66 @@ $this->breadcrumbs = array(
     <table id="incoming-inventory_table" class="table table-bordered">
         <thead>
             <tr>
-                <!--<th><?php echo $fields['incoming_inventory_id']; ?></th>-->
                 <th><?php echo $fields['campaign_no']; ?></th>
                 <th><?php echo $fields['pr_no']; ?></th>
                 <th><?php echo $fields['pr_date']; ?></th>
                 <th><?php echo $fields['dr_no']; ?></th>
                 <th><?php echo $fields['zone_id']; ?></th>
-                <th><?php echo $fields['transaction_date']; ?></th>
+                <th><?php echo $fields['status']; ?></th>
+                <th><?php echo $fields['total_amount']; ?></th>
+                <th><?php echo $fields['created_date']; ?></th>
                 <!--<th>Actions</th>-->                
             </tr>
-        </thead>        
+        </thead>     
+        <thead>
+            <tr id="filter_row">
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+            </tr>
+        </thead>   
+    </table>
+</div><br/><br/><br/>
+
+<h4 class="control-label text-primary"><b>Item Details Table</b></h4>
+<?php $skuFields = Sku::model()->attributeLabels(); ?>
+<?php $incomingInvFields = IncomingInventoryDetail::model()->attributeLabels(); ?>
+<div class="box-body table-responsive">
+    <table id="incoming-inventory-details_table" class="table table-bordered">
+        <thead>
+            <tr>
+                <th><?php echo $incomingInvFields['batch_no']; ?></th>
+                <th><?php echo $skuFields['sku_code']; ?></th>
+                <th><?php echo $skuFields['sku_name']; ?></th>
+                <th><?php echo $skuFields['brand_id']; ?></th>
+                <th><?php echo $incomingInvFields['source_zone_id']; ?></th>
+                <th><?php echo $incomingInvFields['unit_price']; ?></th>
+                <th><?php echo $incomingInvFields['planned_quantity']; ?></th>
+                <th><?php echo $incomingInvFields['quantity_received']; ?></th>
+                <th><?php echo $incomingInvFields['amount']; ?></th>
+                <th><?php echo $incomingInvFields['status']; ?></th>
+                <th><?php echo $incomingInvFields['remarks']; ?></th>
+            </tr>
+        </thead>
+        <thead>
+            <tr id="filter_row">
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+            </tr>
+        </thead>
     </table>
 </div>
 
@@ -46,12 +104,13 @@ $this->breadcrumbs = array(
     var incoming_inventory_table;
     var incoming_inventory_table_detail;
     $(function() {
-        var table = $('#incoming-inventory_table').dataTable({
+        incoming_inventory_table = $('#incoming-inventory_table').dataTable({
             "filter": true,
             "dom": 'l<"text-center"r>t<"pull-left"i><"pull-right"p>',
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
+            "order": [[7, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/IncomingInventory/data'); ?>",
             "columns": [
                 {"name": "campaign_no", "data": "campaign_no"},
@@ -59,21 +118,27 @@ $this->breadcrumbs = array(
                 {"name": "pr_date", "data": "pr_date"},
                 {"name": "dr_no", "data": "dr_no"},
                 {"name": "zone_name", "data": "zone_name"},
-                {"name": "transaction_date", "data": "transaction_date"},
+                {"name": "status", "data": "status"},
+                {"name": "total_amount", "data": "total_amount"},
+                {"name": "created_date", "data": "created_date"}
 //                {"name": "links", "data": "links", 'sortable': false}
-            ]
+            ],
+            "columnDefs": [{
+                    "targets": [7],
+                    "visible": false
+                }]
         });
-        
+
         $('#incoming-inventory_table tbody').on('click', 'tr', function() {
             if ($(this).hasClass('success')) {
                 $(this).removeClass('success');
                 loadIncomingInvDetails(null);
             }
             else {
-                outgoing_inventory_table.$('tr.success').removeClass('success');
+                incoming_inventory_table.$('tr.success').removeClass('success');
                 $(this).addClass('success');
-                var row_data = outgoing_inventory_table.fnGetData(this);
-                loadIncomingInvDetails(row_data.outgoing_inventory_id);
+                var row_data = incoming_inventory_table.fnGetData(this);
+                loadIncomingInvDetails(row_data.incoming_inventory_id);
             }
         });
 
@@ -84,10 +149,10 @@ $this->breadcrumbs = array(
         });
 
         $("#incoming-inventory_table thead input").keyup(function() {
-            outgoing_inventory_table.fnFilter(this.value, $(this).attr("colPos"));
+            incoming_inventory_table.fnFilter(this.value, $(this).attr("colPos"));
         });
 
-        outgoing_inventory_table_detail = $('#incoming-inventory-details_table').dataTable({
+        incoming_inventory_table_detail = $('#incoming-inventory-details_table').dataTable({
             "filter": true,
             "dom": '<"text-center"r>t',
             "bSort": false,
@@ -103,7 +168,7 @@ $this->breadcrumbs = array(
         });
 
         $("#incoming-inventory-details_table thead input").keyup(function() {
-            outgoing_inventory_table_detail.fnFilter(this.value, $(this).attr("colPos"));
+            incoming_inventory_table_detail.fnFilter(this.value, $(this).attr("colPos"));
         });
 
         $('#btnSearch').click(function() {
@@ -133,4 +198,40 @@ $this->breadcrumbs = array(
             return false;
         });
     });
+    
+    function loadIncomingInvDetails(incoming_inv_id) {
+
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/incomingInvDetailData'); ?>' + '&incoming_inv_id=' + incoming_inv_id,
+            dataType: "json",
+            success: function(data) {
+
+                var oSettings = incoming_inventory_table_detail.fnSettings();
+                var iTotalRecords = oSettings.fnRecordsTotal();
+                for (var i = 0; i <= iTotalRecords; i++) {
+                    incoming_inventory_table_detail.fnDeleteRow(0, null, true);
+                }
+
+                $.each(data.data, function(i, v) {
+                    incoming_inventory_table_detail.fnAddData([
+                        v.batch_no,
+                        v.sku_code,
+                        v.sku_name,
+                        v.brand_name,
+                        v.source_zone_name,
+                        v.unit_price,
+                        v.planned_quantity,
+                        v.quantity_received,
+                        v.amount,
+                        v.status,
+                        v.remarks
+                    ]);
+                });
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+    }
 </script>
