@@ -1,4 +1,3 @@
-
 <?php
 $this->breadcrumbs = array(
     'Incoming Inventories' => array('admin'),
@@ -453,7 +452,37 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         </div>
 
     </div>
-    <?php $this->endWidget(); ?>    
+    <?php $this->endWidget(); ?>   
+
+    <div id="upload">
+        <?php
+        $this->widget('booster.widgets.TbFileUpload', array(
+            'url' => $this->createUrl('IncomingInventory/uploadAttachment'),
+            'model' => $model,
+            'attribute' => 'file',
+            'multiple' => true,
+            'options' => array(
+                'maxFileSize' => 2000000,
+                'acceptFileTypes' => 'js:/(\.|\/)(gif|jpe?g|png|pdf|doc|docx)$/i',
+            ),
+            'formView' => 'application.modules.inventory.views.incomingInventory._form',
+            'uploadView' => 'application.modules.inventory.views.incomingInventory._upload',
+            'downloadView' => 'application.modules.inventory.views.incomingInventory._download',
+            'callbacks' => array(
+                'done' => new CJavaScriptExpression(
+                        'function(e, data) { 
+                         file_upload_count--;
+                         console.log(file_upload_count);
+                         
+                         if(file_upload_count == 0) {$("#tbl tr").remove();}
+                     }'
+                ),
+                'fail' => new CJavaScriptExpression(
+                        'function(e, data) { console.log("fail"); }'
+                ),
+        )));
+        ?>
+    </div>
 </div>
 
 
@@ -534,6 +563,12 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         });
     });
 
+    var files = new Array();
+    var ctr;
+    function removebyID($id) {
+        files.splice($id - 1, 1);
+    }
+
     function send(form) {
 
         var data = $("#incoming-inventory-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable()});
@@ -562,6 +597,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
     }
 
+    var file_upload_count = 0;
     function validateForm(data) {
 
         var e = $(".error");
@@ -573,6 +609,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             if (data.form == headers) {
 
+                if (files != "") {
+                    file_upload_count = files.length;
+
+                    $('#uploading').click();
+                }
                 document.forms["incoming-inventory-form"].reset();
 
                 var oSettings = transaction_table.fnSettings();

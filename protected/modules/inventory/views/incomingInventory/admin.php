@@ -97,6 +97,19 @@ $this->breadcrumbs = array(
             </tr>
         </thead>
     </table>
+</div><br/><br/><br/><br/>
+
+<h3>Documents</h3>
+<?php $attachment = Attachment::model()->attributeLabels(); ?>
+<div class="box-body table-responsive">
+    <table id="receiving-inventory-attachment_table" class="table table-bordered">
+        <thead>
+            <tr>
+                <th width="90%"><?php echo 'Attachments' ?></th>
+                <th><?php echo 'Actions' ?></th>
+            </tr>
+        </thead>
+    </table>
 </div>
 
 <script type="text/javascript">
@@ -198,7 +211,7 @@ $this->breadcrumbs = array(
             return false;
         });
     });
-    
+
     function loadIncomingInvDetails(incoming_inv_id) {
 
         $.ajax({
@@ -226,6 +239,33 @@ $this->breadcrumbs = array(
                         v.amount,
                         v.status,
                         v.remarks
+                    ]);
+                });
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+    }
+
+    function loadAttachmentPreview(receiving_inv_id) {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/preview'); ?>' + '&id=' + receiving_inv_id,
+            dataType: "json",
+            success: function(data) {
+                var oSettings = incoming_inventory_attachment_table.fnSettings();
+                var iTotalRecords = oSettings.fnRecordsTotal();
+                var rows = 0;
+                for (var i = 0; i <= iTotalRecords; i++) {
+                    incoming_inventory_attachment_table.fnDeleteRow(0, null, true);
+                }
+
+                $.each(data.data, function(i, v) {
+                    rows++;
+                    incoming_inventory_attachment_table.fnAddData([
+                        v.file_name,
+                        v.links,
                     ]);
                 });
             },

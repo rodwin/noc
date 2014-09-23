@@ -3,7 +3,6 @@ $this->breadcrumbs = array(
     'Outgoing Inventories' => array('admin'),
     'Manage',
 );
-
 ?>
 
 <style type="text/css">
@@ -14,7 +13,7 @@ $this->breadcrumbs = array(
 
 </style>  
 
-<?php // echo CHtml::link('Advanced Search','#',array('class'=>'search-button btn btn-primary btn-flat')); ?>
+<?php // echo CHtml::link('Advanced Search','#',array('class'=>'search-button btn btn-primary btn-flat'));  ?>
 <?php echo CHtml::link('Create', array('OutgoingInventory/create'), array('class' => 'btn btn-primary btn-flat')); ?>
 
 <div class="btn-group">
@@ -66,42 +65,64 @@ $this->breadcrumbs = array(
     </table>
 </div><br/><br/><br/>
 
-<h4 class="control-label text-primary"><b>Item Details Table</b></h4>
-<?php $skuFields = Sku::model()->attributeLabels(); ?>
-<?php $outgoingInvFields = OutgoingInventoryDetail::model()->attributeLabels(); ?>
-<div class="box-body table-responsive">
-    <table id="outgoing-inventory-details_table" class="table table-bordered">
-        <thead>
-            <tr>
-                <th><?php echo $outgoingInvFields['batch_no']; ?></th>
-                <th><?php echo $skuFields['sku_code']; ?></th>
-                <th><?php echo $skuFields['sku_name']; ?></th>
-                <th><?php echo $skuFields['brand_id']; ?></th>
-                <th><?php echo $outgoingInvFields['source_zone_id']; ?></th>
-                <th><?php echo $outgoingInvFields['unit_price']; ?></th>
-                <th><?php echo $outgoingInvFields['planned_quantity']; ?></th>
-                <th><?php echo $outgoingInvFields['quantity_issued']; ?></th>
-                <th><?php echo $outgoingInvFields['amount']; ?></th>
-                <th><?php echo $outgoingInvFields['return_date']; ?></th>
-                <th><?php echo $outgoingInvFields['remarks']; ?></th>
-            </tr>
-        </thead>
-        <thead>
-            <tr id="filter_row">
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-            </tr>
-        </thead>
-    </table>
+<div class="nav-tabs-custom" id ="custTabs">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#tab_1" data-toggle="tab">Item Details Table</a></li>
+        <li><a href="#tab_2" data-toggle="tab">Documents</a></li>
+    </ul>
+    <div class="tab-content" id ="info">
+        <div class="tab-pane active" id="tab_1">
+            <?php $skuFields = Sku::model()->attributeLabels(); ?>
+            <?php $outgoingInvFields = OutgoingInventoryDetail::model()->attributeLabels(); ?>
+            <div class="box-body table-responsive">
+                <table id="outgoing-inventory-details_table" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th><?php echo $outgoingInvFields['batch_no']; ?></th>
+                            <th><?php echo $skuFields['sku_code']; ?></th>
+                            <th><?php echo $skuFields['sku_name']; ?></th>
+                            <th><?php echo $skuFields['brand_id']; ?></th>
+                            <th><?php echo $outgoingInvFields['source_zone_id']; ?></th>
+                            <th><?php echo $outgoingInvFields['unit_price']; ?></th>
+                            <th><?php echo $outgoingInvFields['planned_quantity']; ?></th>
+                            <th><?php echo $outgoingInvFields['quantity_issued']; ?></th>
+                            <th><?php echo $outgoingInvFields['amount']; ?></th>
+                            <th><?php echo $outgoingInvFields['return_date']; ?></th>
+                            <th><?php echo $outgoingInvFields['remarks']; ?></th>
+                        </tr>
+                    </thead>
+                    <thead>
+                        <tr id="filter_row">
+                            <td class="filter"></td>
+                            <td class="filter"></td>
+                            <td class="filter"></td>
+                            <td class="filter"></td>
+                            <td class="filter"></td>
+                            <td class="filter"></td>
+                            <td class="filter"></td>
+                            <td class="filter"></td>
+                            <td class="filter"></td>
+                            <td class="filter"></td>
+                            <td class="filter"></td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane" id="tab_2">
+            <?php $attachment = Attachment::model()->attributeLabels(); ?>
+            <div class="box-body table-responsive">
+                <table id="outgoing-inventory-attachment_table" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th width="90%"><?php echo 'Attachments' ?></th>
+                            <th><?php echo 'Actions' ?></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript">
@@ -233,6 +254,33 @@ $this->breadcrumbs = array(
                         v.amount,
                         v.status,
                         v.remarks
+                    ]);
+                });
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+    }
+
+    function loadAttachmentPreview(outgoing_inv_id) {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl('/inventory/OutgoingInventory/preview'); ?>' + '&id=' + outgoing_inv_id,
+            dataType: "json",
+            success: function(data) {
+                var oSettings = outgoing_inventory_attachment_table.fnSettings();
+                var iTotalRecords = oSettings.fnRecordsTotal();
+                var rows = 0;
+                for (var i = 0; i <= iTotalRecords; i++) {
+                    outgoing_inventory_attachment_table.fnDeleteRow(0, null, true);
+                }
+
+                $.each(data.data, function(i, v) {
+                    rows++;
+                    outgoing_inventory_attachment_table.fnAddData([
+                        v.file_name,
+                        v.links,
                     ]);
                 });
             },
