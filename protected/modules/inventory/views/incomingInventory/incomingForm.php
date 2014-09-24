@@ -858,10 +858,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             var pos = transaction_table.fnGetPosition(this);
                             var rowData = transaction_table.fnGetData(pos);
 
-                            if (value >= rowData[10]) {
-                                transaction_table.fnUpdate("COMPLETE", pos[0], pos[2] + 4);
+                            if (parseInt(value) >= parseInt(rowData[10])) {
+                                transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_COMPLETE_STATUS . "'"; ?>, pos[0], pos[2] + 4);
                             } else {
-                                transaction_table.fnUpdate("INCOMPLETE", pos[0], pos[2] + 4);
+                                transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "'"; ?>, pos[0], pos[2] + 4);
                             }
 
                             transaction_table.fnUpdate(value, pos[0], pos[2]);
