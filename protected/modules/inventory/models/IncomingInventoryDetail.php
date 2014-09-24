@@ -252,7 +252,7 @@ class IncomingInventoryDetail extends CActiveRecord {
         $incoming_transaction_detail->created_by = $created_by;
 
         if ($incoming_transaction_detail->save(false)) {
-            OutgoingInventoryDetail::model()->updateAll(array('status' => $incoming_transaction_detail->status, 'remarks' => $incoming_transaction_detail->remarks), 'outgoing_inventory_detail_id = ' . $outgoing_inventory_detail_id . ' AND company_id = "' . $incoming_transaction_detail->company_id . '"');
+            OutgoingInventoryDetail::model()->updateAll(array('status' => $incoming_transaction_detail->status, 'remarks' => $incoming_transaction_detail->remarks, 'updated_by' => $created_by, 'updated_date' => date('Y-m-d H:i:s')), 'outgoing_inventory_detail_id = ' . $outgoing_inventory_detail_id . ' AND company_id = "' . $incoming_transaction_detail->company_id . '"');
         } else {
             return $incoming_transaction_detail->getErrors();
         }

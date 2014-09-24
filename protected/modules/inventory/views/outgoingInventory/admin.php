@@ -87,7 +87,7 @@ $this->breadcrumbs = array(
                             <th><?php echo $outgoingInvFields['planned_quantity']; ?></th>
                             <th><?php echo $outgoingInvFields['quantity_issued']; ?></th>
                             <th><?php echo $outgoingInvFields['amount']; ?></th>
-                            <th><?php echo $outgoingInvFields['return_date']; ?></th>
+                            <th><?php echo $outgoingInvFields['status']; ?></th>
                             <th><?php echo $outgoingInvFields['remarks']; ?></th>
                         </tr>
                     </thead>

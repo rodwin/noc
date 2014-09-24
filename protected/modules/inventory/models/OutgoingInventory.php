@@ -57,12 +57,13 @@ class OutgoingInventory extends CActiveRecord {
             array('address', 'length', 'max' => 200),
             array('total_amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
+            array('closed', 'length', 'max' => 1),
             array('destination_zone_id', 'isValidZone'),
             array('pr_date, transaction_date, plan_delivery_date, revised_delivery_date, actual_delivery_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('pr_date, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('outgoing_inventory_id, company_id, rra_no, rra_name, dr_no, destination_zone_id, contact_person, contact_no, address, campaign_no, pr_no, pr_date, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date, status, remarks, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('outgoing_inventory_id, company_id, rra_no, rra_name, dr_no, destination_zone_id, contact_person, contact_no, address, campaign_no, pr_no, pr_date, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date, status, remarks, total_amount, closed, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
 
@@ -128,6 +129,7 @@ class OutgoingInventory extends CActiveRecord {
             'status' => 'Status',
             'remarks' => 'Remarks',
             'total_amount' => 'Total Amount',
+            'closed' => 'Closed',
             'created_date' => 'Created Date',
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
@@ -172,6 +174,7 @@ class OutgoingInventory extends CActiveRecord {
         $criteria->compare('status', $this->status, true);
         $criteria->compare('remarks', $this->remarks, true);
         $criteria->compare('total_amount', $this->total_amount, true);
+        $criteria->compare('closed', $this->closed, true);
         $criteria->compare('created_date', $this->created_date, true);
         $criteria->compare('created_by', $this->created_by, true);
         $criteria->compare('updated_date', $this->updated_date, true);
