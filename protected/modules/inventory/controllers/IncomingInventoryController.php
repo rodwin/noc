@@ -144,7 +144,7 @@ class IncomingInventoryController extends Controller {
 
         $c = new CDbCriteria;
         $c->compare("company_id", Yii::app()->user->company_id);
-        $c->condition = "status IN ('" . OutgoingInventory::OUTGOING_PENDING_STATUS . "','" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "')";
+        $c->condition = "status IN ('" . OutgoingInventory::OUTGOING_PENDING_STATUS . "','" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "') AND closed = 0";
         $c->order = "dr_no ASC";
         $outgoing_inv_dr_nos = CHtml::listData(OutgoingInventory::model()->findAll($c), "dr_no", "dr_no");
 
