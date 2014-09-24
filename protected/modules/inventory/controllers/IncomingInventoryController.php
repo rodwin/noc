@@ -82,6 +82,7 @@ class IncomingInventoryController extends Controller {
             $row['campaign_no'] = $value->campaign_no;
             $row['pr_no'] = $value->pr_no;
             $row['pr_date'] = $value->pr_date;
+            $row['name'] = $value->name;
             $row['dr_no'] = $value->dr_no;
             $row['zone_id'] = $value->zone_id;
             $row['zone_name'] = $value->zone->zone_name;
