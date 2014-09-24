@@ -36,6 +36,7 @@ $this->breadcrumbs = array(
     <table id="incoming-inventory_table" class="table table-bordered">
         <thead>
             <tr>
+                <th><?php echo $fields['name']; ?></th>
                 <th><?php echo $fields['campaign_no']; ?></th>
                 <th><?php echo $fields['pr_no']; ?></th>
                 <th><?php echo $fields['pr_date']; ?></th>
@@ -49,6 +50,7 @@ $this->breadcrumbs = array(
         </thead>     
         <thead>
             <tr id="filter_row">
+                <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
@@ -123,9 +125,10 @@ $this->breadcrumbs = array(
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
-            "order": [[7, "asc"]],
+            "order": [[8, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/IncomingInventory/data'); ?>",
             "columns": [
+                {"name": "name", "data": "name"},
                 {"name": "campaign_no", "data": "campaign_no"},
                 {"name": "pr_no", "data": "pr_no"},
                 {"name": "pr_date", "data": "pr_date"},
@@ -137,7 +140,7 @@ $this->breadcrumbs = array(
 //                {"name": "links", "data": "links", 'sortable': false}
             ],
             "columnDefs": [{
-                    "targets": [7],
+                    "targets": [8],
                     "visible": false
                 }]
         });

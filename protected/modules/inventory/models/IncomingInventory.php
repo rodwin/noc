@@ -154,34 +154,38 @@ class IncomingInventory extends CActiveRecord {
         switch ($col) {
 
             case 0:
-                $sort_column = 't.campaign_no';
+                $sort_column = 't.name';
                 break;
 
             case 1:
-                $sort_column = 't.pr_no';
+                $sort_column = 't.campaign_no';
                 break;
 
             case 2:
-                $sort_column = 't.pr_date';
+                $sort_column = 't.pr_no';
                 break;
 
             case 3:
-                $sort_column = 't.dr_no';
+                $sort_column = 't.pr_date';
                 break;
 
             case 4:
-                $sort_column = 'zone.zone_name';
+                $sort_column = 't.dr_no';
                 break;
 
             case 5:
-                $sort_column = 't.status';
+                $sort_column = 'zone.zone_name';
                 break;
 
             case 6:
-                $sort_column = 't.total_amount';
+                $sort_column = 't.status';
                 break;
 
             case 7:
+                $sort_column = 't.total_amount';
+                break;
+
+            case 8:
                 $sort_column = 't.created_date';
                 break;
         }
@@ -189,14 +193,15 @@ class IncomingInventory extends CActiveRecord {
 
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
-        $criteria->compare('t.campaign_no', $columns[0]['search']['value'], true);
-        $criteria->compare('t.pr_no', $columns[1]['search']['value'], true);
-        $criteria->compare('t.pr_date', $columns[2]['search']['value'], true);
-        $criteria->compare('t.dr_no', $columns[3]['search']['value'], true);
-        $criteria->compare('zone.zone_name', $columns[4]['search']['value'], true);
-        $criteria->compare('t.status', $columns[5]['search']['value'], true);
-        $criteria->compare('t.total_amount', $columns[6]['search']['value'], true);
-        $criteria->compare('t.created_date', $columns[7]['search']['value'], true);
+        $criteria->compare('t.name', $columns[0]['search']['value'], true);
+        $criteria->compare('t.campaign_no', $columns[1]['search']['value'], true);
+        $criteria->compare('t.pr_no', $columns[2]['search']['value'], true);
+        $criteria->compare('t.pr_date', $columns[3]['search']['value'], true);
+        $criteria->compare('t.dr_no', $columns[4]['search']['value'], true);
+        $criteria->compare('zone.zone_name', $columns[5]['search']['value'], true);
+        $criteria->compare('t.status', $columns[6]['search']['value'], true);
+        $criteria->compare('t.total_amount', $columns[7]['search']['value'], true);
+        $criteria->compare('t.created_date', $columns[8]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
@@ -265,14 +270,14 @@ class IncomingInventory extends CActiveRecord {
 
             if (count($transaction_details) > 0) {
                 if ($incoming_inventory->save(false)) {
-                    
+
                     OutgoingInventory::model()->updateAll(array('status' => $incoming_inventory->status), 'outgoing_inventory_id = ' . $this->outgoing_inventory_id . ' AND company_id = "' . $incoming_inventory->company_id . '"');
 
                     Yii::app()->session['tid'] = $incoming_inventory->incoming_inventory_id;
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         IncomingInventoryDetail::model()->createIncomingTransactionDetails($incoming_inventory->incoming_inventory_id, $incoming_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_received'], $transaction_details[$i]['amount'], $transaction_details[$i]['inventory_on_hand'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $incoming_inventory->created_by, $transaction_details[$i]['status'], $transaction_details[$i]['outgoing_inventory_detail_id']);
                     }
-                    
+
                     return true;
                 } else {
                     return false;
