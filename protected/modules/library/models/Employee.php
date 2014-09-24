@@ -33,6 +33,101 @@
  */
 class Employee extends CActiveRecord {
 
+   /**
+    * @var string employee_id
+    * @soap
+    */
+   public $employee_id;
+
+   /**
+    * @var string employee_code
+    * @soap
+    */
+   public $employee_code;
+
+   /**
+    * @var EmployeeStatus employee_status_obj
+    * @soap
+    */
+   public $employee_status_obj;
+
+   /**
+    * @var EmployeeType employee_type_obj
+    * @soap
+    */
+   public $employee_type_obj;
+
+   /**
+    * @var string first_name
+    * @soap
+    */
+   public $first_name;
+
+   /**
+    * @var string last_name
+    * @soap
+    */
+   public $last_name;
+
+   /**
+    * @var string middle_name
+    * @soap
+    */
+   public $middle_name;
+
+   /**
+    * @var string address1
+    * @soap
+    */
+   public $address1;
+
+   /**
+    * @var string address2
+    * @soap
+    */
+   public $address2;
+
+   /**
+    * @var string barangay_id
+    * @soap
+    */
+   public $barangay_id;
+
+   /**
+    * @var string home_phone_number
+    * @soap
+    */
+   public $home_phone_number;
+
+   /**
+    * @var string work_phone_number
+    * @soap
+    */
+   public $work_phone_number;
+
+   /**
+    * @var string birth_date
+    * @soap
+    */
+   public $birth_date;
+
+   /**
+    * @var string date_start
+    * @soap
+    */
+   public $date_start;
+
+   /**
+    * @var string date_termination
+    * @soap
+    */
+   public $date_termination;
+
+   /**
+    * @var string supervisor_id
+    * @soap
+    */
+   public $supervisor_id;
    public $search_string;
    public $fullname;
    public $employee_status_code;
@@ -54,11 +149,21 @@ class Employee extends CActiveRecord {
           array('company_id, employee_code, employee_status, employee_type, first_name, last_name, sales_office_id, default_zone_id', 'required'),
           array('employee_id, company_id, employee_code, employee_status, employee_type, first_name, last_name, middle_name, address1, address2, barangay_id, password, supervisor_id, created_by, updated_by, sales_office_id, default_zone_id', 'length', 'max' => 50),
           array('home_phone_number, work_phone_number', 'length', 'max' => 20),
+          array('employee_code', 'uniqueEmployeeCode'),
           array('birth_date, date_start, date_termination, created_date, updated_date', 'safe'),
           // The following rule is used by search().
           // @todo Please remove those attributes that should not be searched.
           array('employee_id, company_id, employee_code, employee_status, employee_type, first_name, last_name, middle_name, address1, address2, barangay_id, home_phone_number, work_phone_number, birth_date, date_start, date_termination, password, supervisor_id, created_date, created_by, updated_date, updated_by, sales_office_id, default_zone_id', 'safe', 'on' => 'search'),
       );
+   }
+
+   public function uniqueEmployeeCode($attribute, $params) {
+
+      $model = Employee::model()->findByAttributes(array('company_id' => $this->company_id, 'employee_code' => $this->$attribute));
+      if ($model && $model->employee_id != $this->employee_id) {
+         $this->addError($attribute, 'Employee code selected already taken.');
+      }
+      return;
    }
 
    public function beforeValidate() {
@@ -85,6 +190,7 @@ class Employee extends CActiveRecord {
           'employeeType' => array(self::BELONGS_TO, 'EmployeeType', 'employee_type'),
           'salesOffice' => array(self::BELONGS_TO, 'SalesOffice', 'sales_office_id'),
           'zone' => array(self::BELONGS_TO, 'Zone', 'default_zone_id'),
+          'employeeStatus' => array(self::BELONGS_TO, 'EmployeeStatus', 'employee_status'),
       );
    }
 
@@ -246,6 +352,17 @@ class Employee extends CActiveRecord {
     */
    public static function model($className=__CLASS__) {
       return parent::model($className);
+   }
+
+   public function retriveEmployeeByCriteria(EmployeeCriteria $employee_criteria) {
+      $cdbcriteria = new CDbCriteria();
+      $cdbcriteria->with = array('salesOffice', 'employeeType', 'employeeStatus');
+      $cdbcriteria->compare('t.company_id', $employee_criteria->company_id);
+      $cdbcriteria->compare('t.employee_code', $employee_criteria->employee_code);
+      $cdbcriteria->compare('salesOffice.sales_office_code', $employee_criteria->sales_office_code);
+      $cdbcriteria->compare('t.password', $employee_criteria->password);
+
+      return Employee::model()->find($cdbcriteria);
    }
 
 }
