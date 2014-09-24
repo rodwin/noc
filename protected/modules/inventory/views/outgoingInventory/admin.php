@@ -129,6 +129,7 @@ $this->breadcrumbs = array(
 
     var outgoing_inventory_table;
     var outgoing_inventory_table_detail;
+    var outgoing_inventory_attachment_table;
     $(function() {
         outgoing_inventory_table = $('#outgoing-inventory_table').dataTable({
             "filter": true,
@@ -161,12 +162,14 @@ $this->breadcrumbs = array(
             if ($(this).hasClass('success')) {
                 $(this).removeClass('success');
                 loadOutgoingInvDetails(null);
+                loadAttachmentPreview(null);
             }
             else {
                 outgoing_inventory_table.$('tr.success').removeClass('success');
                 $(this).addClass('success');
                 var row_data = outgoing_inventory_table.fnGetData(this);
                 loadOutgoingInvDetails(row_data.outgoing_inventory_id);
+                loadAttachmentPreview(row_data.outgoing_inventory_id);
             }
         });
 
@@ -181,6 +184,15 @@ $this->breadcrumbs = array(
         });
 
         outgoing_inventory_table_detail = $('#outgoing-inventory-details_table').dataTable({
+            "filter": true,
+            "dom": '<"text-center"r>t',
+            "bSort": false,
+            "processing": false,
+            "serverSide": false,
+            "bAutoWidth": false
+        });
+        
+        outgoing_inventory_attachment_table = $('#outgoing-inventory-attachment_table').dataTable({
             "filter": true,
             "dom": '<"text-center"r>t',
             "bSort": false,
