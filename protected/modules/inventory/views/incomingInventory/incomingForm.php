@@ -749,6 +749,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $(".inventory_uom_selected").html(data.inventory_uom_selected);
                 $("#IncomingInventoryDetail_inventory_on_hand").val(data.inventory_on_hand);
                 $("#IncomingInventoryDetail_batch_no").val(data.reference_no);
+                $("#IncomingInventoryDetail_expiration_date").val(data.expiration_date);
                 $("#IncomingInventoryDetail_amount").val(0);
             },
             error: function(data) {
