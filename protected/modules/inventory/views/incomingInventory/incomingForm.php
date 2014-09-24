@@ -100,6 +100,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     #hide_textbox input {display:none;}
+    
+    .status-label { color: #fff; font-weight: bold; font-size: 12px; text-align: center; }
 
 </style>  
 
@@ -564,11 +566,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $('td:eq(6), td:eq(9)', nRow).addClass("success");
 
                 if (aData[15] == <?php echo "'" . OutgoingInventory::OUTGOING_PENDING_STATUS . "'"; ?>) {
-                    $('td:eq(8)', nRow).removeClass().addClass("label label-warning");
+                    $('td:eq(8)', nRow).removeClass().addClass("status-label label-warning");
                 } else if (aData[15] == <?php echo "'" . OutgoingInventory::OUTGOING_COMPLETE_STATUS . "'"; ?>) {
-                    $('td:eq(8)', nRow).removeClass().addClass("label label-success");
+                    $('td:eq(8)', nRow).removeClass().addClass("status-label label-success");
                 } else if (aData[15] == <?php echo "'" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "'"; ?>) {
-                    $('td:eq(8)', nRow).removeClass().addClass("label label-danger");
+                    $('td:eq(8)', nRow).removeClass().addClass("status-label label-danger");
                 }
             }
         });
