@@ -250,7 +250,7 @@ return false;
          url: '<?php echo Yii::app()->createUrl('/inventory/ReceivingInventory/receivingInvDetailData'); ?>' + '&receiving_inv_id=' + receiving_inv_id,
          dataType: "json",
          success: function(data) {
-
+             console.log(data);
             var oSettings = receiving_inv_detail_table.fnSettings();
             var iTotalRecords = oSettings.fnRecordsTotal();
             for (var i = 0; i <= iTotalRecords; i++) {
@@ -266,7 +266,6 @@ return false;
                   v.unit_price,
                   v.quantity_received,
                   v.uom_name,
-                  v.sku_status_name,
                   v.amount
                ]);
             });

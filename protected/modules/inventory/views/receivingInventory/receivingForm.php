@@ -550,7 +550,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 dataType: "json",
                 beforeSend: function(data) {
                     $("#btn_save, #btn_add_item").attr("disabled", "disabled");
-                    $('#btn_save').text('Submitting Form...');
+                    if (form == headers) { $('#btn_save').text('Submitting Form...'); }
                 },
                 success: function(data) {
                     validateForm(data);
