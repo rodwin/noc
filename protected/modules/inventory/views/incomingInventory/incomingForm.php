@@ -767,6 +767,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         send(details);
     });
 
+    $('#btn-upload').click(function() {
+        $('#file_uploads').click();
+    });
+
     $("#IncomingInventoryDetail_quantity_issued").keyup(function(e) {
         var unit_price = 0;
         if ($("#IncomingInventoryDetail_unit_price").val() != "") {
