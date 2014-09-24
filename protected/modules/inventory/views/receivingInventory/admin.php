@@ -166,6 +166,7 @@ return false;
          if ($(this).hasClass('success')) {
             $(this).removeClass('success');
             loadReceivingInvDetails(null);
+            loadAttachmentPreview(null);
          }
          else {
             receiving_inventory_table.$('tr.success').removeClass('success');
