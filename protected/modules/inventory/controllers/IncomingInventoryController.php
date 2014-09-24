@@ -235,7 +235,7 @@ class IncomingInventoryController extends Controller {
                                 'return_date' => isset($transaction_detail->return_date) ? $transaction_detail->return_date : null,
                                 'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
                                 'outgoing_inventory_detail_id' => "",
-                                'status' => "",
+                                'status' => $transaction_detail->quantity_received >= $transaction_detail->planned_quantity ? OutgoingInventory::OUTGOING_COMPLETE_STATUS : OutgoingInventory::OUTGOING_INCOMPLETE_STATUS,
                             );
                         } else {
 
@@ -340,6 +340,7 @@ class IncomingInventoryController extends Controller {
             'source_zone_name' => isset($inventory->zone->zone_name) ? $inventory->zone->zone_name : null,
             'unit_price' => isset($inventory->cost_per_unit) ? $inventory->cost_per_unit : 0,
             'reference_no' => isset($inventory->reference_no) ? $inventory->reference_no : null,
+            'expiration_date' => isset($inventory->expiration_date) ? $inventory->expiration_date : null,
             'inventory_on_hand' => isset($inventory->inventory_on_hand) ? $inventory->inventory_on_hand : 0,
         );
 

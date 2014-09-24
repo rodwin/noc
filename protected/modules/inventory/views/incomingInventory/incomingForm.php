@@ -407,7 +407,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         <h4 class="control-label text-primary"><b>Transaction Table</b></h4>
 
         <div class="table-responsive">            
-            <table id="transaction_table" class="table table-bordered table-hover table-striped">
+            <table id="transaction_table" class="table table-bordered">
                 <thead>
                     <tr>
                         <th><button id="delete_row_btn" class="btn btn-danger btn-sm" onclick="deleteTransactionRow()" style="display: none;"><i class="fa fa-trash-o"></i></button></th>
@@ -559,7 +559,18 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             "columnDefs": [{
                     "targets": [1, 3, 4, 7, 8, 13, 14, 17, 18],
                     "visible": false
-                }]
+                }],
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(6), td:eq(9)', nRow).addClass("success");
+
+                if (aData[15] == <?php echo "'" . OutgoingInventory::OUTGOING_PENDING_STATUS . "'"; ?>) {
+                    $('td:eq(8)', nRow).removeClass().addClass("label label-warning");
+                } else if (aData[15] == <?php echo "'" . OutgoingInventory::OUTGOING_COMPLETE_STATUS . "'"; ?>) {
+                    $('td:eq(8)', nRow).removeClass().addClass("label label-success");
+                } else if (aData[15] == <?php echo "'" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "'"; ?>) {
+                    $('td:eq(8)', nRow).removeClass().addClass("label label-danger");
+                }
+            }
         });
     });
 
@@ -583,7 +594,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 dataType: "json",
                 beforeSend: function(data) {
                     $("#btn_save, #btn_add_item").attr("disabled", "disabled");
-                   if (form == headers) { $('#btn_save').text('Submitting Form...'); }
+                    if (form == headers) {
+                        $('#btn_save').text('Submitting Form...');
+                    }
                 },
                 success: function(data) {
                     validateForm(data);
@@ -648,17 +661,48 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     data.details.outgoing_inventory_detail_id
                 ]);
 
+                $.editable.addInputType('numberOnly', {
+                    element: $.editable.types.text.element,
+                    plugin: function(settings, original) {
+                        $('input', this).bind('keypress', function(event) {
+                            return onlyNumbers(this, event, false);
+                        });
+                    }
+                });
+
                 var oSettings = transaction_table.fnSettings();
-                $('td:eq(6), td:eq(9)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
+                $('td:eq(6)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
                     var pos = transaction_table.fnGetPosition(this);
+                    var rowData = transaction_table.fnGetData(pos);
+
+                    if (parseInt(value) >= parseInt(rowData[10])) {
+                        transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_COMPLETE_STATUS . "'"; ?>, pos[0], pos[2] + 4);
+                    } else {
+                        transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "'"; ?>, pos[0], pos[2] + 4);
+                    }
 
                     transaction_table.fnUpdate(value, pos[0], pos[2]);
+
                 }, {
+                    type: 'numberOnly',
                     placeholder: '',
                     indicator: '',
                     tooltip: 'Click to edit',
-                    onblur: 'submit',
+                    submit: 'Ok',
                     width: "100%",
+                    height: "30px"
+                });
+
+                $('td:eq(9)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
+                    var pos = transaction_table.fnGetPosition(this);
+                    transaction_table.fnUpdate(value, pos[0], pos[2]);
+                }, {
+                    type: 'text',
+                    placeholder: '',
+                    indicator: '',
+                    tooltip: 'Click to edit',
+                    width: "100%",
+                    submit: 'Ok',
                     height: "30px"
                 });
 
