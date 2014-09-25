@@ -81,12 +81,13 @@ return false;
 </div><!-- search-form -->
 
 <?php $fields = Inventory::model()->attributeLabels(); ?>
+<?php $skuFields = Sku::model()->attributeLabels(); ?>
 <div class="box-body table-responsive">
    <table id="inventory_table" class="table table-bordered">
       <thead>
          <tr>
-            <th><?php echo $fields['sku_code']; ?></th>
-            <th><?php echo $fields['sku_name']; ?></th>
+            <th><?php echo $skuFields['sku_code']; ?></th>
+            <th><?php echo $skuFields['description']; ?></th>
             <th><?php echo $fields['qty']; ?></th>
             <th><?php echo $fields['uom_id']; ?></th>
             <th>Action Qty <span title="Type a numeric value into a row's field below to see a list of Transaction options." data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
@@ -171,7 +172,7 @@ return false;
          "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Inventory/data'); ?>",
          "columns": [
             {"name": "sku_code", "data": "sku_code"},
-            {"name": "sku_name", "data": "sku_name"},
+            {"name": "sku_description", "data": "sku_description"},
             {"name": "qty", "data": "qty"},
             {"name": "uom_name", "data": "uom_name"},
             {"name": "action_qty", "data": "action_qty", 'sortable': false, "class": 'action_qty'},

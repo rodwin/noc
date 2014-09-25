@@ -4,7 +4,7 @@
 <div class="fileupload-buttonbar">
    <div class="span7">
       <!-- The fileinput-button span is used to style the file input field as button -->
-      <span class="btn btn-success fileinput-button btn-sm btn-flat" style="display: none;>
+      <span class="btn btn-success fileinput-button btn-sm btn-flat" style="display: none;">
          <i class="glyphicon glyphicon-plus"></i>
          <span>Add files...</span>
          <?php
@@ -17,7 +17,7 @@
          ?>
       </span>
 
-      <button type="submit" class="btn btn-primary btn-sm btn-flat start" id="uploading" style="display: none; >
+      <button type="submit" class="btn btn-primary btn-sm btn-flat start" id="uploading" style="display: none;">
          <i class="icon-upload icon-white"></i>
          <i class="glyphicon glyphicon-upload"></i>
          <span>Start upload</span>

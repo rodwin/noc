@@ -136,6 +136,7 @@ class OutgoingInventoryController extends Controller {
             $row['sku_code'] = $value->sku->sku_code;
             $row['sku_id'] = $value->sku_id;
             $row['sku_name'] = $value->sku->sku_name;
+            $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
             $row['qty'] = $value->qty;
             $row['uom_id'] = $value->uom_id;
             $row['uom_name'] = isset($value->uom->uom_name) ? $value->uom->uom_name : null;
@@ -189,7 +190,7 @@ class OutgoingInventoryController extends Controller {
      */
     public function actionCreate() {
 
-        $this->pageTitle = 'Outgoing Inventory';
+        $this->pageTitle = OutgoingInventory::OUTGOING_LABEL . ' Inventory';
         $this->layout = '//layouts/column1';
 
         $outgoing = new OutgoingInventory;
@@ -372,6 +373,7 @@ class OutgoingInventoryController extends Controller {
             $row['batch_no'] = $value->batch_no;
             $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
             $row['sku_name'] = isset($value->sku->sku_name) ? $value->sku->sku_name : null;
+            $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
             $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
             $row['source_zone_id'] = $value->source_zone_id;
             $row['source_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
@@ -474,7 +476,7 @@ class OutgoingInventoryController extends Controller {
      */
     public function actionAdmin() {
         $this->layout = '//layouts/column1';
-        $this->pageTitle = 'Manage Outgoing Inventory';
+        $this->pageTitle = 'Manage ' . OutgoingInventory::OUTGOING_LABEL . ' Inventory';
 
         $model = new OutgoingInventory('search');
         $model->unsetAttributes();  // clear any default values

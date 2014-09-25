@@ -1,6 +1,6 @@
 <?php
 $this->breadcrumbs = array(
-    'Outgoing Inventories' => array('admin'),
+    OutgoingInventory::OUTGOING_LABEL . ' Inventories' => array('admin'),
     'Manage',
 );
 ?>
@@ -80,7 +80,7 @@ $this->breadcrumbs = array(
                         <tr>
                             <th><?php echo $outgoingInvFields['batch_no']; ?></th>
                             <th><?php echo $skuFields['sku_code']; ?></th>
-                            <th><?php echo $skuFields['sku_name']; ?></th>
+                            <th><?php echo $skuFields['description']; ?></th>
                             <th><?php echo $skuFields['brand_id']; ?></th>
                             <th><?php echo $outgoingInvFields['source_zone_id']; ?></th>
                             <th><?php echo $outgoingInvFields['unit_price']; ?></th>
@@ -191,7 +191,7 @@ $this->breadcrumbs = array(
             "serverSide": false,
             "bAutoWidth": false
         });
-        
+
         outgoing_inventory_attachment_table = $('#outgoing-inventory-attachment_table').dataTable({
             "filter": true,
             "dom": '<"text-center"r>t',
@@ -257,7 +257,7 @@ $this->breadcrumbs = array(
                     outgoing_inventory_table_detail.fnAddData([
                         v.batch_no,
                         v.sku_code,
-                        v.sku_name,
+                        v.sku_description,
                         v.brand_name,
                         v.source_zone_name,
                         v.unit_price,

@@ -127,7 +127,7 @@ class Inventory extends CActiveRecord {
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
             'updated_by' => 'Updated By',
-            'expiration_date' => 'Unique Date',
+            'expiration_date' => 'Expiration Date',
             'reference_no' => 'Reference No',
         );
     }
@@ -175,7 +175,7 @@ class Inventory extends CActiveRecord {
                 $sort_column = 'sku.sku_code';
                 break;
             case 1:
-                $sort_column = 'sku.sku_name';
+                $sort_column = 'sku.description';
                 break;
             case 2:
                 $sort_column = 'qty';
@@ -207,7 +207,7 @@ class Inventory extends CActiveRecord {
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
         $criteria->compare('sku.sku_code', $columns[0]['search']['value'], true);
-        $criteria->compare('sku.sku_name', $columns[1]['search']['value'], true);
+        $criteria->compare('sku.description', $columns[1]['search']['value'], true);
         $criteria->compare('qty', $columns[2]['search']['value'], true);
         $criteria->compare('uom.uom_name', $columns[3]['search']['value'], true);
         $criteria->compare('zone.zone_name', $columns[5]['search']['value'], true);
