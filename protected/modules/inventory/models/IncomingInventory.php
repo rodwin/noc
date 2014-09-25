@@ -22,6 +22,8 @@ class IncomingInventory extends CActiveRecord {
 
     public $search_string;
     public $outgoing_inventory_id;
+    
+    const INCOMING_LABEL = "Inbound";
 
     /**
      * @return string the associated database table name
@@ -271,11 +273,11 @@ class IncomingInventory extends CActiveRecord {
             if (count($transaction_details) > 0) {
                 if ($incoming_inventory->save(false)) {
 
-                    if ($incoming_inventory->status != OutgoingInventory::OUTGOING_PENDING_STATUS) {
+//                    if ($incoming_inventory->status != OutgoingInventory::OUTGOING_PENDING_STATUS) {
                         OutgoingInventory::model()->updateAll(array('status' => $incoming_inventory->status, 'updated_by' => $this->created_by, 'updated_date' => date('Y-m-d H:i:s'), "closed" => 1), 'outgoing_inventory_id = ' . $this->outgoing_inventory_id . ' AND company_id = "' . $incoming_inventory->company_id . '"');
-                    } else {
-                        OutgoingInventory::model()->updateAll(array('status' => $incoming_inventory->status, 'updated_by' => $this->created_by, 'updated_date' => date('Y-m-d H:i:s')), 'outgoing_inventory_id = ' . $this->outgoing_inventory_id . ' AND company_id = "' . $incoming_inventory->company_id . '"');
-                    }
+//                    } else {
+//                        OutgoingInventory::model()->updateAll(array('status' => $incoming_inventory->status, 'updated_by' => $this->created_by, 'updated_date' => date('Y-m-d H:i:s')), 'outgoing_inventory_id = ' . $this->outgoing_inventory_id . ' AND company_id = "' . $incoming_inventory->company_id . '"');
+//                    }
 
                     Yii::app()->session['tid'] = $incoming_inventory->incoming_inventory_id;
                     for ($i = 0; $i < count($transaction_details); $i++) {

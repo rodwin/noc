@@ -383,6 +383,7 @@ class InventoryController extends Controller {
             $row['sku_code'] = $value->sku->sku_code;
             $row['sku_id'] = $value->sku_id;
             $row['sku_name'] = $value->sku->sku_name;
+            $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
             $row['qty'] = $value->qty == 0 ?
                     '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/inventory/delete', array('id' => $value->inventory_id)) . '">
                         <i class="fa fa-trash-o"></i>

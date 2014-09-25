@@ -1,7 +1,7 @@
 
 <?php
 $this->breadcrumbs = array(
-    'Outgoing Inventories' => array('admin'),
+    OutgoingInventory::OUTGOING_LABEL . ' Inventories' => array('admin'),
     'Create',
 );
 ?>
@@ -128,7 +128,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             <div id="input_label" class="pull-left col-md-5">
 
                 <?php echo $form->labelEx($outgoing, 'rra_no'); ?><br/>
-                <?php echo $form->labelEx($outgoing, 'rra_name'); ?><br/>
                 <?php echo $form->labelEx($outgoing, 'dr_no'); ?><br/>
                 <?php echo $form->labelEx($outgoing, 'destination_zone_id'); ?>
 
@@ -137,8 +136,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             <div class="pull-right col-md-7">
 
                 <?php echo $form->textFieldGroup($outgoing, 'rra_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, "value" => "")), 'labelOptions' => array('label' => false))); ?>
-
-                <?php echo $form->textFieldGroup($outgoing, 'rra_name', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($outgoing, 'dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
@@ -222,13 +219,14 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <h4 class="control-label text-primary pull-left"><b>Select Inventory</b></h4>
                 <button class="btn btn-default btn-sm pull-right" onclick="inventory_table.fnMultiFilter();">Reload Table</button>
 
+                <?php $skuFields = Sku::model()->attributeLabels(); ?>
                 <?php $invFields = Inventory::model()->attributeLabels(); ?>                    
                 <div class="table-responsive">
                     <table id="inventory_table" class="table table-bordered table-hover">
                         <thead>
                             <tr>
-                                <th><?php echo $invFields['sku_code']; ?></th>
-                                <th><?php echo $invFields['sku_name']; ?></th>
+                                <th><?php echo $skuFields['sku_code']; ?></th>
+                                <th><?php echo $skuFields['description']; ?></th>
                                 <th><?php echo $invFields['qty']; ?></th>
                                 <th><?php echo $invFields['uom_id']; ?></th>
                                 <th>Action Qty <i class="fa fa-fw fa-info-circle" data-toggle="popover" content="And here's some amazing content. It's very engaging. right?"></i></th>
@@ -312,7 +310,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'planned_quantity', array(
                                 'widgetOptions' => array(
-                                    'htmlOptions' => array("class" => "ignore span5", "onkeypress" => "return onlyNumbers(this, event, false)", "value" => 0)
+                                    'htmlOptions' => array("class" => "ignore span5", "onkeypress" => "return onlyNumbers(this, event, false)")
                                 ),
                                 'labelOptions' => array('label' => false),
                                 'append' => '<b class="inventory_uom_selected"></b>'
@@ -373,16 +371,27 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'unit_price', array(
                                 'widgetOptions' => array(
-                                    'htmlOptions' => array("class" => "span5", "onkeypress" => "return onlyNumbers(this, event, true)", 'value' => 0)
+                                    'htmlOptions' => array("class" => "span5", "onkeypress" => "return onlyNumbers(this, event, true)")
                                 ),
                                 'labelOptions' => array('label' => false),
+                                'prepend' => '&#8369',
                                 'append' => '<b class="inventory_uom_selected"></b>'
                             ));
                             ?>
                         </div>
 
-                        <?php echo $form->textFieldGroup($transaction_detail, 'amount', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'readonly' => true, 'value' => 0)), 'labelOptions' => array('label' => false))); ?>
-
+                        <div class="span5">
+                            <?php
+                            echo $form->textFieldGroup($transaction_detail, 'amount', array(
+                                'widgetOptions' => array(
+                                    'htmlOptions' => array("class" => "span5", 'readonly' => true)
+                                ),
+                                'labelOptions' => array('label' => false),
+                                'prepend' => '&#8369'
+                            ));
+                            ?>
+                        </div>
+                        
                         <?php echo $form->textFieldGroup($transaction_detail, 'return_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                         <?php
@@ -406,7 +415,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="clearfix"></div>
 
-        <?php $skuFields = Sku::model()->attributeLabels(); ?>
         <?php $outgoingDetailFields = OutgoingInventoryDetail::model()->attributeLabels(); ?>
         <h4 class="control-label text-primary"><b>Transaction Table</b></h4>
 
@@ -448,14 +456,14 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         <div class="row no-print">
             <div class="col-xs-12">
                 <button class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
-                <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload RRA</button>
+                <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload RRA / DR</button>
                 <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;">Save</button>  
             </div>
         </div>
 
     </div>
     <?php $this->endWidget(); ?>
-   <div id="upload">
+    <div id="upload">
         <?php
         $this->widget('booster.widgets.TbFileUpload', array(
             'url' => $this->createUrl('OutgoingInventory/uploadAttachment'),
@@ -507,7 +515,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/invData'); ?>",
             "columns": [
                 {"name": "sku_code", "data": "sku_code"},
-                {"name": "sku_name", "data": "sku_name"},
+                {"name": "sku_description", "data": "sku_description"},
                 {"name": "qty", "data": "qty"},
                 {"name": "uom_name", "data": "uom_name"},
                 {"name": "action_qty", "data": "action_qty", 'sortable': false, "class": 'action_qty'},
@@ -589,7 +597,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 dataType: "json",
                 beforeSend: function(data) {
                     $("#btn_save, #btn_add_item").attr("disabled", "disabled");
-                    if (form == headers) { $('#btn_save').text('Submitting Form...'); }
+                    if (form == headers) {
+                        $('#btn_save').text('Submitting Form...');
+                    }
                 },
                 success: function(data) {
                     validateForm(data);
@@ -613,14 +623,14 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         if (data.success === true) {
 
             if (data.form == headers) {
-               
-               if (files != "") {
+
+                if (files != "") {
                     file_upload_count = files.length;
 
                     $('#uploading').click();
                 }
-                
-                
+
+
                 document.forms["outgoing-inventory-form"].reset();
 
                 var oSettings = transaction_table.fnSettings();
@@ -661,7 +671,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $('#outgoing-inventory-form select:not(.ignore), input:not(.ignore), textarea:not(.ignore)').val('');
                 $('.inventory_uom_selected').html('');
 
-                $("#OutgoingInventoryDetail_quantity_issued, #OutgoingInventoryDetail_unit_price, #OutgoingInventoryDetail_amount").val(0);
+//                $("#OutgoingInventoryDetail_quantity_issued, #OutgoingInventoryDetail_unit_price, #OutgoingInventoryDetail_amount").val(0);
 
             }
 
@@ -706,7 +716,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $("#OutgoingInventoryDetail_inventory_on_hand").val(data.inventory_on_hand);
                 $("#OutgoingInventoryDetail_batch_no").val(data.reference_no);
                 $("#OutgoingInventoryDetail_expiration_date").val(data.expiration_date);
-                $("#OutgoingInventoryDetail_amount").val(0);
+//                $("#OutgoingInventoryDetail_amount").val(0);
             },
             error: function(data) {
                 alert("Error occured: Please try again.");
@@ -796,8 +806,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     });
 
     $('#btn-upload').click(function() {
-      $('#file_uploads').click();
-   });
+        $('#file_uploads').click();
+    });
 
     $("#OutgoingInventoryDetail_quantity_issued").keyup(function(e) {
         var unit_price = 0;

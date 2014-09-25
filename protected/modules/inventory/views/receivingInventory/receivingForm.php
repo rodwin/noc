@@ -178,18 +178,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->textFieldGroup($receiving, 'zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'receivingInventory_zone_id', 'class' => 'ignore span5', 'maxlength' => 50, 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($receiving, 'plan_arrival_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
-
-                <?php
-                echo $form->dropDownListGroup($receiving, 'supplier_id', array(
-                    'wrapperHtmlOptions' => array(
-                        'class' => '',
-                    ),
-                    'widgetOptions' => array(
-                        'data' => $supplier_list,
-                        'htmlOptions' => array('class' => 'ignore span5', 'multiple' => false, 'prompt' => 'Select Supplier'),
-                    ),
-                    'labelOptions' => array('label' => false)));
-                ?>
+                
+                <?php echo CHtml::textField('supplier_name', '', array('id' => 'ReceivingInventory_supplier_id', 'class' => 'ignore typeahead form-control span5', 'maxlength' => 50, 'placeholder' => "Supplier")); ?>
+                <?php echo $form->textFieldGroup($receiving, 'supplier_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'ReceivingInventory_supplier', 'class' => 'ignore span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php
                 echo $form->dropDownListGroup($receiving, 'delivery_remarks', array(
@@ -272,7 +263,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'planned_quantity', array(
                                 'widgetOptions' => array(
-                                    'htmlOptions' => array("class" => "ignore span5", "onkeypress" => "return onlyNumbers(this, event, false)", "value" => 0)
+                                    'htmlOptions' => array("class" => "span5", "onkeypress" => "return onlyNumbers(this, event, false)")
                                 ),
                                 'labelOptions' => array('label' => false),
                                 'append' => '<b class="sku_uom_selected"></b>'
@@ -284,7 +275,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'quantity_received', array(
                                 'widgetOptions' => array(
-                                    'htmlOptions' => array("class" => "span5", "onkeypress" => "return onlyNumbers(this, event, false)", "value" => 0)
+                                    'htmlOptions' => array("class" => "span5", "onkeypress" => "return onlyNumbers(this, event, false)")
                                 ),
                                 'labelOptions' => array('label' => false),
                                 'append' => '<b class="sku_uom_selected"></b>'
@@ -308,7 +299,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'unit_price', array(
                                 'widgetOptions' => array(
-                                    'htmlOptions' => array("class" => "span5", "onkeypress" => "return onlyNumbers(this, event, true)", 'value' => 0)
+                                    'htmlOptions' => array("class" => "span5", "onkeypress" => "return onlyNumbers(this, event, true)")
                                 ),
                                 'labelOptions' => array('label' => false),
                                 'prepend' => '&#8369',
@@ -333,13 +324,23 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                         <?php echo $form->textFieldGroup($transaction_detail, 'expiration_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-                        <?php echo $form->textFieldGroup($transaction_detail, 'amount', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'readonly' => true, 'value' => 0)), 'labelOptions' => array('label' => false))); ?>
-
+                        <div class="span5">
+                            <?php
+                            echo $form->textFieldGroup($transaction_detail, 'amount', array(
+                                'widgetOptions' => array(
+                                    'htmlOptions' => array("class" => "span5", 'readonly' => true)
+                                ),
+                                'labelOptions' => array('label' => false),
+                                'prepend' => '&#8369'
+                            ));
+                            ?>
+                        </div>
+                        
                         <div class="span5">
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'inventory_on_hand', array(
                                 'widgetOptions' => array(
-                                    'htmlOptions' => array("class" => "span5", 'readonly' => true, "value" => 0)
+                                    'htmlOptions' => array("class" => "span5", 'readonly' => true)
                                 ),
                                 'labelOptions' => array('label' => false),
                                 'append' => '<b class="sku_uom_selected"></b>'
@@ -410,7 +411,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         <div class="row no-print">
             <div class="col-xs-12">
                 <button class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
-                <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload PR/DR</button>
+                <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload PR / DR</button>
                 <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;">Save</button>  
             </div>
         </div>
@@ -622,7 +623,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $('#receiving-inventory-form select:not(.ignore), input:not(.ignore), textarea:not(.ignore)').val('');
                 $('.sku_uom_selected').html('');
 
-                $("#ReceivingInventoryDetail_planned_quantity, #ReceivingInventoryDetail_quantity_received, #ReceivingInventoryDetail_unit_price, #ReceivingInventoryDetail_amount").val(0);
+//                $("#ReceivingInventoryDetail_planned_quantity, #ReceivingInventoryDetail_quantity_received, #ReceivingInventoryDetail_unit_price, #ReceivingInventoryDetail_amount").val(0);
 
             }
 
@@ -748,7 +749,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $("#ReceivingInventoryDetail_uom_id").val(data.sku_default_uom_id);
                 $(".sku_uom_selected").html(data.sku_default_uom_name);
                 $("#ReceivingInventoryDetail_inventory_on_hand").val(data.inventory_on_hand);
-                $("#ReceivingInventoryDetail_quantity_received").val(0);
+//                $("#ReceivingInventoryDetail_quantity_received, #ReceivingInventoryDetail_amount").val(0);
             },
             error: function(data) {
                 alert("Error occured: Please try again.");
@@ -820,6 +821,35 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         jQuery('#ReceivingInventory_zone_id').on('input', function() {
             var value = $("#ReceivingInventory_zone_id").val();
             $("#receivingInventory_zone_id").val(value);
+        });
+        
+        var supplier = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('supplier'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            prefetch: '<?php echo Yii::app()->createUrl("library/supplier/searchSupplier", array('value' => '')) ?>',
+            remote: '<?php echo Yii::app()->createUrl("library/supplier/searchSupplier") ?>&value=%QUERY'
+        });
+
+        supplier.initialize();
+
+        $('#ReceivingInventory_supplier_id').typeahead(null, {
+            name: 'suppliers',
+            displayKey: 'supplier_name',
+            source: supplier.ttAdapter(),
+            templates: {
+                suggestion: Handlebars.compile([
+                    '<p class="repo-name">{{supplier_name}}</p>',
+                    '<p class="repo-description">{{supplier_code}}</p>'
+                ].join(''))
+            }
+
+        }).on('typeahead:selected', function(obj, datum) {
+            $("#ReceivingInventory_supplier").val(datum.supplier_id);
+        });
+
+        jQuery('#ReceivingInventory_supplier_id').on('input', function() {
+            var value = $("#ReceivingInventory_supplier_id").val();
+            $("#ReceivingInventory_supplier").val(value);
         });
     });
 

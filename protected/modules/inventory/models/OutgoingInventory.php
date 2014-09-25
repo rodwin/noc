@@ -37,6 +37,7 @@ class OutgoingInventory extends CActiveRecord {
     const OUTGOING_INCOMPLETE_STATUS = 'INCOMPLETE';
     const OUTGOING_COMPLETE_STATUS = 'COMPLETE';
     const OUTGOING_OVER_DELIVERY_STATUS = 'OVER DELIVERY';
+    const OUTGOING_LABEL = "Outbound";
 
     /**
      * @return string the associated database table name
@@ -52,7 +53,7 @@ class OutgoingInventory extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, rra_no, rra_name, dr_no, destination_zone_id, campaign_no, pr_no, pr_date, transaction_date', 'required'),
+            array('company_id, rra_no, dr_no, destination_zone_id, campaign_no, pr_no, pr_date, transaction_date', 'required'),
             array('company_id, campaign_no, rra_no, pr_no, dr_no, rra_name, destination_zone_id, contact_person, contact_no, status, created_by, updated_by', 'length', 'max' => 50),
             array('address', 'length', 'max' => 200),
             array('total_amount', 'length', 'max' => 18),
@@ -277,7 +278,7 @@ class OutgoingInventory extends CActiveRecord {
             $outgoing_inventory_data = array(
                 'company_id' => $this->company_id,
                 'rra_no' => $this->rra_no,
-                'rra_name' => $this->rra_name,
+//                'rra_name' => $this->rra_name,
                 'dr_no' => $this->dr_no,
                 'destination_zone_id' => $this->destination_zone_id,
                 'contact_person' => $this->contact_person,

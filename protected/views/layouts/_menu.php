@@ -4,10 +4,10 @@ $main_menu = array(
     array('label' => 'Location Viewer', 'url' => array('locationviewer'), 'icon' => 'fa fa-map-marker', 'visible' => !Yii::app()->user->isGuest),
     array('label' => 'Inventory', 'url' => '#', 'icon' => 'fa fa-list-alt', 'visible' => !Yii::app()->user->isGuest, 'items' => array(
             array('label' => 'Inventory Management', 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/inventory/admin'), 'visible' => !Yii::app()->user->isGuest),
-            array('label' => 'Receiving', 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/receivingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
-            array('label' => 'Incoming', 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/incomingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
-            array('label' => 'Outgoing', 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/outgoingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
-            array('label' => 'Customer Item', 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/customerItem/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => ReceivingInventory::RECEIVING_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/receivingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => IncomingInventory::INCOMING_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/incomingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => OutgoingInventory::OUTGOING_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/outgoingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => CustomerItem::CUSTOMER_ITEM_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/customerItem/admin'), 'visible' => !Yii::app()->user->isGuest),
         )),
     array('label' => 'Library', 'url' => '#', 'icon' => 'fa fa-book', 'visible' => !Yii::app()->user->isGuest, 'items' => array(
             array('label' => 'Supplier', 'icon' => 'fa fa-angle-double-right', 'url' => array('library/supplier/admin'), 'visible' => !Yii::app()->user->isGuest),

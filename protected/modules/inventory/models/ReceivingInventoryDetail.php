@@ -91,7 +91,7 @@ class ReceivingInventoryDetail extends CActiveRecord {
             'unit_price' => 'Unit Price',
             'expiration_date' => 'Expiration Date',
             'planned_quantity' => 'Planned Quantity',
-            'quantity_received' => 'Quantity Received',
+            'quantity_received' => 'Actual Quantity',
             'amount' => 'Amount',
             'inventory_on_hand' => 'Inventory On Hand',
             'item_remarks' => 'Item Remarks',
@@ -226,13 +226,13 @@ class ReceivingInventoryDetail extends CActiveRecord {
         $incoming_transaction_detail->created_by = $created_by;
 
         if ($incoming_transaction_detail->save(false)) {
-            $this->createInventory($company_id, $sku_id, $uom_id, $unit_price, $quantity_received, $zone_id, $transaction_date, $created_by, $expiration_date, $batch_no);
+            $this->createInventory($company_id, $sku_id, $uom_id, $unit_price, $quantity_received, $zone_id, $transaction_date, $created_by, $expiration_date, $batch_no, $incoming_transaction_detail->sku_status_id);
         } else {
             return $incoming_transaction_detail->getErrors();
         }
     }
 
-    public function createInventory($company_id, $sku_id, $uom_id, $unit_price, $quantity_received, $zone_id, $transaction_date, $created_by, $expiration_date, $reference_no) {
+    public function createInventory($company_id, $sku_id, $uom_id, $unit_price, $quantity_received, $zone_id, $transaction_date, $created_by, $expiration_date, $reference_no, $status_id) {
 
         $sku = Sku::model()->findByAttributes(array("company_id" => $company_id, "sku_id" => $sku_id));
 
@@ -245,7 +245,7 @@ class ReceivingInventoryDetail extends CActiveRecord {
         $create_inventory->default_zone_id = $zone_id;
         $create_inventory->transaction_date = $transaction_date;
         $create_inventory->cost_per_unit = $unit_price;
-        $create_inventory->sku_status_id = null;
+        $create_inventory->sku_status_id = $status_id != "" ? $status_id : null;
         $create_inventory->unique_tag = $reference_no;
         $create_inventory->unique_date = $expiration_date != "" ? $expiration_date : null;
         $create_inventory->created_by = $created_by;

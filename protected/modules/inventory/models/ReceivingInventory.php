@@ -31,6 +31,8 @@
 class ReceivingInventory extends CActiveRecord {
 
     public $search_string;
+    
+    const RECEIVING_LABEL = "Incoming";
 
     /**
      * @return string the associated database table name
@@ -51,6 +53,7 @@ class ReceivingInventory extends CActiveRecord {
             array('total_amount', 'length', 'max' => 18),
             array('pr_date, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('zone_id', 'isValidZone'),
+            array('supplier_id', 'isValidSupplier'),
             array('plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
@@ -63,6 +66,16 @@ class ReceivingInventory extends CActiveRecord {
 
         if (!Validator::isResultSetWithRows($model)) {
             $this->addError($attribute, 'Please select a Zone from the auto-complete.');
+        }
+
+        return;
+    }
+
+    public function isValidSupplier($attribute) {
+        $model = Supplier::model()->findByPk($this->$attribute);
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'Please select a Supplier from the auto-complete.');
         }
 
         return;
@@ -110,7 +123,7 @@ class ReceivingInventory extends CActiveRecord {
             'dr_no' => 'DR No',
             'requestor' => 'Requestor',
             'supplier_id' => 'Supplier',
-            'zone_id' => 'Zone',
+            'zone_id' => 'Destination Zone',
             'plan_delivery_date' => 'Plan Delivery Date',
             'revised_delivery_date' => 'Revised Delivery Date',
             'actual_delivery_date' => 'Actual Delivery Date',
@@ -196,10 +209,14 @@ class ReceivingInventory extends CActiveRecord {
                 break;
 
             case 6:
-                $sort_column = 't.total_amount';
+                $sort_column = 'zone.zone_name';
                 break;
 
             case 7:
+                $sort_column = 't.total_amount';
+                break;
+
+            case 8:
                 $sort_column = 't.created_date';
                 break;
         }
@@ -213,12 +230,13 @@ class ReceivingInventory extends CActiveRecord {
         $criteria->compare('t.dr_no', $columns[3]['search']['value'], true);
         $criteria->compare('t.requestor', $columns[4]['search']['value'], true);
         $criteria->compare('supplier.supplier_name', $columns[5]['search']['value'], true);
-        $criteria->compare('t.total_amount', $columns[6]['search']['value'], true);
-        $criteria->compare('t.created_date', $columns[7]['search']['value'], true);
+        $criteria->compare('zone.zone_name', $columns[6]['search']['value'], true);
+        $criteria->compare('t.total_amount', $columns[7]['search']['value'], true);
+        $criteria->compare('t.created_date', $columns[8]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
-        $criteria->with = array("supplier", "employee");
+        $criteria->with = array("supplier", "employee", "zone");
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,

@@ -89,7 +89,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
             'unit_price' => 'Unit Price',
             'expiration_date' => 'Expiration Date',
             'planned_quantity' => 'Planned Quantity',
-            'quantity_issued' => 'Quantity Issued',
+            'quantity_issued' => 'Actual Quantity',
             'amount' => 'Amount',
             'inventory_on_hand' => 'Inventory On Hand',
             'return_date' => 'Return Date',

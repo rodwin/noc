@@ -134,7 +134,7 @@ class IncomingInventoryController extends Controller {
      */
     public function actionCreate() {
 
-        $this->pageTitle = 'Incoming Inventory';
+        $this->pageTitle = IncomingInventory::INCOMING_LABEL . ' Inventory';
         $this->layout = '//layouts/column1';
 
         $incoming = new IncomingInventory;
@@ -477,7 +477,7 @@ class IncomingInventoryController extends Controller {
      */
     public function actionAdmin() {
         $this->layout = '//layouts/column1';
-        $this->pageTitle = 'Manage Incoming Inventory';
+        $this->pageTitle = 'Manage ' . IncomingInventory::INCOMING_LABEL . ' Inventory';
 
         $model = new IncomingInventory('search');
         $model->unsetAttributes();  // clear any default values
