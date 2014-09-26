@@ -412,7 +412,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             <div class="col-xs-12">
                 <button class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
                 <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload PR / DR</button>
-                <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;">Save</button>  
+                <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>  
             </div>
         </div>
 
@@ -439,7 +439,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                          file_upload_count--;
                          console.log(file_upload_count);
                          
-                         if(file_upload_count == 0) {$("#tbl tr").remove();}
+                         if(file_upload_count == 0) { $("#tbl tbody tr").remove(); }
                      }'
                 ),
                 'fail' => new CJavaScriptExpression(
@@ -551,7 +551,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 dataType: "json",
                 beforeSend: function(data) {
                     $("#btn_save, #btn_add_item").attr("disabled", "disabled");
-                    if (form == headers) { $('#btn_save').text('Submitting Form...'); }
+                    if (form == headers) { $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...'); }
                 },
                 success: function(data) {
                     validateForm(data);
@@ -559,7 +559,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 error: function(data) {
                     alert("Error occured: Please try again.");
                     $("#btn_save, #btn_add_item").attr('disabled', false);
-                    $('#btn_save').text('Save');
+                    $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
                 }
             });
         }
@@ -635,7 +635,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             }
 
             $("#btn_save, #btn_add_item").attr('disabled', false);
-            $('#btn_save').text('Save');
+            $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
 
             var error_count = 0;
             $.each(JSON.parse(data.error), function(i, v) {
@@ -646,7 +646,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         $("#btn_save, #btn_add_item").attr('disabled', false);
-        $('#btn_save').text('Save');
+        $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
     }
 
     function growlAlert(type, message) {

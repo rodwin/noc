@@ -386,7 +386,7 @@ class InventoryController extends Controller {
             $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
             $row['qty'] = $value->qty == 0 ?
                     '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/inventory/delete', array('id' => $value->inventory_id)) . '">
-                        <i class="fa fa-trash-o"></i>
+                        <i class="glyphicon glyphicon-trash"></i>
                     </a><br/>
                     <p class="text-center">' . $value->qty . '</p>' : $value->qty;
             $row['uom_id'] = $value->uom_id;
@@ -408,10 +408,10 @@ class InventoryController extends Controller {
 
 
             $row['links'] = '<a class="btn btn-sm btn-default" title="Inventory Record History" href="' . $this->createUrl('/inventory/inventory/history', array('inventory_id' => $value->inventory_id)) . '">
-                                <i class="fa fa-clock-o"></i>
+                                <i class="glyphicon glyphicon-time"></i>
                             </a>
                             <a class="btn btn-sm btn-default" title="Item Detail" href="' . $this->createUrl('/library/sku/update', array('id' => $value->sku_id)) . '">
-                                <i class="fa fa-wrench"></i>
+                                <i class="glyphicon glyphicon-wrench"></i>
                             </a>';
 
             $output['data'][] = $row;
