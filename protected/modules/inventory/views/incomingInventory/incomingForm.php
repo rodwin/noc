@@ -125,13 +125,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="col-md-6 clearfix">
             <div id="input_label" class="pull-left col-md-5">
-                <?php echo $form->labelEx($incoming, 'name'); ?><br/>
+                <?php echo $form->labelEx($incoming, 'rra_no'); ?><br/>
                 <?php echo $form->labelEx($incoming, 'dr_no'); ?>
             </div>
 
             <div class="pull-right col-md-7">
 
-                <?php echo $form->textFieldGroup($incoming, 'name', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($incoming, 'rra_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
                 <?php
                 echo $form->dropDownListGroup($incoming, 'dr_no', array(
@@ -460,7 +460,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             <div class="col-xs-12">
                 <button class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
                 <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload</button>
-                <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;">Save</button>  
+                <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>  
             </div>
         </div>
 
@@ -607,9 +607,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 dataType: "json",
                 beforeSend: function(data) {
                     $("#btn_save, #btn_add_item").attr("disabled", "disabled");
-                    if (form == headers) {
-                        $('#btn_save').text('Submitting Form...');
-                    }
+                    if (form == headers) { $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...'); }
                 },
                 success: function(data) {
                     validateForm(data);
@@ -617,7 +615,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 error: function(data) {
                     alert("Error occured: Please try again.");
                     $("#btn_save, #btn_add_item").attr('disabled', false);
-                    $('#btn_save').text('Save');
+                    $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
                 }
             });
         }
@@ -737,7 +735,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             growlAlert(data.type, data.message);
 
             $("#btn_save, #btn_add_item").attr('disabled', false);
-            $('#btn_save').text('Save');
+            $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
 
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
@@ -746,7 +744,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         $("#btn_save, #btn_add_item").attr('disabled', false);
-        $('#btn_save').text('Save');
+        $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
     }
 
     function growlAlert(type, message) {
@@ -865,6 +863,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $("#IncomingInventory_campaign_no").val(data.headers.campaign_no);
                 $("#IncomingInventory_pr_no").val(data.headers.pr_no);
                 $("#IncomingInventory_pr_date").val(data.headers.pr_date);
+                $("#IncomingInventory_rra_no").val(data.headers.rra_no);
                 $("#IncomingInventory_zone_id").val(data.headers.zone_name);
                 $("#IncomingInventory_zone").val(data.headers.zone_id);
                 $("#IncomingInventory_plan_delivery_date").val(data.headers.plan_delivery_date);

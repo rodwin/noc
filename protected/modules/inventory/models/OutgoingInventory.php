@@ -53,18 +53,18 @@ class OutgoingInventory extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, rra_no, dr_no, destination_zone_id, campaign_no, pr_no, pr_date, transaction_date', 'required'),
-            array('company_id, campaign_no, rra_no, pr_no, dr_no, rra_name, destination_zone_id, contact_person, contact_no, status, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, rra_no, dr_no, dr_date, destination_zone_id, campaign_no, pr_no, pr_date, transaction_date', 'required'),
+            array('company_id, campaign_no, rra_no, pr_no, dr_no, destination_zone_id, contact_person, contact_no, status, created_by, updated_by', 'length', 'max' => 50),
             array('address', 'length', 'max' => 200),
             array('total_amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
             array('closed', 'length', 'max' => 1),
             array('destination_zone_id', 'isValidZone'),
-            array('pr_date, transaction_date, plan_delivery_date, revised_delivery_date, actual_delivery_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
+            array('pr_date, dr_date, transaction_date, plan_delivery_date, revised_delivery_date, actual_delivery_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('pr_date, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('outgoing_inventory_id, company_id, rra_no, rra_name, dr_no, destination_zone_id, contact_person, contact_no, address, campaign_no, pr_no, pr_date, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date, status, remarks, total_amount, closed, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('outgoing_inventory_id, company_id, rra_no, dr_no, destination_zone_id, contact_person, contact_no, address, campaign_no, pr_no, pr_date, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date, status, remarks, total_amount, closed, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
 
@@ -113,8 +113,8 @@ class OutgoingInventory extends CActiveRecord {
             'outgoing_inventory_id' => 'Outgoing Inventory',
             'company_id' => 'Company',
             'rra_no' => 'RRA No',
-            'rra_name' => 'RRA Name',
             'dr_no' => 'DR No',
+            'dr_date' => 'DR Date',
             'destination_zone_id' => 'Destination Zone',
             'contact_person' => 'Contact Person',
             'contact_no' => 'Contact No',
@@ -158,8 +158,8 @@ class OutgoingInventory extends CActiveRecord {
         $criteria->compare('outgoing_inventory_id', $this->outgoing_inventory_id);
         $criteria->compare('company_id', Yii::app()->user->company_id);
         $criteria->compare('rra_no', $this->rra_no);
-        $criteria->compare('rra_name', $this->rra_name, true);
         $criteria->compare('dr_no', $this->dr_no, true);
+        $criteria->compare('dr_date', $this->dr_date, true);
         $criteria->compare('destination_zone_id', $this->destination_zone_id, true);
         $criteria->compare('contact_person', $this->contact_person, true);
         $criteria->compare('contact_no', $this->contact_no, true);
@@ -194,11 +194,11 @@ class OutgoingInventory extends CActiveRecord {
                 break;
 
             case 1:
-                $sort_column = 'rra_name';
+                $sort_column = 'dr_no';
                 break;
 
             case 2:
-                $sort_column = 'rra_name';
+                $sort_column = 'dr_date';
                 break;
 
             case 3:
@@ -234,8 +234,8 @@ class OutgoingInventory extends CActiveRecord {
         $criteria = new CDbCriteria;
         $criteria->compare('company_id', Yii::app()->user->company_id);
         $criteria->compare('rra_no', $columns[0]['search']['value']);
-        $criteria->compare('rra_name', $columns[1]['search']['value'], true);
-        $criteria->compare('dr_no', $columns[2]['search']['value'], true);
+        $criteria->compare('dr_no', $columns[1]['search']['value'], true);
+        $criteria->compare('dr_date', $columns[2]['search']['value'], true);
         $criteria->compare('destination_zone_id', $columns[3]['search']['value'], true);
         $criteria->compare('campaign_no', $columns[4]['search']['value'], true);
         $criteria->compare('pr_no', $columns[5]['search']['value'], true);
@@ -278,8 +278,8 @@ class OutgoingInventory extends CActiveRecord {
             $outgoing_inventory_data = array(
                 'company_id' => $this->company_id,
                 'rra_no' => $this->rra_no,
-//                'rra_name' => $this->rra_name,
                 'dr_no' => $this->dr_no,
+                'dr_date' => $this->dr_date,
                 'destination_zone_id' => $this->destination_zone_id,
                 'contact_person' => $this->contact_person,
                 'contact_no' => $this->contact_no,

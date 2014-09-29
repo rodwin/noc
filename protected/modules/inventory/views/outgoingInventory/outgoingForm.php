@@ -129,6 +129,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->labelEx($outgoing, 'rra_no'); ?><br/>
                 <?php echo $form->labelEx($outgoing, 'dr_no'); ?><br/>
+                <?php echo $form->labelEx($outgoing, 'dr_date'); ?><br/>
                 <?php echo $form->labelEx($outgoing, 'destination_zone_id'); ?>
 
             </div>
@@ -138,6 +139,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->textFieldGroup($outgoing, 'rra_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, "value" => "")), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($outgoing, 'dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+
+                <?php echo $form->textFieldGroup($outgoing, 'dr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo CHtml::textField('destination_zone', '', array('id' => 'OutgoingInventory_destination_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone")); ?>
                 <?php echo $form->textFieldGroup($outgoing, 'destination_zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'OutgoingInventoryl_destination_zone', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
@@ -391,7 +394,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             ));
                             ?>
                         </div>
-                        
+
                         <?php echo $form->textFieldGroup($transaction_detail, 'return_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                         <?php
@@ -457,7 +460,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             <div class="col-xs-12">
                 <button class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
                 <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload RRA / DR</button>
-                <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;">Save</button>  
+                <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>  
             </div>
         </div>
 
@@ -597,9 +600,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 dataType: "json",
                 beforeSend: function(data) {
                     $("#btn_save, #btn_add_item").attr("disabled", "disabled");
-                    if (form == headers) {
-                        $('#btn_save').text('Submitting Form...');
-                    }
+                    if (form == headers) { $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...'); }
                 },
                 success: function(data) {
                     validateForm(data);
@@ -607,7 +608,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 error: function(data) {
                     alert("Error occured: Please try again.");
                     $("#btn_save, #btn_add_item").attr('disabled', false);
-                    $('#btn_save').text('Save');
+                    $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
                 }
             });
         }
@@ -629,7 +630,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                     $('#uploading').click();
                 }
-
 
                 document.forms["outgoing-inventory-form"].reset();
 
@@ -681,7 +681,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             growlAlert(data.type, data.message);
 
             $("#btn_save, #btn_add_item").attr('disabled', false);
-            $('#btn_save').text('Save');
+            $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
 
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
@@ -690,7 +690,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         $("#btn_save, #btn_add_item").attr('disabled', false);
-        $('#btn_save').text('Save');
+        $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
     }
 
     function loadInventoryDetails(inventory_id) {
@@ -872,7 +872,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     $(function() {
-        $('#OutgoingInventory_pr_date, #OutgoingInventory_plan_delivery_date, #OutgoingInventory_revised_delivery_date, #OutgoingInventory_actual_delivery_date, #OutgoingInventory_transaction_date, #OutgoingInventoryDetail_expiration_date, #OutgoingInventoryDetail_return_date').datepicker({
+        $('#OutgoingInventory_pr_date, #OutgoingInventory_dr_date, #OutgoingInventory_plan_delivery_date, #OutgoingInventory_revised_delivery_date, #OutgoingInventory_actual_delivery_date, #OutgoingInventory_transaction_date, #OutgoingInventoryDetail_expiration_date, #OutgoingInventoryDetail_return_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'});

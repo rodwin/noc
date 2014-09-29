@@ -39,8 +39,8 @@ class IncomingInventory extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, name, dr_no, pr_no, transaction_date', 'required'),
-            array('company_id, campaign_no, pr_no, dr_no, name, zone_id, status, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, dr_no, pr_no, transaction_date, rra_no', 'required'),
+            array('company_id, campaign_no, pr_no, dr_no, zone_id, status, created_by, updated_by, rra_no', 'length', 'max' => 50),
             array('total_amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
             array('zone_id', 'isValidZone'),
@@ -48,7 +48,7 @@ class IncomingInventory extends CActiveRecord {
             array('pr_date, transaction_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('incoming_inventory_id, company_id, campaign_no, pr_no, pr_date, dr_no, zone_id, transaction_date, plan_delivery_date, revised_delivery_date, status, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('incoming_inventory_id, company_id, campaign_no, pr_no, pr_date, dr_no, zone_id, transaction_date, plan_delivery_date, revised_delivery_date, status, total_amount, created_date, created_by, updated_date, updated_by, rra_no', 'safe', 'on' => 'search'),
         );
     }
 
@@ -96,8 +96,8 @@ class IncomingInventory extends CActiveRecord {
             'campaign_no' => 'Campaign No',
             'pr_no' => 'PR No',
             'pr_date' => 'PR Date',
-            'name' => 'Name',
             'dr_no' => 'DR No',
+            'rra_no' => 'RRA No',
             'zone_id' => 'Zone',
             'transaction_date' => 'Transaction Date',
             'plan_delivery_date' => 'Plan Delivery Date',
@@ -134,8 +134,8 @@ class IncomingInventory extends CActiveRecord {
         $criteria->compare('campaign_no', $this->campaign_no, true);
         $criteria->compare('pr_no', $this->pr_no, true);
         $criteria->compare('pr_date', $this->pr_date, true);
-        $criteria->compare('name', $this->name, true);
         $criteria->compare('dr_no', $this->dr_no, true);
+        $criteria->compare('rra_no', $this->rra_no, true);
         $criteria->compare('zone_id', $this->zone_id, true);
         $criteria->compare('transaction_date', $this->transaction_date, true);
         $criteria->compare('plan_delivery_date', $this->plan_delivery_date, true);
@@ -156,19 +156,19 @@ class IncomingInventory extends CActiveRecord {
         switch ($col) {
 
             case 0:
-                $sort_column = 't.name';
-                break;
-
-            case 1:
                 $sort_column = 't.campaign_no';
                 break;
 
-            case 2:
+            case 1:
                 $sort_column = 't.pr_no';
                 break;
 
-            case 3:
+            case 2:
                 $sort_column = 't.pr_date';
+                break;
+
+            case 3:
+                $sort_column = 't.rra_no';
                 break;
 
             case 4:
@@ -195,11 +195,11 @@ class IncomingInventory extends CActiveRecord {
 
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
-        $criteria->compare('t.name', $columns[0]['search']['value'], true);
-        $criteria->compare('t.campaign_no', $columns[1]['search']['value'], true);
-        $criteria->compare('t.pr_no', $columns[2]['search']['value'], true);
-        $criteria->compare('t.pr_date', $columns[3]['search']['value'], true);
-        $criteria->compare('t.dr_no', $columns[4]['search']['value'], true);
+        $criteria->compare('t.campaign_no', $columns[0]['search']['value'], true);
+        $criteria->compare('t.pr_no', $columns[1]['search']['value'], true);
+        $criteria->compare('t.pr_date', $columns[2]['search']['value'], true);
+        $criteria->compare('t.dr_no', $columns[3]['search']['value'], true);
+        $criteria->compare('t.rra_no', $columns[4]['search']['value'], true);
         $criteria->compare('zone.zone_name', $columns[5]['search']['value'], true);
         $criteria->compare('t.status', $columns[6]['search']['value'], true);
         $criteria->compare('t.total_amount', $columns[7]['search']['value'], true);
@@ -255,8 +255,8 @@ class IncomingInventory extends CActiveRecord {
                 'company_id' => $this->company_id,
                 'campaign_no' => $this->campaign_no,
                 'pr_no' => $this->pr_no,
-                'name' => $this->name,
                 'dr_no' => $this->dr_no,
+                'rra_no' => $this->rra_no,
                 'zone_id' => $this->zone_id,
                 'transaction_date' => $this->transaction_date,
                 'pr_date' => $this->pr_date,

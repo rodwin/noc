@@ -36,10 +36,10 @@ $this->breadcrumbs = array(
     <table id="incoming-inventory_table" class="table table-bordered">
         <thead>
             <tr>
-                <th><?php echo $fields['name']; ?></th>
                 <th><?php echo $fields['campaign_no']; ?></th>
                 <th><?php echo $fields['pr_no']; ?></th>
                 <th><?php echo $fields['pr_date']; ?></th>
+                <th><?php echo $fields['rra_no']; ?></th>
                 <th><?php echo $fields['dr_no']; ?></th>
                 <th><?php echo $fields['zone_id']; ?></th>
                 <th><?php echo $fields['status']; ?></th>
@@ -141,10 +141,10 @@ $this->breadcrumbs = array(
             "order": [[8, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/IncomingInventory/data'); ?>",
             "columns": [
-                {"name": "name", "data": "name"},
                 {"name": "campaign_no", "data": "campaign_no"},
                 {"name": "pr_no", "data": "pr_no"},
                 {"name": "pr_date", "data": "pr_date"},
+                {"name": "rra_no", "data": "rra_no"},
                 {"name": "dr_no", "data": "dr_no"},
                 {"name": "zone_name", "data": "zone_name"},
                 {"name": "status", "data": "status"},

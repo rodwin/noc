@@ -82,8 +82,8 @@ class IncomingInventoryController extends Controller {
             $row['campaign_no'] = $value->campaign_no;
             $row['pr_no'] = $value->pr_no;
             $row['pr_date'] = $value->pr_date;
-            $row['name'] = $value->name;
             $row['dr_no'] = $value->dr_no;
+            $row['rra_no'] = $value->rra_no;
             $row['zone_id'] = $value->zone_id;
             $row['zone_name'] = $value->zone->zone_name;
             $row['transaction_date'] = $value->transaction_date;
@@ -306,6 +306,7 @@ class IncomingInventoryController extends Controller {
             "zone_name" => isset($value->outgoingInventory->zone->zone_name) ? $value->outgoingInventory->zone->zone_name : null,
             "plan_delivery_date" => isset($value->outgoingInventory->plan_delivery_date) ? $value->outgoingInventory->plan_delivery_date : null,
             "outgoing_inventory_id" => isset($value->outgoingInventory->outgoing_inventory_id) ? $value->outgoingInventory->outgoing_inventory_id : null,
+            "rra_no" => isset($value->outgoingInventory->rra_no) ? $value->outgoingInventory->rra_no : null,
         );
 
         $output['headers'] = $header;

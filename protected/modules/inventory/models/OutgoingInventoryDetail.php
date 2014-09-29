@@ -43,7 +43,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, inventory_id, sku_id, source_zone_id, quantity_issued', 'required'),
+            array('company_id, inventory_id, sku_id, source_zone_id, quantity_issued, amount', 'required'),
             array('outgoing_inventory_id, inventory_id, planned_quantity, quantity_issued, inventory_on_hand', 'numerical', 'integerOnly' => true),
             array('company_id, batch_no, sku_id, source_zone_id, status, created_by, updated_by', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),

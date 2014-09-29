@@ -81,8 +81,8 @@ class OutgoingInventoryController extends Controller {
 
             $row['outgoing_inventory_id'] = $value->outgoing_inventory_id;
             $row['rra_no'] = $value->rra_no;
-            $row['rra_name'] = $value->rra_name;
             $row['dr_no'] = $value->dr_no;
+            $row['dr_date'] = $value->dr_date;
             $row['destination_zone_id'] = $value->destination_zone_id;
             $row['destination_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
             $row['contact_person'] = $value->contact_person;
