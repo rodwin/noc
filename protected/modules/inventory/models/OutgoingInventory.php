@@ -190,62 +190,63 @@ class OutgoingInventory extends CActiveRecord {
         switch ($col) {
 
             case 0:
-                $sort_column = 'rra_no';
+                $sort_column = 't.rra_no';
                 break;
 
             case 1:
-                $sort_column = 'dr_no';
+                $sort_column = 't.dr_no';
                 break;
 
             case 2:
-                $sort_column = 'dr_date';
+                $sort_column = 't.dr_date';
                 break;
 
             case 3:
-                $sort_column = 'destination_zone_id';
+                $sort_column = 'zone.zone_name';
                 break;
 
             case 4:
-                $sort_column = 'campaign_no';
+                $sort_column = 't.campaign_no';
                 break;
 
             case 5:
-                $sort_column = 'pr_no';
+                $sort_column = 't.pr_no';
                 break;
 
             case 6:
-                $sort_column = 'status';
+                $sort_column = 't.status';
                 break;
 
             case 7:
-                $sort_column = 'contact_person';
+                $sort_column = 't.contact_person';
                 break;
 
             case 8:
-                $sort_column = 'total_amount';
+                $sort_column = 't.total_amount';
                 break;
 
             case 9:
-                $sort_column = 'created_date';
+                $sort_column = 't.created_date';
                 break;
         }
 
 
         $criteria = new CDbCriteria;
-        $criteria->compare('company_id', Yii::app()->user->company_id);
-        $criteria->compare('rra_no', $columns[0]['search']['value']);
-        $criteria->compare('dr_no', $columns[1]['search']['value'], true);
-        $criteria->compare('dr_date', $columns[2]['search']['value'], true);
-        $criteria->compare('destination_zone_id', $columns[3]['search']['value'], true);
-        $criteria->compare('campaign_no', $columns[4]['search']['value'], true);
-        $criteria->compare('pr_no', $columns[5]['search']['value'], true);
-        $criteria->compare('status', $columns[6]['search']['value'], true);
-        $criteria->compare('contact_person', $columns[7]['search']['value'], true);
-        $criteria->compare('total_amount', $columns[8]['search']['value'], true);
-        $criteria->compare('created_date', $columns[9]['search']['value'], true);
+        $criteria->compare('t.company_id', Yii::app()->user->company_id);
+        $criteria->compare('t.rra_no', $columns[0]['search']['value']);
+        $criteria->compare('t.dr_no', $columns[1]['search']['value'], true);
+        $criteria->compare('t.dr_date', $columns[2]['search']['value'], true);
+        $criteria->compare('zone.zone_name', $columns[3]['search']['value'], true);
+        $criteria->compare('t.campaign_no', $columns[4]['search']['value'], true);
+        $criteria->compare('t.pr_no', $columns[5]['search']['value'], true);
+        $criteria->compare('t.status', $columns[6]['search']['value'], true);
+        $criteria->compare('t.contact_person', $columns[7]['search']['value'], true);
+        $criteria->compare('t.total_amount', $columns[8]['search']['value'], true);
+        $criteria->compare('t.created_date', $columns[9]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
+        $criteria->with = array("zone");
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,

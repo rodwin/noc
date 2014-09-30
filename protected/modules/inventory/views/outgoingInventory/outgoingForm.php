@@ -788,7 +788,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         for (var i = 0; i < aTrs.length; i++) {
             $(aTrs[i]).find('input:checkbox:checked').each(function() {
                 var row_data = transaction_table.fnGetData(aTrs[i]);
-                total_amount = (parseFloat(total_amount) - parseFloat(row_data[11]));
+                total_amount = (parseFloat(total_amount) - parseFloat(row_data[12]));
                 $("#OutgoingInventory_total_amount").val(total_amount);
 
                 transaction_table.fnDeleteRow(aTrs[i]);

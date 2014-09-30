@@ -244,7 +244,7 @@ class IncomingInventoryController extends Controller {
                                 'planned_quantity' => $planned_qty,
                                 'quantity_received' => $qty_received,
                                 'amount' => $transaction_detail->amount != "" ? $transaction_detail->amount : 0,
-                                'inventory_on_hand' => isset($transaction_detail->inventory_on_hand) ? $transaction_detail->inventory_on_hand : 0,
+                                'inventory_on_hand' => $transaction_detail->inventory_on_hand != "" ? $transaction_detail->inventory_on_hand : 0,
                                 'reference_no' => isset($transaction_detail->pr_no) ? $transaction_detail->pr_no : null,
                                 'return_date' => isset($transaction_detail->return_date) ? $transaction_detail->return_date : null,
                                 'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
