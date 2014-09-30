@@ -79,7 +79,7 @@ $this->breadcrumbs = array(
                         <tr>
                             <th><?php echo $incomingInvFields['batch_no']; ?></th>
                             <th><?php echo $skuFields['sku_code']; ?></th>
-                            <th><?php echo $skuFields['sku_name']; ?></th>
+                            <th><?php echo $skuFields['description']; ?></th>
                             <th><?php echo $skuFields['brand_id']; ?></th>
                             <th><?php echo $incomingInvFields['source_zone_id']; ?></th>
                             <th><?php echo $incomingInvFields['unit_price']; ?></th>
@@ -257,7 +257,7 @@ $this->breadcrumbs = array(
                     incoming_inventory_table_detail.fnAddData([
                         v.batch_no,
                         v.sku_code,
-                        v.sku_name,
+                        v.sku_description,
                         v.brand_name,
                         v.source_zone_name,
                         v.unit_price,

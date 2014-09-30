@@ -147,6 +147,8 @@ class IncomingInventoryController extends Controller {
         $c->condition = "status IN ('" . OutgoingInventory::OUTGOING_PENDING_STATUS . "','" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "') AND closed = 0";
         $c->order = "dr_no ASC";
         $outgoing_inv_dr_nos = CHtml::listData(OutgoingInventory::model()->findAll($c), "dr_no", "dr_no");
+        $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
+        $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
 
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
@@ -216,6 +218,18 @@ class IncomingInventoryController extends Controller {
                             $data['success'] = true;
                             $data['message'] = 'Successfully Added Item';
 
+                            $status = "";
+                            $qty_received = $transaction_detail->quantity_received != "" ? $transaction_detail->quantity_received : 0;
+                            $planned_qty = $transaction_detail->planned_quantity != "" ? $transaction_detail->planned_quantity : 0;
+
+                            if ($qty_received == $planned_qty) {
+                                $status = OutgoingInventory::OUTGOING_COMPLETE_STATUS;
+                            } else if ($qty_received < $planned_qty) {
+                                $status = OutgoingInventory::OUTGOING_INCOMPLETE_STATUS;
+                            } else if ($qty_received > $planned_qty) {
+                                $status = OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS;
+                            }
+
                             $data['details'] = array(
                                 "inventory_id" => isset($inventory->inventory_id) ? $inventory->inventory_id : null,
                                 "sku_id" => isset($inventory->sku->sku_id) ? $inventory->sku->sku_id : null,
@@ -227,15 +241,17 @@ class IncomingInventoryController extends Controller {
                                 'source_zone_id' => isset($transaction_detail->source_zone_id) ? $transaction_detail->source_zone_id : null,
                                 'source_zone_name' => isset($transaction_detail->zone->zone_name) ? $transaction_detail->zone->zone_name : null,
                                 'expiration_date' => isset($transaction_detail->expiration_date) ? $transaction_detail->expiration_date : null,
-                                'planned_quantity' => isset($transaction_detail->planned_quantity) ? $transaction_detail->planned_quantity : 0,
-                                'quantity_received' => isset($transaction_detail->quantity_received) ? $transaction_detail->quantity_received : 0,
-                                'amount' => isset($transaction_detail->amount) ? $transaction_detail->amount : 0,
+                                'planned_quantity' => $planned_qty,
+                                'quantity_received' => $qty_received,
+                                'amount' => $transaction_detail->amount != "" ? $transaction_detail->amount : 0,
                                 'inventory_on_hand' => isset($transaction_detail->inventory_on_hand) ? $transaction_detail->inventory_on_hand : 0,
                                 'reference_no' => isset($transaction_detail->pr_no) ? $transaction_detail->pr_no : null,
                                 'return_date' => isset($transaction_detail->return_date) ? $transaction_detail->return_date : null,
                                 'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
                                 'outgoing_inventory_detail_id' => "",
-                                'status' => $transaction_detail->quantity_received >= $transaction_detail->planned_quantity ? OutgoingInventory::OUTGOING_COMPLETE_STATUS : OutgoingInventory::OUTGOING_INCOMPLETE_STATUS,
+                                'status' => $status,
+                                'uom_id' => isset($transaction_detail->uom_id) ? $transaction_detail->uom_id : null,
+                                'sku_status_id' => isset($transaction_detail->sku_status_id) ? $transaction_detail->sku_status_id : null,
                             );
                         } else {
 
@@ -257,6 +273,8 @@ class IncomingInventoryController extends Controller {
             'sku' => $sku,
             'outgoing_inv_dr_nos' => $outgoing_inv_dr_nos,
             'model' => $model,
+            'uom' => $uom,
+            'sku_status' => $sku_status,
         ));
     }
 
@@ -293,6 +311,8 @@ class IncomingInventoryController extends Controller {
                 $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
                 $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
                 $row['status'] = $value->status;
+                $row['uom_id'] = $value->uom_id;
+                $row['sku_status_id'] = $value->sku_status_id;
 
                 $output['transaction_details'][] = $row;
             }
@@ -343,6 +363,8 @@ class IncomingInventoryController extends Controller {
             'reference_no' => isset($inventory->reference_no) ? $inventory->reference_no : null,
             'expiration_date' => isset($inventory->expiration_date) ? $inventory->expiration_date : null,
             'inventory_on_hand' => isset($inventory->inventory_on_hand) ? $inventory->inventory_on_hand : 0,
+            'uom_id' => isset($inventory->uom_id) ? $inventory->uom_id : null,
+            'sku_status_id' => isset($inventory->sku_status_id) ? $inventory->sku_status_id : null,
         );
 
         echo json_encode($data);
@@ -382,6 +404,7 @@ class IncomingInventoryController extends Controller {
             $row['batch_no'] = $value->batch_no;
             $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
             $row['sku_name'] = isset($value->sku->sku_name) ? $value->sku->sku_name : null;
+            $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
             $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
             $row['source_zone_id'] = $value->source_zone_id;
             $row['source_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;

@@ -197,6 +197,8 @@ class OutgoingInventoryController extends Controller {
         $transaction_detail = new OutgoingInventoryDetail;
         $sku = new Sku;
         $model = new Attachment;
+        $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
+        $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
 
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
@@ -282,6 +284,8 @@ class OutgoingInventoryController extends Controller {
                                 'reference_no' => isset($transaction_detail->pr_no) ? $transaction_detail->pr_no : null,
                                 'return_date' => isset($transaction_detail->return_date) ? $transaction_detail->return_date : null,
                                 'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
+                                'uom_id' => isset($transaction_detail->uom_id) ? $transaction_detail->uom_id : null,
+                                'sku_status_id' => isset($transaction_detail->sku_status_id) ? $transaction_detail->sku_status_id : null,
                             );
                         } else {
 
@@ -302,6 +306,8 @@ class OutgoingInventoryController extends Controller {
             'transaction_detail' => $transaction_detail,
             'sku' => $sku,
             'model' => $model,
+            'uom' => $uom,
+            'sku_status' => $sku_status,
         ));
     }
 
@@ -334,6 +340,8 @@ class OutgoingInventoryController extends Controller {
             'reference_no' => isset($inventory->reference_no) ? $inventory->reference_no : null,
             'expiration_date' => isset($inventory->expiration_date) ? $inventory->expiration_date : null,
             'inventory_on_hand' => isset($inventory->inventory_on_hand) ? $inventory->inventory_on_hand : 0,
+            'uom_id' => isset($inventory->uom_id) ? $inventory->uom_id : null,
+            'sku_status_id' => isset($inventory->sku_status_id) ? $inventory->sku_status_id : null,
         );
 
         echo json_encode($data);

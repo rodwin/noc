@@ -114,6 +114,7 @@ class Inventory extends CActiveRecord {
             'sku_id' => 'Sku',
             'sku_code' => 'Code',
             'sku_name' => 'Name',
+            'cost_per_unit' => 'Cost Per Unit',
             'qty' => 'Qty',
             'uom_id' => 'Uom',
             'uom_name' => 'Uom',

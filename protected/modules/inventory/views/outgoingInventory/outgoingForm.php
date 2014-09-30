@@ -271,7 +271,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                     <?php echo $form->labelEx($sku, 'sub_type'); ?><br/>
                                     <?php echo $form->labelEx($sku, 'brand_id'); ?><br/>
                                     <?php echo $form->labelEx($sku, 'sku_code'); ?><br/>
-                                    <?php echo $form->labelEx($sku, 'description'); ?>
+                                    <?php echo $form->labelEx($sku, 'description'); ?><br/>
+                                    <?php echo $form->labelEx($transaction_detail, 'uom_id'); ?><br/>
+                                    <?php echo $form->labelEx($transaction_detail, 'sku_status_id'); ?>
 
                                 </div>
                                 <div class="pull-right col-md-7">
@@ -291,6 +293,30 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                         ),
                                         'widgetOptions' => array(
                                             'htmlOptions' => array('style' => 'resize: none; width: 200px;', 'readonly' => true),
+                                        ),
+                                        'labelOptions' => array('label' => false)));
+                                    ?>
+
+                                    <?php
+                                    echo $form->dropDownListGroup($transaction_detail, 'uom_id', array(
+                                        'wrapperHtmlOptions' => array(
+                                            'class' => 'span5',
+                                        ),
+                                        'widgetOptions' => array(
+                                            'data' => $uom,
+                                            'htmlOptions' => array('multiple' => false, 'prompt' => 'Select UOM', 'class' => 'span5'),
+                                        ),
+                                        'labelOptions' => array('label' => false)));
+                                    ?>
+
+                                    <?php
+                                    echo $form->dropDownListGroup($transaction_detail, 'sku_status_id', array(
+                                        'wrapperHtmlOptions' => array(
+                                            'class' => '',
+                                        ),
+                                        'widgetOptions' => array(
+                                            'data' => $sku_status,
+                                            'htmlOptions' => array('class' => 'span5', 'multiple' => false, 'prompt' => 'Select ' . Sku::SKU_LABEL . ' Status'),
                                         ),
                                         'labelOptions' => array('label' => false)));
                                     ?>
@@ -442,6 +468,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th class=""><?php echo $outgoingDetailFields['return_date']; ?></th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['remarks']; ?></th>
                         <th class="hide_row">Inventory</th>
+                        <th class="hide_row"><?php echo $outgoingDetailFields['uom_id']; ?></th>
+                        <th class="hide_row"><?php echo $outgoingDetailFields['sku_status_id']; ?></th>
                     </tr>                                    
                 </thead>
             </table>                            
@@ -577,6 +605,12 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 }, {
                     "targets": [16],
                     "visible": false
+                }, {
+                    "targets": [17],
+                    "visible": false
+                }, {
+                    "targets": [18],
+                    "visible": false
                 }]
         });
 
@@ -600,7 +634,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 dataType: "json",
                 beforeSend: function(data) {
                     $("#btn_save, #btn_add_item").attr("disabled", "disabled");
-                    if (form == headers) { $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...'); }
+                    if (form == headers) {
+                        $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
+                    }
                 },
                 success: function(data) {
                     validateForm(data);
@@ -660,7 +696,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     data.details.inventory_on_hand,
                     data.details.return_date,
                     data.details.remarks,
-                    data.details.inventory_id
+                    data.details.inventory_id,
+                    data.details.uom_id,
+                    data.details.sku_status_id
                 ]);
 
                 total_amount = (parseFloat(total_amount) + parseFloat(data.details.amount));
@@ -716,6 +754,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $("#OutgoingInventoryDetail_inventory_on_hand").val(data.inventory_on_hand);
                 $("#OutgoingInventoryDetail_batch_no").val(data.reference_no);
                 $("#OutgoingInventoryDetail_expiration_date").val(data.expiration_date);
+                $("#OutgoingInventoryDetail_uom_id").val(data.uom_id);
+                $("#OutgoingInventoryDetail_sku_status_id").val(data.sku_status_id);
 //                $("#OutgoingInventoryDetail_amount").val(0);
             },
             error: function(data) {
@@ -789,6 +829,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 "return_date": row_data[14],
                 "remarks": row_data[15],
                 "inventory_id": row_data[16],
+                "uom_id": row_data[17],
+                "sku_status_id": row_data[18],
             });
         }
 
