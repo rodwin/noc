@@ -29,7 +29,7 @@ class ReceivingInventoryController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'oldCreate', 'loadSkuDetails', 'skuData', 'receivingInvDetailData', 'uploadAttachment', 'preview', 'deleteByUrl', 'download'),
+                'actions' => array('create', 'update', 'data', 'oldCreate', 'loadSkuDetails', 'skuData', 'receivingInvDetailData', 'uploadAttachment', 'preview', 'deleteByUrl', 'download', 'deleteReceivingDetail', 'deleteAttachment'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -88,10 +88,9 @@ class ReceivingInventoryController extends Controller {
             $row['updated_date'] = $value->updated_date;
             $row['updated_by'] = $value->updated_by;
 
-
-            $row['links'] = '<a class="view" title="View" data-toggle="tooltip" href="' . $this->createUrl('/inventory/receivinginventory/view', array('id' => $value->receiving_inventory_id)) . '" data-original-title="View"><i class="fa fa-eye"></i></a>'
-                    . '&nbsp;<a class="update" title="Update" data-toggle="tooltip" href="' . $this->createUrl('/inventory/receivinginventory/update', array('id' => $value->receiving_inventory_id)) . '" data-original-title="View"><i class="fa fa-pencil"></i></a>'
-                    . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="' . $this->createUrl('/inventory/receivinginventory/delete', array('id' => $value->receiving_inventory_id)) . '" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
+            $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/receivinginventory/delete', array('id' => $value->receiving_inventory_id)) . '">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </a>';
 
             $output['data'][] = $row;
         }
@@ -173,6 +172,11 @@ class ReceivingInventoryController extends Controller {
             $row['amount'] = $value->amount;
             $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['remarks'] = $value->remarks;
+
+            $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/receivinginventory/deleteReceivingDetail', array('receiving_inv_detail_id' => $value->receiving_inventory_detail_id)) . '">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </a>';
+
 
             $output['data'][] = $row;
         }
@@ -436,18 +440,136 @@ class ReceivingInventoryController extends Controller {
      */
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
-            // we only allow deletion via POST request
-            $this->deleteByUrl($id); ///julius code
-            $this->loadModel($id)->delete();
+            try {
 
-            // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-            if (!isset($_GET['ajax'])) {
-                Yii::app()->user->setFlash('success', "Successfully deleted");
-                $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-            } else {
+                // delete receiving details by receiving_inventory_id
+                ReceivingInventoryDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND receiving_inventory_id = " . $id);
+                // delete attachment by receiving_inventory_id as transaction_id
+                $this->deleteAttachmenntByReceivingInvID($id);
 
-                echo "Successfully deleted";
-                exit;
+                // we only allow deletion via POST request
+                $this->loadModel($id)->delete();
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    if (!isset($_GET['ajax'])) {
+                        Yii::app()->user->setFlash('danger', "Unable to delete");
+                        $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('view', 'id' => $id));
+                    } else {
+                        echo "1451";
+                        exit;
+                    }
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
+    public function actionDeleteReceivingDetail($receiving_inv_detail_id) {
+        if (Yii::app()->request->isPostRequest) {
+            try {
+
+                ReceivingInventoryDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND receiving_inventory_detail_id = " . $receiving_inv_detail_id);
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    echo "1451";
+                    exit;
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
+    public function deleteAttachmenntByReceivingInvID($receiving_inv_id, $transaction_type = "receiving") {
+        $attachment = Attachment::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "transaction_type" => $transaction_type, "transaction_id" => $receiving_inv_id));
+
+        if (count($attachment) > 0) {
+            $base = Yii::app()->getBaseUrl(true);
+            $arr = explode("/", $base);
+            $base = $arr[count($arr) - 1];
+
+            Attachment::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND transaction_type = '" . $transaction_type . "' AND transaction_id = " . $receiving_inv_id);
+            $this->delete_directory('../' . $base . "/protected/uploads/" . Yii::app()->user->company_id . "/attachments/" . $transaction_type . "/" . $receiving_inv_id);
+        } else {
+            return false;
+        }
+    }
+
+    function delete_directory($dirname) {
+        if (is_dir($dirname)) {
+            $dir_handle = opendir($dirname);
+        } else {
+            return false;
+        }
+
+        if (!$dir_handle) {
+            return false;
+        }
+
+        while ($file = readdir($dir_handle)) {
+            if ($file != "." && $file != "..") {
+                if (!is_dir($dirname . "/" . $file))
+                    unlink($dirname . "/" . $file);
+                else
+                    delete_directory($dirname . '/' . $file);
+            }
+        }
+        closedir($dir_handle);
+        rmdir($dirname);
+        return true;
+    }
+
+    public function actionDeleteAttachment($attachment_id) {
+        if (Yii::app()->request->isPostRequest) {
+            try {
+
+                $attachment = Attachment::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "attachment_id" => $attachment_id));
+
+                if ($attachment) {
+                    Attachment::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND attachment_id = '" . $attachment->attachment_id . "'");
+
+                    $base = Yii::app()->getBaseUrl(true);
+                    $arr = explode("/", $base);
+                    $base = $arr[count($arr) - 1];
+                    $url = str_replace(Yii::app()->getBaseUrl(true), "", $attachment->url);
+                    unlink('../' . $base . $url);
+                } else {
+                    throw new CHttpException(404, 'The requested page does not exist.');
+                }
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    echo "1451";
+                    exit;
+                }
             }
         } else
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
@@ -576,17 +698,28 @@ class ReceivingInventoryController extends Controller {
 
         $output = array();
         foreach ($attachment as $key => $value) {
+            $ext = new SplFileInfo($value->file_name);
+
+            $icon = "";
+            if ($ext->getExtension() == "jpg" || $ext->getExtension() == "jpeg" || $ext->getExtension() == "gif" || $ext->getExtension() == "png") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "picture.png", "Image", array("width" => 30));
+            } else if ($ext->getExtension() == "pdf") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "pdf.png", "Image", array("width" => 30));
+            } else if ($ext->getExtension() == "docx" || $ext->getExtension() == "doc") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "doc.png", "Image", array("width" => 30));
+            }
+
+
             $row = array();
+            $row['icon'] = $icon;
             $row['file_name'] = $value->file_name;
-            $row['links'] = '<a class="view" title="Download" data-toggle="tooltip" href="' . $this->createUrl('/inventory/receivinginventory/download', array('id' => $value->attachment_id)) . '" data-original-title="Download"><button type="submit" class="btn btn-default btn-flat">
-            <i class="icon-download icon-white"></i>
-            <i class="glyphicon glyphicon-download"></i>
-           
-            </button></a>'
-                    . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="' . $this->createUrl('/inventory/receivinginventory/deletebyurl', array('id' => $value->attachment_id)) . '" data-original-title="Delete"><button type="button" class="btn btn-default btn-flat">
-            <i class="glyphicon glyphicon-trash"></i>
-            
-            </button></a>';
+
+            $row['links'] = '<a class="btn btn-sm btn-default" title="Delete" href="' . $this->createUrl('/inventory/receivinginventory/download', array('id' => $value->attachment_id)) . '">
+                                <i class="glyphicon glyphicon-download"></i>
+                            </a>'
+                    . '&nbsp;<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/receivinginventory/deleteAttachment', array('attachment_id' => $value->attachment_id)) . '">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </a>';
 
             $output['data'][] = $row;
         }

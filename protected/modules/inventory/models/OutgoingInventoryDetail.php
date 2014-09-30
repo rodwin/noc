@@ -43,9 +43,9 @@ class OutgoingInventoryDetail extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, inventory_id, sku_id, source_zone_id, quantity_issued', 'required'),
+            array('company_id, inventory_id, sku_id, uom_id, source_zone_id, quantity_issued, amount', 'required'),
             array('outgoing_inventory_id, inventory_id, planned_quantity, quantity_issued, inventory_on_hand', 'numerical', 'integerOnly' => true),
-            array('company_id, batch_no, sku_id, source_zone_id, status, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, status, created_by, updated_by', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
             array('unit_price, amount', 'match', 'pattern' => '/^[0-9]{1,9}(\.[0-9]{0,2})?$/'),
@@ -53,7 +53,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
             array('expiration_date, return_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('outgoing_inventory_detail_id, outgoing_inventory_id, company_id, batch_no, sku_id, source_zone_id, unit_price, expiration_date, quantity_issued, amount, inventory_on_hand, return_date, status, remarks, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('outgoing_inventory_detail_id, outgoing_inventory_id, company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, unit_price, expiration_date, quantity_issued, amount, inventory_on_hand, return_date, status, remarks, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
 
@@ -71,6 +71,8 @@ class OutgoingInventoryDetail extends CActiveRecord {
             'outgoingInventory' => array(self::BELONGS_TO, 'OutgoingInventory', 'outgoing_inventory_id'),
             'zone' => array(self::BELONGS_TO, 'Zone', 'source_zone_id'),
             'sku' => array(self::BELONGS_TO, 'Sku', 'sku_id'),
+            'uom' => array(self::BELONGS_TO, 'Uom', 'uom_id'),
+            'skuStatus' => array(self::BELONGS_TO, 'SkuStatus', 'sku_status_id'),
         );
     }
 
@@ -85,6 +87,8 @@ class OutgoingInventoryDetail extends CActiveRecord {
             'inventory_id' => 'Inventory',
             'batch_no' => 'Batch No',
             'sku_id' => 'Sku',
+            'uom_id' => 'UOM',
+            'sku_status_id' => 'Status',
             'source_zone_id' => 'Source Zone',
             'unit_price' => 'Unit Price',
             'expiration_date' => 'Expiration Date',
@@ -125,6 +129,8 @@ class OutgoingInventoryDetail extends CActiveRecord {
         $criteria->compare('inventory_id', $this->inventory_id);
         $criteria->compare('batch_no', $this->batch_no, true);
         $criteria->compare('sku_id', $this->sku_id, true);
+        $criteria->compare('uom_id', $this->uom_id, true);
+        $criteria->compare('sku_status_id', $this->sku_status_id, true);
         $criteria->compare('source_zone_id', $this->source_zone_id, true);
         $criteria->compare('unit_price', $this->unit_price, true);
         $criteria->compare('expiration_date', $this->expiration_date, true);
@@ -207,7 +213,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
         return parent::model($className);
     }
 
-    public function createOutgoingTransactionDetails($outgoing_inventory_id, $company_id, $inventory_id, $batch_no, $sku_id, $source_zone_id, $unit_price, $expiration_date, $planned_quantity, $quantity_issued, $amount, $inventory_on_hand, $return_date, $remarks, $created_by = null) {
+    public function createOutgoingTransactionDetails($outgoing_inventory_id, $company_id, $inventory_id, $batch_no, $sku_id, $source_zone_id, $unit_price, $expiration_date, $planned_quantity, $quantity_issued, $amount, $inventory_on_hand, $return_date, $remarks, $created_by = null, $uom_id, $sku_status_id) {
 
         $outgoing_transaction_detail = new OutgoingInventoryDetail;
         $outgoing_transaction_detail->outgoing_inventory_id = $outgoing_inventory_id;
@@ -215,6 +221,8 @@ class OutgoingInventoryDetail extends CActiveRecord {
         $outgoing_transaction_detail->inventory_id = $inventory_id;
         $outgoing_transaction_detail->batch_no = $batch_no;
         $outgoing_transaction_detail->sku_id = $sku_id;
+        $outgoing_transaction_detail->uom_id = $uom_id;
+        $outgoing_transaction_detail->sku_status_id = $sku_status_id;
         $outgoing_transaction_detail->source_zone_id = $source_zone_id;
         $outgoing_transaction_detail->unit_price = isset($unit_price) ? $unit_price : "";
         $outgoing_transaction_detail->expiration_date = $expiration_date != "" ? $expiration_date : null;

@@ -81,8 +81,8 @@ class OutgoingInventoryController extends Controller {
 
             $row['outgoing_inventory_id'] = $value->outgoing_inventory_id;
             $row['rra_no'] = $value->rra_no;
-            $row['rra_name'] = $value->rra_name;
             $row['dr_no'] = $value->dr_no;
+            $row['dr_date'] = $value->dr_date;
             $row['destination_zone_id'] = $value->destination_zone_id;
             $row['destination_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
             $row['contact_person'] = $value->contact_person;
@@ -197,6 +197,8 @@ class OutgoingInventoryController extends Controller {
         $transaction_detail = new OutgoingInventoryDetail;
         $sku = new Sku;
         $model = new Attachment;
+        $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
+        $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
 
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
@@ -275,13 +277,15 @@ class OutgoingInventoryController extends Controller {
                                 'source_zone_id' => isset($transaction_detail->source_zone_id) ? $transaction_detail->source_zone_id : null,
                                 'source_zone_name' => isset($transaction_detail->zone->zone_name) ? $transaction_detail->zone->zone_name : null,
                                 'expiration_date' => isset($transaction_detail->expiration_date) ? $transaction_detail->expiration_date : null,
-                                'planned_quantity' => isset($transaction_detail->planned_quantity) ? $transaction_detail->planned_quantity : 0,
-                                'quantity_issued' => isset($transaction_detail->quantity_issued) ? $transaction_detail->quantity_issued : 0,
-                                'amount' => isset($transaction_detail->amount) ? $transaction_detail->amount : 0,
-                                'inventory_on_hand' => isset($transaction_detail->inventory_on_hand) ? $transaction_detail->inventory_on_hand : 0,
+                                'planned_quantity' => $transaction_detail->planned_quantity != "" ? $transaction_detail->planned_quantity : 0,
+                                'quantity_issued' => $transaction_detail->quantity_issued != "" ? $transaction_detail->quantity_issued : 0,
+                                'amount' => $transaction_detail->amount != "" ? $transaction_detail->amount : 0,
+                                'inventory_on_hand' => $transaction_detail->inventory_on_hand != "" ? $transaction_detail->inventory_on_hand : 0,
                                 'reference_no' => isset($transaction_detail->pr_no) ? $transaction_detail->pr_no : null,
                                 'return_date' => isset($transaction_detail->return_date) ? $transaction_detail->return_date : null,
                                 'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
+                                'uom_id' => isset($transaction_detail->uom_id) ? $transaction_detail->uom_id : null,
+                                'sku_status_id' => isset($transaction_detail->sku_status_id) ? $transaction_detail->sku_status_id : null,
                             );
                         } else {
 
@@ -302,6 +306,8 @@ class OutgoingInventoryController extends Controller {
             'transaction_detail' => $transaction_detail,
             'sku' => $sku,
             'model' => $model,
+            'uom' => $uom,
+            'sku_status' => $sku_status,
         ));
     }
 
@@ -334,6 +340,8 @@ class OutgoingInventoryController extends Controller {
             'reference_no' => isset($inventory->reference_no) ? $inventory->reference_no : null,
             'expiration_date' => isset($inventory->expiration_date) ? $inventory->expiration_date : null,
             'inventory_on_hand' => isset($inventory->inventory_on_hand) ? $inventory->inventory_on_hand : 0,
+            'uom_id' => isset($inventory->uom_id) ? $inventory->uom_id : null,
+            'sku_status_id' => isset($inventory->sku_status_id) ? $inventory->sku_status_id : null,
         );
 
         echo json_encode($data);

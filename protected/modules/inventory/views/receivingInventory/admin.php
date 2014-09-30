@@ -25,6 +25,8 @@ return false;
 
     .hide_row { display: none; }
 
+    #hide_textbox input { display:none; }
+
 </style>  
 
 <?php // echo CHtml::link('Advanced Search', '#', array('class' => 'search-button btn btn-primary btn-flat')); ?>
@@ -60,6 +62,7 @@ return false;
                 <th><?php echo $fields['zone_id']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
                 <th><?php echo $fields['created_date']; ?></th>
+                <th>Actions</th>
             </tr>
         </thead>
         <thead>
@@ -72,6 +75,7 @@ return false;
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
+                <td class="filter" id="hide_textbox"></td>  
             </tr>
         </thead>
     </table>
@@ -99,6 +103,7 @@ return false;
                             <th><?php echo $receivingInvFields['quantity_received']; ?></th>
                             <th><?php echo $receivingInvFields['uom_id']; ?></th>
                             <th><?php echo $receivingInvFields['amount']; ?></th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <thead>
@@ -112,6 +117,7 @@ return false;
                             <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
+                            <td class="filter" id="hide_textbox"></td>  
                         </tr>
                     </thead>
                 </table>
@@ -123,8 +129,9 @@ return false;
                 <table id="receiving-inventory-attachment_table" class="table table-bordered">
                     <thead>
                         <tr>
-                            <th width="90%"><?php echo 'Attachments' ?></th>
-                            <th><?php echo 'Actions' ?></th>
+                            <th style="width: 40px;"></th>
+                            <th>File Name</th>
+                            <th style="width: 80px;"><?php echo 'Actions' ?></th>
                         </tr>
                     </thead>
                 </table>
@@ -140,6 +147,7 @@ return false;
     var receiving_inventory_table;
     var receiving_inv_detail_table;
     var receiving_inv_attachment_table; //julius code
+    var receiving_id;
     $(function() {
         receiving_inventory_table = $('#receiving-inventory_table').dataTable({
             "filter": true,
@@ -159,12 +167,16 @@ return false;
                 {"name": "zone_name", "data": "zone_name"},
                 {"name": "total_amount", "data": "total_amount"},
                 {"name": "created_date", "data": "created_date"},
-                //                {"name": "links", "data": "links", 'sortable': false}
+                {"name": "links", "data": "links", 'sortable': false}
             ],
             "columnDefs": [{
                     "targets": [8],
                     "visible": false
-                }]
+                }],
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(8)', nRow).addClass("text-center");
+
+            }
         });
 
         $('#receiving-inventory_table tbody').on('click', 'tr', function() {
@@ -198,7 +210,12 @@ return false;
             "bSort": false,
             "processing": false,
             "serverSide": false,
-            "bAutoWidth": false
+            "bAutoWidth": false,
+            iDisplayLength: -1,
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(9)', nRow).addClass("text-center");
+
+            }
         });
         // julius code
         receiving_inv_attachment_table = $('#receiving-inventory-attachment_table').dataTable({
@@ -207,7 +224,12 @@ return false;
             "bSort": false,
             "processing": false,
             "serverSide": false,
-            "bAutoWidth": false
+            "bAutoWidth": false,
+            iDisplayLength: -1,
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(0), td:eq(2)', nRow).addClass("text-center");
+
+            }
         }); //////
 
         var i = 0;
@@ -233,12 +255,70 @@ return false;
                 'type': 'POST',
                 'dataType': 'text',
                 'success': function(data) {
+                    if (data == "1451") {
+                        $.growl("Unable to delete", {
+                            icon: 'glyphicon glyphicon-warning-sign',
+                            type: 'danger'
+                        });
+
+                        receiving_id = "";
+                    } else {
+                        $.growl(data, {
+                            icon: 'glyphicon glyphicon-info-sign',
+                            type: 'success'
+                        });
+
+                        receiving_inventory_table.fnMultiFilter();
+                    }
+
+                    loadReceivingInvDetails(receiving_id);
+                    loadAttachmentPreview(receiving_id);
+                },
+                error: function(jqXHR, exception) {
+                    alert('An error occured: ' + exception);
+                }
+            });
+            return false;
+        });
+
+        jQuery(document).on('click', '#receiving-inventory-details_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
                     $.growl(data, {
                         icon: 'glyphicon glyphicon-info-sign',
                         type: 'success'
                     });
 
-                    table.fnMultiFilter();
+                    loadReceivingInvDetails(receiving_id);
+                    loadAttachmentPreview(receiving_id);
+                },
+                error: function(jqXHR, exception) {
+                    alert('An error occured: ' + exception);
+                }
+            });
+            return false;
+        });
+
+        jQuery(document).on('click', '#receiving-inventory-attachment_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    $.growl(data, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: 'success'
+                    });
+
+                    loadReceivingInvDetails(receiving_id);
+                    loadAttachmentPreview(receiving_id);
                 },
                 error: function(jqXHR, exception) {
                     alert('An error occured: ' + exception);
@@ -249,13 +329,14 @@ return false;
     });
 
     function loadReceivingInvDetails(receiving_inv_id) {
+        receiving_id = receiving_inv_id;
 
         $.ajax({
             type: 'POST',
             url: '<?php echo Yii::app()->createUrl('/inventory/ReceivingInventory/receivingInvDetailData'); ?>' + '&receiving_inv_id=' + receiving_inv_id,
             dataType: "json",
             success: function(data) {
-                console.log(data);
+
                 var oSettings = receiving_inv_detail_table.fnSettings();
                 var iTotalRecords = oSettings.fnRecordsTotal();
                 for (var i = 0; i <= iTotalRecords; i++) {
@@ -272,7 +353,8 @@ return false;
                         v.planned_quantity,
                         v.quantity_received,
                         v.uom_name,
-                        v.amount
+                        v.amount,
+                        v.links
                     ]);
                 });
             },
@@ -298,6 +380,7 @@ return false;
                 $.each(data.data, function(i, v) {
                     rows++;
                     receiving_inv_attachment_table.fnAddData([
+                        v.icon,
                         v.file_name,
                         v.links,
                     ]);

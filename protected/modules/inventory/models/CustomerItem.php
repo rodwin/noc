@@ -43,15 +43,15 @@ class CustomerItem extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, name, dr_no, source_zone_id, poi_id, transaction_date', 'required'),
-            array('company_id, name, pr_no, dr_no, source_zone_id, poi_id, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, rra_no, pr_no, dr_no, poi_id, transaction_date', 'required'),
+            array('company_id, rra_no, campaign_no, pr_no, dr_no, source_zone_id, poi_id, created_by, updated_by', 'length', 'max' => 50),
             array('total_amount', 'length', 'max' => 18),
             array('source_zone_id', 'isValidZone'),
-            array('transaction_date, plan_delivery_date, revised_delivery_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
+            array('transaction_date, pr_date, plan_delivery_date, revised_delivery_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('plan_delivery_date, revised_delivery_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('customer_item_id, company_id, name, pr_no, dr_no, source_zone_id, poi_id, transaction_date, plan_delivery_date, revised_delivery_date, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('customer_item_id, company_id, rra_no, pr_no, pr_date, dr_no, source_zone_id, poi_id, transaction_date, plan_delivery_date, revised_delivery_date, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
 
@@ -95,11 +95,13 @@ class CustomerItem extends CActiveRecord {
         return array(
             'customer_item_id' => 'Customer Item',
             'company_id' => 'Company',
-            'name' => 'Name',
-            'pr_no' => 'Pr No',
-            'dr_no' => 'Dr No',
+            'rra_no' => 'RRA No',
+            'campaign_no' => 'Campaign No',
+            'pr_no' => 'PR No',
+            'pr_date' => 'PR Date',
+            'dr_no' => 'DR No',
             'source_zone_id' => 'Source Zone',
-            'poi_id' => 'Poi',
+            'poi_id' => 'Outlet',
             'transaction_date' => 'Transaction Date',
             'plan_delivery_date' => 'Plan Delivery Date',
             'revised_delivery_date' => 'Revised Delivery Date',
@@ -130,8 +132,10 @@ class CustomerItem extends CActiveRecord {
 
         $criteria->compare('customer_item_id', $this->customer_item_id);
         $criteria->compare('company_id', Yii::app()->user->company_id);
-        $criteria->compare('name', $this->name, true);
+        $criteria->compare('rra_no', $this->rra_no, true);
+        $criteria->compare('campaign_no', $this->campaign_no, true);
         $criteria->compare('pr_no', $this->pr_no, true);
+        $criteria->compare('pr_date', $this->pr_date, true);
         $criteria->compare('dr_no', $this->dr_no, true);
         $criteria->compare('source_zone_id', $this->source_zone_id, true);
         $criteria->compare('poi_id', $this->poi_id, true);
@@ -157,7 +161,7 @@ class CustomerItem extends CActiveRecord {
                 break;
 
             case 1:
-                $sort_column = 'name';
+                $sort_column = 'rra_no';
                 break;
 
             case 2:
@@ -185,7 +189,7 @@ class CustomerItem extends CActiveRecord {
         $criteria = new CDbCriteria;
         $criteria->compare('company_id', Yii::app()->user->company_id);
         $criteria->compare('customer_item_id', $columns[0]['search']['value']);
-        $criteria->compare('name', $columns[1]['search']['value'], true);
+        $criteria->compare('rra_no', $columns[1]['search']['value'], true);
         $criteria->compare('pr_no', $columns[2]['search']['value'], true);
         $criteria->compare('dr_no', $columns[3]['search']['value'], true);
         $criteria->compare('source_zone_id', $columns[4]['search']['value'], true);
