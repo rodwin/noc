@@ -6,11 +6,16 @@
  * The followings are the available columns in table 'customer_item_detail':
  * @property integer $customer_item_detail_id
  * @property integer $customer_item_id
+ * @property string $company_id
  * @property integer $inventory_id
  * @property string $batch_no
  * @property string $sku_id
+ * @property string $uom_id
+ * @property string $sku_status_id
+ * @property string $source_zone_id
  * @property string $unit_price
  * @property string $expiration_date
+ * @property integer $planned_quantity
  * @property integer $quantity_issued
  * @property string $amount
  * @property integer $inventory_on_hand
@@ -42,16 +47,29 @@ class CustomerItemDetail extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('inventory_id, sku_id, quantity_issued', 'required'),
-            array('customer_item_id, inventory_id, quantity_issued, inventory_on_hand', 'numerical', 'integerOnly' => true),
-            array('batch_no, sku_id, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, inventory_id, sku_id, uom_id, source_zone_id, quantity_issued, amount', 'required'),
+            array('customer_item_id, inventory_id, planned_quantity, quantity_issued, inventory_on_hand', 'numerical', 'integerOnly' => true),
+            array('company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, created_by, updated_by', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
+            array('source_zone_id', 'isValidZone'),
+            array('unit_price, amount', 'match', 'pattern' => '/^[0-9]{1,9}(\.[0-9]{0,2})?$/'),
+            array('expiration_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('expiration_date, return_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('customer_item_detail_id, customer_item_id, inventory_id, batch_no, sku_id, unit_price, expiration_date, quantity_issued, amount, inventory_on_hand, return_date, remarks, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('customer_item_detail_id, customer_item_id, company_id, inventory_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, unit_price, expiration_date, planned_quantity, quantity_issued, amount, inventory_on_hand, return_date, remarks, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
+    }
+
+    public function isValidZone($attribute) {
+        $model = Zone::model()->findByPk($this->$attribute);
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'Zone is invalid.');
+        }
+
+        return;
     }
 
     public function beforeValidate() {
@@ -66,6 +84,10 @@ class CustomerItemDetail extends CActiveRecord {
         // class name for the relations automatically generated below.
         return array(
             'customerItem' => array(self::BELONGS_TO, 'CustomerItem', 'customer_item_id'),
+            'zone' => array(self::BELONGS_TO, 'Zone', 'source_zone_id'),
+            'sku' => array(self::BELONGS_TO, 'Sku', 'sku_id'),
+            'uom' => array(self::BELONGS_TO, 'Uom', 'uom_id'),
+            'skuStatus' => array(self::BELONGS_TO, 'SkuStatus', 'sku_status_id'),
         );
     }
 
@@ -76,11 +98,16 @@ class CustomerItemDetail extends CActiveRecord {
         return array(
             'customer_item_detail_id' => 'Customer Item Detail',
             'customer_item_id' => 'Customer Item',
+            'company_id' => 'Company',
             'inventory_id' => 'Inventory',
             'batch_no' => 'Batch No',
             'sku_id' => 'Sku',
+            'uom_id' => 'Uom',
+            'sku_status_id' => 'Sku Status',
+            'source_zone_id' => 'Source Zone',
             'unit_price' => 'Unit Price',
             'expiration_date' => 'Expiration Date',
+            'planned_quantity' => 'Planned Quantity',
             'quantity_issued' => 'Quantity Issued',
             'amount' => 'Amount',
             'inventory_on_hand' => 'Inventory On Hand',
@@ -112,11 +139,16 @@ class CustomerItemDetail extends CActiveRecord {
 
         $criteria->compare('customer_item_detail_id', $this->customer_item_detail_id);
         $criteria->compare('customer_item_id', $this->customer_item_id);
+        $criteria->compare('company_id', Yii::app()->user->company_id);
         $criteria->compare('inventory_id', $this->inventory_id);
         $criteria->compare('batch_no', $this->batch_no, true);
         $criteria->compare('sku_id', $this->sku_id, true);
+        $criteria->compare('uom_id', $this->uom_id, true);
+        $criteria->compare('sku_status_id', $this->sku_status_id, true);
+        $criteria->compare('source_zone_id', $this->source_zone_id, true);
         $criteria->compare('unit_price', $this->unit_price, true);
         $criteria->compare('expiration_date', $this->expiration_date, true);
+        $criteria->compare('planned_quantity', $this->planned_quantity);
         $criteria->compare('quantity_issued', $this->quantity_issued);
         $criteria->compare('amount', $this->amount, true);
         $criteria->compare('inventory_on_hand', $this->inventory_on_hand);
@@ -156,11 +188,11 @@ class CustomerItemDetail extends CActiveRecord {
                 break;
 
             case 5:
-                $sort_column = 'unit_price';
+                $sort_column = 'uom_id';
                 break;
 
             case 6:
-                $sort_column = 'expiration_date';
+                $sort_column = 'sku_status_id';
                 break;
         }
 
@@ -172,8 +204,8 @@ class CustomerItemDetail extends CActiveRecord {
         $criteria->compare('inventory_id', $columns[2]['search']['value']);
         $criteria->compare('batch_no', $columns[3]['search']['value'], true);
         $criteria->compare('sku_id', $columns[4]['search']['value'], true);
-        $criteria->compare('unit_price', $columns[5]['search']['value'], true);
-        $criteria->compare('expiration_date', $columns[6]['search']['value'], true);
+        $criteria->compare('uom_id', $columns[5]['search']['value'], true);
+        $criteria->compare('sku_status_id', $columns[6]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;

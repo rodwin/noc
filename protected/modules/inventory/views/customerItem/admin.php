@@ -43,7 +43,7 @@ return false;
         <thead>
             <tr>
                 <th><?php echo $fields['customer_item_id']; ?></th>
-                <th><?php echo $fields['name']; ?></th>
+                <th><?php echo $fields['rra_no']; ?></th>
                 <th><?php echo $fields['pr_no']; ?></th>
                 <th><?php echo $fields['dr_no']; ?></th>
                 <th><?php echo $fields['source_zone_id']; ?></th>
@@ -67,7 +67,7 @@ return false;
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/CustomerItem/data'); ?>",
             "columns": [
                 {"name": "customer_item_id", "data": "customer_item_id"},
-                {"name": "name", "data": "name"},
+                {"name": "rra_no", "data": "rra_no"},
                 {"name": "pr_no", "data": "pr_no"},
                 {"name": "dr_no", "data": "dr_no"},
                 {"name": "source_zone_id", "data": "source_zone_id"},
