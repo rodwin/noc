@@ -62,7 +62,7 @@ class Poi extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('poi_id, company_id, short_name, primary_code', 'required'),
+            array('poi_id, company_id, short_name, primary_code, poi_category_id, poi_sub_category_id', 'required'),
             array('sales_region_id', 'numerical', 'integerOnly' => true),
             array('poi_id, company_id, zip, landline, mobile, poi_category_id, poi_sub_category_id, status', 'length', 'max' => 50),
             array('short_name, address1, address2', 'length', 'max' => 200),
