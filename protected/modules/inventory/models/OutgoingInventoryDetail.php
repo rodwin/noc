@@ -213,7 +213,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
         return parent::model($className);
     }
 
-    public function createOutgoingTransactionDetails($outgoing_inventory_id, $company_id, $inventory_id, $batch_no, $sku_id, $source_zone_id, $unit_price, $expiration_date, $planned_quantity, $quantity_issued, $amount, $inventory_on_hand, $return_date, $remarks, $created_by = null, $uom_id, $sku_status_id) {
+    public function createOutgoingTransactionDetails($outgoing_inventory_id, $company_id, $inventory_id, $batch_no, $sku_id, $source_zone_id, $unit_price, $expiration_date, $planned_quantity, $quantity_issued, $amount, $inventory_on_hand, $return_date, $remarks, $created_by = null, $uom_id, $sku_status_id, $transaction_date) {
 
         $outgoing_transaction_detail = new OutgoingInventoryDetail;
         $outgoing_transaction_detail->outgoing_inventory_id = $outgoing_inventory_id;
@@ -236,10 +236,27 @@ class OutgoingInventoryDetail extends CActiveRecord {
         $outgoing_transaction_detail->created_by = $created_by;
 
         if ($outgoing_transaction_detail->save(false)) {
-            $qty = $outgoing_transaction_detail->inventory_on_hand - $outgoing_transaction_detail->quantity_issued;
-            Inventory::model()->updateInvByInvID($outgoing_transaction_detail->inventory_id, $outgoing_transaction_detail->company_id, $qty);
+            $this->decreaseInventory($outgoing_transaction_detail->inventory_id, $outgoing_transaction_detail->quantity_issued, $transaction_date, $outgoing_transaction_detail->unit_price, $outgoing_transaction_detail->created_by);
         } else {
             return $outgoing_transaction_detail->getErrors();
+        }
+    }
+
+    public function decreaseInventory($inventory_id, $quantity_issued, $transaction_date, $cost_per_unit, $created_by) {
+
+        $inventory = Inventory::model()->findByPk($inventory_id);
+
+        $decrease_inventory = new DecreaseInventoryForm();
+        $decrease_inventory->qty = $quantity_issued;
+        $decrease_inventory->transaction_date = $transaction_date;
+        $decrease_inventory->cost_per_unit = $cost_per_unit;
+        $decrease_inventory->created_by = $created_by;
+        $decrease_inventory->inventoryObj = $inventory;
+
+        if ($decrease_inventory->decrease(false)) {
+            return true;
+        } else {
+            return $decrease_inventory->getErrors();
         }
     }
 

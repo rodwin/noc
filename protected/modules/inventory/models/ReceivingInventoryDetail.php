@@ -209,26 +209,26 @@ class ReceivingInventoryDetail extends CActiveRecord {
 
     public function createReceivingTransactionDetails($incoming_inventory_id, $company_id, $sku_id, $uom_id, $status_id, $zone_id, $batch_no, $unit_price, $transaction_date, $expiration_date, $planned_quantity, $quantity_received, $amount, $inventory_on_hand, $remarks, $pr_no, $pr_date, $created_by = null) {
 
-        $incoming_transaction_detail = new ReceivingInventoryDetail;
-        $incoming_transaction_detail->receiving_inventory_id = $incoming_inventory_id;
-        $incoming_transaction_detail->company_id = $company_id;
-        $incoming_transaction_detail->sku_id = $sku_id;
-        $incoming_transaction_detail->uom_id = $uom_id;
-        $incoming_transaction_detail->sku_status_id = $status_id;
-        $incoming_transaction_detail->batch_no = $batch_no;
-        $incoming_transaction_detail->unit_price = $unit_price;
-        $incoming_transaction_detail->expiration_date = $expiration_date != "" ? $expiration_date : null;
-        $incoming_transaction_detail->planned_quantity = $planned_quantity;
-        $incoming_transaction_detail->quantity_received = $quantity_received;
-        $incoming_transaction_detail->amount = $amount;
-        $incoming_transaction_detail->inventory_on_hand = $inventory_on_hand + $quantity_received;
-        $incoming_transaction_detail->remarks = $remarks;
-        $incoming_transaction_detail->created_by = $created_by;
+        $receiving_transaction_detail = new ReceivingInventoryDetail;
+        $receiving_transaction_detail->receiving_inventory_id = $incoming_inventory_id;
+        $receiving_transaction_detail->company_id = $company_id;
+        $receiving_transaction_detail->sku_id = $sku_id;
+        $receiving_transaction_detail->uom_id = $uom_id;
+        $receiving_transaction_detail->sku_status_id = $status_id;
+        $receiving_transaction_detail->batch_no = $batch_no;
+        $receiving_transaction_detail->unit_price = $unit_price;
+        $receiving_transaction_detail->expiration_date = $expiration_date != "" ? $expiration_date : null;
+        $receiving_transaction_detail->planned_quantity = $planned_quantity;
+        $receiving_transaction_detail->quantity_received = $quantity_received;
+        $receiving_transaction_detail->amount = $amount;
+        $receiving_transaction_detail->inventory_on_hand = $inventory_on_hand + $quantity_received;
+        $receiving_transaction_detail->remarks = $remarks;
+        $receiving_transaction_detail->created_by = $created_by;
 
-        if ($incoming_transaction_detail->save(false)) {
-            $this->createInventory($company_id, $sku_id, $uom_id, $unit_price, $quantity_received, $zone_id, $transaction_date, $created_by, $expiration_date, $batch_no, $incoming_transaction_detail->sku_status_id);
+        if ($receiving_transaction_detail->save(false)) {
+            $this->createInventory($company_id, $sku_id, $uom_id, $unit_price, $quantity_received, $zone_id, $transaction_date, $created_by, $expiration_date, $batch_no, $receiving_transaction_detail->sku_status_id);
         } else {
-            return $incoming_transaction_detail->getErrors();
+            return $receiving_transaction_detail->getErrors();
         }
     }
 

@@ -29,7 +29,7 @@ class CustomerItemController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'loadTransactionByDRNo', 'loadInventoryDetails'),
+                'actions' => array('create', 'update', 'data', 'loadTransactionByDRNo', 'loadInventoryDetails', 'customerItemDetailData', 'deleteCustomerItemDetail'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -61,10 +61,14 @@ class CustomerItemController extends Controller {
             $row = array();
             $row['customer_item_id'] = $value->customer_item_id;
             $row['rra_no'] = $value->rra_no;
+            $row['campaign_no'] = $value->campaign_no;
             $row['pr_no'] = $value->pr_no;
+            $row['pr_date'] = $value->pr_date;
             $row['dr_no'] = $value->dr_no;
             $row['source_zone_id'] = $value->source_zone_id;
+            $row['source_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
             $row['poi_id'] = $value->poi_id;
+            $row['poi_name'] = isset($value->poi->short_name) ? $value->poi->short_name : null;
             $row['transaction_date'] = $value->transaction_date;
             $row['total_amount'] = $value->total_amount;
             $row['created_date'] = $value->created_date;
@@ -73,9 +77,9 @@ class CustomerItemController extends Controller {
             $row['updated_by'] = $value->updated_by;
 
 
-            $row['links'] = '<a class="view" title="View" data-toggle="tooltip" href="' . $this->createUrl('/inventory/customeritem/view', array('id' => $value->customer_item_id)) . '" data-original-title="View"><i class="fa fa-eye"></i></a>'
-                    . '&nbsp;<a class="update" title="Update" data-toggle="tooltip" href="' . $this->createUrl('/inventory/customeritem/update', array('id' => $value->customer_item_id)) . '" data-original-title="View"><i class="fa fa-pencil"></i></a>'
-                    . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="' . $this->createUrl('/inventory/customeritem/delete', array('id' => $value->customer_item_id)) . '" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
+            $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/customerItem/delete', array('id' => $value->customer_item_id)) . '">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </a>';
 
             $output['data'][] = $row;
         }
@@ -118,7 +122,7 @@ class CustomerItemController extends Controller {
         $customer_item = new CustomerItem;
         $transaction_detail = new CustomerItemDetail;
         $sku = new Sku;
-        $dr_nos = CHtml::listData(IncomingInventory::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id)), "dr_no", "dr_no");
+        $reference_dr_nos = CHtml::listData(IncomingInventory::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id)), "dr_no", "dr_no");
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
 
@@ -147,11 +151,9 @@ class CustomerItemController extends Controller {
                         $data["type"] = "danger";
                     } else {
 
-                        $incoming->outgoing_inventory_id = $_POST['IncomingInventory']['outgoing_inventory_id'];
-
                         $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
 
-                        if ($incoming->create($transaction_details)) {
+                        if ($customer_item->create($transaction_details)) {
                             $data['message'] = 'Successfully created';
                             $data['success'] = true;
                         } else {
@@ -197,17 +199,13 @@ class CustomerItemController extends Controller {
                                 'brand_name' => isset($inventory->sku->brand->brand_name) ? $inventory->sku->brand->brand_name : null,
                                 'unit_price' => isset($transaction_detail->unit_price) ? $transaction_detail->unit_price : 0,
                                 'batch_no' => isset($transaction_detail->batch_no) ? $transaction_detail->batch_no : null,
-                                'source_zone_id' => isset($transaction_detail->source_zone_id) ? $transaction_detail->source_zone_id : null,
-                                'source_zone_name' => isset($transaction_detail->zone->zone_name) ? $transaction_detail->zone->zone_name : null,
                                 'expiration_date' => isset($transaction_detail->expiration_date) ? $transaction_detail->expiration_date : null,
                                 'planned_quantity' => $transaction_detail->planned_quantity != "" ? $transaction_detail->planned_quantity : 0,
                                 'quantity_issued' => $transaction_detail->quantity_issued != "" ? $transaction_detail->quantity_issued : 0,
                                 'amount' => $transaction_detail->amount != "" ? $transaction_detail->amount : 0,
                                 'inventory_on_hand' => $transaction_detail->inventory_on_hand != "" ? $transaction_detail->inventory_on_hand : 0,
-                                'reference_no' => isset($transaction_detail->pr_no) ? $transaction_detail->pr_no : null,
                                 'return_date' => isset($transaction_detail->return_date) ? $transaction_detail->return_date : null,
                                 'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
-                                'outgoing_inventory_detail_id' => "",
                                 'uom_id' => isset($transaction_detail->uom_id) ? $transaction_detail->uom_id : null,
                                 'sku_status_id' => isset($transaction_detail->sku_status_id) ? $transaction_detail->sku_status_id : null,
                             );
@@ -228,7 +226,7 @@ class CustomerItemController extends Controller {
         $this->render('customerItemForm', array(
             'customer_item' => $customer_item,
             'transaction_detail' => $transaction_detail,
-            'dr_nos' => $dr_nos,
+            'reference_dr_nos' => $reference_dr_nos,
             'sku' => $sku,
             'uom' => $uom,
             'sku_status' => $sku_status,
@@ -262,12 +260,19 @@ class CustomerItemController extends Controller {
             }
         }
 
+        $c2 = new CDbCriteria;
+        $c2->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
+        $c2->compare('t.company_id', Yii::app()->user->company_id);
+        $c2->compare('t.default_zone_id', isset($val->incomingInventory->zone_id) ? $val->incomingInventory->zone_id : 0);
+        $employee = Employee::model()->find($c2);
+
         $header = array(
             "rra_no" => isset($val->incomingInventory->rra_no) ? $val->incomingInventory->rra_no : null,
             "campaign_no" => isset($val->incomingInventory->campaign_no) ? $val->incomingInventory->campaign_no : null,
             "pr_no" => isset($val->incomingInventory->pr_no) ? $val->incomingInventory->pr_no : null,
             "source_zone_id" => isset($val->incomingInventory->zone_id) ? $val->incomingInventory->zone_id : null,
             "source_zone_name" => isset($val->incomingInventory->zone->zone_name) ? $val->incomingInventory->zone->zone_name : null,
+            "salesman" => isset($employee->fullname) ? $employee->fullname : null,
         );
 
         $inventory = array();
@@ -336,6 +341,44 @@ class CustomerItemController extends Controller {
 
         echo json_encode($data);
     }
+    
+    public function actionCustomerItemDetailData($customer_item_id) {
+        
+        $c = new CDbCriteria;
+        $c->compare("company_id", Yii::app()->user->company_id);
+        $c->compare("customer_item_id", $customer_item_id);
+        $customer_item_details = CustomerItemDetail::model()->findAll($c);
+
+        $output = array();
+        foreach ($customer_item_details as $key => $value) {
+            $row = array();
+
+            $row['customer_item_detail_id'] = $value->customer_item_detail_id;
+            $row['customer_item_id'] = $value->customer_item_id;
+            $row['batch_no'] = $value->batch_no;
+            $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
+            $row['sku_name'] = isset($value->sku->sku_name) ? $value->sku->sku_name : null;
+            $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
+            $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
+            $row['unit_price'] = $value->unit_price;
+            $row['expiration_date'] = $value->expiration_date;
+            $row['planned_quantity'] = $value->planned_quantity;
+            $row['quantity_issued'] = $value->quantity_issued;
+            $row['amount'] = $value->amount;
+            $row['inventory_on_hand'] = $value->inventory_on_hand;
+            $row['return_date'] = $value->return_date;
+            $row['remarks'] = $value->remarks;
+
+            $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/customerItem/deleteCustomerItemDetail', array('customer_item_detail_id' => $value->customer_item_detail_id)) . '">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </a>';
+
+            $output['data'][] = $row;
+        }
+
+        echo json_encode($output);
+        
+    }
 
     /**
      * Updates a particular model.
@@ -381,17 +424,59 @@ class CustomerItemController extends Controller {
      */
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
-// we only allow deletion via POST request
-            $this->loadModel($id)->delete();
+            try {
 
-// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-            if (!isset($_GET['ajax'])) {
-                Yii::app()->user->setFlash('success', "Successfully deleted");
-                $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-            } else {
+                // delete customer item details by customer_item_id
+                CustomerItemDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND customer_item_id = " . $id);
+                // delete attachment by customer_item_id as transaction_id
+//                $this->deleteAttachmenntByReceivingInvID($id);
+                // we only allow deletion via POST request
+                $this->loadModel($id)->delete();
 
-                echo "Successfully deleted";
-                exit;
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    if (!isset($_GET['ajax'])) {
+                        Yii::app()->user->setFlash('danger', "Unable to delete");
+                        $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('view', 'id' => $id));
+                    } else {
+                        echo "1451";
+                        exit;
+                    }
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+    
+    public function actionDeleteCustomerItemDetail($customer_item_detail_id) {
+        if (Yii::app()->request->isPostRequest) {
+            try {
+
+                CustomerItemDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND customer_item_detail_id = " . $customer_item_detail_id);
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    echo "1451";
+                    exit;
+                }
             }
         } else
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');

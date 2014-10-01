@@ -26,7 +26,7 @@
 class CustomerItem extends CActiveRecord {
 
     public $search_string;
-    
+
     const CUSTOMER_ITEM_LABEL = "Outgoing";
 
     /**
@@ -43,15 +43,16 @@ class CustomerItem extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, rra_no, pr_no, dr_no, poi_id, transaction_date', 'required'),
-            array('company_id, rra_no, campaign_no, pr_no, dr_no, source_zone_id, poi_id, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, rra_no, pr_no, pr_date, dr_no, poi_id, transaction_date', 'required'),
+            array('company_id, rra_no, campaign_no, pr_no, dr_no, reference_dr_no, source_zone_id, poi_id, created_by, updated_by', 'length', 'max' => 50),
             array('total_amount', 'length', 'max' => 18),
             array('source_zone_id', 'isValidZone'),
+            array('poi_id', 'isValidPoi'),
             array('transaction_date, pr_date, plan_delivery_date, revised_delivery_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('plan_delivery_date, revised_delivery_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('customer_item_id, company_id, rra_no, pr_no, pr_date, dr_no, source_zone_id, poi_id, transaction_date, plan_delivery_date, revised_delivery_date, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('customer_item_id, company_id, rra_no, pr_no, pr_date, dr_no, reference_dr_no, source_zone_id, poi_id, transaction_date, plan_delivery_date, revised_delivery_date, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
 
@@ -60,6 +61,16 @@ class CustomerItem extends CActiveRecord {
 
         if (!Validator::isResultSetWithRows($model)) {
             $this->addError($attribute, 'Zone is invalid.');
+        }
+
+        return;
+    }
+
+    public function isValidPoi($attribute) {
+        $model = Poi::model()->findByPk($this->$attribute);
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'Please select a Poi from the auto-complete.');
         }
 
         return;
@@ -85,6 +96,8 @@ class CustomerItem extends CActiveRecord {
         // class name for the relations automatically generated below.
         return array(
             'customerItemDetails' => array(self::HAS_MANY, 'CustomerItemDetail', 'customer_item_id'),
+            'zone' => array(self::BELONGS_TO, 'Zone', 'source_zone_id'),
+            'poi' => array(self::BELONGS_TO, 'Poi', 'poi_id'),
         );
     }
 
@@ -100,6 +113,7 @@ class CustomerItem extends CActiveRecord {
             'pr_no' => 'PR No',
             'pr_date' => 'PR Date',
             'dr_no' => 'DR No',
+            'reference_dr_no' => 'Reference No',
             'source_zone_id' => 'Source Zone',
             'poi_id' => 'Outlet',
             'transaction_date' => 'Transaction Date',
@@ -137,6 +151,7 @@ class CustomerItem extends CActiveRecord {
         $criteria->compare('pr_no', $this->pr_no, true);
         $criteria->compare('pr_date', $this->pr_date, true);
         $criteria->compare('dr_no', $this->dr_no, true);
+        $criteria->compare('reference_dr_no', $this->reference_dr_no, true);
         $criteria->compare('source_zone_id', $this->source_zone_id, true);
         $criteria->compare('poi_id', $this->poi_id, true);
         $criteria->compare('transaction_date', $this->transaction_date, true);
@@ -157,47 +172,53 @@ class CustomerItem extends CActiveRecord {
         switch ($col) {
 
             case 0:
-                $sort_column = 'customer_item_id';
+                $sort_column = 't.campaign_no';
                 break;
 
             case 1:
-                $sort_column = 'rra_no';
+                $sort_column = 't.pr_no';
                 break;
 
             case 2:
-                $sort_column = 'pr_no';
+                $sort_column = 't.pr_date';
                 break;
 
             case 3:
-                $sort_column = 'dr_no';
+                $sort_column = 't.rra_no';
                 break;
 
             case 4:
-                $sort_column = 'source_zone_id';
+                $sort_column = 't.dr_no';
                 break;
 
             case 5:
-                $sort_column = 'poi_id';
+                $sort_column = 'zone.zone_name';
                 break;
 
             case 6:
-                $sort_column = 'transaction_date';
+                $sort_column = 't.poi_id';
+                break;
+
+            case 7:
+                $sort_column = 't.total_amount';
                 break;
         }
 
 
         $criteria = new CDbCriteria;
-        $criteria->compare('company_id', Yii::app()->user->company_id);
-        $criteria->compare('customer_item_id', $columns[0]['search']['value']);
-        $criteria->compare('rra_no', $columns[1]['search']['value'], true);
-        $criteria->compare('pr_no', $columns[2]['search']['value'], true);
-        $criteria->compare('dr_no', $columns[3]['search']['value'], true);
-        $criteria->compare('source_zone_id', $columns[4]['search']['value'], true);
-        $criteria->compare('poi_id', $columns[5]['search']['value'], true);
-        $criteria->compare('transaction_date', $columns[6]['search']['value'], true);
+        $criteria->compare('t.company_id', Yii::app()->user->company_id);
+        $criteria->compare('t.campaign_no', $columns[0]['search']['value'], true);
+        $criteria->compare('t.pr_no', $columns[1]['search']['value'], true);
+        $criteria->compare('t.pr_date', $columns[2]['search']['value'], true);
+        $criteria->compare('t.rra_no', $columns[3]['search']['value'], true);
+        $criteria->compare('t.dr_no', $columns[4]['search']['value'], true);
+        $criteria->compare('zone.zone_name', $columns[5]['search']['value'], true);
+        $criteria->compare('poi.short_name', $columns[6]['search']['value'], true);
+        $criteria->compare('t.total_amount', $columns[7]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
+        $criteria->with = array("zone", "poi");
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -213,6 +234,57 @@ class CustomerItem extends CActiveRecord {
      */
     public static function model($className = __CLASS__) {
         return parent::model($className);
+    }
+
+    public function create($transaction_details, $validate = true) {
+
+        if ($validate) {
+            if (!$this->validate()) {
+                return false;
+            }
+        }
+
+        $customer_item = new CustomerItem;
+
+        try {
+
+            $customer_item_data = array(
+                'company_id' => $this->company_id,
+                'rra_no' => $this->rra_no,
+                'pr_no' => $this->pr_no,
+                'dr_no' => $this->dr_no,
+                'reference_dr_no' => $this->reference_dr_no,
+                'source_zone_id' => $this->source_zone_id,
+                'poi_id' => $this->poi_id,
+                'transaction_date' => $this->transaction_date,
+                'campaign_no' => $this->campaign_no,
+                'pr_date' => $this->pr_date,
+                'plan_delivery_date' => $this->plan_delivery_date,
+                'revised_delivery_date' => $this->revised_delivery_date,
+                'total_amount' => $this->total_amount,
+                'created_by' => $this->created_by,
+            );
+
+            $customer_item->attributes = $customer_item_data;
+
+            if (count($transaction_details) > 0) {
+                if ($customer_item->save(false)) {
+
+                    for ($i = 0; $i < count($transaction_details); $i++) {
+                        CustomerItemDetail::model()->createCustomerItemTransactionDetails($customer_item->customer_item_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['inventory_on_hand'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $customer_item->transaction_date);
+                    }
+                }
+                return true;
+            } else {
+                return false;
+            }
+
+            return true;
+        } catch (Exception $exc) {
+            pr($exc);
+            Yii::log($exc->getTraceAsString(), 'error');
+            return false;
+        }
     }
 
 }

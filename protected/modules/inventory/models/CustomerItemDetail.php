@@ -47,29 +47,18 @@ class CustomerItemDetail extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, inventory_id, sku_id, uom_id, source_zone_id, quantity_issued, amount', 'required'),
+            array('company_id, inventory_id, sku_id, uom_id, quantity_issued, amount', 'required'),
             array('customer_item_id, inventory_id, planned_quantity, quantity_issued, inventory_on_hand', 'numerical', 'integerOnly' => true),
-            array('company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, batch_no, sku_id, uom_id, sku_status_id, created_by, updated_by', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
-            array('source_zone_id', 'isValidZone'),
             array('unit_price, amount', 'match', 'pattern' => '/^[0-9]{1,9}(\.[0-9]{0,2})?$/'),
             array('expiration_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('expiration_date, return_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('customer_item_detail_id, customer_item_id, company_id, inventory_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, unit_price, expiration_date, planned_quantity, quantity_issued, amount, inventory_on_hand, return_date, remarks, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('customer_item_detail_id, customer_item_id, company_id, inventory_id, batch_no, sku_id, uom_id, sku_status_id, unit_price, expiration_date, planned_quantity, quantity_issued, amount, inventory_on_hand, return_date, remarks, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
-    }
-
-    public function isValidZone($attribute) {
-        $model = Zone::model()->findByPk($this->$attribute);
-
-        if (!Validator::isResultSetWithRows($model)) {
-            $this->addError($attribute, 'Zone is invalid.');
-        }
-
-        return;
     }
 
     public function beforeValidate() {
@@ -84,7 +73,6 @@ class CustomerItemDetail extends CActiveRecord {
         // class name for the relations automatically generated below.
         return array(
             'customerItem' => array(self::BELONGS_TO, 'CustomerItem', 'customer_item_id'),
-            'zone' => array(self::BELONGS_TO, 'Zone', 'source_zone_id'),
             'sku' => array(self::BELONGS_TO, 'Sku', 'sku_id'),
             'uom' => array(self::BELONGS_TO, 'Uom', 'uom_id'),
             'skuStatus' => array(self::BELONGS_TO, 'SkuStatus', 'sku_status_id'),
@@ -104,7 +92,6 @@ class CustomerItemDetail extends CActiveRecord {
             'sku_id' => 'Sku',
             'uom_id' => 'Uom',
             'sku_status_id' => 'Sku Status',
-            'source_zone_id' => 'Source Zone',
             'unit_price' => 'Unit Price',
             'expiration_date' => 'Expiration Date',
             'planned_quantity' => 'Planned Quantity',
@@ -145,7 +132,6 @@ class CustomerItemDetail extends CActiveRecord {
         $criteria->compare('sku_id', $this->sku_id, true);
         $criteria->compare('uom_id', $this->uom_id, true);
         $criteria->compare('sku_status_id', $this->sku_status_id, true);
-        $criteria->compare('source_zone_id', $this->source_zone_id, true);
         $criteria->compare('unit_price', $this->unit_price, true);
         $criteria->compare('expiration_date', $this->expiration_date, true);
         $criteria->compare('planned_quantity', $this->planned_quantity);
@@ -224,6 +210,51 @@ class CustomerItemDetail extends CActiveRecord {
      */
     public static function model($className = __CLASS__) {
         return parent::model($className);
+    }
+
+    public function createCustomerItemTransactionDetails($customer_item_id, $company_id, $inventory_id, $batch_no, $sku_id, $unit_price, $expiration_date, $planned_quantity, $quantity_issued, $amount, $inventory_on_hand, $return_date, $remarks, $created_by = null, $uom_id, $sku_status_id, $transaction_date) {
+
+        $customer_item_transaction_detail = new CustomerItemDetail;
+        $customer_item_transaction_detail->customer_item_id = $customer_item_id;
+        $customer_item_transaction_detail->company_id = $company_id;
+        $customer_item_transaction_detail->inventory_id = $inventory_id;
+        $customer_item_transaction_detail->batch_no = $batch_no;
+        $customer_item_transaction_detail->sku_id = $sku_id;
+        $customer_item_transaction_detail->uom_id = $uom_id;
+        $customer_item_transaction_detail->sku_status_id = $sku_status_id;
+        $customer_item_transaction_detail->unit_price = isset($unit_price) ? $unit_price : "";
+        $customer_item_transaction_detail->expiration_date = $expiration_date != "" ? $expiration_date : null;
+        $customer_item_transaction_detail->planned_quantity = $planned_quantity;
+        $customer_item_transaction_detail->quantity_issued = $quantity_issued != "" ? $quantity_issued : 0;
+        $customer_item_transaction_detail->amount = $amount;
+        $customer_item_transaction_detail->inventory_on_hand = $inventory_on_hand;
+        $customer_item_transaction_detail->return_date = $return_date != "" ? $return_date : null;
+        $customer_item_transaction_detail->remarks = $remarks;
+        $customer_item_transaction_detail->created_by = $created_by;
+
+        if ($customer_item_transaction_detail->save(false)) {
+            $this->decreaseInventory($customer_item_transaction_detail->inventory_id, $customer_item_transaction_detail->quantity_issued, $transaction_date, $customer_item_transaction_detail->unit_price, $customer_item_transaction_detail->created_by);
+        } else {
+            return $customer_item_transaction_detail->getErrors();
+        }
+    }
+
+    public function decreaseInventory($inventory_id, $quantity_issued, $transaction_date, $cost_per_unit, $created_by) {
+
+        $inventory = Inventory::model()->findByPk($inventory_id);
+
+        $decrease_inventory = new DecreaseInventoryForm();
+        $decrease_inventory->qty = $quantity_issued;
+        $decrease_inventory->transaction_date = $transaction_date;
+        $decrease_inventory->cost_per_unit = $cost_per_unit;
+        $decrease_inventory->created_by = $created_by;
+        $decrease_inventory->inventoryObj = $inventory;
+
+        if ($decrease_inventory->decrease(false)) {
+            return true;
+        } else {
+            return $decrease_inventory->getErrors();
+        }
     }
 
 }
