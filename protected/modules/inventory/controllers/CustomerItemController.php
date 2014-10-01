@@ -272,7 +272,6 @@ class CustomerItemController extends Controller {
             "pr_no" => isset($val->incomingInventory->pr_no) ? $val->incomingInventory->pr_no : null,
             "source_zone_id" => isset($val->incomingInventory->zone_id) ? $val->incomingInventory->zone_id : null,
             "source_zone_name" => isset($val->incomingInventory->zone->zone_name) ? $val->incomingInventory->zone->zone_name : null,
-            "salesman" => isset($employee->fullname) ? $employee->fullname : null,
         );
 
         $inventory = array();

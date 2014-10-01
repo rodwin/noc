@@ -44,15 +44,16 @@ class CustomerItem extends CActiveRecord {
         // will receive user inputs.
         return array(
             array('company_id, rra_no, pr_no, pr_date, dr_no, poi_id, transaction_date', 'required'),
-            array('company_id, rra_no, campaign_no, pr_no, dr_no, reference_dr_no, source_zone_id, poi_id, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, rra_no, campaign_no, pr_no, dr_no, reference_dr_no, source_zone_id, poi_id, salesman_id, created_by, updated_by', 'length', 'max' => 50),
             array('total_amount', 'length', 'max' => 18),
             array('source_zone_id', 'isValidZone'),
+            array('salesman_id', 'isValidEmployee'),
             array('poi_id', 'isValidPoi'),
             array('transaction_date, pr_date, plan_delivery_date, revised_delivery_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('plan_delivery_date, revised_delivery_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('customer_item_id, company_id, rra_no, pr_no, pr_date, dr_no, reference_dr_no, source_zone_id, poi_id, transaction_date, plan_delivery_date, revised_delivery_date, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('customer_item_id, company_id, rra_no, pr_no, pr_date, dr_no, reference_dr_no, source_zone_id, poi_id, salesman_id, transaction_date, plan_delivery_date, revised_delivery_date, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
 
@@ -61,6 +62,19 @@ class CustomerItem extends CActiveRecord {
 
         if (!Validator::isResultSetWithRows($model)) {
             $this->addError($attribute, 'Zone is invalid.');
+        }
+
+        return;
+    }
+
+    public function isValidEmployee($attribute) {
+        if ($this->$attribute == null) {
+            return;
+        }
+        $model = Employee::model()->findByPk($this->$attribute);
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'Employee is invalid.');
         }
 
         return;
@@ -116,6 +130,7 @@ class CustomerItem extends CActiveRecord {
             'reference_dr_no' => 'Reference No',
             'source_zone_id' => 'Source Zone',
             'poi_id' => 'Outlet',
+            'salesman_id' => 'Salesman',
             'transaction_date' => 'Transaction Date',
             'plan_delivery_date' => 'Plan Delivery Date',
             'revised_delivery_date' => 'Revised Delivery Date',
@@ -154,6 +169,7 @@ class CustomerItem extends CActiveRecord {
         $criteria->compare('reference_dr_no', $this->reference_dr_no, true);
         $criteria->compare('source_zone_id', $this->source_zone_id, true);
         $criteria->compare('poi_id', $this->poi_id, true);
+        $criteria->compare('salesman_id', $this->salesman_id, true);
         $criteria->compare('transaction_date', $this->transaction_date, true);
         $criteria->compare('plan_delivery_date', $this->plan_delivery_date, true);
         $criteria->compare('revised_delivery_date', $this->revised_delivery_date, true);

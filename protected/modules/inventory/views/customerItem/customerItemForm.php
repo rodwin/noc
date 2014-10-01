@@ -137,7 +137,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     ),
                     'widgetOptions' => array(
                         'data' => $reference_dr_nos,
-                        'htmlOptions' => array('class' => 'ignore span5', 'multiple' => false, 'prompt' => 'Select Reference No', 'onchange' => 'referenceDRNoChange(this.value)'),
+                        'htmlOptions' => array('class' => 'ignore span5', 'multiple' => false, 'prompt' => 'Select Reference No', 'onchange' => 'referenceDRNoChange(this.value, false)'),
                     ),
                     'labelOptions' => array('label' => false)));
                 ?>
@@ -180,7 +180,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->labelEx($customer_item, 'pr_no'); ?><br/>
                 <?php echo $form->labelEx($customer_item, 'pr_date'); ?><br/>
                 <?php echo $form->labelEx($customer_item, 'source_zone_id'); ?><br/>
-                <?php echo $form->label($customer_item, 'Salesman'); ?>
+                <?php echo $form->labelEx($customer_item, 'salesman'); ?>
 
             </div>
 
@@ -192,12 +192,12 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($customer_item, 'pr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-                <div id="CustomerItem_source_zone_id" class="autofill_text"></div>
-
-                <?php // echo CHtml::textField('source_zone_id', '', array('id' => 'CustomerItem_source_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Source Zone", 'readonly' => true)); ?>
+                <?php echo CHtml::textField('source_zone_id', '', array('id' => 'CustomerItem_source_zone_id', 'class' => 'ignore form-control span5', 'placeholder' => "Source Zone", 'readonly' => true)); ?>
                 <?php echo $form->textFieldGroup($customer_item, 'source_zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'CustomerItem_source_zone', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
 
-                <div id="CustomerItem_salesman" class="autofill_text"></div>
+                <?php echo CHtml::textField('salesman_id', '', array('id' => 'CustomerItem_salesman_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Salesman", 'maxlength' => 50)); ?>
+                <?php echo $form->textFieldGroup($customer_item, 'salesman_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'CustomerItem_salesman', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
+
             </div>
 
         </div>
@@ -615,7 +615,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 document.forms["customer-item-form"].reset();
                 $('#customer-item-form .autofill_text').html('');
-                referenceDRNoChange(reference_DRNo);
+                referenceDRNoChange(reference_DRNo, true);
 
                 var oSettings = transaction_table.fnSettings();
                 var iTotalRecords = oSettings.fnRecordsTotal();
@@ -773,9 +773,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         $("#CustomerItemDetail_amount").val(amount);
     });
 
-    function referenceDRNoChange(reference_dr_no) {
+    function referenceDRNoChange(reference_dr_no, reset) {
         reference_DRNo = reference_dr_no;
-        
+
         $.ajax({
             type: 'POST',
             url: '<?php echo Yii::app()->createUrl('/inventory/customerItem/loadTransactionByDRNo'); ?>' + '&dr_no=' + reference_dr_no,
@@ -788,12 +788,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     item_details_table.fnDeleteRow(0, null, true);
                 }
 
-                $("#CustomerItem_rra_no").val(data.headers.rra_no);
-                $("#CustomerItem_campaign_no").val(data.headers.campaign_no);
-                $("#CustomerItem_pr_no").val(data.headers.pr_no);
-                $("#CustomerItem_source_zone").val(data.headers.source_zone_id);
-                $("#CustomerItem_source_zone_id").html(data.headers.source_zone_name);
-                $("#CustomerItem_salesman").html(data.headers.salesman);
+                if (reset === false) {
+                    $("#CustomerItem_rra_no").val(data.headers.rra_no);
+                    $("#CustomerItem_campaign_no").val(data.headers.campaign_no);
+                    $("#CustomerItem_pr_no").val(data.headers.pr_no);
+                    $("#CustomerItem_source_zone").val(data.headers.source_zone_id);
+                    $("#CustomerItem_source_zone_id").val(data.headers.source_zone_name);
+                }
 
                 $.each(data.data, function(i, v) {
                     item_details_table.fnAddData([
@@ -850,6 +851,35 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             var value = $("#CustomerItem_poi_id").val();
             $("#CustomerItem_poi").val(value);
             $("#CustomerItem_poi_primary_code, #CustomerItem_poi_address1").html("");
+        });
+
+        var salesman = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('outlet'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            prefetch: '<?php echo Yii::app()->createUrl("library/employee/search", array('value' => '')) ?>',
+            remote: '<?php echo Yii::app()->createUrl("library/employee/search") ?>&value=%QUERY'
+        });
+
+        salesman.initialize();
+
+        $('#CustomerItem_salesman_id').typeahead(null, {
+            name: 'salesmans',
+            displayKey: 'fullname',
+            source: salesman.ttAdapter(),
+            templates: {
+                suggestion: Handlebars.compile([
+                    '<p class="repo-name">{{fullname}}</p>',
+                    '<p class="repo-description">{{employee_code}}</p>'
+                ].join(''))
+            }
+
+        }).on('typeahead:selected', function(obj, datum) {
+            $("#CustomerItem_salesman").val(datum.employee_id);
+        });
+
+        jQuery('#CustomerItem_salesman_id').on('input', function() {
+            var value = $("#CustomerItem_salesman_id").val();
+            $("#CustomerItem_salesman").val(value);
         });
     });
 
