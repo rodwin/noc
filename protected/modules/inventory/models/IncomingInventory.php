@@ -39,13 +39,13 @@ class IncomingInventory extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, dr_no, pr_no, transaction_date, rra_no', 'required'),
+            array('company_id, dr_no, pr_no, pr_date, transaction_date, rra_no', 'required'),
             array('company_id, campaign_no, pr_no, dr_no, zone_id, status, created_by, updated_by, rra_no', 'length', 'max' => 50),
             array('total_amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
             array('zone_id', 'isValidZone'),
-            array('transaction_date, plan_delivery_date, revised_delivery_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
-            array('pr_date, transaction_date, updated_date', 'safe'),
+            array('transaction_date, pr_date, plan_delivery_date, revised_delivery_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
+            array('transaction_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('incoming_inventory_id, company_id, campaign_no, pr_no, pr_date, dr_no, zone_id, transaction_date, plan_delivery_date, revised_delivery_date, status, total_amount, created_date, created_by, updated_date, updated_by, rra_no', 'safe', 'on' => 'search'),

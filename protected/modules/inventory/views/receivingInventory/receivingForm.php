@@ -202,7 +202,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         <div id="sku_bg" class="panel panel-default col-md-12 no-padding">    
             <div class="panel-body" style="padding-top: 10px;">
                 <h4 class="control-label text-primary pull-left"><b>Select <?php echo Sku::SKU_LABEL; ?> Product</b></h4>
-                <button class="btn btn-default btn-sm pull-right" onclick="sku_table.fnMultiFilter();">Reload Table</button>
+                <!--<button class="btn btn-default btn-sm pull-right" onclick="sku_table.fnMultiFilter();">Reload Table</button>-->
 
                 <?php $fields = Sku::model()->attributeLabels(); ?>
                 <div class="table-responsive">
@@ -230,7 +230,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             </tr>
                         </thead>
                     </table>
-                </div><br/><br/><br/>
+                </div><br/>
 
                 <div class="col-md-6 clearfix">
                     <div id="input_label" class="pull-left col-md-5">
@@ -360,7 +360,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             'labelOptions' => array('label' => false)));
                         ?>
 
-                        <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-plus-circle"></i> Add Item', array('name' => 'add_item', 'class' => 'btn btn-primary btn-sm span5', 'id' => 'btn_add_item')); ?>
+                        <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-plus-circle"></i> Add Item', array('name' => 'add_item', 'maxlength' => 150, 'class' => 'btn btn-primary btn-sm span5', 'id' => 'btn_add_item')); ?>
 
                     </div>
                 </div>
@@ -464,12 +464,12 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         sku_table = $('#sku_table').dataTable({
             "filter": true,
-            "dom": '<"text-center"r>t<"pull-left"i><"pull-right"p>',
+            "dom": '<"text-center"r><"pull-right"i>t',
             "bSort": true,
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
-            'iDisplayLength': 5,
+            'iDisplayLength': 3,
             "order": [[0, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/ReceivingInventory/skuData'); ?>",
             "columns": [

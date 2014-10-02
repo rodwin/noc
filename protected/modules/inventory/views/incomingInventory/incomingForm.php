@@ -221,7 +221,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         <div id="inventory_bg" class="panel panel-default col-md-12 no-padding">    
             <div class="panel-body" style="padding-top: 10px;">
                 <h4 class="control-label text-primary pull-left"><b>Select Inventory</b></h4>
-                <button class="btn btn-default btn-sm pull-right" onclick="inventory_table.fnMultiFilter();">Reload Table</button>
+                <!--<button class="btn btn-default btn-sm pull-right" onclick="inventory_table.fnMultiFilter();">Reload Table</button>-->
 
                 <?php $skuFields = Sku::model()->attributeLabels(); ?>
                 <?php $invFields = Inventory::model()->attributeLabels(); ?>                    
@@ -259,10 +259,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         </thead>
 
                     </table>
-                </div><br/><br/><br/>
+                </div><br/>
 
                 <div class="col-md-6 clearfix">
-                    <div class="panel panel-default no-padding">    
+                    <div class="row panel panel-default no-padding">    
                         <div class="panel-body" style="padding-top: 20px;">
 
                             <div class="clearfix">
@@ -544,11 +544,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         inventory_table = $('#inventory_table').dataTable({
             "filter": true,
-            "dom": '<"text-center"r>t<"pull-left"i><"pull-right"p>',
+            "dom": '<"text-center"r><"pull-right"i>t',
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
-            'iDisplayLength': 5,
+            'iDisplayLength': 3,
             "order": [[0, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/invData'); ?>",
             "columns": [

@@ -28,7 +28,7 @@ class PoiController extends Controller {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
                 'actions' => array('index', 'view', 'getAllSubCategoryByCategoryID', 'getAllCustomDataByCategoryID', 'getAllSubCategoryByCategoryName', 'getProvinceByRegionCode',
-                    'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode', 'upload', 'uploadDetails'),
+                    'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode', 'upload', 'uploadDetails', 'search'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -548,6 +548,28 @@ class PoiController extends Controller {
         foreach ($data as $key => $val) {
             echo CHtml::tag('option', array('value' => $val['barangay_code']), CHtml::encode($val['barangay_name']), true);
         }
+    }
+
+    public function actionSearch($value) {
+
+        $c = new CDbCriteria();
+        if ($value != "") {
+            $c->addSearchCondition('t.short_name', $value, true, 'OR');
+            $c->addSearchCondition('t.primary_code', $value, true, 'OR');
+        }
+        $c->compare('t.company_id', Yii::app()->user->company_id);
+        $poi = Poi::model()->findAll($c);
+        
+        $return = array();
+        foreach ($poi as $key => $val) {
+            $return[$key]['poi_id'] = $val->poi_id;
+            $return[$key]['short_name'] = $val->short_name;
+            $return[$key]['primary_code'] = $val->primary_code;
+            $return[$key]['address1'] = $val->address1;
+        }
+
+        echo json_encode($return);
+        Yii::app()->end();
     }
 
 }
