@@ -794,6 +794,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     $("#CustomerItem_pr_no").val(data.headers.pr_no);
                     $("#CustomerItem_source_zone").val(data.headers.source_zone_id);
                     $("#CustomerItem_source_zone_id").val(data.headers.source_zone_name);
+                    $("#CustomerItem_pr_date").val(data.headers.pr_date);
                 }
 
                 $.each(data.data, function(i, v) {

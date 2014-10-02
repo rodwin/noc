@@ -30,7 +30,7 @@ class OutgoingInventoryController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'loadInventoryDetails', 'outgoingInvDetailData', 'afterDeleteTransactionRow', 'invData', 'uploadAttachment', 'preview', 'deleteByUrl', 'download'),
+                'actions' => array('create', 'update', 'data', 'loadInventoryDetails', 'outgoingInvDetailData', 'afterDeleteTransactionRow', 'invData', 'uploadAttachment', 'preview', 'deleteByUrl', 'download', 'searchCampaignNo', 'loadPRNos', 'loadInvByPRNo'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -662,6 +662,174 @@ class OutgoingInventoryController extends Controller {
         } else {
             
         }
+    }
+
+    public function actionSearchCampaignNo($value) {
+
+        $c = new CDbCriteria();
+        if ($value != "") {
+            $c->addSearchCondition('t.campaign_no', $value, true);
+        }
+        $c->compare('t.company_id', Yii::app()->user->company_id);
+        $receiving = ReceivingInventory::model()->findAll($c);
+        $incoming = IncomingInventory::model()->findAll($c);
+
+        $receiving_arr = array();
+        $incoming_arr = array();
+        foreach ($receiving as $k1 => $v1) {
+            $receiving_arr[$k1]['transaction'] = ReceivingInventory::RECEIVING_LABEL;
+            $receiving_arr[$k1]['campaign_no'] = $v1->campaign_no;
+            $receiving_arr[$k1]['pr_no'] = $v1->pr_no;
+            $receiving_arr[$k1]['pr_date'] = $v1->pr_date;
+        }
+
+        foreach ($incoming as $k2 => $v2) {
+            $incoming_arr[$k2]['transaction'] = IncomingInventory::INCOMING_LABEL;
+            $incoming_arr[$k2]['campaign_no'] = $v2->campaign_no;
+            $incoming_arr[$k2]['pr_no'] = $v2->pr_no;
+            $incoming_arr[$k2]['pr_date'] = $v2->pr_date;
+        }
+
+        $return = array_merge($receiving_arr, $incoming_arr);
+
+        echo json_encode($return);
+        Yii::app()->end();
+    }
+
+    public function actionLoadPRNos($campaign_no, $transaction) {
+
+        $data = array();
+        $pr_nos = array();
+
+        if ($transaction == ReceivingInventory::RECEIVING_LABEL) {
+
+            $c = new CDbCriteria;
+            $c->condition = "receivingInventory.company_id = '" . Yii::app()->user->company_id . "' AND receivingInventory.campaign_no = '" . $campaign_no . "'";
+            $c->with = array("receivingInventory");
+            $receiving = ReceivingInventoryDetail::model()->findAll($c);
+
+            foreach ($receiving as $key => $val) {
+
+                array_push($pr_nos, $val->receivingInventory->pr_no);
+            }
+        } else {
+
+            $c1 = new CDbCriteria;
+            $c1->condition = "incomingInventory.company_id = '" . Yii::app()->user->company_id . "' AND incomingInventory.campaign_no = '" . $campaign_no . "'";
+            $c1->with = array("incomingInventory");
+            $incoming = IncomingInventoryDetail::model()->findAll($c1);
+
+            foreach ($incoming as $key => $val) {
+
+                array_push($pr_nos, $val->incomingInventory->pr_no);
+            }
+        }
+
+        foreach ($pr_nos as $key => $val) {
+            $data["pr_no"][$val] = $val;
+        }
+
+        echo json_encode($data);
+        Yii::app()->end();
+    }
+
+    public function actionLoadInvByPRNo($campaign_no, $pr_no, $transaction) {
+
+        $data = array();
+        $header = array();
+        $inv_ids = "";
+
+        if ($transaction == ReceivingInventory::RECEIVING_LABEL) {
+
+            $c = new CDbCriteria;
+            $c->condition = "receivingInventory.company_id = '" . Yii::app()->user->company_id . "' AND receivingInventory.campaign_no = '" . $campaign_no . "' AND receivingInventory.pr_no = '" . $pr_no . "'";
+            $c->with = array("receivingInventory");
+            $receiving = ReceivingInventoryDetail::model()->findAll($c);
+
+            foreach ($receiving as $key => $val) {
+
+                $inventoryObj = Inventory::model()->findByAttributes(
+                        array(
+                            'company_id' => $val->receivingInventory->company_id,
+                            'sku_id' => $val->sku_id,
+                            'uom_id' => $val->uom_id,
+                            'zone_id' => $val->receivingInventory->zone_id,
+                            'sku_status_id' => $val->sku_status_id != "" ? $val->sku_status_id : null,
+                            'expiration_date' => isset($val->expiration_date) ? $val->expiration_date : null,
+                            'reference_no' => $val->batch_no,
+                        )
+                );
+
+                if ($inventoryObj) {
+                    $inv_ids .= $inventoryObj->inventory_id . ",";
+                }
+            }
+
+            $header = array(
+                "pr_date" => isset($val->receivingInventory->pr_date) ? $val->receivingInventory->pr_date : null,
+            );
+        } else {
+
+            $c1 = new CDbCriteria;
+            $c1->condition = "incomingInventory.company_id = '" . Yii::app()->user->company_id . "' AND incomingInventory.campaign_no = '" . $campaign_no . "' AND incomingInventory.pr_no = '" . $pr_no . "'";
+            $c1->with = array("incomingInventory");
+            $incoming = IncomingInventoryDetail::model()->findAll($c1);
+
+            foreach ($incoming as $key => $val) {
+
+                $inventoryObj = Inventory::model()->findByAttributes(
+                        array(
+                            'company_id' => $val->incomingInventory->company_id,
+                            'sku_id' => $val->sku_id,
+                            'uom_id' => $val->uom_id,
+                            'zone_id' => $val->incomingInventory->zone_id,
+                            'sku_status_id' => $val->sku_status_id != "" ? $val->sku_status_id : null,
+                            'expiration_date' => isset($val->expiration_date) ? $val->expiration_date : null,
+                            'reference_no' => $val->batch_no,
+                        )
+                );
+
+                if ($inventoryObj) {
+                    $inv_ids .= $inventoryObj->inventory_id . ",";
+                }
+            }
+
+            $header = array(
+                "pr_date" => isset($val->incomingInventory->pr_date) ? $val->incomingInventory->pr_date : null,
+            );
+        }
+
+        $inventory = array();
+        if ($inv_ids != "") {
+            $c1 = new CDbCriteria;
+            $c1->compare("company_id", Yii::app()->user->company_id);
+            $c1->condition = "inventory_id IN (" . substr($inv_ids, 0, -1) . ")";
+            $inventory = Inventory::model()->findAll($c1);
+        }
+
+        foreach ($inventory as $key => $value) {
+            $row = array();
+
+            $row['inventory_id'] = $value->inventory_id;
+            $row['company_id'] = $value->company_id;
+            $row['sku_id'] = $value->sku_id;
+            $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
+            $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
+            $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
+            $row['cost_per_unit'] = isset($value->cost_per_unit) ? $value->cost_per_unit : null;
+            $row['inventory_on_hand'] = isset($value->qty) ? $value->qty : null;
+            $row['uom_name'] = isset($value->uom->uom_name) ? $value->uom->uom_name : null;
+            $row['sku_status_name'] = isset($value->skuStatus->status_name) ? $value->skuStatus->status_name : null;
+            $row['expiration_date'] = isset($value->expiration_date) ? $value->expiration_date : null;
+            $row['reference_no'] = isset($value->reference_no) ? $value->reference_no : null;
+
+            $data['inv'][] = $row;
+        }
+        
+        $data['headers'] = $header;
+
+        echo json_encode($data);
+        Yii::app()->end();
     }
 
 }

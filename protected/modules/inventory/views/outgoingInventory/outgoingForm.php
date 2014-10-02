@@ -79,7 +79,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
 <style type="text/css">
 
-    #inventory_table tbody tr { cursor: pointer }
+    #item_details_table tbody tr { cursor: pointer }
 
     #transaction_table td { text-align:center; }
     #transaction_table td + td { text-align: left; }
@@ -186,9 +186,21 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             <div class="pull-right col-md-7">
 
-                <?php echo $form->textFieldGroup($outgoing, 'campaign_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, "value" => "")), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($outgoing, 'campaign_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore typeahead span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo $form->textFieldGroup($outgoing, 'pr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+                <?php // echo $form->textFieldGroup($outgoing, 'pr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+
+                <?php
+                echo $form->dropDownListGroup($outgoing, 'pr_no', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => '',
+                    ),
+                    'widgetOptions' => array(
+                        'data' => array(),
+                        'htmlOptions' => array('class' => 'span5', 'multiple' => false),
+                    ),
+                    'labelOptions' => array('label' => false)));
+                ?>
 
                 <?php echo $form->textFieldGroup($outgoing, 'pr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
@@ -223,41 +235,41 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <!--<button class="btn btn-default btn-sm pull-right" onclick="inventory_table.fnMultiFilter();">Reload Table</button>-->
 
                 <?php $skuFields = Sku::model()->attributeLabels(); ?>
-                <?php $invFields = Inventory::model()->attributeLabels(); ?>                    
-                <div class="table-responsive">
-                    <table id="inventory_table" class="table table-bordered table-hover">
+                <?php $invFields = Inventory::model()->attributeLabels(); ?>
+
+                <div class="table-responsive">            
+                    <table id="item_details_table" class="table table-bordered">
                         <thead>
                             <tr>
+                                <th class="hide_row"><?php echo $invFields['inventory_id']; ?></th>
+                                <th class="hide_row"><?php echo $skuFields['sku_id']; ?></th>
                                 <th><?php echo $skuFields['sku_code']; ?></th>
                                 <th><?php echo $skuFields['description']; ?></th>
-                                <th><?php echo $invFields['qty']; ?></th>
+                                <th><?php echo $skuFields['brand_id']; ?></th>
+                                <th><?php echo $invFields['cost_per_unit']; ?></th>
+                                <th>Inventory On Hand</th>
                                 <th><?php echo $invFields['uom_id']; ?></th>
-                                <th>Action Qty <i class="fa fa-fw fa-info-circle" data-toggle="popover" content="And here's some amazing content. It's very engaging. right?"></i></th>
-                                <th><?php echo $invFields['zone_id']; ?></th>
                                 <th><?php echo $invFields['sku_status_id']; ?></th>
                                 <th><?php echo $invFields['expiration_date']; ?></th>
                                 <th><?php echo $invFields['reference_no']; ?></th>
-                                <th><?php echo $invFields['brand_name']; ?></th>
-                                <th><?php echo $invFields['sales_office_name']; ?></th>
-                            </tr>
+                            </tr>                                    
                         </thead>
                         <thead>
                             <tr id="filter_row">
-                                <td class="filter"></td>
-                                <td class="filter"></td>
-                                <td class="filter"></td>
-                                <td class="filter"></td>
+                                <td class="filter hide_row"></td>
                                 <td class="filter hide_row"></td>
                                 <td class="filter"></td>
                                 <td class="filter"></td>
                                 <td class="filter"></td>
                                 <td class="filter"></td>
-                                <td class="filter" id="hide_textbox"></td>
-                                <td class="filter" id="hide_textbox"></td>
+                                <td class="filter"></td>
+                                <td class="filter"></td>
+                                <td class="filter"></td>
+                                <td class="filter"></td>
+                                <td class="filter"></td>
                             </tr>
                         </thead>
-
-                    </table>
+                    </table>                            
                 </div><br/>
 
                 <div class="col-md-6 clearfix">
@@ -529,6 +541,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
     var inventory_table;
     var transaction_table;
+    var item_details_table;
     var headers = "transaction";
     var details = "details";
     var total_amount = 0;
@@ -584,6 +597,43 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         $("#inventory_table thead input").keyup(function() {
             inventory_table.fnFilter(this.value, $(this).attr("colPos"));
+        });
+
+        item_details_table = $('#item_details_table').dataTable({
+            "filter": true,
+            "dom": '<"text-center"r>t',
+            "bSort": true,
+            "processing": false,
+            "serverSide": false,
+            "bAutoWidth": false,
+            'iDisplayLength': 5,
+            "columnDefs": [{
+                    "targets": [0, 1],
+                    "visible": false
+                }]
+        });
+
+        var i = 0;
+        $('#item_details_table thead tr#filter_row td.filter').each(function() {
+            $(this).html('<input type="text" class="form-control input-sm" placeholder="" colPos="' + i + '" />');
+            i++;
+        });
+
+        $("#item_details_table thead input").keyup(function() {
+            item_details_table.fnFilter(this.value, $(this).attr("colPos"));
+        });
+
+        $('#item_details_table tbody').on('click', 'tr', function() {
+            if ($(this).hasClass('success')) {
+                $(this).removeClass('success');
+                loadInventoryDetails("");
+            }
+            else {
+                item_details_table.$('tr.success').removeClass('success');
+                $(this).addClass('success');
+                var row_data = item_details_table.fnGetData(this);
+                loadInventoryDetails(parseInt(row_data[0]));
+            }
         });
 
         transaction_table = $('#transaction_table').dataTable({
@@ -902,6 +952,67 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         });
     });
 
+    $(function() {
+
+        var campaign_no = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('campaign_no'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            prefetch: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo', array('value' => '')) ?>',
+            remote: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo'); ?>&value=%QUERY'
+        });
+
+        campaign_no.initialize();
+
+        $('#OutgoingInventory_campaign_no').typeahead(null, {
+            name: 'campaign_nos',
+            displayKey: 'campaign_no',
+            source: campaign_no.ttAdapter(),
+            templates: {
+                suggestion: Handlebars.compile([
+//                    '<p class="repo-language">{{transaction}}</p>',
+                    '<p class="repo-description">{{campaign_no}}</p>'
+                ].join(''))
+            }
+
+        }).on('typeahead:selected', function(obj, datum) {
+            $("#OutgoingInventory_campaign_no").val(datum.campaign_no);
+
+            loadPRNos(datum.campaign_no, datum.transaction);
+        });
+
+        jQuery('#OutgoingInventory_campaign_no').on('input', function() {
+            $('#OutgoingInventory_pr_no').empty();
+        });
+
+    });
+
+    var selected_campaign_no, selected_transaction;
+    function loadPRNos(campaign_no, transaction) {
+        selected_campaign_no = campaign_no;
+        selected_transaction = transaction;
+
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl('/inventory/outgoingInventory/loadPRNos'); ?>' + '&campaign_no=' + campaign_no + '&transaction=' + transaction,
+            dataType: "json",
+            success: function(data) {
+
+                var pr_nos = "<option value=''>Select PR No</option>"
+                $('#OutgoingInventory_pr_no').empty();
+                $.each(data.pr_no, function(i, v) {
+                    pr_nos += "<option value='" + i + "'>" + v + "</option>";
+                });
+
+                $('#OutgoingInventory_pr_no').append(pr_nos);
+
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+
+    }
+
     function onlyNumbers(txt, event, point) {
 
         var charCode = (event.which) ? event.which : event.keyCode;
@@ -914,6 +1025,46 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     $(function() {
+        $('#OutgoingInventory_pr_no').change(function() {
+            var selected_pr_no = $("#OutgoingInventory_pr_no").val();
+
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo Yii::app()->createUrl('/inventory/outgoingInventory/loadInvByPRNo'); ?>' + '&campaign_no=' + selected_campaign_no + '&pr_no=' + selected_pr_no + '&transaction=' + selected_transaction,
+                dataType: "json",
+                success: function(data) {
+
+                    var oSettings = item_details_table.fnSettings();
+                    var iTotalRecords = oSettings.fnRecordsTotal();
+                    for (var i = 0; i <= iTotalRecords; i++) {
+                        item_details_table.fnDeleteRow(0, null, true);
+                    }
+
+                    $('#OutgoingInventory_pr_date').val(data.headers.pr_date);
+
+                    $.each(data.inv, function(i, v) {
+                        item_details_table.fnAddData([
+                            v.inventory_id,
+                            v.sku_id,
+                            v.sku_code,
+                            v.sku_description,
+                            v.brand_name,
+                            v.cost_per_unit,
+                            v.inventory_on_hand,
+                            v.uom_name,
+                            v.sku_status_name,
+                            v.expiration_date,
+                            v.reference_no
+                        ]);
+                    });
+
+                },
+                error: function(data) {
+                    alert("Error occured: Please try again.");
+                }
+            });
+        });
+
         $('#OutgoingInventory_pr_date, #OutgoingInventory_dr_date, #OutgoingInventory_plan_delivery_date, #OutgoingInventory_revised_delivery_date, #OutgoingInventory_actual_delivery_date, #OutgoingInventory_transaction_date, #OutgoingInventoryDetail_expiration_date, #OutgoingInventoryDetail_return_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
