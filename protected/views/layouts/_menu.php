@@ -1,15 +1,17 @@
 <?php
 $main_menu = array(
-    array('label' => 'Dashboard', 'url' => array('site/index'), 'icon' => 'fa fa-dashboard', 'visible' => !Yii::app()->user->isGuest),
-    array('label' => 'Location Viewer', 'url' => array('locationviewer'), 'icon' => 'fa fa-map-marker', 'visible' => !Yii::app()->user->isGuest),
-    array('label' => 'Inventory', 'url' => '#', 'icon' => 'fa fa-list-alt', 'visible' => !Yii::app()->user->isGuest, 'items' => array(
+    array('label' => 'Dashboard', 'url' => '#', 'icon' => 'fa fa-dashboard', 'visible' => !Yii::app()->user->isGuest, 'items' => array(
+          array('label' => 'Pome', 'icon' => 'fa fa-angle-double-right', 'url' => array('/pome/default'), 'visible' => !Yii::app()->user->isGuest),
+        )),
+    array('label' => 'Location Viewer', 'url' => array('locationviewer'), 'icon' => 'fa fa-map-marker', 'visible' => isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['locationviewer'])),
+    array('label' => 'Inventory', 'url' => '#', 'icon' => 'fa fa-list-alt', 'visible' => isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['inventory']), 'items' => array(
             array('label' => 'Inventory Management', 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/inventory/admin'), 'visible' => !Yii::app()->user->isGuest),
             array('label' => ReceivingInventory::RECEIVING_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/receivingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
             array('label' => IncomingInventory::INCOMING_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/incomingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
             array('label' => OutgoingInventory::OUTGOING_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/outgoingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
             array('label' => CustomerItem::CUSTOMER_ITEM_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('/inventory/customerItem/admin'), 'visible' => !Yii::app()->user->isGuest),
         )),
-    array('label' => 'Library', 'url' => '#', 'icon' => 'fa fa-book', 'visible' => !Yii::app()->user->isGuest, 'items' => array(
+    array('label' => 'Library', 'url' => '#', 'icon' => 'fa fa-book', 'visible' => isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['library']), 'items' => array(
             array('label' => 'Supplier', 'icon' => 'fa fa-angle-double-right', 'url' => array('library/supplier/admin'), 'visible' => !Yii::app()->user->isGuest),
             array('label' => 'Sales Office', 'icon' => 'fa fa-angle-double-right', 'url' => array('library/salesoffice/admin'), 'visible' => !Yii::app()->user->isGuest),
             array('label' => 'Zone', 'icon' => 'fa fa-angle-double-right', 'url' => array('library/zone/admin'), 'visible' => !Yii::app()->user->isGuest),
@@ -31,7 +33,7 @@ $main_menu = array(
             array('label' => Sku::SKU_LABEL . ' ' . 'Custom Data', 'icon' => 'fa fa-angle-double-right', 'url' => array('library/skuCustomData/create'), 'visible' => !Yii::app()->user->isGuest),
             array('label' => 'Merchandising Material', 'icon' => 'fa fa-angle-double-right', 'url' => array('library/sku/admin'), 'visible' => !Yii::app()->user->isGuest),
         )),
-    array('label' => 'Admin', 'url' => '#', 'icon' => 'fa fa-users', 'visible' => !Yii::app()->user->isGuest, 'items' => array(
+    array('label' => 'Admin', 'url' => '#', 'icon' => 'fa fa-users', 'visible' => isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['admin']), 'items' => array(
             array('label' => 'Users', 'icon' => 'fa fa-angle-double-right', 'url' => array('admin/user/admin'), 'visible' => !Yii::app()->user->isGuest),
             array('label' => 'Company', 'icon' => 'fa fa-angle-double-right', 'url' => array('admin/company/update', array('id' => Yii::app()->user->company_id)), 'visible' => !Yii::app()->user->isGuest),
         )),
@@ -42,6 +44,7 @@ $main_menu = array(
 <ul class="sidebar-menu">
     <?php
     foreach ($main_menu as $key => $value) {
+        if($value['visible'] != ''){
         if ($value['url'] != '#') {
             ?>
 
@@ -89,7 +92,7 @@ $main_menu = array(
                     </ul>
                 </a>
             </li>
-    <?php } ?>
+    <?php }} ?>
 
 
 <?php } ?>
