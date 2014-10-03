@@ -882,9 +882,12 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         var data = $("#receiving-inventory-form").serialize() + '&' + $.param({"transaction_details": serializeTransactionTable()});
 
-//        if (serializeTransactionTable().length > 0) {
+        if (serializeTransactionTable().length > 0) {
             window.open(<?php echo "'" . Yii::app()->createUrl($this->module->id . '/ReceivingInventory/print') . "'" ?> + '&' + $.param({"post": data}), '_blank');
-//        }
+        } else {
+            
+            growlAlert("danger", "Unable to print");
+        }
 
         return false;
     }

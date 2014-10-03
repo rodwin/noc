@@ -355,9 +355,9 @@ class ReceivingInventory extends CActiveRecord {
 
     public function getDeliveryRemarks() {
         return array(
-            array('id' => "on time", 'title' => "On Time"),
-            array('id' => "delay", 'title' => "Delay"),
-            array('id' => "advance", 'title' => "Advance"),
+            array('id' => "ON TIME", 'title' => "ON TIME"),
+            array('id' => "DELAY", 'title' => "DELAY"),
+            array('id' => "ADVANCE", 'title' => "ADVANCE"),
         );
     }
 

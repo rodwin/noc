@@ -787,55 +787,189 @@ class ReceivingInventoryController extends Controller {
 
         parse_str($post, $data);
 
+        $headers = $data['ReceivingInventory'];
+        $details = $data['transaction_details'];
+
+        $c1 = new CDbCriteria();
+        $c1->compare('t.company_id', Yii::app()->user->company_id);
+        $c1->condition = 'salesOffice.distributor_id = "" AND t.zone_id = "' . $headers['zone_id'] . '"';
+        $c1->with = array('salesOffice');
+        $zone = Zone::model()->find($c1);
+
+        $warehouse = isset($zone->salesOffice->sales_office_name) ? $zone->salesOffice->sales_office_name : "";
+        $warehouse_address = isset($zone->salesOffice->address1) ? $zone->salesOffice->address1 : "";
+        $campaign_no = $headers['campaign_no'];
+        $pr_no = $headers['pr_no'];
+        $pr_date = $headers['pr_date'];
+        $dr_no = $headers['dr_no'];
+        $destination_zone = isset($zone->zone_name) ? $zone->zone_name : "";
+        $supplier = $data['supplier_name'];
+        $plan_delivery_date = $headers['plan_arrival_date'];
+
+        $c = new CDbCriteria;
+        $c->select = new CDbExpression('t.*, CONCAT(t.first_name, " ", t.last_name) AS fullname');
+        $c->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND employee_id = "' . $headers['requestor'] . '"';
+        $c->order = 'fullname ASC';
+        $employee = Employee::model()->find($c);
+
+        $contact_person = isset($employee->fullname) ? $employee->fullname : "";
+        $address = isset($employee->address1) ? $employee->address1 : ""; 
+
         $pdf = Globals::pdf();
-        
-// set default header data
-        $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE, PDF_HEADER_STRING);
 
-// set header and footer fonts
-        $pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-        $pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
-
-// set default monospaced font
-        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-
-// set margins
-        $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-        $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
-
-// set auto page breaks
-        $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-
-// set image scale factor
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
         $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        $pdf->SetFont('helvetica', '', 10);
 
-// set some language-dependent strings (optional)
-        if (@file_exists(dirname(__FILE__) . '/lang/eng.php')) {
-            require_once(dirname(__FILE__) . '/lang/eng.php');
-            $pdf->setLanguageArray($l);
-        }
-
-// ---------------------------------------------------------
-// set font
-        $pdf->SetFont('times', 'BI', 12);
-
-// add a page
         $pdf->AddPage();
 
-// set some text to print
-        $txt = <<<EOD
-TCPDF Example 003
+        $html = '
+            <style type="text/css">
+            .text-center { text-align: center; }
+            #header {  }   
+            .title { font-size: 17px; }
+            .sub-title { font-size: 12px; }
+            .title-report { font-size: 20px; font-weight: bold; } 
+            .table_main { font-size: 10px; }
+            .table_details { font-size: 8px; width: 100%; }
+            .table_footer { font-size: 8px; width: 100%; }
+            .border-bottom { border-bottom: 1px solid #333; font-size: 8px; }
+            .row_label { width: 130px; }
+            .row_content_sm { width: 100px; }
+            .row_content_lg { width: 300px; }
+        </style>
+                
+        <div id="header" class="text-center">
+            <div class="title">ASIA BREWERY INCORPORATED</div>
+            <div class="sub-title">6th FLOOR ALLIED BANK CENTER, AYALA AVENUE, MAKATI CITY</div>
+            <div class="title-report">WAREHOUSE RECEIVING REPORT</div>
+        </div>   
+        
+        <br/><br/>
+        <table class="table_main">
+            <tr>
+                <td clss="row_label">WAREHOUSE NAME</td>
+                <td class="border-bottom row_content_lg">' . $warehouse . '</td>
+                <td style="width: 10px;"></td>
+                <td clss="row_label">DELIVERY DATE</td>
+                <td class="border-bottom row_content_sm"></td>
+            </tr>
+            <tr>
+                <td>ADDRESS</td>
+                <td class="border-bottom">' . $warehouse_address . '</td>
+                <td></td>
+                <td>PLAN DELIVERY DATE</td>
+                <td class="border-bottom">' . $plan_delivery_date . '</td>
+            </tr>
+        </table><br/><br/>
+                
+        <table class="table_main">
+            <tr>
+                <td clss="row_label">CAMPAIGN NUMBER</td>
+                <td class="border-bottom row_content_sm">' . $campaign_no . '</td>
+                <td style="width: 10px;"></td>
+                <td clss="row_label">DESTINATION ZONE</td>
+                <td class="border-bottom row_content_lg">' . $destination_zone . '</td>
+            </tr>
+            <tr>
+                <td>PR NUMBER</td>
+                <td class="border-bottom">' . $pr_no . '</td>
+                <td></td>
+                <td>SUPPLIER NAME</td>
+                <td class="border-bottom">' . $supplier . '</td>
+            </tr>
+            <tr>
+                <td>PR DATE</td>
+                <td class="border-bottom">' . $pr_date . '</td>
+                <td></td>
+                <td>CONTACT PERSON</td>
+                <td class="border-bottom">' . $contact_person . '</td>
+            </tr>
+            <tr>
+                <td>DR NUMBER</td>
+                <td class="border-bottom">' . $dr_no . '</td>
+                <td></td>
+                <td>ADDRESS</td>
+                <td class="border-bottom">' . $address . '</td>
+            </tr>
+        </table><br/><br/><br/>  
+            <table class="table_details" border="1">
+                <tr>
+                    <td>MM CODE</td>
+                    <td>MM DESCRIPTION</td>
+                    <td>MM BRAND</td>
+                    <td>MM CATEGORY</td>
+                    <td>PLAN QUANTITY</td>
+                    <td>QUANTITY RECEIVED</td>
+                    <td>UOM</td>
+                    <td>UNIT PRICE</td>
+                    <td>AMOUNT</td>
+                    <td>MM ITEM REMARKS</td>
+                    <td>DELIVERY REMARKS</td>
+                </tr>';
 
-Custom page header and footer are defined by extending the TCPDF class and overriding the Header() and Footer() methods.
-EOD;
+        $planned_qty = 0;
+        $actual_qty = 0;
+        foreach ($details as $key => $val) {
+            $sku = Sku::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sku_id" => $val['sku_id']));
+            $uom = UOM::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $val['uom_id']));
 
-// print a block of text using Write()
-        $pdf->Write(0, $txt, '', 0, 'C', true, 0, false, false, 0);
+            $html .= '<tr>
+                        <td>' . $sku->sku_code . '</td>
+                        <td>' . $sku->description . '</td>
+                        <td>' . $sku->brand->brand_name . '</td>
+                        <td>' . $sku->brand->brandCategory->category_name . '</td>
+                        <td>' . $val['planned_quantity'] . '</td>
+                        <td>' . $val['qty_received'] . '</td>
+                        <td>' . $uom->uom_name . '</td>
+                        <td>' . $val['unit_price'] . '</td>
+                        <td>' . $val['amount'] . '</td>
+                        <td>' . $val['remarks'] . '</td>
+                        <td>' . $headers['delivery_remarks'] . '</td>
+                    </tr>';
 
-// ---------------------------------------------------------
-//Close and output PDF document
-        $pdf->Output('example_003.pdf', 'I');
+            $planned_qty += $val['planned_quantity'];
+            $actual_qty += $val['qty_received'];
+        }
+
+        $html .= '<tr>
+                    <td colspan="11"></td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align: right;">GRAND TOTAL</td>
+                    <td>' . $planned_qty . '</td>
+                    <td>' . $actual_qty . '</td>
+                    <td></td>
+                    <td>' . $headers['total_amount'] . '</td>
+                    <td>' . $headers['total_amount'] . '</td>
+                    <td colspan="2"></td>
+                </tr>';
+
+        $html .= '</table><br/><br/><br/>  
+            
+        <table class="table_footer">
+            <tr>
+                <td style="width: 180px;">REMARKS</td>
+                <td style="width: 100px;"></td>
+                <td style="width: 150px;">DELIVERED BY</td>
+                <td style="width: 100px;"></td>
+                <td style="width: 150px;">RECEIVED BY</td>
+            </tr>
+                
+            
+            <tr>
+                <td style="border: 1px solid #000; min-height: 50px; height: 50px;"></td>
+                <td style="width: 100px;"></td>
+                <td class="border-bottom"></td>
+                <td style="width: 100px;"></td>
+                <td class="border-bottom"></td>
+            </tr>
+        </table>';
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        $pdf->Output('example_061.pdf', 'I');
     }
 
 }
