@@ -159,14 +159,14 @@ $this->breadcrumbs = array(
             if ($(this).hasClass('success')) {
                 $(this).removeClass('success');
                 loadCustomItemDetails(null);
-//                loadAttachmentPreview(null);
+                loadAttachmentPreview(null);
             }
             else {
                 customer_item_table.$('tr.success').removeClass('success');
                 $(this).addClass('success');
                 var row_data = customer_item_table.fnGetData(this);
                 loadCustomItemDetails(row_data.customer_item_id);
-//                loadAttachmentPreview(row_data.receiving_inventory_id);
+                loadAttachmentPreview(row_data.customer_item_id);
             }
         });
 
@@ -263,7 +263,7 @@ $this->breadcrumbs = array(
                     });
 
                     loadCustomItemDetails(customerItem_id);
-//                    loadAttachmentPreview(receiving_id);
+                    loadAttachmentPreview(customerItem_id);
                 },
                 error: function(jqXHR, exception) {
                     alert('An error occured: ' + exception);
@@ -301,6 +301,34 @@ $this->breadcrumbs = array(
                         v.amount,
                         v.remarks,
                         v.links
+                    ]);
+                });
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+    }
+    
+    function loadAttachmentPreview(customer_item_id) {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl('/inventory/CustomerItem/preview'); ?>' + '&id=' + customer_item_id,
+            dataType: "json",
+            success: function(data) {
+                var oSettings = customer_item_attachment_table.fnSettings();
+                var iTotalRecords = oSettings.fnRecordsTotal();
+                var rows = 0;
+                for (var i = 0; i <= iTotalRecords; i++) {
+                    customer_item_attachment_table.fnDeleteRow(0, null, true);
+                }
+
+                $.each(data.data, function(i, v) {
+                    rows++;
+                    customer_item_attachment_table.fnAddData([
+                        v.icon,
+                        v.file_name,
+                        v.links,
                     ]);
                 });
             },

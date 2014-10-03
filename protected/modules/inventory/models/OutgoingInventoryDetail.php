@@ -26,6 +26,66 @@
  * @property OutgoingInventory $outgoingInventory
  */
 class OutgoingInventoryDetail extends CActiveRecord {
+   
+   /**
+    * @var string batch_no
+    * @soap
+    */
+   public $batch_no;
+
+   /**
+    * @var string source_zone_id
+    * @soap
+    */
+   public $source_zone_id;
+
+   /**
+    * @var string unit_price
+    * @soap
+    */
+   public $unit_price;
+
+   /**
+    * @var string expiration_date
+    * @soap
+    */
+   public $expiration_date;
+
+   /**
+    * @var string quantity_issued
+    * @soap
+    */
+   public $quantity_issued;
+
+   /**
+    * @var string amount
+    * @soap
+    */
+   public $amount;
+
+   /**
+    * @var string inventory_on_hand
+    * @soap
+    */
+   public $inventory_on_hand;
+
+   /**
+    * @var string return_date
+    * @soap
+    */
+   public $return_date;
+
+   /**
+    * @var string remarks
+    * @soap
+    */
+   public $remarks;
+
+   /**
+    * @var Sku[] sku_obj
+    * @soap
+    */
+   public $sku_obj;
 
     public $search_string;
 
@@ -258,6 +318,12 @@ class OutgoingInventoryDetail extends CActiveRecord {
         } else {
             return $decrease_inventory->getErrors();
         }
+    }
+    
+    public function getByOutgoingInventoryID($outgoing_inventory_id)
+    {
+       $outgoing_inventory_details = OutgoingInventoryDetail::model()->findallByAttributes(array('outgoing_inventory_id' => $outgoing_inventory_id)) ;
+       return $outgoing_inventory_details;
     }
 
 }

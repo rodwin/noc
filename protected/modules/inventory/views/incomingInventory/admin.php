@@ -10,6 +10,8 @@ $this->breadcrumbs = array(
     #incoming-inventory_table tbody tr { cursor: pointer }
 
     .hide_row { display: none; }
+    
+    #hide_textbox input { display:none; }
 
 </style>  
 
@@ -45,7 +47,7 @@ $this->breadcrumbs = array(
                 <th><?php echo $fields['status']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
                 <th><?php echo $fields['created_date']; ?></th>
-                <!--<th>Actions</th>-->                
+                <th>Actions</th>                
             </tr>
         </thead>     
         <thead>
@@ -58,6 +60,7 @@ $this->breadcrumbs = array(
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
+                <td class="filter" id="hide_textbox"></td>  
             </tr>
         </thead>   
     </table>
@@ -88,6 +91,7 @@ $this->breadcrumbs = array(
                             <th><?php echo $incomingInvFields['amount']; ?></th>
                             <th><?php echo $incomingInvFields['status']; ?></th>
                             <th><?php echo $incomingInvFields['remarks']; ?></th>
+                             <th>Actions</th>
                         </tr>
                     </thead>
                     <thead>
@@ -103,6 +107,7 @@ $this->breadcrumbs = array(
                             <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
+                            <td class="filter" id="hide_textbox"></td>
                         </tr>
                     </thead>
                 </table>
@@ -114,8 +119,9 @@ $this->breadcrumbs = array(
                 <table id="incoming-inventory-attachment_table" class="table table-bordered">
                     <thead>
                         <tr>
-                            <th width="90%"><?php echo 'Attachments' ?></th>
-                            <th><?php echo 'Actions' ?></th>
+                            <th style="width: 40px;"></th>
+                            <th>File Name</th>
+                            <th style="width: 80px;"><?php echo 'Actions' ?></th>
                         </tr>
                     </thead>
                 </table>
@@ -131,6 +137,7 @@ $this->breadcrumbs = array(
     var incoming_inventory_table;
     var incoming_inventory_table_detail;
     var incoming_inventory_attachment_table;
+    var incoming_id;
     $(function() {
         incoming_inventory_table = $('#incoming-inventory_table').dataTable({
             "filter": true,
@@ -149,13 +156,17 @@ $this->breadcrumbs = array(
                 {"name": "zone_name", "data": "zone_name"},
                 {"name": "status", "data": "status"},
                 {"name": "total_amount", "data": "total_amount"},
-                {"name": "created_date", "data": "created_date"}
-                //                {"name": "links", "data": "links", 'sortable': false}
+                {"name": "created_date", "data": "created_date"},
+                {"name": "links", "data": "links", 'sortable': false}
             ],
             "columnDefs": [{
                     "targets": [8],
                     "visible": false
-                }]
+                }],
+             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(8)', nRow).addClass("text-center");
+
+            }
         });
 
         $('#incoming-inventory_table tbody').on('click', 'tr', function() {
@@ -189,7 +200,12 @@ $this->breadcrumbs = array(
             "bSort": false,
             "processing": false,
             "serverSide": false,
-            "bAutoWidth": false
+            "bAutoWidth": false,
+            iDisplayLength: -1,
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(9)', nRow).addClass("text-center");
+            }
+
         });
 
         incoming_inventory_attachment_table = $('#incoming-inventory-attachment_table').dataTable({
@@ -198,7 +214,12 @@ $this->breadcrumbs = array(
             "bSort": false,
             "processing": false,
             "serverSide": false,
-            "bAutoWidth": false
+            "bAutoWidth": false,
+            iDisplayLength: -1,
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(0), td:eq(2)', nRow).addClass("text-center");
+
+            }
         });
 
         var i = 0;
@@ -224,12 +245,24 @@ $this->breadcrumbs = array(
                 'type': 'POST',
                 'dataType': 'text',
                 'success': function(data) {
-                    $.growl(data, {
-                        icon: 'glyphicon glyphicon-info-sign',
-                        type: 'success'
-                    });
+                    if (data == "1451") {
+                        $.growl("Unable to delete", {
+                            icon: 'glyphicon glyphicon-warning-sign',
+                            type: 'danger'
+                        });
 
-                    table.fnMultiFilter();
+                        receiving_id = "";
+                    } else {
+                        $.growl(data, {
+                            icon: 'glyphicon glyphicon-info-sign',
+                            type: 'success'
+                        });
+
+                        incoming_inventory_table.fnMultiFilter();
+                    }
+
+                    loadIncomingInvDetails(incoming_id);
+                    loadAttachmentPreview(incoming_id_id);
                 },
                 error: function(jqXHR, exception) {
                     alert('An error occured: ' + exception);
@@ -237,9 +270,57 @@ $this->breadcrumbs = array(
             });
             return false;
         });
+        
+        jQuery(document).on('click', '#incoming-inventory-details_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    $.growl(data, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: 'success'
+                    });
+
+                    loadIncomingInvDetails(incoming_id);
+                    loadAttachmentPreview(incoming_id);
+                },
+                error: function(jqXHR, exception) {
+                    alert('An error occured: ' + exception);
+                }
+            });
+            return false;
+        });
+        
+        jQuery(document).on('click', '#incoming-inventory-attachment_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    $.growl(data, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: 'success'
+                    });
+
+                    loadIncomingInvDetails(incoming_id);
+                    loadAttachmentPreview(incoming_id);
+                },
+                error: function(jqXHR, exception) {
+                    alert('An error occured: ' + exception);
+                }
+            });
+            return false;
+        });
+        
     });
 
     function loadIncomingInvDetails(incoming_inv_id) {
+         incoming_id = incoming_inv_id;
 
         $.ajax({
             type: 'POST',
@@ -265,7 +346,8 @@ $this->breadcrumbs = array(
                         v.quantity_received,
                         v.amount,
                         v.status,
-                        v.remarks
+                        v.remarks,
+                        v.links
                     ]);
                 });
             },
@@ -275,10 +357,10 @@ $this->breadcrumbs = array(
         });
     }
 
-    function loadAttachmentPreview(receiving_inv_id) {
+    function loadAttachmentPreview(incoming_inv_id) {
         $.ajax({
             type: 'POST',
-            url: '<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/preview'); ?>' + '&id=' + receiving_inv_id,
+            url: '<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/preview'); ?>' + '&id=' + incoming_inv_id,
             dataType: "json",
             success: function(data) {
                 var oSettings = incoming_inventory_attachment_table.fnSettings();
@@ -291,6 +373,7 @@ $this->breadcrumbs = array(
                 $.each(data.data, function(i, v) {
                     rows++;
                     incoming_inventory_attachment_table.fnAddData([
+                        v.icon,
                         v.file_name,
                         v.links,
                     ]);

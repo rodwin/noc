@@ -694,6 +694,7 @@ class ReceivingInventoryController extends Controller {
         $c = new CDbCriteria;
         $c->compare("company_id", Yii::app()->user->company_id);
         $c->compare("transaction_id", $id);
+        $c->compare("transaction_type", "receiving");
         $attachment = Attachment::model()->findAll($c);
 
         $output = array();

@@ -19,6 +19,60 @@
  * @property string $updated_by
  */
 class IncomingInventory extends CActiveRecord {
+   
+   /**
+    * @var string incoming_inventory_id
+    * @soap
+    */
+   public $incoming_inventory_id;
+   
+   /**
+    * @var string campaign_no
+    * @soap
+    */
+   public $campaign_no;
+   
+   /**
+    * @var string pr_no
+    * @soap
+    */
+   public $pr_no;
+   
+   /**
+    * @var string pr_date
+    * @soap
+    */
+   public $pr_date;
+   
+   /**
+    * @var string dr_no
+    * @soap
+    */
+   public $dr_no;
+   
+   /**
+    * @var string $zone_id
+    * @soap
+    */
+   public $zone_id;
+   
+   /**
+    * @var string transaction_date
+    * @soap
+    */
+   public $transaction_date;
+   
+   /**
+    * @var string $total_amount
+    * @soap
+    */
+   public $total_amount;
+   
+   /**
+    * @var IncomingInventoryDetail[] incoming_inventory_detail_obj
+    * @soap
+    */
+   public $incoming_inventory_detail_obj;
 
     public $search_string;
     public $outgoing_inventory_id;
@@ -45,7 +99,7 @@ class IncomingInventory extends CActiveRecord {
             array('remarks', 'length', 'max' => 150),
             array('zone_id', 'isValidZone'),
             array('transaction_date, pr_date, plan_delivery_date, revised_delivery_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
-            array('transaction_date, updated_date', 'safe'),
+            array('incoming_inventory_id ,transaction_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('incoming_inventory_id, company_id, campaign_no, pr_no, pr_date, dr_no, zone_id, transaction_date, plan_delivery_date, revised_delivery_date, status, total_amount, created_date, created_by, updated_date, updated_by, rra_no', 'safe', 'on' => 'search'),
@@ -278,7 +332,7 @@ class IncomingInventory extends CActiveRecord {
 //                    } else {
 //                        OutgoingInventory::model()->updateAll(array('status' => $incoming_inventory->status, 'updated_by' => $this->created_by, 'updated_date' => date('Y-m-d H:i:s')), 'outgoing_inventory_id = ' . $this->outgoing_inventory_id . ' AND company_id = "' . $incoming_inventory->company_id . '"');
 //                    }
-
+                    unset(Yii::app()->session['tid']);
                     Yii::app()->session['tid'] = $incoming_inventory->incoming_inventory_id;
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         IncomingInventoryDetail::model()->createIncomingTransactionDetails($incoming_inventory->incoming_inventory_id, $incoming_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_received'], $transaction_details[$i]['amount'], $transaction_details[$i]['inventory_on_hand'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $incoming_inventory->created_by, $transaction_details[$i]['status'], $transaction_details[$i]['outgoing_inventory_detail_id'], $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $incoming_inventory->zone_id, $incoming_inventory->transaction_date);
@@ -296,5 +350,15 @@ class IncomingInventory extends CActiveRecord {
             return false;
         }
     }
+    
+    public function retrieveIncoming($company_id, $dr_no, $zone_id) {
+      $cdbcriteria = new CDbCriteria();
+      $cdbcriteria->with = array('incomingInventoryDetails');
+      $cdbcriteria->compare('t.company_id', $company_id);
+      $cdbcriteria->compare('t.dr_no', $dr_no);
+      $cdbcriteria->compare('t.zone_id', $zone_id);
+      $val = IncomingInventory::model()->find($cdbcriteria);
+      return $val;
+   }
 
 }
