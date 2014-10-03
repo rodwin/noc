@@ -123,7 +123,7 @@
                     formatter: function () {
                         return '<b>' + this.x + '</b><br/>' +
                             this.series.name + ': ' + this.y + '<br/>' +
-                            'Total: ' + this.point.stackTotal;
+                            'Target: ' + this.point.mydata;
                     }
                 },
                 plotOptions: {
@@ -174,6 +174,7 @@
                     labels.push(data[i].name);
                     
                     var target = data[i].count *data[i].ac_count - data[i].attendance;
+                    var targettl = data[i].count *data[i].ac_count;
                     var percentage = data[i].attendance / (data[i].count * data[i].ac_count) * 100;
                     if(percentage >= 95)
                     {
@@ -184,8 +185,9 @@
                     }else{
                         color = 'red';
                     }
-                    attendance_target.push({y: target, color: 'gray'});
-                    attendance_reach.push({y: data[i].attendance, color: color});
+                    
+                    attendance_target.push({y: target, color: 'gray',mydata:targettl});
+                    attendance_reach.push({y: data[i].attendance, color: color,mydata:targettl});
    
                }
                chart.xAxis[0].setCategories(labels)

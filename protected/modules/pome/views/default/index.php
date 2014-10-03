@@ -8,90 +8,6 @@ $this->breadcrumbs=array(
 <style>
  #test {display: none; }    
 </style>
-    <div class="panel panel-default">
-        
-      <div class="panel-heading">Attendance</div>
-      <div class="panel-body" id ="attendance_div">
-            <?php
-
-            echo $this->renderPartial('_view', array(
-                'model' => $model,
-                'agency' => $agency,
-                'region' => $region,
-                'brand' => $brand,
-                'month' => $month,
-
-            ));
-            ?>
-            <div id="container" style="min-width: auto; height: 400px; margin: 0 auto"></div>
-
-      </div>
-      <div id="detail_table_loader_attendance"><img height="50" style="display:block;margin:auto;" alt="activity indicator" src="<?php Yii::app()->baseUrl ;?>protected/modules/pome/image/loader.gif" alt="" /></div>
- 
-      </div>
-
-         <div class="panel panel-default">
-          <div class="panel-heading">TL Dashboard</div>
-          
-          <div class="panel-body" id ="tl_dashboard_div">
-                <?php
-
-                echo $this->renderPartial('_viewtldashboard', array(
-                    'model' => $model,
-                    'month' => $month,
-                    'teamlead' => $teamlead,
-                    'agency' => $agency,
-                    'brand' => $brand,
-
-                ));
-                ?>
-          </br>
-         
-                
-              <div class="col-md-6">
-                <div id="tlreach" style="min-width: auto; height: 400px; margin: 0 auto"></div>
-                <div id="detail_table_loader_tl_reach"><img height="50" style="display:block;margin:auto;" alt="activity indicator" src="<?php Yii::app()->baseUrl ;?>protected/modules/pome/image/loader.gif" alt="" /></div>
- 
-              </div>
-              <div class="col-md-6">
-                 <div id="tlattendance" style="min-width: auto; height: 400px; margin: 0 auto"></div>
-                 <div id="detail_table_loader_dtl_tl_attn"><img height="50" style="display:block;margin:auto;" alt="activity indicator" src="<?php Yii::app()->baseUrl ;?>protected/modules/pome/image/loader.gif" alt="" /></div>
- 
-              </div>
-           
-          
-        </div>
-      
-          
-          <div class="panel-body">
-                
-               
-
-          </div>
-      </div>
-
-      <div class="panel panel-default">
-          <div class="panel-heading">Detailed Reach</div>
-          <div class="panel-body" id ="dtl_reach_div">
-                <?php
-
-                echo $this->renderPartial('_viewdetailed', array(
-                    'model' => $model,
-                    'agency' => $agency,
-                    'ph' => $ph,
-                    'brand' => $brand,
-                    'region' => $region,
-                    'month' => $month,
-
-                ));
-                ?>
-              
-                <div id="detailed_reach" style="min-width: auto; height: 400px; margin: 0 auto"></div>
-
-          </div>
-          <div id="detail_table_loader_dtl"><img height="50" style="display:block;margin:auto;" alt="activity indicator" src="<?php Yii::app()->baseUrl ;?>protected/modules/pome/image/loader.gif" alt="" /></div>
- 
-      </div>
 
       <div class="panel panel-default">
           <div class="panel-heading">Total National Reach</div>
@@ -178,7 +94,94 @@ $this->breadcrumbs=array(
       
             
       </div>
+
+      <div class="panel panel-default">
+          <div class="panel-heading">Detailed Reach</div>
+          <div class="panel-body" id ="dtl_reach_div">
+                <?php
+
+                echo $this->renderPartial('_viewdetailed', array(
+                    'model' => $model,
+                    'agency' => $agency,
+                    'ph' => $ph,
+                    'brand' => $brand,
+                    'region' => $region,
+                    'month' => $month,
+
+                ));
+                ?>
+              
+                <div id="detailed_reach" style="min-width: auto; height: 400px; margin: 0 auto"></div>
+
+          </div>
+          <div id="detail_table_loader_dtl"><img height="50" style="display:block;margin:auto;" alt="activity indicator" src="<?php Yii::app()->baseUrl ;?>protected/modules/pome/image/loader.gif" alt="" /></div>
+ 
+      </div> 
+
+      <div class="panel panel-default">
+        
+          <div class="panel-heading">Attendance</div>
+          <div class="panel-body" id ="attendance_div">
+                <?php
+
+                echo $this->renderPartial('_view', array(
+                    'model' => $model,
+                    'agency' => $agency,
+                    'region' => $region,
+                    'brand' => $brand,
+                    'month' => $month,
+
+                ));
+                ?>
+                <div id="container" style="min-width: auto; height: 400px; margin: 0 auto"></div>
+
+          </div>
+          <div id="detail_table_loader_attendance"><img height="50" style="display:block;margin:auto;" alt="activity indicator" src="<?php Yii::app()->baseUrl ;?>protected/modules/pome/image/loader.gif" alt="" /></div>
+
+      </div>
+
+      <div class="panel panel-default">
+          <div class="panel-heading">TL Dashboard</div>
+          
+          <div class="panel-body" id ="tl_dashboard_div">
+                <?php
+
+                echo $this->renderPartial('_viewtldashboard', array(
+                    'model' => $model,
+                    'month' => $month,
+                    'teamlead' => $teamlead,
+                    'agency' => $agency,
+                    'brand' => $brand,
+                    'ph' => $ph,
+
+                ));
+                ?>
+          </br>
+         
+                
+              <div class="col-md-6">
+                <div id="tlreach" style="min-width: auto; height: 400px; margin: 0 auto"></div>
+                <div id="detail_table_loader_tl_reach"><img height="50" style="display:block;margin:auto;" alt="activity indicator" src="<?php Yii::app()->baseUrl ;?>protected/modules/pome/image/loader.gif" alt="" /></div>
+ 
+              </div>
+              <div class="col-md-6">
+                 <div id="tlattendance" style="min-width: auto; height: 400px; margin: 0 auto"></div>
+                 <div id="detail_table_loader_dtl_tl_attn"><img height="50" style="display:block;margin:auto;" alt="activity indicator" src="<?php Yii::app()->baseUrl ;?>protected/modules/pome/image/loader.gif" alt="" /></div>
+ 
+              </div>
+           
+          
+        </div>
       
+          
+          <div class="panel-body">
+                
+               
+
+          </div>
+      </div>
+
+
     
 
                 
@@ -217,7 +220,7 @@ $(function () {
                     formatter: function () {
                         return '<b>' + this.x + '</b><br/>' +
                             this.series.name + ': ' + this.y + '<br/>' +
-                            'Total: ' + this.point.stackTotal;
+                            'Target: ' + this.point.mydataa;
                     }
                 },
                 plotOptions: {
@@ -268,6 +271,7 @@ $(function () {
                     labels.push(data[i].name);
                     
                     var target = data[i].count *data[i].ac_count - data[i].attendance;
+                    var targettotal = data[i].count *data[i].ac_count;
                     var percentage = data[i].attendance / (data[i].count *data[i].ac_count) * 100;
                     if(percentage >= 95)
                     {
@@ -278,8 +282,8 @@ $(function () {
                     }else{
                         color = 'red';
                     }
-                    attendance_target.push({y: target, color: 'gray'});
-                    attendance_reach.push({y: data[i].attendance, color: color});
+                    attendance_target.push({y: target, color: 'gray',mydataa:targettotal});
+                    attendance_reach.push({y: data[i].attendance, color: color,mydataa:targettotal});
    
                }
                chart.xAxis[0].setCategories(labels)
@@ -330,7 +334,7 @@ $(function () {
                     formatter: function () {
                         return '<b>' + this.x + '</b><br/>' +
                             this.series.name + ': ' + this.y + '<br/>' +
-                            'Total: ' + this.point.stackTotal;
+                            'Target: ' + this.point.mydatab;
                     }
                 },
                 plotOptions: {
@@ -391,8 +395,8 @@ $(function () {
                     }else{
                         color = 'red';
                     }
-                    target_reach.push({y: target, color: 'gray'});
-                    target_actual.push({y: data[i].actual_reach, color: color});
+                    target_reach.push({y: target, color: 'gray',mydatab:data[i].target_reach});
+                    target_actual.push({y: data[i].actual_reach, color: color,mydatab:data[i].target_reach});
    
                }
                charts.xAxis[0].setCategories(labels_detail)
@@ -439,7 +443,7 @@ $(function () {
                     formatter: function () {
                         return '<b>' + this.x + '</b><br/>' +
                             this.series.name + ': ' + this.y + '<br/>' +
-                            'Total: ' + this.point.stackTotal;
+                            'Target: ' + this.point.mydatac;
                     }
                 },
                 plotOptions: {
@@ -506,16 +510,16 @@ $(function () {
                         color = 'red';
                     }
                    
-                    target_reach_total.push({y: target, color: 'gray'});
-                    target_actual_total.push({y: data[i].actual_reach, color: color});
+                    target_reach_total.push({y: target, color: 'gray',mydatac:data[i].target_reach});
+                    target_actual_total.push({y: data[i].actual_reach, color: color,mydatac:data[i].target_reach});
                    
    
                }
              $("#detail_table_loader_ttl_national").hide();  
              $("#TotalNational").show();  
-                $("#covered").append(total_target);
-                $("#reach").append(total_actual);
-                $("#trial").append(total_actual);
+                $("#covered").append(total_target.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $("#reach").append(total_actual.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $("#trial").append(total_actual.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                chartz.xAxis[0].setCategories(labels_total)
                chartz.series[0].setData(target_reach_total)
                chartz.series[1].setData(target_actual_total)
@@ -560,7 +564,7 @@ $(function () {
                     formatter: function () {
                         return '<b>' + this.x + '</b><br/>' +
                             this.series.name + ': ' + this.y + '<br/>' +
-                            'Total: ' + this.point.stackTotal;
+                            'Target: ' + this.point.mydatad;
                     }
                 },
                 plotOptions: {
@@ -619,8 +623,8 @@ $(function () {
                     }else{
                         color = 'red';
                     }
-                    attendancetl_target.push({y: target, color: 'gray'});
-                    attendancetl_reach.push({y: data[i].attendance, color: color});
+                    attendancetl_target.push({y: target, color: 'gray',mydatad:data[i].count});
+                    attendancetl_reach.push({y: data[i].attendance, color: color,mydatab:data[i].count});
    
                }
                chartx.xAxis[0].setCategories(labelstl)
@@ -672,7 +676,7 @@ $(function () {
                     formatter: function () {
                         return '<b>' + this.x + '</b><br/>' +
                             this.series.name + ': ' + this.y + '<br/>' +
-                            'Total: ' + this.point.stackTotal;
+                            'Target: ' + this.point.mydatae;
                     }
                 },
                 plotOptions: {
@@ -705,11 +709,12 @@ $(function () {
       var month_tl_rc =  document.getElementById('tl_month');
       var brand_tl_rc =  document.getElementById('tl_brand');
       var team_leader_rc =  document.getElementById('tl_leader');
+      var tl_ph =  document.getElementById('tl_ph');
         $.ajax({
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TlReach'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'agency='+agency_tl_rc.value+'&month='+month_tl_rc.value+'&brand='+brand_tl_rc.value+'&teamlead='+team_leader_rc.value,
+            'data':'agency='+agency_tl_rc.value+'&month='+month_tl_rc.value+'&brand='+brand_tl_rc.value+'&teamlead='+team_leader_rc.value+'&ph='+tl_ph.value,
              beforeSend: function(){
                 $("#detail_table_loader_tl_reach").show();  
                 $("#tlreach").hide();         
@@ -731,8 +736,8 @@ $(function () {
                         color = 'red';
                     }
                    
-                    target_reach_tl.push({y: target, color: 'gray'});
-                    target_actualtl.push({y: parseFloat(data[i].actual_reach), color: color});
+                    target_reach_tl.push({y: target, color: 'gray',mydatae:data[i].target_reach});
+                    target_actualtl.push({y: parseFloat(data[i].actual_reach), color: color,mydatae:data[i].target_reach});
                    
    
                }
