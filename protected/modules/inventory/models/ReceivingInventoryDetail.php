@@ -87,7 +87,7 @@ class ReceivingInventoryDetail extends CActiveRecord {
             'batch_no' => 'Batch No',
             'sku_id' => 'Sku',
             'uom_id' => 'Uom',
-            'sku_status_id' => 'Status',
+            'sku_status_id' => Sku::SKU_LABEL . ' Status',
             'unit_price' => 'Unit Price',
             'expiration_date' => 'Expiration Date',
             'planned_quantity' => 'Planned Quantity',

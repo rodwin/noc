@@ -272,7 +272,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                     <?php echo $form->labelEx($sku, 'sub_type'); ?><br/>
                                     <?php echo $form->labelEx($sku, 'brand_id'); ?><br/>
                                     <?php echo $form->labelEx($sku, 'sku_code'); ?><br/>
-                                    <?php echo $form->labelEx($sku, 'description'); ?>
+                                    <?php echo $form->labelEx($sku, 'description'); ?><br/>
                                     <?php echo $form->labelEx($transaction_detail, 'uom_id'); ?><br/>
                                     <?php echo $form->labelEx($transaction_detail, 'sku_status_id'); ?>
 
@@ -405,7 +405,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 ),
                                 'labelOptions' => array('label' => false),
                                 'prepend' => '&#8369',
-                                'append' => '<b class="inventory_uom_selected"></b>'
+//                                'append' => '<b class="inventory_uom_selected"></b>'
                             ));
                             ?>
                         </div>

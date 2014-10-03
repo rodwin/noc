@@ -303,7 +303,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 ),
                                 'labelOptions' => array('label' => false),
                                 'prepend' => '&#8369',
-                                'append' => '<b class="sku_uom_selected"></b>'
+//                                'append' => '<b class="sku_uom_selected"></b>'
                             ));
                             ?>
                         </div>

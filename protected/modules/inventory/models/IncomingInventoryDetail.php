@@ -112,7 +112,7 @@ class IncomingInventoryDetail extends CActiveRecord {
             'batch_no' => 'Batch No',
             'sku_id' => 'Sku',
             'uom_id' => 'UOM',
-            'sku_status_id' => 'Status',
+            'sku_status_id' => Sku::SKU_LABEL . ' Status',
             'source_zone_id' => 'Source Zone',
             'unit_price' => 'Unit Price',
             'expiration_date' => 'Expiration Date',

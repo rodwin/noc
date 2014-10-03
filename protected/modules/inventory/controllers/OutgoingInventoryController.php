@@ -671,6 +671,7 @@ class OutgoingInventoryController extends Controller {
             $c->addSearchCondition('t.campaign_no', $value, true);
         }
         $c->compare('t.company_id', Yii::app()->user->company_id);
+        $c->group = "t.campaign_no";
         $receiving = ReceivingInventory::model()->findAll($c);
         $incoming = IncomingInventory::model()->findAll($c);
 
@@ -691,7 +692,7 @@ class OutgoingInventoryController extends Controller {
         }
 
         $return = array_merge($receiving_arr, $incoming_arr);
-
+        
         echo json_encode($return);
         Yii::app()->end();
     }
@@ -825,7 +826,7 @@ class OutgoingInventoryController extends Controller {
 
             $data['inv'][] = $row;
         }
-        
+
         $data['headers'] = $header;
 
         echo json_encode($data);

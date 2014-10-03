@@ -197,7 +197,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     ),
                     'widgetOptions' => array(
                         'data' => array(),
-                        'htmlOptions' => array('class' => 'span5', 'multiple' => false),
+                        'htmlOptions' => array('class' => 'span5', 'multiple' => false, 'onchange' => "PRNoChange(this.value)"),
                     ),
                     'labelOptions' => array('label' => false)));
                 ?>
@@ -416,7 +416,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 ),
                                 'labelOptions' => array('label' => false),
                                 'prepend' => '&#8369',
-                                'append' => '<b class="inventory_uom_selected"></b>'
+//                                'append' => '<b class="inventory_uom_selected"></b>'
                             ));
                             ?>
                         </div>
@@ -763,7 +763,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             }
 
-            inventory_table.fnMultiFilter();
+            $("#item_details_table tbody tr").removeClass('success');
+            PRNoChange(selected_pr_no);
         } else {
 
             growlAlert(data.type, data.message);
@@ -925,9 +926,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         var campaign_no = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('campaign_nos'),
             queryTokenizer: Bloodhound.tokenizers.whitespace,
-           prefetch: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo', array('value' => '')) ?>',
+            prefetch: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo', array('value' => '')) ?>',
             remote: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo'); ?>&value=%QUERY'
-       });
+        });
 
         campaign_no.initialize();
 
@@ -951,7 +952,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         jQuery('#OutgoingInventory_campaign_no').on('input', function() {
             $('#OutgoingInventory_pr_no').empty();
         });
-        
+
         var zone = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('zone'),
             queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -982,7 +983,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         });
     });
 
-    var selected_campaign_no, selected_transaction;
+    var selected_campaign_no, selected_transaction, selected_pr_no;
     function loadPRNos(campaign_no, transaction) {
         selected_campaign_no = campaign_no;
         selected_transaction = transaction;
@@ -1020,47 +1021,47 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         return false;
     }
 
-    $(function() {
-        $('#OutgoingInventory_pr_no').change(function() {
-            var selected_pr_no = $("#OutgoingInventory_pr_no").val();
+    function PRNoChange(pr_no) {
+        selected_pr_no = pr_no;
 
-            $.ajax({
-                type: 'POST',
-                url: '<?php echo Yii::app()->createUrl('/inventory/outgoingInventory/loadInvByPRNo'); ?>' + '&campaign_no=' + selected_campaign_no + '&pr_no=' + selected_pr_no + '&transaction=' + selected_transaction,
-                dataType: "json",
-                success: function(data) {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl('/inventory/outgoingInventory/loadInvByPRNo'); ?>' + '&campaign_no=' + selected_campaign_no + '&pr_no=' + selected_pr_no + '&transaction=' + selected_transaction,
+            dataType: "json",
+            success: function(data) {
 
-                    var oSettings = item_details_table.fnSettings();
-                    var iTotalRecords = oSettings.fnRecordsTotal();
-                    for (var i = 0; i <= iTotalRecords; i++) {
-                        item_details_table.fnDeleteRow(0, null, true);
-                    }
-
-                    $('#OutgoingInventory_pr_date').val(data.headers.pr_date);
-
-                    $.each(data.inv, function(i, v) {
-                        item_details_table.fnAddData([
-                            v.inventory_id,
-                            v.sku_id,
-                            v.sku_code,
-                            v.sku_description,
-                            v.brand_name,
-                            v.cost_per_unit,
-                            v.inventory_on_hand,
-                            v.uom_name,
-                            v.sku_status_name,
-                            v.expiration_date,
-                            v.reference_no
-                        ]);
-                    });
-
-                },
-                error: function(data) {
-                    alert("Error occured: Please try again.");
+                var oSettings = item_details_table.fnSettings();
+                var iTotalRecords = oSettings.fnRecordsTotal();
+                for (var i = 0; i <= iTotalRecords; i++) {
+                    item_details_table.fnDeleteRow(0, null, true);
                 }
-            });
-        });
 
+                $('#OutgoingInventory_pr_date').val(data.headers.pr_date);
+
+                $.each(data.inv, function(i, v) {
+                    item_details_table.fnAddData([
+                        v.inventory_id,
+                        v.sku_id,
+                        v.sku_code,
+                        v.sku_description,
+                        v.brand_name,
+                        v.cost_per_unit,
+                        v.inventory_on_hand,
+                        v.uom_name,
+                        v.sku_status_name,
+                        v.expiration_date,
+                        v.reference_no
+                    ]);
+                });
+
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+    }
+
+    $(function() {
         $('#OutgoingInventory_pr_date, #OutgoingInventory_dr_date, #OutgoingInventory_plan_delivery_date, #OutgoingInventory_revised_delivery_date, #OutgoingInventory_actual_delivery_date, #OutgoingInventory_transaction_date, #OutgoingInventoryDetail_expiration_date, #OutgoingInventoryDetail_return_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
