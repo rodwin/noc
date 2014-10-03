@@ -828,9 +828,9 @@ class ReceivingInventoryController extends Controller {
             <style type="text/css">
             .text-center { text-align: center; }
             #header {  }   
-            .title { font-size: 17px; }
-            .sub-title { font-size: 12px; }
-            .title-report { font-size: 20px; font-weight: bold; } 
+            .title { font-size: 12px; }
+            .sub-title { font-size: 10px; }
+            .title-report { font-size: 15px; font-weight: bold; } 
             .table_main { font-size: 10px; }
             .table_details { font-size: 8px; width: 100%; }
             .table_footer { font-size: 8px; width: 100%; }
@@ -841,9 +841,9 @@ class ReceivingInventoryController extends Controller {
         </style>
                 
         <div id="header" class="text-center">
-            <div class="title">ASIA BREWERY INCORPORATED</div>
-            <div class="sub-title">6th FLOOR ALLIED BANK CENTER, AYALA AVENUE, MAKATI CITY</div>
-            <div class="title-report">WAREHOUSE RECEIVING REPORT</div>
+            <span class="title">ASIA BREWERY INCORPORATED</span><br/>
+            <span class="sub-title">6th FLOOR ALLIED BANK CENTER, AYALA AVENUE, MAKATI CITY</span><br/>
+            <span class="title-report">WAREHOUSE RECEIVING REPORT</span>
         </div>   
         
         <br/><br/>
