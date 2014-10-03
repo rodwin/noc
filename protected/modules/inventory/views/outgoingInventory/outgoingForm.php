@@ -922,6 +922,36 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     });
 
     $(function() {
+        var campaign_no = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('campaign_nos'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+           prefetch: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo', array('value' => '')) ?>',
+            remote: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo'); ?>&value=%QUERY'
+       });
+
+        campaign_no.initialize();
+
+        $('#OutgoingInventory_campaign_no').typeahead(null, {
+            name: 'campaign_nos',
+            displayKey: 'campaign_no',
+            source: campaign_no.ttAdapter(),
+            templates: {
+                suggestion: Handlebars.compile([
+//                    '<p class="repo-name">{{campaign_no}}</p>',
+                    '<p class="repo-description">{{campaign_no}}</p>'
+                ].join(''))
+            }
+
+        }).on('typeahead:selected', function(obj, datum) {
+            $("#OutgoingInventory_campaign_no").val(datum.campaign_no);
+
+            loadPRNos(datum.campaign_no, datum.transaction);
+        });
+
+        jQuery('#OutgoingInventory_campaign_no').on('input', function() {
+            $('#OutgoingInventory_pr_no').empty();
+        });
+        
         var zone = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('zone'),
             queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -950,40 +980,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             var value = $("#OutgoingInventory_destination_zone_id").val();
             $("#OutgoingInventoryl_destination_zone").val(value);
         });
-    });
-
-    $(function() {
-
-        var campaign_no = new Bloodhound({
-            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('campaign_no'),
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            prefetch: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo', array('value' => '')) ?>',
-            remote: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo'); ?>&value=%QUERY'
-        });
-
-        campaign_no.initialize();
-
-        $('#OutgoingInventory_campaign_no').typeahead(null, {
-            name: 'campaign_nos',
-            displayKey: 'campaign_no',
-            source: campaign_no.ttAdapter(),
-            templates: {
-                suggestion: Handlebars.compile([
-//                    '<p class="repo-language">{{transaction}}</p>',
-                    '<p class="repo-description">{{campaign_no}}</p>'
-                ].join(''))
-            }
-
-        }).on('typeahead:selected', function(obj, datum) {
-            $("#OutgoingInventory_campaign_no").val(datum.campaign_no);
-
-            loadPRNos(datum.campaign_no, datum.transaction);
-        });
-
-        jQuery('#OutgoingInventory_campaign_no').on('input', function() {
-            $('#OutgoingInventory_pr_no').empty();
-        });
-
     });
 
     var selected_campaign_no, selected_transaction;
