@@ -1,7 +1,7 @@
 <?php
 $main_menu = array(
     array('label' => 'Dashboard', 'url' => '#', 'icon' => 'fa fa-dashboard', 'visible' => !Yii::app()->user->isGuest, 'items' => array(
-          array('label' => 'Pome', 'icon' => 'fa fa-angle-double-right', 'url' => array('/pome/default'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => 'Pome', 'icon' => 'fa fa-angle-double-right', 'url' => array('/pome/default'), 'visible' => isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['pome'])),
         )),
     array('label' => 'Location Viewer', 'url' => array('locationviewer'), 'icon' => 'fa fa-map-marker', 'visible' => isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['locationviewer'])),
     array('label' => 'Inventory', 'url' => '#', 'icon' => 'fa fa-list-alt', 'visible' => isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['inventory']), 'items' => array(
@@ -44,56 +44,62 @@ $main_menu = array(
 <ul class="sidebar-menu">
     <?php
     foreach ($main_menu as $key => $value) {
-        if($value['visible'] != ''){
-        if ($value['url'] != '#') {
-            ?>
+        if ($value['visible'] === true) {
+            if ($value['url'] != '#') {
+                ?>
 
-            <li class="<?php echo Yii::app()->getRequest()->getQuery('r') == $value['url'][0] ? 'active' : '' ?>">
-                <a href="<?php echo Yii::app()->createUrl($value['url'][0]) ?>">
-                    <i class="<?php echo $value['icon']; ?>"></i> <span><?php echo $value['label']; ?></span>
-                </a>
-            </li>
+                <li class="<?php echo Yii::app()->getRequest()->getQuery('r') == $value['url'][0] ? 'active' : '' ?>">
+                    <a href="<?php echo Yii::app()->createUrl($value['url'][0]) ?>">
+                        <i class="<?php echo $value['icon']; ?>"></i> <span><?php echo $value['label']; ?></span>
+                    </a>
+                </li>
 
+            <?php } else { ?>
 
-        <?php } else { ?>
+                <?php
+                $tv_active = '';
+                foreach ($value['items'] as $i => $item) {
 
-            <?php
-            $tv_active = '';
-            foreach ($value['items'] as $i => $item) {
-                if (!is_array($item)) {
-                    continue;
+                    if (!is_array($item)) {
+                        continue;
+                    }
+                    if ($item['url'][0] == Yii::app()->getRequest()->getQuery('r')) {
+                        $tv_active = 'active';
+                        break;
+                    }
                 }
-                if ($item['url'][0] == Yii::app()->getRequest()->getQuery('r')) {
-                    $tv_active = 'active';
-                    break;
-                }
-            }
-            ?>
-            <li class="treeview <?php echo $tv_active; ?>">
-                <a href="#">
-                    <i class="<?php echo $value['icon']; ?>"></i> <span><?php echo $value['label']; ?></span>
-                    <i class="fa fa-angle-left pull-right"></i>
-                    <ul class="treeview-menu">
-                        <?php
-                        foreach ($value['items'] as $i => $item) {
-                            if (!is_array($item)) {
-                                echo '<hr/>';
-                                continue;
+                ?>
+                <li class="treeview <?php echo $tv_active; ?>">
+                    <a href="#">
+                        <i class="<?php echo $value['icon']; ?>"></i> <span><?php echo $value['label']; ?></span>
+                        <i class="fa fa-angle-left pull-right"></i>
+                        <ul class="treeview-menu">
+                            <?php
+                            foreach ($value['items'] as $i => $item) {
+                                if (!is_array($item)) {
+                                    echo '<hr/>';
+                                    continue;
+                                }
+
+                                if ($item['visible'] === true) {
+                                    ?>
+
+                                    <li class="<?php echo Yii::app()->getRequest()->getQuery('r') == $item['url'][0] ? 'active' : '' ?>">
+                                        <a href="<?php echo Yii::app()->createUrl($item['url'][0], isset($item['url'][1]) ? $item['url'][1] : array()) ?>">
+                                            <i class="fa fa-angle-double-right"></i> <span><?php echo $item['label']; ?></span>
+                                        </a>
+                                    </li>
+
+                                <?php }
                             }
                             ?>
-
-                            <li class="<?php echo Yii::app()->getRequest()->getQuery('r') == $item['url'][0] ? 'active' : '' ?>">
-                                <a href="<?php echo Yii::app()->createUrl($item['url'][0], isset($item['url'][1]) ? $item['url'][1] : array()) ?>">
-                                    <i class="fa fa-angle-double-right"></i> <span><?php echo $item['label']; ?></span>
-                                </a>
-                            </li>
-
-        <?php } ?>
-                    </ul>
-                </a>
-            </li>
-    <?php }} ?>
-
+                        </ul>
+                    </a>
+                </li>
+                <?php
+            }
+        }
+        ?>
 
 <?php } ?>
 </ul>
