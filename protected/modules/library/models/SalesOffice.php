@@ -30,6 +30,7 @@
 class SalesOffice extends CActiveRecord {
 
     public $search_string;
+    public $full_address;
 
     /**
      * @return string the associated database table name

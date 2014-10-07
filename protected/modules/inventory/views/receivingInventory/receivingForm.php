@@ -178,7 +178,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->textFieldGroup($receiving, 'zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'receivingInventory_zone_id', 'class' => 'ignore span5', 'maxlength' => 50, 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($receiving, 'plan_arrival_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
-                
+
                 <?php echo CHtml::textField('supplier_name', '', array('id' => 'ReceivingInventory_supplier_id', 'class' => 'ignore typeahead form-control span5', 'maxlength' => 50, 'placeholder' => "Supplier")); ?>
                 <?php echo $form->textFieldGroup($receiving, 'supplier_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'ReceivingInventory_supplier', 'class' => 'ignore span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
 
@@ -303,7 +303,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 ),
                                 'labelOptions' => array('label' => false),
                                 'prepend' => '&#8369',
-                                'append' => '<b class="sku_uom_selected"></b>'
+//                                'append' => '<b class="sku_uom_selected"></b>'
                             ));
                             ?>
                         </div>
@@ -335,7 +335,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             ));
                             ?>
                         </div>
-                        
+
                         <div class="span5">
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'inventory_on_hand', array(
@@ -410,7 +410,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="row no-print">
             <div class="col-xs-12">
-                <button class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
+                <button id="btn_print" class="btn btn-default"><i class="fa fa-print"></i> Print</button>
                 <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload PR / DR</button>
                 <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>  
             </div>
@@ -458,7 +458,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     var transaction_table;
     var headers = "transaction";
     var details = "details";
+    var print = "print";
     var total_amount = 0;
+    var validatedForm = false;
     $(function() {
         $("[data-mask]").inputmask();
 
@@ -551,7 +553,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 dataType: "json",
                 beforeSend: function(data) {
                     $("#btn_save, #btn_add_item").attr("disabled", "disabled");
-                    if (form == headers) { $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...'); }
+                    if (form == headers) {
+                        $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
+                    }
                 },
                 success: function(data) {
                     validateForm(data);
@@ -625,6 +629,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
 //                $("#ReceivingInventoryDetail_planned_quantity, #ReceivingInventoryDetail_quantity_received, #ReceivingInventoryDetail_unit_price, #ReceivingInventoryDetail_amount").val(0);
 
+            } else if (data.form == print && serializeTransactionTable().length > 0) {
+                printPDF(data.print);
             }
 
             sku_table.fnMultiFilter();
@@ -735,6 +741,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         $('#file_uploads').click();
     });
 
+    $('#btn_print').click(function() {
+        send(print);
+    });
+
     function loadSkuDetails(sku_id) {
 
         $("#ReceivingInventoryDetail_sku_id").val(sku_id);
@@ -822,7 +832,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             var value = $("#ReceivingInventory_zone_id").val();
             $("#receivingInventory_zone_id").val(value);
         });
-        
+
         var supplier = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('supplier'),
             queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -871,5 +881,18 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             applyClass: 'btn-primary'
         });
     });
+
+    function printPDF(data) {
+
+        var tab = window.open(<?php echo "'" . Yii::app()->createUrl($this->module->id . '/ReceivingInventory/print') . "'" ?> + '&' + $.param({"post": data}), '_newtab');
+
+        if (tab) {
+            tab.focus();
+        } else {
+            alert('Please allow popups for this site');
+        }
+
+        return false;
+    }
 
 </script>

@@ -65,7 +65,7 @@ $this->breadcrumbs = array(
                     <div class="form-group">
                         <?php echo CHtml::submitButton('Upload', array('class' => 'btn btn-primary btn-flat')); ?>    
                         <?php // echo CHtml::link('Download Template', array(), array('class' => 'btn btn-info btn-flat', 'onclick' => 'click()'));   ?>    
-                        <?php echo CHtml::submitButton('Download All SKU', array('class' => 'btn btn-info btn-flat')); ?>
+                        <?php echo CHtml::submitButton('Download All Outlets', array('class' => 'btn btn-info btn-flat')); ?>
 
                     </div>
 

@@ -404,7 +404,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 ),
                                 'labelOptions' => array('label' => false),
                                 'prepend' => '&#8369',
-                                'append' => '<b class="inventory_uom_selected"></b>'
+//                                'append' => '<b class="inventory_uom_selected"></b>'
                             ));
                             ?>
                         </div>
@@ -486,7 +486,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         <div class="row no-print">
             <div class="col-xs-12">
                 <button class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
-                <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload</button>
+                <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload DR</button>
                 <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>  
             </div>
         </div>
@@ -794,6 +794,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     $("#CustomerItem_pr_no").val(data.headers.pr_no);
                     $("#CustomerItem_source_zone").val(data.headers.source_zone_id);
                     $("#CustomerItem_source_zone_id").val(data.headers.source_zone_name);
+                    $("#CustomerItem_pr_date").val(data.headers.pr_date);
                 }
 
                 $.each(data.data, function(i, v) {

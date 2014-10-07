@@ -33,6 +33,7 @@ class Supplier extends CActiveRecord {
    public $municipal_name;
    public $province_name;
    public $region_name;
+   public $full_address;
 
    /**
     * @return string the associated database table name

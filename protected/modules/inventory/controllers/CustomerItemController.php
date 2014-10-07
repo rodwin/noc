@@ -270,6 +270,7 @@ class CustomerItemController extends Controller {
             "rra_no" => isset($val->incomingInventory->rra_no) ? $val->incomingInventory->rra_no : null,
             "campaign_no" => isset($val->incomingInventory->campaign_no) ? $val->incomingInventory->campaign_no : null,
             "pr_no" => isset($val->incomingInventory->pr_no) ? $val->incomingInventory->pr_no : null,
+            "pr_date" => isset($val->incomingInventory->pr_date) ? $val->incomingInventory->pr_date : null,
             "source_zone_id" => isset($val->incomingInventory->zone_id) ? $val->incomingInventory->zone_id : null,
             "source_zone_name" => isset($val->incomingInventory->zone->zone_name) ? $val->incomingInventory->zone->zone_name : null,
         );
