@@ -271,7 +271,7 @@ class ReceivingInventoryController extends Controller {
             $data['success'] = false;
             $data["type"] = "success";
 
-            if ($_POST['form'] == "transaction") {
+            if ($_POST['form'] == "transaction" || $_POST['form'] == "print") {
                 $data['form'] = $_POST['form'];
 
                 if (isset($_POST['ReceivingInventory'])) {
@@ -290,15 +290,22 @@ class ReceivingInventoryController extends Controller {
                         $data["type"] = "danger";
                     } else {
 
-                        $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
+                        if ($data['form'] == "print") {
 
-                        if ($receiving->create($transaction_details)) {
-                            $data['message'] = 'Successfully created';
+                            $data['print'] = $_POST;
                             $data['success'] = true;
                         } else {
-                            $data['message'] = 'Unable to process';
-                            $data['success'] = false;
-                            $data["type"] = "danger";
+
+                            $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
+
+                            if ($receiving->create($transaction_details)) {
+                                $data['message'] = 'Successfully created';
+                                $data['success'] = true;
+                            } else {
+                                $data['message'] = 'Unable to process';
+                                $data['success'] = false;
+                                $data["type"] = "danger";
+                            }
                         }
                     }
                 }
@@ -332,7 +339,7 @@ class ReceivingInventoryController extends Controller {
                             "sku_code" => isset($sku_details->sku_code) ? $sku_details->sku_code : null,
                             "sku_description" => isset($sku_details->description) ? $sku_details->description : null,
                             'brand_name' => isset($sku_details->brand->brand_name) ? $sku_details->brand->brand_name : null,
-                            'unit_price' => $transaction_detail->unit_price != "" ? $transaction_detail->unit_price : 0,
+                            'unit_price' => $transaction_detail->unit_price != "" ? number_format($transaction_detail->unit_price, 2, '.', '') : number_format(0, 2, '.', ''),
                             'batch_no' => isset($transaction_detail->batch_no) ? $transaction_detail->batch_no : null,
                             'expiration_date' => isset($transaction_detail->expiration_date) ? $transaction_detail->expiration_date : null,
                             'planned_quantity' => $transaction_detail->planned_quantity != "" ? $transaction_detail->planned_quantity : 0,
@@ -341,7 +348,7 @@ class ReceivingInventoryController extends Controller {
                             'uom_name' => isset($transaction_detail->uom->uom_name) ? $transaction_detail->uom->uom_name : null,
                             'sku_status_id' => isset($transaction_detail->skuStatus->sku_status_id) ? $transaction_detail->skuStatus->sku_status_id : null,
                             'sku_status_name' => isset($transaction_detail->skuStatus->status_name) ? $transaction_detail->skuStatus->status_name : null,
-                            'amount' => $transaction_detail->amount != "" ? $transaction_detail->amount : 0,
+                            'amount' => $transaction_detail->amount != "" ? number_format($transaction_detail->amount, 2, '.', '') : number_format(0, 2, '.', ''),
                             'inventory_on_hand' => $transaction_detail->inventory_on_hand != "" ? $transaction_detail->inventory_on_hand : 0,
                             'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
                         );
@@ -783,44 +790,61 @@ class ReceivingInventoryController extends Controller {
         }
     }
 
-    public function actionPrint($post) {
+    public function actionPrint(array $post) {
 
-        parse_str($post, $data);
+//        parse_str($post, $data);
+
+        $data = $post;
 
         $headers = $data['ReceivingInventory'];
         $details = $data['transaction_details'];
 
         $c1 = new CDbCriteria();
-        $c1->compare('t.company_id', Yii::app()->user->company_id);
-        $c1->condition = 'salesOffice.distributor_id = "" AND t.zone_id = "' . $headers['zone_id'] . '"';
-        $c1->with = array('salesOffice');
+        $c1->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.zone_id = "' . $headers['zone_id'] . '"';
+        $c1->with = array("salesOffice");
         $zone = Zone::model()->find($c1);
 
-        $warehouse = isset($zone->salesOffice->sales_office_name) ? $zone->salesOffice->sales_office_name : "";
-        $warehouse_address = isset($zone->salesOffice->address1) ? $zone->salesOffice->address1 : "";
+        $c3 = new CDbCriteria();
+        $c3->select = new CDbExpression('t.*, CONCAT(TRIM(barangay.barangay_name), ", ", TRIM(municipal.municipal_name), ", ", TRIM(province.province_name), ", ", TRIM(region.region_name)) AS full_address');
+        $c3->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = "' . $zone->salesOffice->sales_office_id . '"';
+        $c3->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
+        $c3->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
+        $c3->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
+        $c3->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
+        $salesoffice = Salesoffice::model()->find($c3);
+        
+        $warehouse_name = isset($salesoffice->sales_office_name) ? $salesoffice->sales_office_name : "";
+        $warehouse_address = isset($salesoffice->full_address) ? $salesoffice->full_address : "";
+        $destination_zone = isset($zone->zone_name) ? $zone->zone_name : "";
+
+
         $campaign_no = $headers['campaign_no'];
         $pr_no = $headers['pr_no'];
         $pr_date = $headers['pr_date'];
         $dr_no = $headers['dr_no'];
-        $destination_zone = isset($zone->zone_name) ? $zone->zone_name : "";
-        $supplier = $data['supplier_name'];
+
+        $c2 = new CDbCriteria();
+        $c2->select = new CDbExpression('t.*, CONCAT(barangay.barangay_name, ", ", municipal.municipal_name, ", ", province.province_name, ", ", region.region_name) AS full_address');
+        $c2->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND supplier_id = "' . $headers['supplier_id'] . '"';
+        $c2->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay';
+        $c2->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal';
+        $c2->join .= ' LEFT JOIN province ON province.province_code = t.province';
+        $c2->join .= ' LEFT JOIN region ON region.region_code = t.region';
+        $supplier = Supplier::model()->find($c2);
+        $supplier_name = $supplier->supplier_name;
+        $contact_person = $supplier->contact_person1;
+        $address = isset($supplier->full_address) ? $supplier->full_address : "";
+
+        $transaction_date = $headers['transaction_date'];
         $plan_delivery_date = $headers['plan_arrival_date'];
 
-        $c = new CDbCriteria;
-        $c->select = new CDbExpression('t.*, CONCAT(t.first_name, " ", t.last_name) AS fullname');
-        $c->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND employee_id = "' . $headers['requestor'] . '"';
-        $c->order = 'fullname ASC';
-        $employee = Employee::model()->find($c);
-
-        $contact_person = isset($employee->fullname) ? $employee->fullname : "";
-        $address = isset($employee->address1) ? $employee->address1 : ""; 
 
         $pdf = Globals::pdf();
 
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
         $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-        $pdf->SetFont('helvetica', '', 10);
+        $pdf->SetFont('DejaVu Sans', '', 10);
 
         $pdf->AddPage();
 
@@ -850,10 +874,10 @@ class ReceivingInventoryController extends Controller {
         <table class="table_main">
             <tr>
                 <td clss="row_label">WAREHOUSE NAME</td>
-                <td class="border-bottom row_content_lg">' . $warehouse . '</td>
+                <td class="border-bottom row_content_lg">' . $warehouse_name . '</td>
                 <td style="width: 10px;"></td>
                 <td clss="row_label">DELIVERY DATE</td>
-                <td class="border-bottom row_content_sm"></td>
+                <td class="border-bottom row_content_sm">' . $transaction_date . '</td>
             </tr>
             <tr>
                 <td>ADDRESS</td>
@@ -877,7 +901,7 @@ class ReceivingInventoryController extends Controller {
                 <td class="border-bottom">' . $pr_no . '</td>
                 <td></td>
                 <td>SUPPLIER NAME</td>
-                <td class="border-bottom">' . $supplier . '</td>
+                <td class="border-bottom">' . $supplier_name . '</td>
             </tr>
             <tr>
                 <td>PR DATE</td>
@@ -923,8 +947,8 @@ class ReceivingInventoryController extends Controller {
                         <td>' . $val['planned_quantity'] . '</td>
                         <td>' . $val['qty_received'] . '</td>
                         <td>' . $uom->uom_name . '</td>
-                        <td>' . $val['unit_price'] . '</td>
-                        <td>' . $val['amount'] . '</td>
+                        <td>&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
+                        <td>&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
                         <td>' . $val['remarks'] . '</td>
                         <td>' . $headers['delivery_remarks'] . '</td>
                     </tr>';
@@ -941,8 +965,8 @@ class ReceivingInventoryController extends Controller {
                     <td>' . $planned_qty . '</td>
                     <td>' . $actual_qty . '</td>
                     <td></td>
-                    <td>' . $headers['total_amount'] . '</td>
-                    <td>' . $headers['total_amount'] . '</td>
+                    <td>&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
+                    <td>&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
                     <td colspan="2"></td>
                 </tr>';
 

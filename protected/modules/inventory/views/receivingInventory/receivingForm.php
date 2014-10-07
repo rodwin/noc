@@ -458,7 +458,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     var transaction_table;
     var headers = "transaction";
     var details = "details";
+    var print = "print";
     var total_amount = 0;
+    var validatedForm = false;
     $(function() {
         $("[data-mask]").inputmask();
 
@@ -627,6 +629,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
 //                $("#ReceivingInventoryDetail_planned_quantity, #ReceivingInventoryDetail_quantity_received, #ReceivingInventoryDetail_unit_price, #ReceivingInventoryDetail_amount").val(0);
 
+            } else if (data.form == print && serializeTransactionTable().length > 0) {
+                printPDF(data.print);
             }
 
             sku_table.fnMultiFilter();
@@ -738,7 +742,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     });
 
     $('#btn_print').click(function() {
-        print();
+        send(print);
     });
 
     function loadSkuDetails(sku_id) {
@@ -878,15 +882,14 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         });
     });
 
-    function print() {
+    function printPDF(data) {
 
-        var data = $("#receiving-inventory-form").serialize() + '&' + $.param({"transaction_details": serializeTransactionTable()});
+        var tab = window.open(<?php echo "'" . Yii::app()->createUrl($this->module->id . '/ReceivingInventory/print') . "'" ?> + '&' + $.param({"post": data}), '_newtab');
 
-        if (serializeTransactionTable().length > 0) {
-            window.open(<?php echo "'" . Yii::app()->createUrl($this->module->id . '/ReceivingInventory/print') . "'" ?> + '&' + $.param({"post": data}), '_blank');
+        if (tab) {
+            tab.focus();
         } else {
-            
-            growlAlert("danger", "Unable to print");
+            alert('Please allow popups for this site');
         }
 
         return false;
