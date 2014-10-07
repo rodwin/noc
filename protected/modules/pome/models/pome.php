@@ -75,16 +75,18 @@ class Pome extends CFormModel {
    {
        if($region==0){
            $region = '';
+           $select = 'g.name';
        }else{
            $region = 'and g.id='.$region;
+           $select = 'b.name';
        }
        
        if($province==0){
            $province = '';
-           $select = 'g.name';
+           
        }else{
            $province = 'and b.id='.$province;
-           $select = 'b.name';
+           
        }
        if($brand != 0){
            $brand = 'and d.brand_id ='.$brand;
@@ -188,16 +190,18 @@ class Pome extends CFormModel {
        
        if($region==0){
            $region = '';
+           $select = 'g.name';
        }else{
            $region = 'and g.id='.$region;
+           $select = 'b.name';
        }
        
        if($province==0){
            $province = '';
-           $select = 'g.name';
+//           $select = 'g.name';
        }else{
            $province = 'and b.id='.$province;
-           $select = 'b.name';
+           
        }
        
        if($brand != 0){
@@ -352,7 +356,7 @@ class Pome extends CFormModel {
       return $data;
    }
    
-   public function getTargetReachPerLeader($month,$agency="",$brand="",$teamlead)
+   public function getTargetReachPerLeader($month,$agency="",$brand="",$teamlead,$ph)
    {
        
        if($month != ""){
@@ -377,22 +381,32 @@ class Pome extends CFormModel {
            $brand= '';
        }
        
-       $sql = "SELECT c.id ,sum(b.reach) as reach
+       if($ph != ""){
+           if($ph == 'PH1PLUS'){
+               $ph = "PH1+";
+           }else{
+                $ph = $ph;
+           }
+       }else{
+           $ph = 'PH1';
+       }
+       
+       $sql = "SELECT c.id,a.id as route_id ,sum(b.reach) as reach
                 FROM [pg_mapping].[dbo].[pome_route] a
                 inner join [pg_mapping].[dbo].[pome_route_details] b on b.route_id = a.id
                 inner join [pg_mapping].[dbo].[pome_pps] c on c.id = a.pps_id
                 inner join [pg_mapping].[dbo].[outlets] d on d.outlet_id = b.hospital_id
-                where c.parent_leader = $teamlead  and c.team_leader =0 and a.date between '$from' and '$to' and d.class='PH1' $brand $agency
-                group by c.id
+                where c.parent_leader = $teamlead  and c.team_leader =0 and a.date between '$from' and '$to' and d.class='$ph' $brand $agency
+                group by c.id,a.id 
                 order by c.id";
-//       pr($sql);
+     
       $command = Yii::app()->db3->createCommand($sql);
       $data = $command->queryAll(); 
       
       return $data;
    }
    
-   public function getActualReachPerLeader($agency="",$brand="",$teamlead,$str)
+   public function getActualReachPerLeader($agency="",$brand="",$teamlead,$str,$ph)
    {
     
        
@@ -411,16 +425,26 @@ class Pome extends CFormModel {
            $str = 0;
        }
        
+       if($ph != ""){
+           if($ph == 'PH1PLUS'){
+               $ph = "PH1+";
+           }else{
+                $ph = $ph;
+           }
+       }else{
+           $ph = 'PH1';
+       }
+       
        $sql = "SELECT e.id as pps_id,e.code,sum(c.reach)as actual_reach
                 FROM [pg_mapping].[dbo].[pome_route] a
                 inner join [pg_mapping].[dbo].[pome_route_transaction] b on b.route_id = a.id
                 inner join [pg_mapping].[dbo].[pome_route_transaction_detail] c on c.pome_route_transaction_id = b.id
                 inner join [pg_mapping].[dbo].[pome_pps] e on e.id = a.pps_id
                 inner join [pg_mapping].[dbo].[outlets] f on f.outlet_id = c.pome_hospital_id 
-                where a.id in ($str)  and e.parent_leader = $teamlead  and e.team_leader =0   and f.class='PH1' $brand $agency
+                where a.id in ($str)  and e.parent_leader = $teamlead  and e.team_leader =0   and f.class='$ph' $brand $agency
                 group by e.id,e.code
                 order by e.id";
-//       pr($sql);
+//      pr($sql);
       $command = Yii::app()->db3->createCommand($sql);
       $data = $command->queryAll(); 
       

@@ -396,18 +396,18 @@ class DefaultController extends Controller
                
             }elseif($_GET['qtr'] == 'JFM'){
                 $from = date('Y-01-01');
-                $to = date('Y-03-t');
+                $to = date('Y-03-31');
                 
                
             }elseif($_GET['qtr'] == 'AMJ'){
                 $from = date('Y-04-01');
-                $to = date('Y-06-t');
+                $to = date('Y-06-30');
             }elseif($_GET['qtr'] == 'JAS'){
                 $from = date('Y-07-01');
-                $to = date('Y-09-t'); 
+                $to = date('Y-09-30'); 
             }elseif($_GET['qtr'] == 'OND'){
                  $from = date('Y-10-01');
-                $to = date('Y-12-t'); 
+                $to = date('Y-12-31'); 
             }
       
             $total = new Pome;
@@ -520,14 +520,18 @@ class DefaultController extends Controller
         {
 
             $total = new Pome;           
-            $reach = $total->getTargetReachPerLeader($_GET['month'],$_GET['agency'],$_GET['brand'],$_GET['teamlead']);
+            $reach = $total->getTargetReachPerLeader($_GET['month'],$_GET['agency'],$_GET['brand'],$_GET['teamlead'],$_GET['ph']);
             $str='';
+            $stra='';
             foreach($reach as $keya => $vala){
                 $str .=$vala['id'].",";
+                $stra .=$vala['route_id'].",";
                 $bws_reach[$vala['id']] =$vala['reach'];  
             }
+
             $str = substr($str, 0, -1); 
-            $actual = $total->getActualReachPerLeader($_GET['agency'],$_GET['brand'],$_GET['teamlead'],$str);
+            $stra = substr($stra, 0, -1); 
+            $actual = $total->getActualReachPerLeader($_GET['agency'],$_GET['brand'],$_GET['teamlead'],$stra,$_GET['ph']);
             
             
             $detail_array = array();

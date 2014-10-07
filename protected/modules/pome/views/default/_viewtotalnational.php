@@ -94,7 +94,7 @@
                     formatter: function () {
                         return '<b>' + this.x + '</b><br/>' +
                             this.series.name + ': ' + this.y + '<br/>' +
-                            'Total: ' + this.point.stackTotal;
+                            'Target: ' + this.point.mydata;
                     }
                 },
                 plotOptions: {
@@ -161,13 +161,13 @@
                     }else{
                         color = 'red';
                     }
-                    target_reach_ttl_view.push({y: target, color: 'gray'});
-                    target_actual_ttl_view.push({y: data[i].actual_reach, color: color});
+                    target_reach_ttl_view.push({y: target, color: 'gray',mydata:data[i].target_reach});
+                    target_actual_ttl_view.push({y: data[i].actual_reach, color: color,mydata:data[i].target_reach});
    
                }
-                $("#covered").append(total_target);
-                $("#reach").append(total_actual);
-                $("#trial").append(total_actual);
+                $("#covered").append(total_target.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $("#reach").append(total_actual.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $("#trial").append(total_actual.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
                charts.xAxis[0].setCategories(labels_ttl_view)
                charts.series[0].setData(target_reach_ttl_view)
                charts.series[1].setData(target_actual_ttl_view)

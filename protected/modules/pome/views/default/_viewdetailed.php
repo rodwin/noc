@@ -138,7 +138,7 @@
                     formatter: function () {
                         return '<b>' + this.x + '</b><br/>' +
                             this.series.name + ': ' + this.y + '<br/>' +
-                            'Total: ' + this.point.stackTotal;
+                            'Target: ' + this.point.mydata;
                     }
                 },
                 plotOptions: {
@@ -200,8 +200,8 @@
                     }else{
                         color = 'red';
                     }
-                    target_reach.push({y: target, color: 'gray'});
-                    target_actual.push({y: data[i].actual_reach, color: color});
+                    target_reach.push({y: target, color: 'gray',mydata:target});
+                    target_actual.push({y: data[i].actual_reach, color: color,mydata:target});
    
                }
                console.log(target_reach);

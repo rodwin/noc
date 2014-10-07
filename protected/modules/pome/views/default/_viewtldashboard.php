@@ -62,6 +62,19 @@
                             )
                     );
                     ?> 
+                    <?php
+                    echo $form->dropDownListGroup(
+                            $model, 'ph', array(
+                        'wrapperHtmlOptions' => array(
+                            'class' => 'col-sm-5',
+                        ),
+                        'widgetOptions' => array(
+                            'data' =>$ph,
+                            'htmlOptions' => array('multiple' => false, 'id' => 'tl_ph' ),
+                        )
+                            )
+                    );
+                    ?>
                     
      <?php $this->endWidget(); ?>
                 </div>
@@ -109,7 +122,7 @@
                     formatter: function () {
                         return '<b>' + this.x + '</b><br/>' +
                             this.series.name + ': ' + this.y + '<br/>' +
-                            'Total: ' + this.point.stackTotal;
+                            'Target: ' + this.point.mydata;
                     }
                 },
                 plotOptions: {
@@ -144,6 +157,8 @@
      var month_tl =  document.getElementById('tl_month');
      var brand_tl =  document.getElementById('tl_brand');
      var team_leader =  document.getElementById('tl_leader');
+   
+     
         $.ajax({
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TlAttendance'); ?>",
             'type':'GET',
@@ -169,8 +184,8 @@
                     }else{
                         color = 'red';
                     }
-                    attendancetl_target.push({y: target, color: 'gray'});
-                    attendancetl_reach.push({y: data[i].attendance, color: color});
+                    attendancetl_target.push({y: target, color: 'gray',mydata:data[i].count});
+                    attendancetl_reach.push({y: data[i].attendance, color: color,mydata:data[i].count});
    
                }
                chartx.xAxis[0].setCategories(labelstl)
@@ -219,14 +234,14 @@
                             }
                         }
                     },
-
-                    tooltip: {
-                        formatter: function () {
-                            return '<b>' + this.x + '</b><br/>' +
-                                this.series.name + ': ' + this.y + '<br/>' +
-                                'Total: ' + this.point.stackTotal;
-                        }
-                    },
+                
+                tooltip: {
+                    formatter: function () {
+                        return '<b>' + this.x + '</b><br/>' +
+                            this.series.name + ': ' + this.y + '<br/>' +
+                            'Target: ' + this.point.mydata;
+                    }
+                },
                     plotOptions: {
                         column: {
                             stacking: 'normal',
@@ -257,11 +272,12 @@
           var month_tl_reach =  document.getElementById('tl_month');
           var brand_tl_reach =  document.getElementById('tl_brand');
           var team_leader_reach =  document.getElementById('tl_leader');
+          var team_ph =  document.getElementById('tl_ph');
             $.ajax({
                 'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TlReach'); ?>",
                 'type':'get',
                 'dataType': 'json',
-                'data':'agency='+agency_tl_reach.value+'&month='+month_tl_reach.value+'&brand='+brand_tl_reach.value+'&teamlead='+team_leader_reach.value,
+                'data':'agency='+agency_tl_reach.value+'&month='+month_tl_reach.value+'&brand='+brand_tl_reach.value+'&teamlead='+team_leader_reach.value+'&ph='+team_ph.value,
                  beforeSend: function(){
                     $("#detail_table_loader_tl_reach").show();  
                     $("#tlreach").hide();         
@@ -283,8 +299,8 @@
                             color = 'red';
                         }
 
-                        target_reach_tl.push({y: target, color: 'gray'});
-                        target_actualtl.push({y: parseFloat(data[i].actual_reach), color: color});
+                        target_reach_tl.push({y: target, color: 'gray',mydata:data[i].target_reach});
+                        target_actualtl.push({y: parseFloat(data[i].actual_reach), color: color,mydata:data[i].target_reach});
 
 
                    }
@@ -329,6 +345,13 @@ $('#tl_brand').change(function() {
 $('#tl_leader').change(function() {
     
     redrawattendancetl();
+    redrawtlreach();
+
+    
+});
+$('#tl_ph').change(function() {
+    
+  
     redrawtlreach();
 
     

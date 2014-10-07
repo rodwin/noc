@@ -66,10 +66,10 @@ class Attendance extends CFormModel {
                     'region'=>'Region',
                     'province'=>'Province',
                     'month'=>'Month',
-                    'ph'=>'ph',
-                    'quarter'=>'quarter',
-                    'brand'=>'brand',
-                    'teamlead'=>'teamlead',
+                    'ph'=>'Ph',
+                    'quarter'=>'Quarter',
+                    'brand'=>'Brand',
+                    'teamlead'=>'Teamlead',
 
             );
     }
@@ -126,8 +126,9 @@ class Attendance extends CFormModel {
     public function getAllBwsTeam()
     {
         $sql =" SELECT *
-                FROM [pg_mapping].[dbo].[pome_pps]
-                where team_leader = 1";
+                FROM [pg_mapping].[dbo].[pome_pps]                
+                where team_leader = 1
+                order by code";
       $command = Yii::app()->db3->createCommand($sql);
       $data = $command->queryAll();
 
