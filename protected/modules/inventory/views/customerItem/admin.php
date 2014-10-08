@@ -113,7 +113,6 @@ $this->breadcrumbs = array(
                 <table id="customer-item-attachment_table" class="table table-bordered">
                     <thead>
                         <tr>
-                            <th style="width: 40px;"></th>
                             <th>File Name</th>
                             <th style="width: 80px;"><?php echo 'Actions' ?></th>
                         </tr>
@@ -190,7 +189,6 @@ $this->breadcrumbs = array(
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(9)', nRow).addClass("text-center");
-
             }
         });
 
@@ -203,8 +201,7 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(0), td:eq(2)', nRow).addClass("text-center");
-
+                $('td:eq(1)', nRow).addClass("text-center");
             }
         });
 
@@ -347,9 +344,8 @@ $this->breadcrumbs = array(
                 $.each(data.data, function(i, v) {
                     rows++;
                     customer_item_attachment_table.fnAddData([
-                        v.icon,
                         v.file_name,
-                        v.links,
+                        v.links
                     ]);
                 });
             },

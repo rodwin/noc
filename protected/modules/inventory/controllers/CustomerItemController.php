@@ -693,8 +693,7 @@ class CustomerItemController extends Controller {
             }
 
             $row = array();
-            $row['icon'] = $icon;
-            $row['file_name'] = $value->file_name;
+            $row['file_name'] = $icon."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$value->file_name;
 
             $row['links'] = '<a class="btn btn-sm btn-default" title="Delete" href="' . $this->createUrl('/inventory/customeritem/download', array('id' => $value->attachment_id)) . '">
                                 <i class="glyphicon glyphicon-download"></i>
