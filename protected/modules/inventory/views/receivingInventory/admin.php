@@ -129,7 +129,6 @@ return false;
                 <table id="receiving-inventory-attachment_table" class="table table-bordered">
                     <thead>
                         <tr>
-                            <th style="width: 40px;"></th>
                             <th>File Name</th>
                             <th style="width: 80px;"><?php echo 'Actions' ?></th>
                         </tr>
@@ -227,7 +226,7 @@ return false;
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(0), td:eq(2)', nRow).addClass("text-center");
+                $('td:eq(1)', nRow).addClass("text-center");
 
             }
         }); //////
@@ -295,7 +294,6 @@ return false;
                     });
 
                     loadReceivingInvDetails(receiving_id);
-                    loadAttachmentPreview(receiving_id);
                 },
                 error: function(jqXHR, exception) {
                     alert('An error occured: ' + exception);
@@ -317,7 +315,6 @@ return false;
                         type: 'success'
                     });
 
-                    loadReceivingInvDetails(receiving_id);
                     loadAttachmentPreview(receiving_id);
                 },
                 error: function(jqXHR, exception) {
@@ -380,9 +377,8 @@ return false;
                 $.each(data.data, function(i, v) {
                     rows++;
                     receiving_inv_attachment_table.fnAddData([
-                        v.icon,
                         v.file_name,
-                        v.links,
+                        v.links
                     ]);
                 });
             },

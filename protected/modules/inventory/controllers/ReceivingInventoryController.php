@@ -29,7 +29,7 @@ class ReceivingInventoryController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'oldCreate', 'loadSkuDetails', 'skuData', 'receivingInvDetailData', 'uploadAttachment', 'preview', 'deleteByUrl', 'download', 'deleteReceivingDetail', 'deleteAttachment', 'print'),
+                'actions' => array('create', 'update', 'data', 'oldCreate', 'loadSkuDetails', 'skuData', 'receivingInvDetailData', 'uploadAttachment', 'preview', 'download', 'deleteReceivingDetail', 'deleteAttachment', 'print'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -252,7 +252,7 @@ class ReceivingInventoryController extends Controller {
         $receiving = new ReceivingInventory;
         $transaction_detail = new ReceivingInventoryDetail;
         $sku = new Sku;
-        $model = new Attachment;
+        $attachment = new Attachment;
 
         $c = new CDbCriteria;
         $c->select = new CDbExpression('t.*, CONCAT(t.first_name, " ", t.last_name) AS fullname');
@@ -369,7 +369,7 @@ class ReceivingInventoryController extends Controller {
             'uom' => $uom,
             'employee' => $employee,
             'sku_status' => $sku_status,
-            'model' => $model,
+            'attachment' => $attachment,
         ));
     }
 
@@ -452,7 +452,7 @@ class ReceivingInventoryController extends Controller {
                 // delete receiving details by receiving_inventory_id
                 ReceivingInventoryDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND receiving_inventory_id = " . $id);
                 // delete attachment by receiving_inventory_id as transaction_id
-                $this->deleteAttachmenntByReceivingInvID($id);
+                $this->deleteAttachmentByReceivingInvID($id);
 
                 // we only allow deletion via POST request
                 $this->loadModel($id)->delete();
@@ -506,7 +506,7 @@ class ReceivingInventoryController extends Controller {
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
     }
 
-    public function deleteAttachmenntByReceivingInvID($receiving_inv_id, $transaction_type = "receiving") {
+    public function deleteAttachmentByReceivingInvID($receiving_inv_id, $transaction_type = Attachment::RECEIVING_TRANSACTION_TYPE) {
         $attachment = Attachment::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "transaction_type" => $transaction_type, "transaction_id" => $receiving_inv_id));
 
         if (count($attachment) > 0) {
@@ -650,24 +650,22 @@ class ReceivingInventoryController extends Controller {
         if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
 
             $file = CUploadedFile::getInstance($model, 'file');
-//         $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'attachment' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR .Yii::app()->session['tid'];
-            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . 'receiving' . DIRECTORY_SEPARATOR . Yii::app()->session['tid'];
+            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . Attachment::RECEIVING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . Yii::app()->session['tid'];
+
             if (!is_dir($dir)) {
                 mkdir($dir, 0777, true);
             }
 
             $file_name = str_replace(' ', '_', strtolower($file->name));
-//         $url = Yii::app()->getBaseUrl(true) . '/attachment/' . Yii::app()->user->company_id . '/' . Yii::app()->session['tid'] . '/' . $file_name;
-            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/receiving/' . Yii::app()->session['tid'] . '/' . $file_name;
+            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::RECEIVING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . Yii::app()->session['tid'] . DIRECTORY_SEPARATOR . $file_name;
             $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
             $model->attachment_id = Globals::generateV4UUID();
-
             $model->company_id = Yii::app()->user->company_id;
             $model->file_name = $file_name;
             $model->url = $url;
             $model->transaction_id = Yii::app()->session['tid'];
-            $model->transaction_type = 'receiving';
+            $model->transaction_type = Attachment::RECEIVING_TRANSACTION_TYPE;
             $model->created_by = Yii::app()->user->name;
 
             if ($model->save()) {
@@ -678,8 +676,6 @@ class ReceivingInventoryController extends Controller {
                     'size' => $file->size,
                     'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
                     'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name,
-//                    'delete_url' => $this->createUrl('my/delete', array('id' => 1, 'method' => 'uploader')),
-//                    'delete_type' => 'POST',
                 );
             } else {
 
@@ -697,7 +693,7 @@ class ReceivingInventoryController extends Controller {
         echo json_encode($data);
     }
 
-    function actionPreview($id) {
+    public function actionPreview($id) {
         $c = new CDbCriteria;
         $c->compare("company_id", Yii::app()->user->company_id);
         $c->compare("transaction_id", $id);
@@ -714,12 +710,12 @@ class ReceivingInventoryController extends Controller {
                 $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "pdf.png", "Image", array("width" => 30));
             } else if ($ext->getExtension() == "docx" || $ext->getExtension() == "doc") {
                 $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "doc.png", "Image", array("width" => 30));
+            } else if ($ext->getExtension() == "xls" || $ext->getExtension() == "xlsx") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "xls.png", "Image", array("width" => 30));
             }
 
-
             $row = array();
-            $row['icon'] = $icon;
-            $row['file_name'] = $value->file_name;
+            $row['file_name'] = $icon."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$value->file_name;
 
             $row['links'] = '<a class="btn btn-sm btn-default" title="Delete" href="' . $this->createUrl('/inventory/receivinginventory/download', array('id' => $value->attachment_id)) . '">
                                 <i class="glyphicon glyphicon-download"></i>
@@ -734,65 +730,28 @@ class ReceivingInventoryController extends Controller {
         echo json_encode($output);
     }
 
-    function actionDeleteByUrl($id) {
-
-        $sql = "SELECT url FROM noc.attachment WHERE attachment_id = :attachment_id AND company_id = '" . Yii::app()->user->company_id . "'";
-
-        $command = Yii::app()->db->createCommand($sql);
-        $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
-        $data = $command->queryAll();
-        foreach ($data as $key => $value) {
-            $url = $value['url'];
-        }
-        //$url = substr($url, 16);
-        $base = Yii::app()->getBaseUrl(true);
-        $arr = explode("/", $base);
-        $base = $arr[count($arr) - 1];
-        $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
-        //pre('../' .$base . $url);
-        unlink('../' . $base . $url);
-
-        $sql = "DELETE FROM noc.attachment WHERE attachment_id = :attachment_id AND company_id = '" . Yii::app()->user->company_id . "'";
-
-        $command = Yii::app()->db->createCommand($sql);
-        $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
-        $data = $command->query();
-
-        $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-    }
-
     public function actionDownload($id) {
 
-        $sql = "SELECT url, file_name FROM noc.attachment WHERE attachment_id = :attachment_id AND company_id = '" . Yii::app()->user->company_id . "'";
+        $attachment = Attachment::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "attachment_id" => $id));
 
-        $command = Yii::app()->db->createCommand($sql);
-        $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
-        $data = $command->queryAll();
-        foreach ($data as $key => $value) {
-            $url = $value['url'];
-            $name = $value['file_name'];
-        }
-        $model = new ReceivingInventory;
+        $url = $attachment->url;
+        $name = $attachment->file_name;
 
-
-//      $name = $_GET['file'];
-//      $upload_path = Yii::app()->params['uploadPath'];
         $base = Yii::app()->getBaseUrl(true);
         $arr = explode("/", $base);
         $base = $arr[count($arr) - 1];
         $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
 
         if (file_exists('../' . $base . $url)) {
+
             Yii::app()->getRequest()->sendFile($name, file_get_contents('../' . $base . $url));
-            $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
         } else {
-            
+
+            throw new CHttpException(500, "Could not download file.");
         }
     }
 
     public function actionPrint(array $post) {
-
-//        parse_str($post, $data);
 
         $data = $post;
 
@@ -812,7 +771,7 @@ class ReceivingInventoryController extends Controller {
         $c3->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
         $c3->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
         $salesoffice = Salesoffice::model()->find($c3);
-        
+
         $warehouse_name = isset($salesoffice->sales_office_name) ? $salesoffice->sales_office_name : "";
         $warehouse_address = isset($salesoffice->full_address) ? $salesoffice->full_address : "";
         $destination_zone = isset($zone->zone_name) ? $zone->zone_name : "";
@@ -921,7 +880,7 @@ class ReceivingInventoryController extends Controller {
             <table class="table_details" border="1">
                 <tr>
                     <td>MM CODE</td>
-                    <td>MM DESCRIPTION</td>
+                    <td>DESCRIPTION</td>
                     <td>MM BRAND</td>
                     <td>MM CATEGORY</td>
                     <td>PLAN QUANTITY</td>
@@ -929,8 +888,8 @@ class ReceivingInventoryController extends Controller {
                     <td>UOM</td>
                     <td>UNIT PRICE</td>
                     <td>AMOUNT</td>
-                    <td>MM ITEM REMARKS</td>
-                    <td>DELIVERY REMARKS</td>
+                    <td>STATUS</td>
+                    <td>REMARKS</td>
                 </tr>';
 
         $planned_qty = 0;
@@ -950,7 +909,7 @@ class ReceivingInventoryController extends Controller {
                         <td>&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
                         <td>&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
                         <td>' . $val['remarks'] . '</td>
-                        <td>' . $headers['delivery_remarks'] . '</td>
+                        <td>' . $val['remarks'] . '</td>
                     </tr>';
 
             $planned_qty += $val['planned_quantity'];
@@ -974,7 +933,7 @@ class ReceivingInventoryController extends Controller {
             
         <table class="table_footer">
             <tr>
-                <td style="width: 180px;">REMARKS</td>
+                <td style="width: 180px;">DELIVERY REMARKS</td>
                 <td style="width: 100px;"></td>
                 <td style="width: 150px;">DELIVERED BY</td>
                 <td style="width: 100px;"></td>
@@ -983,7 +942,7 @@ class ReceivingInventoryController extends Controller {
                 
             
             <tr>
-                <td style="border: 1px solid #000; min-height: 50px; height: 50px;"></td>
+                <td style="border: 1px solid #000; min-height: 50px; height: 50px;">' . $headers['delivery_remarks'] . '</td>
                 <td style="width: 100px;"></td>
                 <td class="border-bottom"></td>
                 <td style="width: 100px;"></td>

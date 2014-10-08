@@ -510,12 +510,12 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         <?php
         $this->widget('booster.widgets.TbFileUpload', array(
             'url' => $this->createUrl('OutgoingInventory/uploadAttachment'),
-            'model' => $model,
+            'model' => $attachment,
             'attribute' => 'file',
             'multiple' => true,
             'options' => array(
-                'maxFileSize' => 2000000,
-                'acceptFileTypes' => 'js:/(\.|\/)(gif|jpe?g|png|pdf|doc|docx)$/i',
+                'maxFileSize' => 5000000,
+                'acceptFileTypes' => 'js:/(\.|\/)(gif|jpe?g|png|pdf|doc|docx|xls|xlsx)$/i',
             ),
             'formView' => 'application.modules.inventory.views.outgoingInventory._form',
             'uploadView' => 'application.modules.inventory.views.outgoingInventory._upload',

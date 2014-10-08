@@ -101,7 +101,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     #hide_textbox input {display:none;}
 
     .autofill_text { height: 30px; margin-top: 20px; margin-bottom: 20px; width: 200px; }
-</style>  
+</style>
 
 <div class="box box-primary">
     <div class="box-header">
@@ -223,14 +223,14 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="clearfix"></div>
 
-        <div id="item_details_bg" class="panel panel-default col-md-12 no-padding">    
+        <div id="item_details_bg" class="panel panel-default col-md-12 no-padding">
             <div class="panel-body" style="padding-top: 10px;">
                 <h4 class="control-label text-primary pull-left"><b>Select Item</b></h4>
 
                 <?php $skuFields = Sku::model()->attributeLabels(); ?>
                 <?php $invFields = Inventory::model()->attributeLabels(); ?>
 
-                <div class="table-responsive">            
+                <div class="table-responsive">
                     <table id="item_details_table" class="table table-bordered">
                         <thead>
                             <tr>
@@ -245,7 +245,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 <th><?php echo $invFields['sku_status_id']; ?></th>
                                 <th><?php echo $invFields['expiration_date']; ?></th>
                                 <th><?php echo $invFields['reference_no']; ?></th>
-                            </tr>                                    
+                            </tr>
                         </thead>
                         <thead>
                             <tr id="filter_row">
@@ -262,11 +262,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 <td class="filter"></td>
                             </tr>
                         </thead>
-                    </table>                            
+                    </table>
                 </div><br/>
 
                 <div class="col-md-6 clearfix">
-                    <div class="row panel panel-default no-padding">    
+                    <div class="row panel panel-default no-padding">
                         <div class="panel-body" style="padding-top: 20px;">
 
                             <div class="clearfix">
@@ -448,7 +448,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         <?php $incomingDetailFields = IncomingInventoryDetail::model()->attributeLabels(); ?>
         <h4 class="control-label text-primary"><b>Transaction Table</b></h4>
 
-        <div class="table-responsive">            
+        <div class="table-responsive">
             <table id="transaction_table" class="table table-bordered">
                 <thead>
                     <tr>
@@ -469,9 +469,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th class="hide_row">Inventory</th>
                         <th class="hide_row"><?php echo $incomingDetailFields['uom_id']; ?></th>
                         <th class="hide_row"><?php echo $incomingDetailFields['sku_status_id']; ?></th>
-                    </tr>                                    
+                    </tr>
                 </thead>
-            </table>                            
+            </table>
         </div>
 
         <div class="pull-right col-md-4 no-padding" style='margin-top: 10px;'>
@@ -487,12 +487,43 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             <div class="col-xs-12">
                 <button class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
                 <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload DR</button>
-                <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>  
+                <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>
             </div>
         </div>
 
     </div>
-    <?php $this->endWidget(); ?>    
+    <?php $this->endWidget(); ?>
+
+    <div id="upload">
+        <?php
+        $this->widget('booster.widgets.TbFileUpload', array(
+            'url' => $this->createUrl('CustomerItem/uploadAttachment'),
+            'model' => $model,
+            'attribute' => 'file',
+            'multiple' => true,
+            'options' => array(
+                'maxFileSize' => 5000000,
+                'acceptFileTypes' => 'js:/(\.|\/)(gif|jpe?g|png|pdf|doc|docx|xls|xlsx)$/i',
+            ),
+            'formView' => 'application.modules.inventory.views.customerItem._form',
+            'uploadView' => 'application.modules.inventory.views.customerItem._upload',
+            'downloadView' => 'application.modules.inventory.views.customerItem._download',
+            'callbacks' => array(
+                'done' => new CJavaScriptExpression(
+                        'function(e, data) {
+                         file_upload_count--;
+                         console.log(file_upload_count);
+
+                         if(file_upload_count == 0) { $("#tbl tbody tr").remove(); }
+                     }'
+                ),
+                'fail' => new CJavaScriptExpression(
+                        'function(e, data) { console.log("fail"); }'
+                ),
+        )));
+        ?>
+    </div>
+
 </div>
 
 <script type="text/javascript">
