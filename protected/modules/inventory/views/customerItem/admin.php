@@ -60,7 +60,6 @@ $this->breadcrumbs = array(
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
-                <td class="filter"></td>
                 <td class="filter" id="hide_textbox"></td>
             </tr>
         </thead>
@@ -157,7 +156,7 @@ $this->breadcrumbs = array(
                     "visible": false
                 }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(9)', nRow).addClass("text-center");
+                $('td:eq(8)', nRow).addClass("text-center");
 
             }
         });
