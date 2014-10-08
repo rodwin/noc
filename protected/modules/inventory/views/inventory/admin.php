@@ -225,42 +225,44 @@ return false;
             searchTable();
         });
 
+
+
         // Triggers the Click Event and Shows the Overlay Menu if the Input receives a digital or decimal value.
-        $('table#inventory_table tbody').on('keypress', 'td.action_qty input', function(e) {
-
-            if (fnIsQtyKeyOkay(e)) {
-                if ((e.which >= 48 && e.which <= 57) || e.which == 46) {
-
-                    /*
-                     * TODO:
-                     * show context menu to increase, decrease,move, convert, apply
-                     */
-                    if (loaded === false) {
-
-                        inventory_id = $(this).attr("data-id");
-                        popModal_id =
-                                $(this).popModal({
-                            html: $('#content'),
-                            placement: 'bottomLeft',
-                            showCloseBut: false,
-                            onDocumentClickClose: true,
-                            onOkBut: function() {
-                            },
-                            onCancelBut: function() {
-                            },
-                            onLoad: function() {
-                                loaded = true;
-                            },
-                            onClose: function() {
-                                loaded = false;
-                            }
-                        });
-                    }
-                }
-            } else {
-                e.preventDefault();
-            }
-        });
+//        $('table#inventory_table tbody').on('keypress', 'td.action_qty input', function(e) {
+//
+//            if (fnIsQtyKeyOkay(e)) {
+//                if ((e.which >= 48 && e.which <= 57) || e.which == 46) {
+//
+//                    /*
+//                     * TODO:
+//                     * show context menu to increase, decrease,move, convert, apply
+//                     */
+//                    if (loaded === false) {
+//
+//                        inventory_id = $(this).attr("data-id");
+//                        popModal_id =
+//                                $(this).popModal({
+//                            html: $('#content'),
+//                            placement: 'bottomLeft',
+//                            showCloseBut: false,
+//                            onDocumentClickClose: true,
+//                            onOkBut: function() {
+//                            },
+//                            onCancelBut: function() {
+//                            },
+//                            onLoad: function() {
+//                                loaded = true;
+//                            },
+//                            onClose: function() {
+//                                loaded = false;
+//                            }
+//                        });
+//                    }
+//                }
+//            } else {
+//                e.preventDefault();
+//            }
+//        });
 
         jQuery(document).on('click', '#inventory_table a.delete', function() {
             if (!confirm('Are you sure you want to delete this item?'))
@@ -292,6 +294,38 @@ return false;
         });
 
     });
+
+    function openTransactionOptions(txt) {
+        inventory_id = $(txt).attr("data-id");
+
+        popModal_id = $(txt).popModal({
+            html: $('#content'),
+            placement: 'bottomLeft',
+            showCloseBut: false,
+            onDocumentClickClose: true,
+            onOkBut: function() {
+            },
+            onCancelBut: function() {
+            },
+            onLoad: function() {
+                loaded = true;
+            },
+            onClose: function() {
+                loaded = false;
+            }
+        });
+    }
+
+    function onlyNumbers(txt, event, point) {
+
+        var charCode = (event.which) ? event.which : event.keyCode;
+
+        if ((charCode >= 48 && charCode <= 57) || (point === true && charCode == 46)) {
+            return true;
+        }
+
+        return false;
+    }
 
     function LoadModal(val) {
 

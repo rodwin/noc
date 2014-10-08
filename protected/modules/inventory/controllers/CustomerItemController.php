@@ -29,7 +29,7 @@ class CustomerItemController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'loadTransactionByDRNo', 'loadInventoryDetails', 'customerItemDetailData', 'deleteCustomerItemDetail'),
+                'actions' => array('create', 'update', 'data', 'loadTransactionByDRNo', 'loadInventoryDetails', 'customerItemDetailData', 'deleteCustomerItemDetail', 'uploadAttachment', 'preview', 'download', 'deleteAttachment'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -125,6 +125,7 @@ class CustomerItemController extends Controller {
         $reference_dr_nos = CHtml::listData(IncomingInventory::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id)), "dr_no", "dr_no");
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
+        $model = new Attachment;
 
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
@@ -230,6 +231,7 @@ class CustomerItemController extends Controller {
             'sku' => $sku,
             'uom' => $uom,
             'sku_status' => $sku_status,
+            'model' => $model,
         ));
     }
 
@@ -341,9 +343,9 @@ class CustomerItemController extends Controller {
 
         echo json_encode($data);
     }
-    
+
     public function actionCustomerItemDetailData($customer_item_id) {
-        
+
         $c = new CDbCriteria;
         $c->compare("company_id", Yii::app()->user->company_id);
         $c->compare("customer_item_id", $customer_item_id);
@@ -377,7 +379,6 @@ class CustomerItemController extends Controller {
         }
 
         echo json_encode($output);
-        
     }
 
     /**
@@ -429,7 +430,7 @@ class CustomerItemController extends Controller {
                 // delete customer item details by customer_item_id
                 CustomerItemDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND customer_item_id = " . $id);
                 // delete attachment by customer_item_id as transaction_id
-//                $this->deleteAttachmenntByReceivingInvID($id);
+                $this->deleteAttachmentByCustomerItemID($id);
                 // we only allow deletion via POST request
                 $this->loadModel($id)->delete();
 
@@ -456,12 +457,88 @@ class CustomerItemController extends Controller {
         } else
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
     }
-    
+
     public function actionDeleteCustomerItemDetail($customer_item_detail_id) {
         if (Yii::app()->request->isPostRequest) {
             try {
 
                 CustomerItemDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND customer_item_detail_id = " . $customer_item_detail_id);
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    echo "1451";
+                    exit;
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
+    public function deleteAttachmentByCustomerItemID($customer_item_id, $transaction_type = Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE) {
+        $attachment = Attachment::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "transaction_type" => $transaction_type, "transaction_id" => $customer_item_id));
+
+        if (count($attachment) > 0) {
+            $base = Yii::app()->getBaseUrl(true);
+            $arr = explode("/", $base);
+            $base = $arr[count($arr) - 1];
+
+            Attachment::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND transaction_type = '" . $transaction_type . "' AND transaction_id = " . $customer_item_id);
+            $this->delete_directory('../' . $base . "/protected/uploads/" . Yii::app()->user->company_id . "/attachments/" . $transaction_type . "/" . $customer_item_id);
+        } else {
+            return false;
+        }
+    }
+
+    function delete_directory($dirname) {
+        if (is_dir($dirname)) {
+            $dir_handle = opendir($dirname);
+        } else {
+            return false;
+        }
+
+        if (!$dir_handle) {
+            return false;
+        }
+
+        while ($file = readdir($dir_handle)) {
+            if ($file != "." && $file != "..") {
+                if (!is_dir($dirname . "/" . $file))
+                    unlink($dirname . "/" . $file);
+                else
+                    delete_directory($dirname . '/' . $file);
+            }
+        }
+        closedir($dir_handle);
+        rmdir($dirname);
+        return true;
+    }
+
+    public function actionDeleteAttachment($attachment_id) {
+        if (Yii::app()->request->isPostRequest) {
+            try {
+
+                $attachment = Attachment::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "attachment_id" => $attachment_id));
+
+                if ($attachment) {
+                    Attachment::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND attachment_id = '" . $attachment->attachment_id . "'");
+
+                    $base = Yii::app()->getBaseUrl(true);
+                    $arr = explode("/", $base);
+                    $base = $arr[count($arr) - 1];
+                    $url = str_replace(Yii::app()->getBaseUrl(true), "", $attachment->url);
+                    unlink('../' . $base . $url);
+                } else {
+                    throw new CHttpException(404, 'The requested page does not exist.');
+                }
 
                 // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
                 if (!isset($_GET['ajax'])) {
@@ -531,6 +608,124 @@ class CustomerItemController extends Controller {
         if (isset($_POST['ajax']) && $_POST['ajax'] === 'customer-item-form') {
             echo CActiveForm::validate($model);
             Yii::app()->end();
+        }
+    }
+
+    public function actionUploadAttachment() {
+        header('Vary: Accept');
+        if (isset($_SERVER['HTTP_ACCEPT']) &&
+                (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
+            header('Content-type: application/json');
+        } else {
+            header('Content-type: text/plain');
+        }
+
+        $data = array();
+        $model = new Attachment;
+
+        if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
+
+            $file = CUploadedFile::getInstance($model, 'file');
+            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . Yii::app()->session['tid'];
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+
+            $file_name = str_replace(' ', '_', strtolower($file->name));
+            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . Yii::app()->session['tid'] . DIRECTORY_SEPARATOR . $file_name;
+            $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
+
+            $model->attachment_id = Globals::generateV4UUID();
+
+            $model->company_id = Yii::app()->user->company_id;
+            $model->file_name = $file_name;
+            $model->url = $url;
+            $model->transaction_id = Yii::app()->session['tid'];
+            $model->transaction_type = Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE;
+            $model->created_by = Yii::app()->user->name;
+
+            if ($model->save()) {
+
+                $data[] = array(
+                    'name' => $file->name,
+                    'type' => $file->type,
+                    'size' => $file->size,
+                    'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
+                    'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name
+                );
+            } else {
+
+                if ($model->hasErrors()) {
+
+                    $data[] = array('error', $model->getErrors());
+                }
+            }
+        } else {
+
+            throw new CHttpException(500, "Could not upload file " . CHtml::errorSummary($model));
+        }
+
+
+        echo json_encode($data);
+    }
+
+    function actionPreview($id) {
+
+        $c = new CDbCriteria;
+        $c->compare("company_id", Yii::app()->user->company_id);
+        $c->compare("transaction_id", $id);
+        $c->compare("transaction_type", Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE);
+        $attachment = Attachment::model()->findAll($c);
+
+        $output = array();
+        foreach ($attachment as $key => $value) {
+            $ext = new SplFileInfo($value->file_name);
+
+            $icon = "";
+            if ($ext->getExtension() == "jpg" || $ext->getExtension() == "jpeg" || $ext->getExtension() == "gif" || $ext->getExtension() == "png") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "picture.png", "Image", array("width" => 30));
+            } else if ($ext->getExtension() == "pdf") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "pdf.png", "Image", array("width" => 30));
+            } else if ($ext->getExtension() == "docx" || $ext->getExtension() == "doc") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "doc.png", "Image", array("width" => 30));
+            } else if ($ext->getExtension() == "xls" || $ext->getExtension() == "xlsx") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "xls.png", "Image", array("width" => 30));
+            }
+
+            $row = array();
+            $row['file_name'] = $icon."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$value->file_name;
+
+            $row['links'] = '<a class="btn btn-sm btn-default" title="Delete" href="' . $this->createUrl('/inventory/customeritem/download', array('id' => $value->attachment_id)) . '">
+                                <i class="glyphicon glyphicon-download"></i>
+                            </a>'
+                    . '&nbsp;<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/customeritem/deleteAttachment', array('attachment_id' => $value->attachment_id)) . '">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </a>';
+
+            $output['data'][] = $row;
+        }
+
+        echo json_encode($output);
+    }
+
+    public function actionDownload($id) {
+
+        $attachment = Attachment::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "attachment_id" => $id));
+
+        $url = $attachment->url;
+        $name = $attachment->file_name;
+
+        $base = Yii::app()->getBaseUrl(true);
+        $arr = explode("/", $base);
+        $base = $arr[count($arr) - 1];
+        $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
+
+        if (file_exists('../' . $base . $url)) {
+
+            Yii::app()->getRequest()->sendFile($name, file_get_contents('../' . $base . $url));
+        } else {
+
+            throw new CHttpException(500, "Could not download file.");
         }
     }
 

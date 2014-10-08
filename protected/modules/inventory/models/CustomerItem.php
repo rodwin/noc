@@ -218,6 +218,10 @@ class CustomerItem extends CActiveRecord {
             case 7:
                 $sort_column = 't.total_amount';
                 break;
+
+            case 8:
+                $sort_column = 't.created_date';
+                break;
         }
 
 
@@ -231,6 +235,7 @@ class CustomerItem extends CActiveRecord {
         $criteria->compare('zone.zone_name', $columns[5]['search']['value'], true);
         $criteria->compare('poi.short_name', $columns[6]['search']['value'], true);
         $criteria->compare('t.total_amount', $columns[7]['search']['value'], true);
+        $criteria->compare('t.created_date', $columns[8]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
@@ -285,7 +290,8 @@ class CustomerItem extends CActiveRecord {
 
             if (count($transaction_details) > 0) {
                 if ($customer_item->save(false)) {
-
+                    unset(Yii::app()->session['tid']);
+                    Yii::app()->session['tid'] = $customer_item->customer_item_id;
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         CustomerItemDetail::model()->createCustomerItemTransactionDetails($customer_item->customer_item_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['inventory_on_hand'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $customer_item->transaction_date);
                     }

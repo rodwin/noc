@@ -29,6 +29,89 @@
  */
 class IncomingInventoryDetail extends CActiveRecord {
 
+    /**
+     * @var integer incoming_inventory_detail_id
+     * @soap
+     */
+    public $incoming_inventory_detail_id;
+
+    /**
+     * @var integer incoming_inventory_id
+     * @soap
+     */
+    public $incoming_inventory_id;
+
+    /**
+     * @var integer inventory_id
+     * @soap
+     */
+    public $inventory_id;
+
+    /**
+     * @var string batch_no
+     * @soap
+     */
+    public $batch_no;
+
+    /**
+     * @var string sku_id
+     * @soap
+     */
+    public $sku_id;
+
+    /**
+     * @var string source_zone_id
+     * @soap
+     */
+    public $source_zone_id;
+
+    /**
+     * @var string unit_price
+     * @soap
+     */
+    public $unit_price;
+
+    /**
+     * @var string expiration_date
+     * @soap
+     */
+    public $expiration_date;
+
+    /**
+     * @var string planned_quantity
+     * @soap
+     */
+    public $planned_quantity;
+
+    /**
+     * @var string quantity_received
+     * @soap
+     */
+    public $quantity_received;
+
+    /**
+     * @var string amount
+     * @soap
+     */
+    public $amount;
+
+    /**
+     * @var string inventory_on_hand
+     * @soap
+     */
+    public $inventory_on_hand;
+
+    /**
+     * @var string return_date
+     * @soap
+     */
+    public $return_date;
+
+    /**
+     * @var string remarks
+     * @soap
+     */
+    public $remarks;
     public $search_string;
 
     /**

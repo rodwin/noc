@@ -11,6 +11,8 @@ $this->breadcrumbs = array(
 
     .hide_row { display: none; }
 
+    #hide_textbox input { display:none; }
+
 </style>  
 
 <?php // echo CHtml::link('Advanced Search','#',array('class'=>'search-button btn btn-primary btn-flat'));  ?>
@@ -46,7 +48,7 @@ $this->breadcrumbs = array(
                 <th><?php echo $fields['contact_person']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
                 <th><?php echo $fields['created_date']; ?></th>
-                <!--<th>Actions</th>-->
+                <th>Actions</th>
             </tr>
         </thead>
         <thead>
@@ -60,6 +62,7 @@ $this->breadcrumbs = array(
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
+                <td class="filter" id="hide_textbox"></td>  
             </tr>
         </thead>
     </table>
@@ -89,6 +92,7 @@ $this->breadcrumbs = array(
                             <th><?php echo $outgoingInvFields['amount']; ?></th>
                             <th><?php echo $outgoingInvFields['status']; ?></th>
                             <th><?php echo $outgoingInvFields['remarks']; ?></th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <thead>
@@ -104,6 +108,7 @@ $this->breadcrumbs = array(
                             <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
+                            <td class="filter" id="hide_textbox"></td>  
                         </tr>
                     </thead>
                 </table>
@@ -115,8 +120,8 @@ $this->breadcrumbs = array(
                 <table id="outgoing-inventory-attachment_table" class="table table-bordered">
                     <thead>
                         <tr>
-                            <th width="90%"><?php echo 'Attachments' ?></th>
-                            <th><?php echo 'Actions' ?></th>
+                            <th>File Name</th>
+                            <th style="width: 80px;"><?php echo 'Actions' ?></th>
                         </tr>
                     </thead>
                 </table>
@@ -130,6 +135,7 @@ $this->breadcrumbs = array(
     var outgoing_inventory_table;
     var outgoing_inventory_table_detail;
     var outgoing_inventory_attachment_table;
+    var outgoing_inventory_id;
     $(function() {
         outgoing_inventory_table = $('#outgoing-inventory_table').dataTable({
             "filter": true,
@@ -150,7 +156,7 @@ $this->breadcrumbs = array(
                 {"name": "contact_person", "data": "contact_person"},
                 {"name": "total_amount", "data": "total_amount"},
                 {"name": "created_date", "data": "created_date"},
-//                {"name": "links", "data": "links", 'sortable': false}
+                {"name": "links", "data": "links", 'sortable': false}
             ],
             "columnDefs": [{
                     "targets": [9],
@@ -189,7 +195,11 @@ $this->breadcrumbs = array(
             "bSort": false,
             "processing": false,
             "serverSide": false,
-            "bAutoWidth": false
+            "bAutoWidth": false,
+            iDisplayLength: -1,
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(11)', nRow).addClass("text-center");
+            }
         });
 
         outgoing_inventory_attachment_table = $('#outgoing-inventory-attachment_table').dataTable({
@@ -198,7 +208,11 @@ $this->breadcrumbs = array(
             "bSort": false,
             "processing": false,
             "serverSide": false,
-            "bAutoWidth": false
+            "bAutoWidth": false,
+            iDisplayLength: -1,
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(1)', nRow).addClass("text-center");
+            }
         });
 
         var i = 0;
@@ -224,12 +238,68 @@ $this->breadcrumbs = array(
                 'type': 'POST',
                 'dataType': 'text',
                 'success': function(data) {
+                    if (data == "1451") {
+                        $.growl("Unable to delete", {
+                            icon: 'glyphicon glyphicon-warning-sign',
+                            type: 'danger'
+                        });
+
+                        outgoing_inventory_id = "";
+                    } else {
+                        $.growl(data, {
+                            icon: 'glyphicon glyphicon-info-sign',
+                            type: 'success'
+                        });
+
+                        outgoing_inventory_table.fnMultiFilter();
+                    }
+
+                    loadOutgoingInvDetails(outgoing_inventory_id);
+                    loadAttachmentPreview(outgoing_inventory_id);
+                },
+                error: function(jqXHR, exception) {
+                    alert('An error occured: ' + exception);
+                }
+            });
+            return false;
+        });
+
+        jQuery(document).on('click', '#outgoing-inventory-details_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
                     $.growl(data, {
                         icon: 'glyphicon glyphicon-info-sign',
                         type: 'success'
                     });
 
-                    table.fnMultiFilter();
+                    loadOutgoingInvDetails(outgoing_inventory_id);
+                },
+                error: function(jqXHR, exception) {
+                    alert('An error occured: ' + exception);
+                }
+            });
+            return false;
+        });
+
+        jQuery(document).on('click', '#outgoing-inventory-attachment_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    $.growl(data, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: 'success'
+                    });
+
+                    loadAttachmentPreview(outgoing_inventory_id);
                 },
                 error: function(jqXHR, exception) {
                     alert('An error occured: ' + exception);
@@ -240,6 +310,7 @@ $this->breadcrumbs = array(
     });
 
     function loadOutgoingInvDetails(outgoing_inv_id) {
+        outgoing_inventory_id = outgoing_inv_id;
 
         $.ajax({
             type: 'POST',
@@ -265,7 +336,8 @@ $this->breadcrumbs = array(
                         v.quantity_issued,
                         v.amount,
                         v.status,
-                        v.remarks
+                        v.remarks,
+                        v.links
                     ]);
                 });
             },
@@ -292,7 +364,7 @@ $this->breadcrumbs = array(
                     rows++;
                     outgoing_inventory_attachment_table.fnAddData([
                         v.file_name,
-                        v.links,
+                        v.links
                     ]);
                 });
             },

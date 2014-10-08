@@ -29,7 +29,7 @@ class IncomingInventoryController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'loadAllOutgoingTransactionDetailsByDRNo', 'loadInventoryDetails', 'incomingInvDetailData', 'uploadAttachment', 'preview', 'deleteByUrl', 'download'),
+                'actions' => array('create', 'update', 'data', 'loadAllOutgoingTransactionDetailsByDRNo', 'loadInventoryDetails', 'incomingInvDetailData', 'uploadAttachment', 'preview', 'download', 'deleteIncomingDetail', 'deleteAttachment'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -94,11 +94,10 @@ class IncomingInventoryController extends Controller {
             $row['updated_date'] = $value->updated_date;
             $row['updated_by'] = $value->updated_by;
 
-
-            $row['links'] = '<a class="view" title="View" data-toggle="tooltip" href="' . $this->createUrl('/inventory/incominginventory/view', array('id' => $value->incoming_inventory_id)) . '" data-original-title="View"><i class="fa fa-eye"></i></a>'
-                    . '&nbsp;<a class="update" title="Update" data-toggle="tooltip" href="' . $this->createUrl('/inventory/incominginventory/update', array('id' => $value->incoming_inventory_id)) . '" data-original-title="View"><i class="fa fa-pencil"></i></a>'
-                    . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="' . $this->createUrl('/inventory/incominginventory/delete', array('id' => $value->incoming_inventory_id)) . '" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
-
+            $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/incomingInventory/delete', array('id' => $value->incoming_inventory_id)) . '">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </a>';
+            
             $output['data'][] = $row;
         }
 
@@ -418,6 +417,10 @@ class IncomingInventoryController extends Controller {
             $row['status'] = $status;
             $row['remarks'] = $value->remarks;
 
+            $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/incomingInventory/deleteIncomingDetail', array('incoming_inv_detail_id' => $value->incoming_inventory_detail_id)) . '">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </a>';
+
             $output['data'][] = $row;
         }
 
@@ -468,18 +471,136 @@ class IncomingInventoryController extends Controller {
      */
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
-            // we only allow deletion via POST request
-            $this->deleteByUrl($id);
-            $this->loadModel($id)->delete();
+            try {
 
-            // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-            if (!isset($_GET['ajax'])) {
-                Yii::app()->user->setFlash('success', "Successfully deleted");
-                $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-            } else {
+                // delete incoming details by receiving_inventory_id
+                IncomingInventoryDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND incoming_inventory_id = " . $id);
+                // delete attachment by incoming_inventory_id as transaction_id
+                $this->deleteAttachmentByIncomingInvID($id);
 
-                echo "Successfully deleted";
-                exit;
+                // we only allow deletion via POST request
+                $this->loadModel($id)->delete();
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    if (!isset($_GET['ajax'])) {
+                        Yii::app()->user->setFlash('danger', "Unable to delete");
+                        $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('view', 'id' => $id));
+                    } else {
+                        echo "1451";
+                        exit;
+                    }
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
+    public function actionDeleteIncomingDetail($incoming_inv_detail_id) {
+        if (Yii::app()->request->isPostRequest) {
+            try {
+
+                IncomingInventoryDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND incoming_inventory_detail_id = " . $incoming_inv_detail_id);
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    echo "1451";
+                    exit;
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
+    public function deleteAttachmentByIncomingInvID($incoming_inv_id, $transaction_type = Attachment::INCOMING_TRANSACTION_TYPE) {
+        $attachment = Attachment::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "transaction_type" => $transaction_type, "transaction_id" => $incoming_inv_id));
+
+        if (count($attachment) > 0) {
+            $base = Yii::app()->getBaseUrl(true);
+            $arr = explode("/", $base);
+            $base = $arr[count($arr) - 1];
+
+            Attachment::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND transaction_type = '" . $transaction_type . "' AND transaction_id = " . $incoming_inv_id);
+            $this->delete_directory('../' . $base . "/protected/uploads/" . Yii::app()->user->company_id . "/attachments/" . $transaction_type . "/" . $incoming_inv_id);
+        } else {
+            return false;
+        }
+    }
+
+    function delete_directory($dirname) {
+        if (is_dir($dirname)) {
+            $dir_handle = opendir($dirname);
+        } else {
+            return false;
+        }
+
+        if (!$dir_handle) {
+            return false;
+        }
+
+        while ($file = readdir($dir_handle)) {
+            if ($file != "." && $file != "..") {
+                if (!is_dir($dirname . "/" . $file))
+                    unlink($dirname . "/" . $file);
+                else
+                    delete_directory($dirname . '/' . $file);
+            }
+        }
+        closedir($dir_handle);
+        rmdir($dirname);
+        return true;
+    }
+
+    public function actionDeleteAttachment($attachment_id) {
+        if (Yii::app()->request->isPostRequest) {
+            try {
+
+                $attachment = Attachment::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "attachment_id" => $attachment_id));
+
+                if ($attachment) {
+                    Attachment::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND attachment_id = '" . $attachment->attachment_id . "'");
+
+                    $base = Yii::app()->getBaseUrl(true);
+                    $arr = explode("/", $base);
+                    $base = $arr[count($arr) - 1];
+                    $url = str_replace(Yii::app()->getBaseUrl(true), "", $attachment->url);
+                    unlink('../' . $base . $url);
+                } else {
+                    throw new CHttpException(404, 'The requested page does not exist.');
+                }
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    echo "1451";
+                    exit;
+                }
             }
         } else
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
@@ -552,15 +673,14 @@ class IncomingInventoryController extends Controller {
         if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
 
             $file = CUploadedFile::getInstance($model, 'file');
-//         $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'attachment' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR .Yii::app()->session['tid'];
-            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . 'incoming' . DIRECTORY_SEPARATOR . Yii::app()->session['tid'];
+            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . Attachment::INCOMING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . Yii::app()->session['tid'];
+
             if (!is_dir($dir)) {
                 mkdir($dir, 0777, true);
             }
 
             $file_name = str_replace(' ', '_', strtolower($file->name));
-//         $url = Yii::app()->getBaseUrl(true) . '/attachment/' . Yii::app()->user->company_id . '/' . Yii::app()->session['tid'] . '/' . $file_name;
-            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/incoming/' . Yii::app()->session['tid'] . '/' . $file_name;
+            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::INCOMING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . Yii::app()->session['tid'] . DIRECTORY_SEPARATOR . $file_name;
             $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
             $model->attachment_id = Globals::generateV4UUID();
@@ -569,7 +689,7 @@ class IncomingInventoryController extends Controller {
             $model->file_name = $file_name;
             $model->url = $url;
             $model->transaction_id = Yii::app()->session['tid'];
-            $model->transaction_type = 'incoming';
+            $model->transaction_type = Attachment::INCOMING_TRANSACTION_TYPE;
             $model->created_by = Yii::app()->user->name;
 
             if ($model->save()) {
@@ -580,8 +700,6 @@ class IncomingInventoryController extends Controller {
                     'size' => $file->size,
                     'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
                     'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name,
-//                    'delete_url' => $this->createUrl('my/delete', array('id' => 1, 'method' => 'uploader')),
-//                    'delete_type' => 'POST',
                 );
             } else {
 
@@ -599,7 +717,7 @@ class IncomingInventoryController extends Controller {
         echo json_encode($data);
     }
 
-    function actionPreview($id) {
+    public function actionPreview($id) {
         $c = new CDbCriteria;
         $c->compare("company_id", Yii::app()->user->company_id);
         $c->compare("transaction_id", $id);
@@ -607,17 +725,28 @@ class IncomingInventoryController extends Controller {
 
         $output = array();
         foreach ($attachment as $key => $value) {
+            $ext = new SplFileInfo($value->file_name);
+
+            $icon = "";
+            if ($ext->getExtension() == "jpg" || $ext->getExtension() == "jpeg" || $ext->getExtension() == "gif" || $ext->getExtension() == "png") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "picture.png", "Image", array("width" => 30));
+            } else if ($ext->getExtension() == "pdf") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "pdf.png", "Image", array("width" => 30));
+            } else if ($ext->getExtension() == "docx" || $ext->getExtension() == "doc") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "doc.png", "Image", array("width" => 30));
+            } else if ($ext->getExtension() == "xls" || $ext->getExtension() == "xlsx") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "xls.png", "Image", array("width" => 30));
+            }
+
             $row = array();
-            $row['file_name'] = $value->file_name;
-            $row['links'] = '<a class="view" title="Download" data-toggle="tooltip" href="' . $this->createUrl('/inventory/incominginventory/download', array('id' => $value->attachment_id)) . '" data-original-title="Download"><button type="submit" class="btn btn-default btn-flat">
-            <i class="icon-download icon-white"></i>
-            <i class="glyphicon glyphicon-download"></i>
-           
-            </button></a>'
-                    . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="' . $this->createUrl('/inventory/incominginventory/deletebyurl', array('id' => $value->attachment_id)) . '" data-original-title="Delete"><button type="button" class="btn btn-default btn-flat">
-            <i class="glyphicon glyphicon-trash"></i>
-            
-            </button></a>';
+            $row['file_name'] = $icon . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . $value->file_name;
+
+            $row['links'] = '<a class="btn btn-sm btn-default" title="Delete" href="' . $this->createUrl('/inventory/outgoinginventory/download', array('id' => $value->attachment_id)) . '">
+                                <i class="glyphicon glyphicon-download"></i>
+                            </a>'
+                    . '&nbsp;<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/outgoinginventory/deleteAttachment', array('attachment_id' => $value->attachment_id)) . '">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </a>';
 
             $output['data'][] = $row;
         }
@@ -625,59 +754,24 @@ class IncomingInventoryController extends Controller {
         echo json_encode($output);
     }
 
-    function actionDeleteByUrl($id) {
-
-        $sql = "SELECT url FROM noc.attachment WHERE attachment_id = :attachment_id AND company_id = '" . Yii::app()->user->company_id . "'";
-
-        $command = Yii::app()->db->createCommand($sql);
-        $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
-        $data = $command->queryAll();
-        foreach ($data as $key => $value) {
-            $url = $value['url'];
-        }
-        //$url = substr($url, 16);
-        $base = Yii::app()->getBaseUrl(true);
-        $arr = explode("/", $base);
-        $base = $arr[count($arr) - 1];
-        $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
-        //pre('../' .$base . $url);
-        unlink('../' . $base . $url);
-
-        $sql = "DELETE FROM noc.attachment WHERE attachment_id = :attachment_id AND company_id = '" . Yii::app()->user->company_id . "'";
-
-        $command = Yii::app()->db->createCommand($sql);
-        $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
-        $data = $command->query();
-
-        $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-    }
-
     public function actionDownload($id) {
 
-        $sql = "SELECT url, file_name FROM noc.attachment WHERE attachment_id = :attachment_id AND company_id = '" . Yii::app()->user->company_id . "'";
+        $attachment = Attachment::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "attachment_id" => $id));
 
-        $command = Yii::app()->db->createCommand($sql);
-        $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
-        $data = $command->queryAll();
-        foreach ($data as $key => $value) {
-            $url = $value['url'];
-            $name = $value['file_name'];
-        }
-        $model = new ReceivingInventory;
+        $url = $attachment->url;
+        $name = $attachment->file_name;
 
-
-//      $name = $_GET['file'];
-//      $upload_path = Yii::app()->params['uploadPath'];
         $base = Yii::app()->getBaseUrl(true);
         $arr = explode("/", $base);
         $base = $arr[count($arr) - 1];
         $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
 
         if (file_exists('../' . $base . $url)) {
+
             Yii::app()->getRequest()->sendFile($name, file_get_contents('../' . $base . $url));
-            $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
         } else {
-            
+
+            throw new CHttpException(500, "Could not download file.");
         }
     }
 

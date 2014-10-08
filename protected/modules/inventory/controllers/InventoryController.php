@@ -391,7 +391,7 @@ class InventoryController extends Controller {
                     <p class="text-center">' . $value->qty . '</p>' : $value->qty;
             $row['uom_id'] = $value->uom_id;
             $row['uom_name'] = isset($value->uom->uom_name) ? $value->uom->uom_name : null;
-            $row['action_qty'] = '<input type="text" data-id="' . $value->inventory_id . '" name="action_qty" id="action_qty_' . $value->inventory_id . '" />';
+            $row['action_qty'] = '<input type="text" data-id="' . $value->inventory_id . '" name="action_qty" id="action_qty_' . $value->inventory_id . '" onclick="openTransactionOptions(this)" onkeypress="return onlyNumbers(this, event, false)"/>';
             $row['zone_id'] = $value->zone_id;
             $row['zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
             $row['sku_status_id'] = $value->sku_status_id;
@@ -555,7 +555,7 @@ class InventoryController extends Controller {
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
             try {
-                
+
                 // delete inventory history by inventory_id
                 InventoryHistory::model()->deleteHistoryByInvID($id);
                 // we only allow deletion via POST request

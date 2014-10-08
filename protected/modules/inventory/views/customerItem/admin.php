@@ -46,11 +46,13 @@ $this->breadcrumbs = array(
                 <th><?php echo $fields['source_zone_id']; ?></th>
                 <th><?php echo $fields['poi_id']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
+                <th><?php echo $fields['created_date']; ?></th>
                 <th>Actions</th>
             </tr>
         </thead>
         <thead>
             <tr id="filter_row">
+                <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
@@ -113,7 +115,6 @@ $this->breadcrumbs = array(
                 <table id="customer-item-attachment_table" class="table table-bordered">
                     <thead>
                         <tr>
-                            <th style="width: 40px;"></th>
                             <th>File Name</th>
                             <th style="width: 80px;"><?php echo 'Actions' ?></th>
                         </tr>
@@ -137,6 +138,7 @@ $this->breadcrumbs = array(
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
+            "order": [[8, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/CustomerItem/data'); ?>",
             "columns": [
                 {"name": "campaign_no", "data": "campaign_no"},
@@ -147,10 +149,15 @@ $this->breadcrumbs = array(
                 {"name": "source_zone_name", "data": "source_zone_name"},
                 {"name": "poi_name", "data": "poi_name"},
                 {"name": "total_amount", "data": "total_amount"},
+                {"name": "created_date", "data": "created_date"},
                 {"name": "links", "data": "links", 'sortable': false}
             ],
+            "columnDefs": [{
+                    "targets": [8],
+                    "visible": false
+                }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(8)', nRow).addClass("text-center");
+                $('td:eq(9)', nRow).addClass("text-center");
 
             }
         });
@@ -159,14 +166,14 @@ $this->breadcrumbs = array(
             if ($(this).hasClass('success')) {
                 $(this).removeClass('success');
                 loadCustomItemDetails(null);
-//                loadAttachmentPreview(null);
+                loadAttachmentPreview(null);
             }
             else {
                 customer_item_table.$('tr.success').removeClass('success');
                 $(this).addClass('success');
                 var row_data = customer_item_table.fnGetData(this);
                 loadCustomItemDetails(row_data.customer_item_id);
-//                loadAttachmentPreview(row_data.receiving_inventory_id);
+                loadAttachmentPreview(row_data.customer_item_id);
             }
         });
 
@@ -190,7 +197,6 @@ $this->breadcrumbs = array(
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(9)', nRow).addClass("text-center");
-
             }
         });
 
@@ -203,8 +209,7 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(0), td:eq(2)', nRow).addClass("text-center");
-
+                $('td:eq(1)', nRow).addClass("text-center");
             }
         });
 
@@ -263,7 +268,28 @@ $this->breadcrumbs = array(
                     });
 
                     loadCustomItemDetails(customerItem_id);
-//                    loadAttachmentPreview(receiving_id);
+                },
+                error: function(jqXHR, exception) {
+                    alert('An error occured: ' + exception);
+                }
+            });
+            return false;
+        });
+
+        jQuery(document).on('click', '#customer-item-attachment_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    $.growl(data, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: 'success'
+                    });
+
+                    loadAttachmentPreview(customerItem_id);
                 },
                 error: function(jqXHR, exception) {
                     alert('An error occured: ' + exception);
@@ -309,4 +335,32 @@ $this->breadcrumbs = array(
             }
         });
     }
+
+    function loadAttachmentPreview(customerItem_id) {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl('/inventory/CustomerItem/preview'); ?>' + '&id=' + customerItem_id,
+            dataType: "json",
+            success: function(data) {
+                var oSettings = customer_item_attachment_table.fnSettings();
+                var iTotalRecords = oSettings.fnRecordsTotal();
+                var rows = 0;
+                for (var i = 0; i <= iTotalRecords; i++) {
+                    customer_item_attachment_table.fnDeleteRow(0, null, true);
+                }
+
+                $.each(data.data, function(i, v) {
+                    rows++;
+                    customer_item_attachment_table.fnAddData([
+                        v.file_name,
+                        v.links
+                    ]);
+                });
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+    }
+
 </script>
