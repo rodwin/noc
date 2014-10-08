@@ -46,11 +46,13 @@ $this->breadcrumbs = array(
                 <th><?php echo $fields['source_zone_id']; ?></th>
                 <th><?php echo $fields['poi_id']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
+                <th><?php echo $fields['created_date']; ?></th>
                 <th>Actions</th>
             </tr>
         </thead>
         <thead>
             <tr id="filter_row">
+                <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
@@ -136,6 +138,7 @@ $this->breadcrumbs = array(
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
+            "order": [[8, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/CustomerItem/data'); ?>",
             "columns": [
                 {"name": "campaign_no", "data": "campaign_no"},
@@ -146,10 +149,15 @@ $this->breadcrumbs = array(
                 {"name": "source_zone_name", "data": "source_zone_name"},
                 {"name": "poi_name", "data": "poi_name"},
                 {"name": "total_amount", "data": "total_amount"},
+                {"name": "created_date", "data": "created_date"},
                 {"name": "links", "data": "links", 'sortable': false}
             ],
+            "columnDefs": [{
+                    "targets": [8],
+                    "visible": false
+                }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(8)', nRow).addClass("text-center");
+                $('td:eq(9)', nRow).addClass("text-center");
 
             }
         });
@@ -267,7 +275,7 @@ $this->breadcrumbs = array(
             });
             return false;
         });
-        
+
         jQuery(document).on('click', '#customer-item-attachment_table a.delete', function() {
             if (!confirm('Are you sure you want to delete this item?'))
                 return false;
@@ -327,7 +335,7 @@ $this->breadcrumbs = array(
             }
         });
     }
-    
+
     function loadAttachmentPreview(customerItem_id) {
         $.ajax({
             type: 'POST',
@@ -354,5 +362,5 @@ $this->breadcrumbs = array(
             }
         });
     }
-    
+
 </script>

@@ -218,6 +218,10 @@ class CustomerItem extends CActiveRecord {
             case 7:
                 $sort_column = 't.total_amount';
                 break;
+
+            case 8:
+                $sort_column = 't.created_date';
+                break;
         }
 
 
@@ -231,6 +235,7 @@ class CustomerItem extends CActiveRecord {
         $criteria->compare('zone.zone_name', $columns[5]['search']['value'], true);
         $criteria->compare('poi.short_name', $columns[6]['search']['value'], true);
         $criteria->compare('t.total_amount', $columns[7]['search']['value'], true);
+        $criteria->compare('t.created_date', $columns[8]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
