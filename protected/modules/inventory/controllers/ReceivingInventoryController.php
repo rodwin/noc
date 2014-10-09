@@ -777,6 +777,8 @@ class ReceivingInventoryController extends Controller {
 
         $data = Yii::app()->session[$id];
         
+        ob_start();
+        
         $headers = $data['ReceivingInventory'];
         $details = $data['transaction_details'];
 
@@ -831,11 +833,10 @@ class ReceivingInventoryController extends Controller {
         $html = '
         <style type="text/css">
             .text-center { text-align: center; }
-            #header {  }   
             .title { font-size: 12px; }
             .sub-title { font-size: 10px; }
             .title-report { font-size: 15px; font-weight: bold; } 
-            .table_main { font-size: 10px; }
+            .table_main { font-size: 8px; }
             .table_details { font-size: 8px; width: 100%; }
             .table_footer { font-size: 8px; width: 100%; }
             .border-bottom { border-bottom: 1px solid #333; font-size: 8px; }

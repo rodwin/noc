@@ -490,7 +490,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="row no-print">
             <div class="col-xs-12">
-                <button class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
+                <button id="btn_print" class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
                 <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload RRA / DR</button>
                 <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>  
             </div>
@@ -537,6 +537,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     var transaction_table;
     var headers = "transaction";
     var details = "details";
+    var print = "print";
     var total_amount = 0;
     $(function() {
 
@@ -631,7 +632,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         var data = $("#incoming-inventory-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable()});
 
-        if ($("#btn_save, #btn_add_item").is("[disabled=disabled]")) {
+        if ($("#btn_save, #btn_add_item, #btn_print").is("[disabled=disabled]")) {
             return false;
         } else {
             $.ajax({
@@ -640,9 +641,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 data: data,
                 dataType: "json",
                 beforeSend: function(data) {
-                    $("#btn_save, #btn_add_item").attr("disabled", "disabled");
+                    $("#btn_save, #btn_add_item, #btn_print").attr("disabled", "disabled");
                     if (form == headers) {
                         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
+                    } else if (form == print) {
+                        $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Loading...');
                     }
                 },
                 success: function(data) {
@@ -650,8 +653,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 },
                 error: function(data) {
                     alert("Error occured: Please try again.");
-                    $("#btn_save, #btn_add_item").attr('disabled', false);
+                    $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
                     $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
+                    $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
                 }
             });
         }
@@ -767,6 +771,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
 //                $("#IncomingInventoryDetail_quantity_received, #IncomingInventoryDetail_unit_price, #IncomingInventoryDetail_amount").val(0);
 
+            } else if (data.form == print && serializeTransactionTable().length > 0) {
+                printPDF(data.print);
             }
 
             inventory_table.fnMultiFilter();
@@ -776,6 +782,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             $("#btn_save, #btn_add_item").attr('disabled', false);
             $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
+            $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
 
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
@@ -783,8 +790,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             });
         }
 
-        $("#btn_save, #btn_add_item").attr('disabled', false);
+        $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
+        $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
     }
 
     function growlAlert(type, message) {
@@ -869,6 +877,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
     $('#btn-upload').click(function() {
         $('#file_uploads').click();
+    });
+
+    $('#btn_print').click(function() {
+        send(print);
     });
 
     $("#IncomingInventoryDetail_quantity_received").keyup(function(e) {
@@ -1061,5 +1073,38 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'});
     });
+
+    function printPDF(data) {
+
+        $.ajax({
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/ReceivingInventory/print'); ?> ',
+            type: 'POST',
+            dataType: "json",
+            data: {"post_data": data},
+            success: function(data) {
+                if (data.success === true) {
+                    var params = [
+                        'height=' + screen.height,
+                        'width=' + screen.width,
+                        'fullscreen=yes'
+                    ].join(',');
+
+                    var tab = window.open(<?php echo "'" . Yii::app()->createUrl($this->module->id . '/IncomingInventory/loadPDF') . "'" ?> + "&id=" + data.id, "_blank", params);
+
+                    if (tab) {
+                        tab.focus();
+                        tab.moveTo(0, 0);
+                    } else {
+                        alert('Please allow popups for this site');
+                    }
+                }
+
+                return false;
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+    }
 
 </script>
