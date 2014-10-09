@@ -33,7 +33,7 @@ class OutgoingInventory extends CActiveRecord {
 
     public $search_string;
 
-    const OUTGOING_PENDING_STATUS = 'PENDING';
+    const OUTGOING_PENDING_STATUS = 'IN-TRANSIT';
     const OUTGOING_INCOMPLETE_STATUS = 'INCOMPLETE';
     const OUTGOING_COMPLETE_STATUS = 'COMPLETE';
     const OUTGOING_OVER_DELIVERY_STATUS = 'OVER DELIVERY';

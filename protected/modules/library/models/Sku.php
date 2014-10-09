@@ -74,7 +74,7 @@ class Sku extends CActiveRecord {
     //types
     const TYPE_FIXED = 'fixed';
     const TYPE_CONSUMABLE = 'consumable';
-    const INFRA = "infra";
+    const INFRA = "INFRA";
     const SKU_LABEL = "MM";
 
     /**
@@ -719,8 +719,8 @@ class Sku extends CActiveRecord {
 
     public function skuAllTypes() {
         return array(
-            'promo',
-            'merchandising',
+            'PROMO',
+            'MERCHANDIZING',
             Sku::INFRA,
         );
     }
@@ -730,8 +730,8 @@ class Sku extends CActiveRecord {
 
         if ($type == $types[2]) {
             return array(
-                'infra assigned',
-                'infra on loan',
+                'INFRA ASSIGNED',
+                'INFRA ON LOAN',
             );
         }
     }

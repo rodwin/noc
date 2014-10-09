@@ -424,7 +424,7 @@ return false;
     $('#sku_category').change(function() {
         var sku_category = $("#sku_category").val();
 
-        if (sku_category == "infra") {
+        if (sku_category == "INFRA") {
             $("#sku_sub_category").show();
         } else {
             $("#sku_sub_category").hide();

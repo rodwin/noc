@@ -29,7 +29,7 @@ class ReceivingInventoryController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'oldCreate', 'loadSkuDetails', 'skuData', 'receivingInvDetailData', 'uploadAttachment', 'preview', 'download', 'deleteReceivingDetail', 'deleteAttachment', 'print'),
+                'actions' => array('create', 'update', 'data', 'oldCreate', 'loadSkuDetails', 'skuData', 'receivingInvDetailData', 'uploadAttachment', 'preview', 'download', 'deleteReceivingDetail', 'deleteAttachment', 'print', 'loadPDF'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -715,7 +715,7 @@ class ReceivingInventoryController extends Controller {
             }
 
             $row = array();
-            $row['file_name'] = $icon."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$value->file_name;
+            $row['file_name'] = $icon . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . $value->file_name;
 
             $row['links'] = '<a class="btn btn-sm btn-default" title="Delete" href="' . $this->createUrl('/inventory/receivinginventory/download', array('id' => $value->attachment_id)) . '">
                                 <i class="glyphicon glyphicon-download"></i>
@@ -751,10 +751,32 @@ class ReceivingInventoryController extends Controller {
         }
     }
 
-    public function actionPrint(array $post) {
+    public function actionPrint() {
 
-        $data = $post;
+        unset(Yii::app()->session["post_pdf_data_id"]);
 
+        Yii::app()->session["post_pdf_data_id"] = 'post_pdf_data_' . Globals::generateV4UUID();
+        Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = Yii::app()->request->getParam('post_data');
+
+        $return = array();
+        if (Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] == "") {
+            $return["success"] = false;
+            return false;
+        }
+
+        $return["success"] = true;
+        $return["id"] = Yii::app()->session["post_pdf_data_id"];
+
+        echo json_encode($return);
+        Yii::app()->end();
+    }
+
+    public function actionLoadPDF($id) {
+
+//        parse_str(Yii::app()->session[$id], $data);
+
+        $data = Yii::app()->session[$id];
+        
         $headers = $data['ReceivingInventory'];
         $details = $data['transaction_details'];
 
@@ -776,7 +798,6 @@ class ReceivingInventoryController extends Controller {
         $warehouse_address = isset($salesoffice->full_address) ? $salesoffice->full_address : "";
         $destination_zone = isset($zone->zone_name) ? $zone->zone_name : "";
 
-
         $campaign_no = $headers['campaign_no'];
         $pr_no = $headers['pr_no'];
         $pr_date = $headers['pr_date'];
@@ -795,7 +816,7 @@ class ReceivingInventoryController extends Controller {
         $address = isset($supplier->full_address) ? $supplier->full_address : "";
 
         $transaction_date = $headers['transaction_date'];
-        $plan_delivery_date = $headers['plan_arrival_date'];
+        $plan_delivery_date = $headers['plan_delivery_date'];
 
 
         $pdf = Globals::pdf();
@@ -803,12 +824,12 @@ class ReceivingInventoryController extends Controller {
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
         $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-        $pdf->SetFont('DejaVu Sans', '', 10);
+        $pdf->SetFont('DejaVu Sans', '#000', 10);
 
         $pdf->AddPage();
 
         $html = '
-            <style type="text/css">
+        <style type="text/css">
             .text-center { text-align: center; }
             #header {  }   
             .title { font-size: 12px; }
@@ -818,7 +839,7 @@ class ReceivingInventoryController extends Controller {
             .table_details { font-size: 8px; width: 100%; }
             .table_footer { font-size: 8px; width: 100%; }
             .border-bottom { border-bottom: 1px solid #333; font-size: 8px; }
-            .row_label { width: 130px; }
+            .row_label { width: 120px; }
             .row_content_sm { width: 100px; }
             .row_content_lg { width: 300px; }
         </style>
@@ -877,43 +898,48 @@ class ReceivingInventoryController extends Controller {
                 <td class="border-bottom">' . $address . '</td>
             </tr>
         </table><br/><br/><br/>  
-            <table class="table_details" border="1">
-                <tr>
-                    <td>MM CODE</td>
-                    <td>DESCRIPTION</td>
-                    <td>MM BRAND</td>
-                    <td>MM CATEGORY</td>
-                    <td>PLAN QUANTITY</td>
-                    <td>QUANTITY RECEIVED</td>
-                    <td>UOM</td>
-                    <td>UNIT PRICE</td>
-                    <td>AMOUNT</td>
-                    <td>STATUS</td>
-                    <td>REMARKS</td>
-                </tr>';
+        
+        <table class="table_details" border="1">
+            <tr>
+                <td>MM CODE</td>
+                <td>MM DESCRIPTION</td>
+                <td>MM BRAND</td>
+                <td>MM CATEGORY</td>
+                <td>PLAN QUANTITY</td>
+                <td>QUANTITY RECEIVED</td>
+                <td>UOM</td>
+                <td>UNIT PRICE</td>
+                <td>AMOUNT</td>
+                <td>MM STATUS</td>
+                <td>MM REMARKS</td>
+            </tr>';
 
         $planned_qty = 0;
         $actual_qty = 0;
+        $total_unit_price = 0;
         foreach ($details as $key => $val) {
             $sku = Sku::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sku_id" => $val['sku_id']));
             $uom = UOM::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $val['uom_id']));
+            $sku_status = SkuStatus::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sku_status_id" => $val['sku_status_id']));
+            $status = isset($sku_status->status_name) ? $sku_status->status_name : "";
 
             $html .= '<tr>
                         <td>' . $sku->sku_code . '</td>
                         <td>' . $sku->description . '</td>
                         <td>' . $sku->brand->brand_name . '</td>
-                        <td>' . $sku->brand->brandCategory->category_name . '</td>
+                        <td>' . $sku->type . '</td>
                         <td>' . $val['planned_quantity'] . '</td>
                         <td>' . $val['qty_received'] . '</td>
                         <td>' . $uom->uom_name . '</td>
                         <td>&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
                         <td>&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
-                        <td>' . $val['remarks'] . '</td>
+                        <td>' . $status . '</td>
                         <td>' . $val['remarks'] . '</td>
                     </tr>';
 
             $planned_qty += $val['planned_quantity'];
             $actual_qty += $val['qty_received'];
+            $total_unit_price += $val['unit_price'];
         }
 
         $html .= '<tr>
@@ -924,7 +950,7 @@ class ReceivingInventoryController extends Controller {
                     <td>' . $planned_qty . '</td>
                     <td>' . $actual_qty . '</td>
                     <td></td>
-                    <td>&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
+                    <td>&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
                     <td>&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
                     <td colspan="2"></td>
                 </tr>';
@@ -933,16 +959,14 @@ class ReceivingInventoryController extends Controller {
             
         <table class="table_footer">
             <tr>
-                <td style="width: 180px;">DELIVERY REMARKS</td>
+                <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">DELIVERY REMARKS</td>
                 <td style="width: 100px;"></td>
                 <td style="width: 150px;">DELIVERED BY</td>
                 <td style="width: 100px;"></td>
                 <td style="width: 150px;">RECEIVED BY</td>
             </tr>
-                
-            
             <tr>
-                <td style="border: 1px solid #000; min-height: 50px; height: 50px;">' . $headers['delivery_remarks'] . '</td>
+                <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000; min-height: 50px; height: 50px;"><br/><br/><br/><br/><br/>' . $headers['delivery_remarks'] . '</td>
                 <td style="width: 100px;"></td>
                 <td class="border-bottom"></td>
                 <td style="width: 100px;"></td>
@@ -952,7 +976,7 @@ class ReceivingInventoryController extends Controller {
 
         $pdf->writeHTML($html, true, false, true, false, '');
 
-        $pdf->Output('example_061.pdf', 'I');
+        $pdf->Output('print.pdf', 'I');
     }
 
 }
