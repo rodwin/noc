@@ -773,12 +773,10 @@ class ReceivingInventoryController extends Controller {
 
     public function actionLoadPDF($id) {
 
-//        parse_str(Yii::app()->session[$id], $data);
-
         $data = Yii::app()->session[$id];
         
         ob_start();
-        
+
         $headers = $data['ReceivingInventory'];
         $details = $data['transaction_details'];
 
@@ -789,7 +787,7 @@ class ReceivingInventoryController extends Controller {
 
         $c3 = new CDbCriteria();
         $c3->select = new CDbExpression('t.*, CONCAT(TRIM(barangay.barangay_name), ", ", TRIM(municipal.municipal_name), ", ", TRIM(province.province_name), ", ", TRIM(region.region_name)) AS full_address');
-        $c3->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = "' . $zone->salesOffice->sales_office_id . '"';
+        $c3->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = "' . $headers['sales_office_id'] . '"';
         $c3->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
         $c3->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
         $c3->join .= ' LEFT JOIN province ON province.province_code = t.province_id';

@@ -193,7 +193,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     ),
                     'labelOptions' => array('label' => false)));
                 ?>
-
+                
+                <?php echo $form->textFieldGroup($receiving, 'sales_office_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
+                
             </div>
         </div>
 
@@ -825,17 +827,17 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             templates: {
                 suggestion: Handlebars.compile([
                     '<p class="repo-name">{{zone_name}}</p>',
-                    '<p class="repo-description">{{sales_office}}</p>'
+                    '<p class="repo-description">{{sales_office_name}}</p>'
                 ].join(''))
             }
 
         }).on('typeahead:selected', function(obj, datum) {
             $("#receivingInventory_zone_id").val(datum.zone_id);
+            $("#ReceivingInventory_sales_office_id").val(datum.sales_office_id);
         });
 
         jQuery('#ReceivingInventory_zone_id').on('input', function() {
-            var value = $("#ReceivingInventory_zone_id").val();
-            $("#receivingInventory_zone_id").val(value);
+            $("#receivingInventory_zone_id, #ReceivingInventory_sales_office_id").val("");
         });
 
         var supplier = new Bloodhound({

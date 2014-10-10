@@ -783,6 +783,7 @@ class OutgoingInventoryController extends Controller {
             $receiving_arr[$k1]['campaign_no'] = $v1->campaign_no;
             $receiving_arr[$k1]['pr_no'] = $v1->pr_no;
             $receiving_arr[$k1]['pr_date'] = $v1->pr_date;
+            $receiving_arr[$k1]['source_zone_id'] = $v1->zone_id;
         }
 
         foreach ($incoming as $k2 => $v2) {
@@ -790,6 +791,7 @@ class OutgoingInventoryController extends Controller {
             $incoming_arr[$k2]['campaign_no'] = $v2->campaign_no;
             $incoming_arr[$k2]['pr_no'] = $v2->pr_no;
             $incoming_arr[$k2]['pr_date'] = $v2->pr_date;
+            $incoming_arr[$k2]['source_zone_id'] = $v2->source_zone_id;
         }
 
         $return = array_merge($receiving_arr, $incoming_arr);
@@ -977,15 +979,44 @@ class OutgoingInventoryController extends Controller {
         $c2->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
         $salesoffice = Salesoffice::model()->find($c2);
 
-        $sales_office_name = isset($salesoffice->sales_office_name) ? $salesoffice->sales_office_name : "";
-        $sales_office_address = isset($salesoffice->full_address) ? $salesoffice->full_address : "";
+        $c5 = new CDbCriteria;
+        $c5->select = "t.*, zone.*";
+        $c5->condition = 't.company_id = "' . Yii::app()->user->company_id . '"';
+        $c5->with = array("zone");
+        $employee = Employee::model()->find($c5);
 
+        if ($employee && $employee->default_zone_id == $zone->zone_id) {
+            $sales_office_name = isset($employee->zone->zone_name) ? $employee->zone->zone_name : "";
+            $sales_office_address = isset($employee->address1) ? $employee->address1 : "";
+        } else {
+            $sales_office_name = isset($salesoffice->sales_office_name) ? $salesoffice->sales_office_name : "";
+            $sales_office_address = isset($salesoffice->full_address) ? $salesoffice->full_address : "";
+        }
+        
         $transaction_date = $headers['transaction_date'];
         $plan_delivery_date = $headers['plan_delivery_date'];
         $pr_no = $headers['pr_no'];
         $rra_no = $headers['rra_no'];
         $rra_date = $headers['pr_date'];
         $dr_no = $headers['dr_no'];
+
+        $c3 = new CDbCriteria();
+        $c3->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.zone_id = "' . $headers['source_zone_id'] . '"';
+        $c3->with = array("salesOffice");
+        $souce_zone = Zone::model()->find($c3);
+
+        $c4 = new CDbCriteria();
+        $c4->select = new CDbExpression('t.*, CONCAT(TRIM(barangay.barangay_name), ", ", TRIM(municipal.municipal_name), ", ", TRIM(province.province_name), ", ", TRIM(region.region_name)) AS full_address');
+        $c4->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = "' . $souce_zone->salesOffice->sales_office_id . '"';
+        $c4->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
+        $c4->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
+        $c4->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
+        $c4->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
+        $source_salesoffice = Salesoffice::model()->find($c4);
+
+        $source_sales_office_name = isset($source_salesoffice->sales_office_name) ? $source_salesoffice->sales_office_name : "";
+        $source_sales_office_contact_person = "";
+        $source_sales_office_address = isset($source_salesoffice->full_address) ? $source_salesoffice->full_address : "";
 
 
         $pdf = Globals::pdf();
@@ -1021,7 +1052,7 @@ class OutgoingInventoryController extends Controller {
 
             <table class="table_main">
                 <tr>
-                    <td clss="row_label">SALES OFFICE NAME</td>
+                    <td clss="row_label">SALES OFFICE / SALESMAN</td>
                     <td class="border-bottom row_content_lg">' . $sales_office_name . '</td>
                     <td style="width: 10px;"></td>
                     <td clss="row_label">DELIVERY DATE</td>
@@ -1042,21 +1073,21 @@ class OutgoingInventoryController extends Controller {
                     <td class="border-bottom row_content_sm">' . $pr_no . '</td>
                     <td style="width: 10px;"></td>
                     <td clss="row_label">WAREHOUSE NAME</td>
-                    <td class="border-bottom row_content_lg"></td>
+                    <td class="border-bottom row_content_lg">' . $source_sales_office_name . '</td>
                 </tr>
                 <tr>
                     <td>RRA NUMBER</td>
                     <td class="border-bottom">' . $rra_no . '</td>
                     <td></td>
                     <td>CONTACT PERSON</td>
-                    <td class="border-bottom"></td>
+                    <td class="border-bottom">' . $source_sales_office_contact_person . '</td>
                 </tr>
                 <tr>
                     <td>RRA DATE</td>
                     <td class="border-bottom">' . $rra_date . '</td>
                     <td></td>
                     <td>ADDRESS</td>
-                    <td class="border-bottom"></td>
+                    <td class="border-bottom">' . $source_sales_office_address . '</td>
                 </tr>
                 <tr>
                     <td>DR NUMBER</td>
@@ -1138,7 +1169,7 @@ class OutgoingInventoryController extends Controller {
                     <td class="border-bottom" style="width: 130px;"></td>
                 </tr>
                 <tr>
-                    <td rowspan="5" style="border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td>
+                    <td rowspan="5" style="border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"><br/><br/>' . $headers['remarks'] . '</td>
                     <td colspan="2"></td>
                 </tr>
                 <tr>
@@ -1179,7 +1210,7 @@ class OutgoingInventoryController extends Controller {
                     <td colspan="2" style="text-align: center;">NAME & SIGNATURE OF RECEIPIENT</td>
                 </tr>
             </table><br/><br/><br/><br/><br/>';
-        
+
         $html .= '<table class="noted" style="border-style: dashed dashed dashed dashed;">
                     <tr>
                         <td>Noted:</td>

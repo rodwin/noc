@@ -171,7 +171,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->labelEx($incoming, 'campaign_no'); ?><br/>
                 <?php echo $form->labelEx($incoming, 'pr_no'); ?><br/>
                 <?php echo $form->labelEx($incoming, 'pr_date'); ?><br/>
-                <?php echo $form->labelEx($incoming, 'zone_id'); ?>
+                <?php echo $form->labelEx($incoming, 'destination_zone_id'); ?>
 
             </div>
 
@@ -183,8 +183,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($incoming, 'pr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo CHtml::textField('zone_id', '', array('id' => 'IncomingInventory_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone", 'readonly' => true)); ?>
-                <?php echo $form->textFieldGroup($incoming, 'zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'IncomingInventory_zone', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
+                <?php echo CHtml::textField('destination_zone_id', '', array('id' => 'IncomingInventory_destination_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone", 'readonly' => true)); ?>
+                <?php echo $form->textFieldGroup($incoming, 'destination_zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'IncomingInventory_destination_zone', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
+
+                <?php echo $form->textFieldGroup($incoming, 'source_zone_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
 
             </div>
 
@@ -924,8 +926,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $("#IncomingInventory_pr_no").val(data.headers.pr_no);
                 $("#IncomingInventory_pr_date").val(data.headers.pr_date);
                 $("#IncomingInventory_rra_no").val(data.headers.rra_no);
-                $("#IncomingInventory_zone_id").val(data.headers.zone_name);
-                $("#IncomingInventory_zone").val(data.headers.zone_id);
+                $("#IncomingInventory_source_zone_id").val(data.headers.source_zone_id);
+                $("#IncomingInventory_destination_zone_id").val(data.headers.destination_zone_name);
+                $("#IncomingInventory_destination_zone").val(data.headers.destination_zone_id);
                 $("#IncomingInventory_plan_delivery_date").val(data.headers.plan_delivery_date);
                 $("#IncomingInventory_outgoing_inventory_id").val(data.headers.outgoing_inventory_id);
 

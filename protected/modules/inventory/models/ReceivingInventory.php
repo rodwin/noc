@@ -48,8 +48,8 @@ class ReceivingInventory extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, campaign_no, pr_no, pr_date, requestor, dr_no, zone_id, transaction_date, supplier_id, plan_arrival_date', 'required'),
-            array('company_id, campaign_no, pr_no, dr_no, requestor, supplier_id, zone_id, delivery_remarks, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, campaign_no, pr_no, pr_date, requestor, dr_no, sales_office_id, zone_id, transaction_date, supplier_id, plan_arrival_date', 'required'),
+            array('company_id, campaign_no, pr_no, dr_no, requestor, supplier_id, sales_office_id, zone_id, delivery_remarks, created_by, updated_by', 'length', 'max' => 50),
             array('total_amount', 'length', 'max' => 18),
             array('pr_date, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('zone_id', 'isValidZone'),
@@ -57,7 +57,7 @@ class ReceivingInventory extends CActiveRecord {
             array('plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('receiving_inventory_id, company_id, campaign_no, pr_no, pr_date, dr_no, requestor, supplier_id, zone_id, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date, delivery_remarks, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('receiving_inventory_id, company_id, campaign_no, pr_no, pr_date, dr_no, requestor, supplier_id, sales_office_id, zone_id, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date, delivery_remarks, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
 
@@ -123,6 +123,7 @@ class ReceivingInventory extends CActiveRecord {
             'dr_no' => 'DR No',
             'requestor' => 'Requestor',
             'supplier_id' => 'Supplier',
+            'sales_office_id' => 'Sales Office',
             'zone_id' => 'Destination Zone',
             'plan_delivery_date' => 'Plan Delivery Date',
             'revised_delivery_date' => 'Revised Delivery Date',
@@ -163,6 +164,7 @@ class ReceivingInventory extends CActiveRecord {
         $criteria->compare('dr_no', $this->dr_no, true);
         $criteria->compare('requestor', $this->requestor, true);
         $criteria->compare('supplier_id', $this->supplier_id, true);
+        $criteria->compare('sales_office_id', $this->sales_office_id, true);
         $criteria->compare('zone_id', $this->zone_id, true);
         $criteria->compare('plan_delivery_date', $this->plan_delivery_date, true);
         $criteria->compare('revised_delivery_date', $this->revised_delivery_date, true);
@@ -321,6 +323,7 @@ class ReceivingInventory extends CActiveRecord {
                 'dr_no' => $this->dr_no,
                 'requestor' => $this->requestor,
                 'supplier_id' => $this->supplier_id,
+                'sales_office_id' => $this->sales_office_id,
                 'zone_id' => $this->zone_id,
                 'plan_delivery_date' => $this->plan_delivery_date,
                 'revised_delivery_date' => $this->revised_delivery_date,

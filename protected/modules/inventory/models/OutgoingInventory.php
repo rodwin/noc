@@ -53,8 +53,8 @@ class OutgoingInventory extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, rra_no, dr_no, dr_date, destination_zone_id, campaign_no, pr_no, pr_date, transaction_date', 'required'),
-            array('company_id, campaign_no, rra_no, pr_no, dr_no, destination_zone_id, contact_person, contact_no, status, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, rra_no, dr_no, dr_date, source_zone_id, destination_zone_id, campaign_no, pr_no, pr_date, transaction_date', 'required'),
+            array('company_id, campaign_no, rra_no, pr_no, dr_no, source_zone_id, destination_zone_id, contact_person, contact_no, status, created_by, updated_by', 'length', 'max' => 50),
             array('address', 'length', 'max' => 200),
             array('total_amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
@@ -64,7 +64,7 @@ class OutgoingInventory extends CActiveRecord {
             array('pr_date, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('outgoing_inventory_id, company_id, rra_no, dr_no, destination_zone_id, contact_person, contact_no, address, campaign_no, pr_no, pr_date, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date, status, remarks, total_amount, closed, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('outgoing_inventory_id, company_id, rra_no, dr_no, source_zone_id, destination_zone_id, contact_person, contact_no, address, campaign_no, pr_no, pr_date, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date, status, remarks, total_amount, closed, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
 
@@ -115,6 +115,7 @@ class OutgoingInventory extends CActiveRecord {
             'rra_no' => 'RRA No',
             'dr_no' => 'DR No',
             'dr_date' => 'DR Date',
+            'source_zone_id' => 'Source Zone',
             'destination_zone_id' => 'Destination Zone',
             'contact_person' => 'Contact Person',
             'contact_no' => 'Contact No',
@@ -160,6 +161,7 @@ class OutgoingInventory extends CActiveRecord {
         $criteria->compare('rra_no', $this->rra_no);
         $criteria->compare('dr_no', $this->dr_no, true);
         $criteria->compare('dr_date', $this->dr_date, true);
+        $criteria->compare('source_zone_id', $this->source_zone_id, true);
         $criteria->compare('destination_zone_id', $this->destination_zone_id, true);
         $criteria->compare('contact_person', $this->contact_person, true);
         $criteria->compare('contact_no', $this->contact_no, true);
@@ -281,6 +283,7 @@ class OutgoingInventory extends CActiveRecord {
                 'rra_no' => $this->rra_no,
                 'dr_no' => $this->dr_no,
                 'dr_date' => $this->dr_date,
+                'source_zone_id' => $this->source_zone_id,
                 'destination_zone_id' => $this->destination_zone_id,
                 'contact_person' => $this->contact_person,
                 'contact_no' => $this->contact_no,
@@ -293,6 +296,7 @@ class OutgoingInventory extends CActiveRecord {
                 'actual_delivery_date' => $this->actual_delivery_date,
                 'transaction_date' => $this->transaction_date,
                 'status' => OutgoingInventory::OUTGOING_PENDING_STATUS,
+                'remarks' => $this->remarks,
                 'total_amount' => $this->total_amount,
                 'created_by' => $this->created_by,
             );

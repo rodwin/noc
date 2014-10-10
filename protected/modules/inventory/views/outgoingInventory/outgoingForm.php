@@ -143,7 +143,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->textFieldGroup($outgoing, 'dr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo CHtml::textField('destination_zone', '', array('id' => 'OutgoingInventory_destination_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone")); ?>
-                <?php echo $form->textFieldGroup($outgoing, 'destination_zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'OutgoingInventoryl_destination_zone', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($outgoing, 'destination_zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'OutgoingInventory_destination_zone', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
 
             </div>
 
@@ -204,6 +204,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($outgoing, 'pr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
+                <?php echo $form->textFieldGroup($outgoing, 'source_zone_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
+
             </div>
 
         </div>
@@ -214,6 +216,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->labelEx($outgoing, 'plan_delivery_date'); ?><br/>
                 <?php echo $form->labelEx($outgoing, 'revised_delivery_date'); ?><br/>
                 <?php // echo $form->labelEx($outgoing, 'actual_delivery_date'); ?>
+                <?php echo $form->labelEx($outgoing, 'remarks'); ?>
 
             </div>
             <div class="pull-right col-md-7">
@@ -223,6 +226,17 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->textFieldGroup($outgoing, 'revised_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php // echo $form->textFieldGroup($outgoing, 'actual_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+
+                <?php
+                echo $form->textAreaGroup($outgoing, 'remarks', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => 'span5',
+                    ),
+                    'widgetOptions' => array(
+                        'htmlOptions' => array('class' => 'ignore', 'style' => 'resize: none; width: 200px;', 'maxlength' => 150),
+                    ),
+                    'labelOptions' => array('label' => false)));
+                ?>
 
             </div>
         </div>
@@ -957,12 +971,14 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         }).on('typeahead:selected', function(obj, datum) {
             $("#OutgoingInventory_campaign_no").val(datum.campaign_no);
+            $("#OutgoingInventory_source_zone_id").val(datum.source_zone_id);
 
             loadPRNos(datum.campaign_no, datum.transaction);
         });
 
         jQuery('#OutgoingInventory_campaign_no').on('input', function() {
             $('#OutgoingInventory_pr_no').empty();
+            $('#OutgoingInventory_source_zone_id').val("");
         });
 
         var zone = new Bloodhound({
@@ -981,17 +997,16 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             templates: {
                 suggestion: Handlebars.compile([
                     '<p class="repo-name">{{zone_name}}</p>',
-                    '<p class="repo-description">{{sales_office}}</p>'
+                    '<p class="repo-description">{{sales_office_name}}</p>'
                 ].join(''))
             }
 
         }).on('typeahead:selected', function(obj, datum) {
-            $("#OutgoingInventoryl_destination_zone").val(datum.zone_id);
+            $("#OutgoingInventory_destination_zone").val(datum.zone_id);
         });
 
         jQuery('#OutgoingInventory_destination_zone_id').on('input', function() {
-            var value = $("#OutgoingInventory_destination_zone_id").val();
-            $("#OutgoingInventoryl_destination_zone").val(value);
+            $("#OutgoingInventory_destination_zone").val("");
         });
     });
 

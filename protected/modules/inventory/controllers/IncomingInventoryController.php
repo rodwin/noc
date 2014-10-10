@@ -84,8 +84,8 @@ class IncomingInventoryController extends Controller {
             $row['pr_date'] = $value->pr_date;
             $row['dr_no'] = $value->dr_no;
             $row['rra_no'] = $value->rra_no;
-            $row['zone_id'] = $value->zone_id;
-            $row['zone_name'] = $value->zone->zone_name;
+            $row['destination_zone_id'] = $value->destination_zone_id;
+            $row['destination_zone_name'] = $value->zone->zone_name;
             $row['transaction_date'] = $value->transaction_date;
             $row['status'] = $status;
             $row['total_amount'] = $value->total_amount;
@@ -329,8 +329,9 @@ class IncomingInventoryController extends Controller {
             "campaign_no" => isset($value->outgoingInventory->campaign_no) ? $value->outgoingInventory->campaign_no : null,
             "pr_no" => isset($value->outgoingInventory->pr_no) ? $value->outgoingInventory->pr_no : null,
             "pr_date" => isset($value->outgoingInventory->pr_date) ? $value->outgoingInventory->pr_date : null,
-            "zone_id" => isset($value->outgoingInventory->destination_zone_id) ? $value->outgoingInventory->destination_zone_id : null,
-            "zone_name" => isset($value->outgoingInventory->zone->zone_name) ? $value->outgoingInventory->zone->zone_name : null,
+            "source_zone_id" => isset($value->source_zone_id) ? $value->source_zone_id : null,
+            "destination_zone_id" => isset($value->outgoingInventory->destination_zone_id) ? $value->outgoingInventory->destination_zone_id : null,
+            "destination_zone_name" => isset($value->outgoingInventory->zone->zone_name) ? $value->outgoingInventory->zone->zone_name : null,
             "plan_delivery_date" => isset($value->outgoingInventory->plan_delivery_date) ? $value->outgoingInventory->plan_delivery_date : null,
             "outgoing_inventory_id" => isset($value->outgoingInventory->outgoing_inventory_id) ? $value->outgoingInventory->outgoing_inventory_id : null,
             "rra_no" => isset($value->outgoingInventory->rra_no) ? $value->outgoingInventory->rra_no : null,
@@ -787,7 +788,7 @@ class IncomingInventoryController extends Controller {
 
         unset(Yii::app()->session["post_pdf_data_id"]);
 
-        Yii::app()->session["post_pdf_data_id"] = 'post_pdf_data_' . Globals::generateV4UUID();
+        Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
         Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = Yii::app()->request->getParam('post_data');
 
         $return = array();
@@ -806,14 +807,14 @@ class IncomingInventoryController extends Controller {
     public function actionLoadPDF($id) {
 
         $data = Yii::app()->session[$id];
-
+        
         ob_start();
 
         $headers = $data['IncomingInventory'];
         $details = $data['transaction_details'];
 
         $c1 = new CDbCriteria();
-        $c1->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.zone_id = "' . $headers['zone_id'] . '"';
+        $c1->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.zone_id = "' . $headers['destination_zone_id'] . '"';
         $c1->with = array("salesOffice");
         $zone = Zone::model()->find($c1);
 
@@ -825,11 +826,11 @@ class IncomingInventoryController extends Controller {
         $c2->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
         $c2->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
         $salesoffice = Salesoffice::model()->find($c2);
-       
+
         $c3 = new CDbCriteria;
         $c3->select = new CDbExpression('t.*, CONCAT(TRIM(t.first_name), " ", TRIM(t.last_name)) as fullname');
         $c3->condition = 't.company_id = "' . Yii::app()->user->company_id . '"';
-        $c2->join .= ' LEFT JOIN zone ON zone.zone_id = t.default_zone_id';
+        $c3->join .= ' LEFT JOIN zone ON zone.zone_id = t.default_zone_id';
         $employee = Employee::model()->find($c3);
 
         if ($employee && $employee->default_zone_id == $zone->zone_id) {
@@ -846,6 +847,25 @@ class IncomingInventoryController extends Controller {
         $rra_no = $headers['rra_no'];
         $dr_no = $headers['dr_no'];
         $dr_date = $headers['dr_date'];
+
+        $c4 = new CDbCriteria();
+        $c4->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.zone_id = "' . $headers['source_zone_id'] . '"';
+        $c4->with = array("salesOffice");
+        $source_zone = Zone::model()->find($c4);
+
+        $c5 = new CDbCriteria();
+        $c5->select = new CDbExpression('t.*, CONCAT(TRIM(barangay.barangay_name), ", ", TRIM(municipal.municipal_name), ", ", TRIM(province.province_name), ", ", TRIM(region.region_name)) AS full_address');
+        $c5->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = "' . $source_zone->salesOffice->sales_office_id . '"';
+        $c5->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
+        $c5->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
+        $c5->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
+        $c5->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
+        $source_salesoffice = Salesoffice::model()->find($c5);
+
+        $source_sales_office_name = isset($source_salesoffice->sales_office_name) ? $source_salesoffice->sales_office_name : "";
+        $source_sales_office_contact_person = "";
+        $source_sales_office_address = isset($source_salesoffice->full_address) ? $source_salesoffice->full_address : "";
+
 
         $pdf = Globals::pdf();
 
@@ -900,21 +920,21 @@ class IncomingInventoryController extends Controller {
                 <td class="border-bottom row_content_sm">' . $pr_no . '</td>
                 <td style="width: 10px;"></td>
                 <td clss="row_label">WAREHOUSE NAME</td>
-                <td class="border-bottom row_content_lg"></td>
+                <td class="border-bottom row_content_lg">' . $source_sales_office_name . '</td>
             </tr>
             <tr>
                 <td>RRA NUMBER</td>
                 <td class="border-bottom">' . $rra_no . '</td>
                 <td></td>
                 <td>CONTACT PERSON</td>
-                <td class="border-bottom"></td>
+                <td class="border-bottom">' . $source_sales_office_contact_person . '</td>
             </tr>
             <tr>
                 <td>DR NUMBER</td>
                 <td class="border-bottom">' . $dr_no . '</td>
                 <td></td>
                 <td>ADDRESS</td>
-                <td class="border-bottom"></td>
+                <td class="border-bottom">' . $source_sales_office_address . '</td>
             </tr>
             <tr>
                 <td>DR DATE</td>
