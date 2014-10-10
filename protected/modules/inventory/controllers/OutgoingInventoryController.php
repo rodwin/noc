@@ -998,88 +998,89 @@ class OutgoingInventoryController extends Controller {
         $pdf->AddPage();
 
         $html = '
-        <style type="text/css">
-            .text-center { text-align: center; }
-            .title { font-size: 12px; }
-            .sub-title { font-size: 10px; }
-            .title-report { font-size: 15px; font-weight: bold; } 
-            .table_main { font-size: 8px; }
-            .table_details { font-size: 8px; width: 100%; }
-            .table_footer { font-size: 8px; width: 100%; }
-            .border-bottom { border-bottom: 1px solid #333; font-size: 8px; }
-            .row_label { width: 120px; }
-            .row_content_sm { width: 100px; }
-            .row_content_lg { width: 300px; }
-        </style>
-                
-        <div id="header" class="text-center">
-            <span class="title">ASIA BREWERY INCORPORATED</span><br/>
-            <span class="sub-title">6th FLOOR ALLIED BANK CENTER, AYALA AVENUE, MAKATI CITY</span><br/>
-            <span class="title-report">DELIVERY RECEIPT</span>
-        </div><br/><br/>
+            <style type="text/css">
+                .text-center { text-align: center; }
+                .title { font-size: 12px; }
+                .sub-title { font-size: 10px; }
+                .title-report { font-size: 15px; font-weight: bold; } 
+                .table_main { font-size: 8px; }
+                .table_details { font-size: 8px; width: 100%; }
+                .table_footer { font-size: 8px; width: 100%; }
+                .border-bottom { border-bottom: 1px solid #333; font-size: 8px; }
+                .row_label { width: 120px; }
+                .row_content_sm { width: 100px; }
+                .row_content_lg { width: 300px; }
+                .noted { font-size: 8px; }
+            </style>
+
+            <div id="header" class="text-center">
+                <span class="title">ASIA BREWERY INCORPORATED</span><br/>
+                <span class="sub-title">6th FLOOR ALLIED BANK CENTER, AYALA AVENUE, MAKATI CITY</span><br/>
+                <span class="title-report">DELIVERY RECEIPT</span>
+            </div><br/><br/>
+
+            <table class="table_main">
+                <tr>
+                    <td clss="row_label">SALES OFFICE NAME</td>
+                    <td class="border-bottom row_content_lg">' . $sales_office_name . '</td>
+                    <td style="width: 10px;"></td>
+                    <td clss="row_label">DELIVERY DATE</td>
+                    <td class="border-bottom row_content_sm">' . $transaction_date . '</td>
+                </tr>
+                <tr>
+                    <td>ADDRESS</td>
+                    <td class="border-bottom">' . $sales_office_address . '</td>
+                    <td></td>
+                    <td>PLAN DATE</td>
+                    <td class="border-bottom">' . $plan_delivery_date . '</td>
+                </tr>
+            </table><br/><br/>
+
+            <table class="table_main">
+                <tr>
+                    <td clss="row_label">PR NUMBER</td>
+                    <td class="border-bottom row_content_sm">' . $pr_no . '</td>
+                    <td style="width: 10px;"></td>
+                    <td clss="row_label">WAREHOUSE NAME</td>
+                    <td class="border-bottom row_content_lg"></td>
+                </tr>
+                <tr>
+                    <td>RRA NUMBER</td>
+                    <td class="border-bottom">' . $rra_no . '</td>
+                    <td></td>
+                    <td>CONTACT PERSON</td>
+                    <td class="border-bottom"></td>
+                </tr>
+                <tr>
+                    <td>RRA DATE</td>
+                    <td class="border-bottom">' . $rra_date . '</td>
+                    <td></td>
+                    <td>ADDRESS</td>
+                    <td class="border-bottom"></td>
+                </tr>
+                <tr>
+                    <td>DR NUMBER</td>
+                    <td class="border-bottom">' . $dr_no . '</td>
+                    <td></td>
+                    <td></td>
+                    <td class="border-bottom"></td>
+                </tr>
+            </table><br/><br/><br/>  
         
-        <table class="table_main">
-            <tr>
-                <td clss="row_label">SALES OFFICE NAME</td>
-                <td class="border-bottom row_content_lg">' . $sales_office_name . '</td>
-                <td style="width: 10px;"></td>
-                <td clss="row_label">DELIVERY DATE</td>
-                <td class="border-bottom row_content_sm">' . $transaction_date . '</td>
-            </tr>
-            <tr>
-                <td>ADDRESS</td>
-                <td class="border-bottom">' . $sales_office_address . '</td>
-                <td></td>
-                <td>PLAN DATE</td>
-                <td class="border-bottom">' . $plan_delivery_date . '</td>
-            </tr>
-        </table><br/><br/>
-        
-        <table class="table_main">
-            <tr>
-                <td clss="row_label">PR NUMBER</td>
-                <td class="border-bottom row_content_sm">' . $pr_no . '</td>
-                <td style="width: 10px;"></td>
-                <td clss="row_label">WAREHOUSE NAME</td>
-                <td class="border-bottom row_content_lg"></td>
-            </tr>
-            <tr>
-                <td>RRA NUMBER</td>
-                <td class="border-bottom">' . $rra_no . '</td>
-                <td></td>
-                <td>CONTACT PERSON</td>
-                <td class="border-bottom"></td>
-            </tr>
-            <tr>
-                <td>RRA DATE</td>
-                <td class="border-bottom">' . $rra_date . '</td>
-                <td></td>
-                <td>ADDRESS</td>
-                <td class="border-bottom"></td>
-            </tr>
-            <tr>
-                <td>DR NUMBER</td>
-                <td class="border-bottom">' . $dr_no . '</td>
-                <td></td>
-                <td></td>
-                <td class="border-bottom"></td>
-            </tr>
-        </table><br/><br/><br/>  
-        
-        <table class="table_details" border="1">
-            <tr>
-                <td>MM CODE</td>
-                <td>MM DESCRIPTION</td>
-                <td>MM BRAND</td>
-                <td>MM CATEGORY</td>
-                <td>ALLOCATION</td>
-                <td>QUANTITY ISSUED</td>
-                <td>UOM</td>
-                <td>UNIT PRICE</td>
-                <td>AMOUNT</td>
-                <td>EXPIRY DATE</td>
-                <td>REMARKS</td>
-            </tr>';
+            <table class="table_details" border="1">
+                <tr>
+                    <td>MM CODE</td>
+                    <td>MM DESCRIPTION</td>
+                    <td>MM BRAND</td>
+                    <td>MM CATEGORY</td>
+                    <td>ALLOCATION</td>
+                    <td>QUANTITY ISSUED</td>
+                    <td>UOM</td>
+                    <td>UNIT PRICE</td>
+                    <td>AMOUNT</td>
+                    <td>EXPIRY DATE</td>
+                    <td>REMARKS</td>
+                </tr>';
 
         $planned_qty = 0;
         $actual_qty = 0;
@@ -1089,18 +1090,18 @@ class OutgoingInventoryController extends Controller {
             $uom = UOM::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $val['uom_id']));
 
             $html .= '<tr>
-                        <td>' . $sku->sku_code . '</td>
-                        <td>' . $sku->description . '</td>
-                        <td>' . $sku->brand->brand_name . '</td>
-                        <td>' . $sku->type . '</td>
-                        <td>' . $val['planned_quantity'] . '</td>
-                        <td>' . $val['quantity_issued'] . '</td>
-                        <td>' . $uom->uom_name . '</td>
-                        <td>&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
-                        <td>&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
-                        <td>' . $val['expiration_date'] . '</td>
-                        <td>' . $val['remarks'] . '</td>
-                    </tr>';
+                            <td>' . $sku->sku_code . '</td>
+                            <td>' . $sku->description . '</td>
+                            <td>' . $sku->brand->brand_name . '</td>
+                            <td>' . $sku->type . '</td>
+                            <td>' . $val['planned_quantity'] . '</td>
+                            <td>' . $val['quantity_issued'] . '</td>
+                            <td>' . $uom->uom_name . '</td>
+                            <td>&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
+                            <td>&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
+                            <td>' . $val['expiration_date'] . '</td>
+                            <td>' . $val['remarks'] . '</td>
+                        </tr>';
 
             $planned_qty += $val['planned_quantity'];
             $actual_qty += $val['quantity_issued'];
@@ -1126,60 +1127,89 @@ class OutgoingInventoryController extends Controller {
 
         $html .= '</table><br/><br/><br/>
             
-               <table class="table_footer">
+            <table class="table_footer">
+                <tr>
+                    <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">REMARKS</td>
+                    <td style="width: 30px;"></td>
+                    <td style="width: 80px;">SHIPPED VIA:</td>
+                    <td class="border-bottom" style="width: 120px;"></td>
+                    <td style="width: 30px;"></td>
+                    <td style="width: 100px;">TRUCK NO.:</td>
+                    <td class="border-bottom" style="width: 130px;"></td>
+                </tr>
+                <tr>
+                    <td rowspan="5" style="border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td>
+                    <td colspan="2"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>CHECKED BY:</td>
+                    <td class="border-bottom"></td>
+                    <td></td>
+                    <td>DRIVER"S NAME:</td>
+                    <td class="border-bottom"></td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>AUTHORIZED BY:</td>
+                    <td class="border-bottom"></td>
+                    <td></td>
+                    <td>DRIVER"S SIGNATURE:</td>
+                    <td class="border-bottom"></td>
+                </tr>
+                <tr><td colspan="6"></td></tr>
+                <tr><td colspan="6"></td></tr>
+                <tr>
+                    <td colspan="5"></td>
+                    <td colspan="2">Received the above goods in good order and condition</td>
+                </tr>
+                <tr><td colspan="6"></td></tr>
+                <tr><td colspan="6"></td></tr>
+                <tr><td colspan="6"></td></tr>
+                <tr><td colspan="6"></td></tr>
+                <tr>
+                    <td colspan="5"></td>
+                    <td colspan="2" class="border-bottom"></td>
+                </tr>
+                <tr>
+                    <td colspan="5"></td>
+                    <td colspan="2" style="text-align: center;">NAME & SIGNATURE OF RECEIPIENT</td>
+                </tr>
+            </table><br/><br/><br/><br/><br/>';
+        
+        $html .= '<table class="noted" style="border-style: dashed dashed dashed dashed;">
                     <tr>
-                        <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">REMARKS</td>
-                        <td style="width: 30px;"></td>
-                        <td style="width: 80px;">SHIPPED VIA:</td>
-                        <td class="border-bottom" style="width: 120px;"></td>
-                        <td style="width: 30px;"></td>
-                        <td style="width: 100px;">TRUCK NO.:</td>
-                        <td class="border-bottom" style="width: 130px;"></td>
-                    </tr>
-                    <tr>
-                        <td rowspan="5" style="border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td>
-                        <td colspan="2"></td>
-                    </tr>
+                        <td>Noted:</td>
+                        <td colspan="11"></td>
+                    </tr> 
                     <tr>
                         <td></td>
-                        <td>CHECKED BY:</td>
-                        <td class="border-bottom"></td>
-                        <td></td>
-                        <td>DRIVER"S NAME:</td>
-                        <td class="border-bottom"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"></td>
-                    </tr>
+                        <td colspan="2"><b>TERM</b></td>
+                        <td colspan="2"><b>DEEFINITION</b></td>
+                        <td colspan="6"></td>
+                    </tr>  
+                    <tr><td colspan="11"></td></tr>
                     <tr>
                         <td></td>
-                        <td>AUTHORIZED BY:</td>
-                        <td class="border-bottom"></td>
+                        <td colspan="2">Allocation</td>
+                        <td colspan="2">Planned QTY</td>
+                        <td colspan="6"></td>
+                    </tr>    
+                    <tr>
                         <td></td>
-                        <td>DRIVER"S SIGNATURE:</td>
-                        <td class="border-bottom"></td>
-                    </tr>
-                    <tr><td colspan="6"></td></tr>
-                    <tr><td colspan="6"></td></tr>
-                    <tr>
-                        <td colspan="5"></td>
-                        <td colspan="2">Received the above goods in good order and condition</td>
-                    </tr>
-                    <tr><td colspan="6"></td></tr>
-                    <tr><td colspan="6"></td></tr>
-                    <tr>
-                        <td colspan="5"></td>
-                        <td colspan="2" class="border-bottom"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="5"></td>
-                        <td colspan="2" style="text-align: center;">NAME & SIGNATURE OF RECEIPIENT</td>
-                    </tr>
+                        <td colspan="2">Qty Issued</td>
+                        <td colspan="2">Actual QTY</td>
+                        <td colspan="6"></td>
+                    </tr>  
+                    <tr><td colspan="11"></td></tr>              
                 </table>';
 
         $pdf->writeHTML($html, true, false, true, false, '');
 
-        $pdf->Output('print.pdf', 'I');
+        $pdf->Output('outbound.pdf', 'I');
     }
 
 }

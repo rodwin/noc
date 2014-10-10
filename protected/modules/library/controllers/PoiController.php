@@ -557,19 +557,29 @@ class PoiController extends Controller {
             $c->addSearchCondition('t.short_name', $value, true, 'OR');
             $c->addSearchCondition('t.primary_code', $value, true, 'OR');
         }
+        $c->select = new CDbExpression('t.*, TRIM(barangay.barangay_name) as barangay_name, TRIM(municipal.municipal_name) as municipal_name, TRIM(province.province_name) as province_name, TRIM(region.region_name) as region_name');
         $c->compare('t.company_id', Yii::app()->user->company_id);
+        $c->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
+        $c->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
+        $c->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
+        $c->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
         $poi = Poi::model()->findAll($c);
-        
+
         $return = array();
         foreach ($poi as $key => $val) {
+
+            $poi_address = isset($val->barangay_name) ? $val->barangay_name . ", " : "";
+            $poi_address .= isset($val->municipal_name) ? $val->municipal_name . ", " : "";
+            $poi_address .= isset($val->province_name) ? $val->province_name . ", " : "";
+            $poi_address .= isset($val->region_name) ? $val->region_name : "";
+
             $return[$key]['poi_id'] = $val->poi_id;
             $return[$key]['short_name'] = $val->short_name;
             $return[$key]['primary_code'] = $val->primary_code;
-            $return[$key]['address1'] = $val->address1;
+            $return[$key]['address1'] = $poi_address;
         }
 
         echo json_encode($return);
-        Yii::app()->end();
     }
 
 }

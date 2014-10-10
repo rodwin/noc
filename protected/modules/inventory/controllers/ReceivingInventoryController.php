@@ -977,7 +977,7 @@ class ReceivingInventoryController extends Controller {
 
         $pdf->writeHTML($html, true, false, true, false, '');
 
-        $pdf->Output('print.pdf', 'I');
+        $pdf->Output('incoming.pdf', 'I');
     }
 
 }

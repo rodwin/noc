@@ -824,7 +824,7 @@ class IncomingInventoryController extends Controller {
         $c2->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
         $c2->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
         $salesoffice = Salesoffice::model()->find($c2);
-
+       
         $c3 = new CDbCriteria;
         $c3->select = new CDbExpression('t.*, CONCAT(TRIM(t.first_name), " ", TRIM(t.last_name)) as fullname');
         $c3->condition = 't.company_id = "' . Yii::app()->user->company_id . '"';
@@ -1001,7 +1001,7 @@ class IncomingInventoryController extends Controller {
 
         $pdf->writeHTML($html, true, false, true, false, '');
 
-        $pdf->Output('print.pdf', 'I');
+        $pdf->Output('inbound.pdf', 'I');
     }
 
 }
