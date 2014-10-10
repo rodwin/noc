@@ -841,6 +841,7 @@ class ReceivingInventoryController extends Controller {
             .row_label { width: 120px; }
             .row_content_sm { width: 100px; }
             .row_content_lg { width: 300px; }
+            .align-right { text-align: right; }
         </style>
                 
         <div id="header" class="text-center">
@@ -930,8 +931,8 @@ class ReceivingInventoryController extends Controller {
                         <td>' . $val['planned_quantity'] . '</td>
                         <td>' . $val['qty_received'] . '</td>
                         <td>' . $uom->uom_name . '</td>
-                        <td>&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
-                        <td>&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
+                        <td class="align-right">&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
+                        <td class="align-right">&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
                         <td>' . $status . '</td>
                         <td>' . $val['remarks'] . '</td>
                     </tr>';
@@ -949,8 +950,8 @@ class ReceivingInventoryController extends Controller {
                     <td>' . $planned_qty . '</td>
                     <td>' . $actual_qty . '</td>
                     <td></td>
-                    <td>&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
-                    <td>&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
+                    <td class="align-right">&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
+                    <td class="align-right">&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
                     <td colspan="2"></td>
                 </tr>';
 

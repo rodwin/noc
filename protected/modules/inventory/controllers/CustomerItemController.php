@@ -258,7 +258,7 @@ class CustomerItemController extends Controller {
                         'company_id' => $val->incomingInventory->company_id,
                         'sku_id' => $val->sku_id,
                         'uom_id' => $val->uom_id,
-                        'zone_id' => $val->incomingInventory->zone_id,
+                        'zone_id' => $val->incomingInventory->destination_zone_id,
                         'sku_status_id' => $val->sku_status_id != "" ? $val->sku_status_id : null,
                         'expiration_date' => isset($val->expiration_date) ? $val->expiration_date : null,
                         'reference_no' => $val->batch_no,
@@ -273,7 +273,7 @@ class CustomerItemController extends Controller {
         $c2 = new CDbCriteria;
         $c2->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
         $c2->compare('t.company_id', Yii::app()->user->company_id);
-        $c2->compare('t.default_zone_id', isset($val->incomingInventory->zone_id) ? $val->incomingInventory->zone_id : 0);
+        $c2->compare('t.default_zone_id', isset($val->incomingInventory->destination_zone_id) ? $val->incomingInventory->destination_zone_id : 0);
         $employee = Employee::model()->find($c2);
 
         $header = array(
@@ -281,7 +281,7 @@ class CustomerItemController extends Controller {
             "campaign_no" => isset($val->incomingInventory->campaign_no) ? $val->incomingInventory->campaign_no : null,
             "pr_no" => isset($val->incomingInventory->pr_no) ? $val->incomingInventory->pr_no : null,
             "pr_date" => isset($val->incomingInventory->pr_date) ? $val->incomingInventory->pr_date : null,
-            "source_zone_id" => isset($val->incomingInventory->zone_id) ? $val->incomingInventory->zone_id : null,
+            "source_zone_id" => isset($val->incomingInventory->destination_zone_id) ? $val->incomingInventory->destination_zone_id : null,
             "source_zone_name" => isset($val->incomingInventory->zone->zone_name) ? $val->incomingInventory->zone->zone_name : null,
         );
 
@@ -828,6 +828,7 @@ class CustomerItemController extends Controller {
                 .row_content_sm { width: 100px; }
                 .row_content_lg { width: 300px; }
                 .noted { font-size: 8px; }
+                .align-right { text-align: right; }z
             </style>
 
             <div id="header" class="text-center">
@@ -913,8 +914,8 @@ class CustomerItemController extends Controller {
                             <td>' . $val['planned_quantity'] . '</td>
                             <td>' . $val['quantity_issued'] . '</td>
                             <td>' . $uom_name . '</td>
-                            <td>&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
-                            <td>&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
+                            <td class="align-right">&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
+                            <td class="align-right">&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
                             <td>' . $val['expiration_date'] . '</td>
                             <td>' . $val['remarks'] . '</td>
                         </tr>';
@@ -936,8 +937,8 @@ class CustomerItemController extends Controller {
                     <td>' . $planned_qty . '</td>
                     <td>' . $actual_qty . '</td>
                     <td></td>
-                    <td>&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
-                    <td>&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
+                    <td class="align-right">&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
+                    <td class="align-right">&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
                     <td colspan="2"></td>
                 </tr>';
 

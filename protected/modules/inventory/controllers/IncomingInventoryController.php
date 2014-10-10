@@ -826,7 +826,7 @@ class IncomingInventoryController extends Controller {
         $c2->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
         $c2->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
         $salesoffice = Salesoffice::model()->find($c2);
-
+        
         $c3 = new CDbCriteria;
         $c3->select = new CDbExpression('t.*, CONCAT(TRIM(t.first_name), " ", TRIM(t.last_name)) as fullname');
         $c3->condition = 't.company_id = "' . Yii::app()->user->company_id . '"';
@@ -889,6 +889,7 @@ class IncomingInventoryController extends Controller {
             .row_label { width: 120px; }
             .row_content_sm { width: 100px; }
             .row_content_lg { width: 300px; }
+            .align-right { text-align: right; }
         </style>
                 
         <div id="header" class="text-center">
@@ -972,8 +973,8 @@ class IncomingInventoryController extends Controller {
                         <td>' . $val['planned_quantity'] . '</td>
                         <td>' . $val['quantity_received'] . '</td>
                         <td>' . $uom->uom_name . '</td>
-                        <td>&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
-                        <td>&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
+                        <td class="align-right">&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
+                        <td class="align-right">&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
                         <td>' . $val['expiration_date'] . '</td>
                         <td>' . $val['status'] . '</td>
                     </tr>';
@@ -995,8 +996,8 @@ class IncomingInventoryController extends Controller {
                     <td>' . $planned_qty . '</td>
                     <td>' . $actual_qty . '</td>
                     <td></td>
-                    <td>&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
-                    <td>&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
+                    <td class="align-right">&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
+                    <td class="align-right">&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
                     <td colspan="2"></td>
                 </tr>';
 
