@@ -10,8 +10,8 @@ $this->breadcrumbs = array(
     #outgoing-inventory_table tbody tr { cursor: pointer }
 
     .hide_row { display: none; }
-    
-     #hide_textbox input { display:none; }
+
+    #hide_textbox input { display:none; }
 
 </style>  
 
@@ -62,7 +62,7 @@ $this->breadcrumbs = array(
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
-                <td class="filter" id="hide_textbox"></td> 
+                <td class="filter" id="hide_textbox"></td>  
             </tr>
         </thead>
     </table>
@@ -120,7 +120,6 @@ $this->breadcrumbs = array(
                 <table id="outgoing-inventory-attachment_table" class="table table-bordered">
                     <thead>
                         <tr>
-                            <th style="width: 40px;"></th>
                             <th>File Name</th>
                             <th style="width: 80px;"><?php echo 'Actions' ?></th>
                         </tr>
@@ -136,7 +135,7 @@ $this->breadcrumbs = array(
     var outgoing_inventory_table;
     var outgoing_inventory_table_detail;
     var outgoing_inventory_attachment_table;
-    var outgoing_id;
+    var outgoing_inventory_id;
     $(function() {
         outgoing_inventory_table = $('#outgoing-inventory_table').dataTable({
             "filter": true,
@@ -163,11 +162,10 @@ $this->breadcrumbs = array(
                     "targets": [9],
                     "visible": false
                 }],
-             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(9)', nRow).addClass("text-center");
 
             }
-             
         });
 
         $('#outgoing-inventory_table tbody').on('click', 'tr', function() {
@@ -204,8 +202,7 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(9)', nRow).addClass("text-center");
-
+                $('td:eq(11)', nRow).addClass("text-center");
             }
         });
 
@@ -218,8 +215,7 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(0), td:eq(2)', nRow).addClass("text-center");
-
+                $('td:eq(1)', nRow).addClass("text-center");
             }
         });
 
@@ -252,7 +248,7 @@ $this->breadcrumbs = array(
                             type: 'danger'
                         });
 
-                        outgoing_id = "";
+                        outgoing_inventory_id = "";
                     } else {
                         $.growl(data, {
                             icon: 'glyphicon glyphicon-info-sign',
@@ -261,9 +257,9 @@ $this->breadcrumbs = array(
 
                         outgoing_inventory_table.fnMultiFilter();
                     }
-                    
-                    loadOutgoingInvDetails(outgoing_id);
-                    loadAttachmentPreview(outgoing_id);
+
+                    loadOutgoingInvDetails(outgoing_inventory_id);
+                    loadAttachmentPreview(outgoing_inventory_id);
                 },
                 error: function(jqXHR, exception) {
                     alert('An error occured: ' + exception);
@@ -271,7 +267,7 @@ $this->breadcrumbs = array(
             });
             return false;
         });
-        
+
         jQuery(document).on('click', '#outgoing-inventory-details_table a.delete', function() {
             if (!confirm('Are you sure you want to delete this item?'))
                 return false;
@@ -285,8 +281,7 @@ $this->breadcrumbs = array(
                         type: 'success'
                     });
 
-                    loadOutgoingInvDetails(outgoing_id);
-                    loadAttachmentPreview(outgoing_id);
+                    loadOutgoingInvDetails(outgoing_inventory_id);
                 },
                 error: function(jqXHR, exception) {
                     alert('An error occured: ' + exception);
@@ -294,7 +289,7 @@ $this->breadcrumbs = array(
             });
             return false;
         });
-        
+
         jQuery(document).on('click', '#outgoing-inventory-attachment_table a.delete', function() {
             if (!confirm('Are you sure you want to delete this item?'))
                 return false;
@@ -308,8 +303,7 @@ $this->breadcrumbs = array(
                         type: 'success'
                     });
 
-                    loadOutgoingInvDetails(outgoing_id);
-                    loadAttachmentPreview(outgoing_id);
+                    loadAttachmentPreview(outgoing_inventory_id);
                 },
                 error: function(jqXHR, exception) {
                     alert('An error occured: ' + exception);
@@ -317,12 +311,10 @@ $this->breadcrumbs = array(
             });
             return false;
         });
-        
     });
-    
 
     function loadOutgoingInvDetails(outgoing_inv_id) {
-        outgoing_id = outgoing_inv_id
+        outgoing_inventory_id = outgoing_inv_id;
 
         $.ajax({
             type: 'POST',
@@ -375,9 +367,8 @@ $this->breadcrumbs = array(
                 $.each(data.data, function(i, v) {
                     rows++;
                     outgoing_inventory_attachment_table.fnAddData([
-                        v.icon,
                         v.file_name,
-                        v.links,
+                        v.links
                     ]);
                 });
             },

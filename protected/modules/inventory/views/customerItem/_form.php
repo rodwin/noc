@@ -54,7 +54,7 @@
 <br>
 
 <!-- The table listing the files available for upload/download -->
-<div id="uploaded_files" class="row-fluid">
+<div class="row-fluid">
    <table class="table table-striped" id="tbl">
       <tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody>
    </table>

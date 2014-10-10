@@ -29,7 +29,8 @@ class CustomerItemController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'loadTransactionByDRNo', 'loadInventoryDetails', 'customerItemDetailData', 'deleteCustomerItemDetail', 'uploadAttachment', 'preview', 'deleteByUrl', 'download', 'deleteAttachment'),
+                'actions' => array('create', 'update', 'data', 'loadTransactionByDRNo', 'loadInventoryDetails', 'customerItemDetailData', 'deleteCustomerItemDetail', 'uploadAttachment', 'preview', 'download', 'deleteAttachment',
+                    'print', 'loadPDF'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -125,8 +126,8 @@ class CustomerItemController extends Controller {
         $reference_dr_nos = CHtml::listData(IncomingInventory::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id)), "dr_no", "dr_no");
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
-         $model = new Attachment;
-        
+        $model = new Attachment;
+
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
             $data = array();
@@ -134,7 +135,7 @@ class CustomerItemController extends Controller {
             $data["type"] = "success";
             $data['form'] = $_POST['form'];
 
-            if ($_POST['form'] == "transaction") {
+            if ($_POST['form'] == "transaction" || $_POST['form'] == "print") {
 
                 if (isset($_POST['CustomerItem'])) {
                     $customer_item->attributes = $_POST['CustomerItem'];
@@ -152,15 +153,22 @@ class CustomerItemController extends Controller {
                         $data["type"] = "danger";
                     } else {
 
-                        $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
+                        if ($data['form'] == "print") {
 
-                        if ($customer_item->create($transaction_details)) {
-                            $data['message'] = 'Successfully created';
+                            $data['print'] = $_POST;
                             $data['success'] = true;
                         } else {
-                            $data['message'] = 'Unable to process';
-                            $data['success'] = false;
-                            $data["type"] = "danger";
+
+                            $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
+
+                            if ($customer_item->create($transaction_details)) {
+                                $data['message'] = 'Successfully created';
+                                $data['success'] = true;
+                            } else {
+                                $data['message'] = 'Unable to process';
+                                $data['success'] = false;
+                                $data["type"] = "danger";
+                            }
                         }
                     }
                 }
@@ -272,6 +280,7 @@ class CustomerItemController extends Controller {
             "rra_no" => isset($val->incomingInventory->rra_no) ? $val->incomingInventory->rra_no : null,
             "campaign_no" => isset($val->incomingInventory->campaign_no) ? $val->incomingInventory->campaign_no : null,
             "pr_no" => isset($val->incomingInventory->pr_no) ? $val->incomingInventory->pr_no : null,
+            "pr_date" => isset($val->incomingInventory->pr_date) ? $val->incomingInventory->pr_date : null,
             "source_zone_id" => isset($val->incomingInventory->zone_id) ? $val->incomingInventory->zone_id : null,
             "source_zone_name" => isset($val->incomingInventory->zone->zone_name) ? $val->incomingInventory->zone->zone_name : null,
         );
@@ -342,9 +351,9 @@ class CustomerItemController extends Controller {
 
         echo json_encode($data);
     }
-    
+
     public function actionCustomerItemDetailData($customer_item_id) {
-        
+
         $c = new CDbCriteria;
         $c->compare("company_id", Yii::app()->user->company_id);
         $c->compare("customer_item_id", $customer_item_id);
@@ -378,7 +387,6 @@ class CustomerItemController extends Controller {
         }
 
         echo json_encode($output);
-        
     }
 
     /**
@@ -430,7 +438,7 @@ class CustomerItemController extends Controller {
                 // delete customer item details by customer_item_id
                 CustomerItemDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND customer_item_id = " . $id);
                 // delete attachment by customer_item_id as transaction_id
-//                $this->deleteAttachmenntByReceivingInvID($id);
+                $this->deleteAttachmentByCustomerItemID($id);
                 // we only allow deletion via POST request
                 $this->loadModel($id)->delete();
 
@@ -457,7 +465,7 @@ class CustomerItemController extends Controller {
         } else
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
     }
-    
+
     public function actionDeleteCustomerItemDetail($customer_item_detail_id) {
         if (Yii::app()->request->isPostRequest) {
             try {
@@ -482,7 +490,82 @@ class CustomerItemController extends Controller {
         } else
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
     }
-    
+
+    public function deleteAttachmentByCustomerItemID($customer_item_id, $transaction_type = Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE) {
+        $attachment = Attachment::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "transaction_type" => $transaction_type, "transaction_id" => $customer_item_id));
+
+        if (count($attachment) > 0) {
+            $base = Yii::app()->getBaseUrl(true);
+            $arr = explode("/", $base);
+            $base = $arr[count($arr) - 1];
+
+            Attachment::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND transaction_type = '" . $transaction_type . "' AND transaction_id = " . $customer_item_id);
+            $this->delete_directory('../' . $base . "/protected/uploads/" . Yii::app()->user->company_id . "/attachments/" . $transaction_type . "/" . $customer_item_id);
+        } else {
+            return false;
+        }
+    }
+
+    function delete_directory($dirname) {
+        if (is_dir($dirname)) {
+            $dir_handle = opendir($dirname);
+        } else {
+            return false;
+        }
+
+        if (!$dir_handle) {
+            return false;
+        }
+
+        while ($file = readdir($dir_handle)) {
+            if ($file != "." && $file != "..") {
+                if (!is_dir($dirname . "/" . $file))
+                    unlink($dirname . "/" . $file);
+                else
+                    delete_directory($dirname . '/' . $file);
+            }
+        }
+        closedir($dir_handle);
+        rmdir($dirname);
+        return true;
+    }
+
+    public function actionDeleteAttachment($attachment_id) {
+        if (Yii::app()->request->isPostRequest) {
+            try {
+
+                $attachment = Attachment::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "attachment_id" => $attachment_id));
+
+                if ($attachment) {
+                    Attachment::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND attachment_id = '" . $attachment->attachment_id . "'");
+
+                    $base = Yii::app()->getBaseUrl(true);
+                    $arr = explode("/", $base);
+                    $base = $arr[count($arr) - 1];
+                    $url = str_replace(Yii::app()->getBaseUrl(true), "", $attachment->url);
+                    unlink('../' . $base . $url);
+                } else {
+                    throw new CHttpException(404, 'The requested page does not exist.');
+                }
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    echo "1451";
+                    exit;
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
 
     /**
      * Lists all models.
@@ -535,7 +618,7 @@ class CustomerItemController extends Controller {
             Yii::app()->end();
         }
     }
-    
+
     public function actionUploadAttachment() {
         header('Vary: Accept');
         if (isset($_SERVER['HTTP_ACCEPT']) &&
@@ -551,15 +634,13 @@ class CustomerItemController extends Controller {
         if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
 
             $file = CUploadedFile::getInstance($model, 'file');
-//         $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'attachment' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR .Yii::app()->session['tid'];
-            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . 'customer_items' . DIRECTORY_SEPARATOR . Yii::app()->session['tid'];
+            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . Yii::app()->session['tid'];
             if (!is_dir($dir)) {
                 mkdir($dir, 0777, true);
             }
 
             $file_name = str_replace(' ', '_', strtolower($file->name));
-//         $url = Yii::app()->getBaseUrl(true) . '/attachment/' . Yii::app()->user->company_id . '/' . Yii::app()->session['tid'] . '/' . $file_name;
-            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/customer_items/' . Yii::app()->session['tid'] . '/' . $file_name;
+            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . Yii::app()->session['tid'] . DIRECTORY_SEPARATOR . $file_name;
             $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
             $model->attachment_id = Globals::generateV4UUID();
@@ -568,7 +649,7 @@ class CustomerItemController extends Controller {
             $model->file_name = $file_name;
             $model->url = $url;
             $model->transaction_id = Yii::app()->session['tid'];
-            $model->transaction_type = 'customer items';
+            $model->transaction_type = Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE;
             $model->created_by = Yii::app()->user->name;
 
             if ($model->save()) {
@@ -578,9 +659,7 @@ class CustomerItemController extends Controller {
                     'type' => $file->type,
                     'size' => $file->size,
                     'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
-                    'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name,
-//                    'delete_url' => $this->createUrl('my/delete', array('id' => 1, 'method' => 'uploader')),
-//                    'delete_type' => 'POST',
+                    'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name
                 );
             } else {
 
@@ -599,10 +678,11 @@ class CustomerItemController extends Controller {
     }
 
     function actionPreview($id) {
+
         $c = new CDbCriteria;
         $c->compare("company_id", Yii::app()->user->company_id);
         $c->compare("transaction_id", $id);
-        $c->compare("transaction_type", "customer items");
+        $c->compare("transaction_type", Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE);
         $attachment = Attachment::model()->findAll($c);
 
         $output = array();
@@ -616,12 +696,12 @@ class CustomerItemController extends Controller {
                 $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "pdf.png", "Image", array("width" => 30));
             } else if ($ext->getExtension() == "docx" || $ext->getExtension() == "doc") {
                 $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "doc.png", "Image", array("width" => 30));
+            } else if ($ext->getExtension() == "xls" || $ext->getExtension() == "xlsx") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "xls.png", "Image", array("width" => 30));
             }
 
-
             $row = array();
-            $row['icon'] = $icon;
-            $row['file_name'] = $value->file_name;
+            $row['file_name'] = $icon . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . $value->file_name;
 
             $row['links'] = '<a class="btn btn-sm btn-default" title="Delete" href="' . $this->createUrl('/inventory/customeritem/download', array('id' => $value->attachment_id)) . '">
                                 <i class="glyphicon glyphicon-download"></i>
@@ -636,60 +716,322 @@ class CustomerItemController extends Controller {
         echo json_encode($output);
     }
 
-    function actionDeleteByUrl($id) {
-
-        $sql = "SELECT url FROM noc.attachment WHERE attachment_id = :attachment_id AND company_id = '" . Yii::app()->user->company_id . "'";
-
-        $command = Yii::app()->db->createCommand($sql);
-        $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
-        $data = $command->queryAll();
-        foreach ($data as $key => $value) {
-            $url = $value['url'];
-        }
-        //$url = substr($url, 16);
-        $base = Yii::app()->getBaseUrl(true);
-        $arr = explode("/", $base);
-        $base = $arr[count($arr) - 1];
-        $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
-        //pre('../' .$base . $url);
-        unlink('../' . $base . $url);
-
-        $sql = "DELETE FROM noc.attachment WHERE attachment_id = :attachment_id AND company_id = '" . Yii::app()->user->company_id . "'";
-
-        $command = Yii::app()->db->createCommand($sql);
-        $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
-        $data = $command->query();
-
-        $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-    }
-
     public function actionDownload($id) {
 
-        $sql = "SELECT url, file_name FROM noc.attachment WHERE attachment_id = :attachment_id AND company_id = '" . Yii::app()->user->company_id . "'";
+        $attachment = Attachment::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "attachment_id" => $id));
 
-        $command = Yii::app()->db->createCommand($sql);
-        $command->bindParam(':attachment_id', $id, PDO::PARAM_STR);
-        $data = $command->queryAll();
-        foreach ($data as $key => $value) {
-            $url = $value['url'];
-            $name = $value['file_name'];
-        }
-        $model = new CustomerItem;
+        $url = $attachment->url;
+        $name = $attachment->file_name;
 
-
-//      $name = $_GET['file'];
-//      $upload_path = Yii::app()->params['uploadPath'];
         $base = Yii::app()->getBaseUrl(true);
         $arr = explode("/", $base);
         $base = $arr[count($arr) - 1];
         $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
 
         if (file_exists('../' . $base . $url)) {
+
             Yii::app()->getRequest()->sendFile($name, file_get_contents('../' . $base . $url));
-            $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
         } else {
-            
+
+            throw new CHttpException(500, "Could not download file.");
         }
+    }
+
+    public function actionPrint() {
+
+        unset(Yii::app()->session["post_pdf_data_id"]);
+
+        Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
+        Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = Yii::app()->request->getParam('post_data');
+
+        $return = array();
+        if (Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] == "") {
+            $return["success"] = false;
+            return false;
+        }
+
+        $return["success"] = true;
+        $return["id"] = Yii::app()->session["post_pdf_data_id"];
+
+        echo json_encode($return);
+        Yii::app()->end();
+    }
+
+    public function actionLoadPDF($id) {
+
+        $data = Yii::app()->session[$id];
+
+        ob_start();
+
+        $headers = $data['CustomerItem'];
+        $details = $data['transaction_details'];
+
+        $c1 = new CDbCriteria();
+        $c1->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.zone_id = "' . $headers['source_zone_id'] . '"';
+        $c1->with = array("salesOffice");
+        $zone = Zone::model()->find($c1);
+
+        $c2 = new CDbCriteria();
+        $c2->select = new CDbExpression('t.*, CONCAT(TRIM(barangay.barangay_name), ", ", TRIM(municipal.municipal_name), ", ", TRIM(province.province_name), ", ", TRIM(region.region_name)) AS full_address');
+        $c2->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = "' . $zone->salesOffice->sales_office_id . '"';
+        $c2->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
+        $c2->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
+        $c2->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
+        $c2->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
+        $salesoffice = Salesoffice::model()->find($c2);
+
+        $sales_office_name = isset($salesoffice->sales_office_name) ? $salesoffice->sales_office_name : "";
+        $sales_office_address = isset($salesoffice->full_address) ? $salesoffice->full_address : "";
+
+        $transaction_date = $headers['transaction_date'];
+        $plan_delivery_date = $headers['plan_delivery_date'];
+        $reference_no = $headers['reference_dr_no'];
+        $pr_no = $headers['pr_no'];
+        $rra_no = $headers['rra_no'];
+        $dr_no = $headers['dr_no'];
+
+        $c3 = new CDbCriteria();
+        $c3->select = new CDbExpression('t.*, TRIM(barangay.barangay_name) as barangay_name, TRIM(municipal.municipal_name) as municipal_name, TRIM(province.province_name) as province_name, TRIM(region.region_name) as region_name');
+        $c3->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.poi_id = "' . $headers['poi_id'] . '"';
+        $c3->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
+        $c3->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
+        $c3->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
+        $c3->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
+        $poi = Poi::model()->find($c3);
+
+        $poi_name = $poi->short_name;
+        $poi_address = isset($poi->barangay_name) ? $poi->barangay_name . ", " : "";
+        $poi_address .= isset($poi->municipal_name) ? $poi->municipal_name . ", " : "";
+        $poi_address .= isset($poi->province_name) ? $poi->province_name . ", " : "";
+        $poi_address .= isset($poi->region_name) ? $poi->region_name : "";
+
+        $pdf = Globals::pdf();
+
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        $pdf->SetFont('DejaVu Sans', '#000', 10);
+
+        $pdf->AddPage();
+
+        $html = '
+            <style type="text/css">
+                .text-center { text-align: center; }
+                .title { font-size: 12px; }
+                .sub-title { font-size: 10px; }
+                .title-report { font-size: 15px; font-weight: bold; } 
+                .table_main { font-size: 8px; }
+                .table_details { font-size: 8px; width: 100%; }
+                .table_footer { font-size: 8px; width: 100%; }
+                .border-bottom { border-bottom: 1px solid #333; font-size: 8px; }
+                .row_label { width: 120px; }
+                .row_content_sm { width: 100px; }
+                .row_content_lg { width: 300px; }
+                .noted { font-size: 8px; }
+            </style>
+
+            <div id="header" class="text-center">
+                <span class="title">ASIA BREWERY INCORPORATED</span><br/>
+                <span class="sub-title">6th FLOOR ALLIED BANK CENTER, AYALA AVENUE, MAKATI CITY</span><br/>
+                <span class="title-report">DELIVERY RECEIPT</span>
+            </div><br/><br/>
+        
+            <table class="table_main">
+                <tr>
+                    <td clss="row_label">SALES OFFICE NAME</td>
+                    <td class="border-bottom row_content_lg">' . $sales_office_name . '</td>
+                    <td style="width: 10px;"></td>
+                    <td clss="row_label">DELIVERY DATE</td>
+                    <td class="border-bottom row_content_sm">' . $transaction_date . '</td>
+                </tr>
+                <tr>
+                    <td>ADDRESS</td>
+                    <td class="border-bottom">' . $sales_office_address . '</td>
+                    <td></td>
+                    <td>PLAN DATE</td>
+                    <td class="border-bottom">' . $plan_delivery_date . '</td>
+                </tr>
+            </table><br/><br/>
+            
+            <table class="table_main">
+                <tr>
+                    <td clss="row_label">REFERENCE NUMBER</td>
+                    <td class="border-bottom row_content_sm">' . $reference_no . '</td>
+                    <td style="width: 10px;"></td>
+                    <td clss="row_label">CUSTOMER NAME</td>
+                    <td class="border-bottom row_content_lg">' . $poi_name . '</td>
+                </tr>
+                <tr>
+                    <td clss="row_label">PR NUMBER</td>
+                    <td class="border-bottom row_content_sm">' . $pr_no . '</td>
+                    <td style="width: 10px;"></td>
+                    <td clss="row_label">CONTACT PERSON</td>
+                    <td class="border-bottom row_content_lg"></td>
+                </tr>
+                <tr>
+                    <td>RRA NUMBER</td>
+                    <td class="border-bottom">' . $rra_no . '</td>
+                    <td></td>
+                    <td>ADDRESS</td>
+                    <td class="border-bottom">' . $poi_address . '</td>
+                </tr>
+                <tr>
+                    <td>DR NUMBER</td>
+                    <td class="border-bottom">' . $dr_no . '</td>
+                    <td colspan="3"></td>
+                </tr>
+            </table><br/><br/><br/>  
+        
+            <table class="table_details" border="1">
+                <tr>
+                    <td>MM CODE</td>
+                    <td>MM DESCRIPTION</td>
+                    <td>MM BRAND</td>
+                    <td>MM CATEGORY</td>
+                    <td>ALLOCATION</td>
+                    <td>QUANTITY ISSUED</td>
+                    <td>UOM</td>
+                    <td>UNIT PRICE</td>
+                    <td>AMOUNT</td>
+                    <td>EXPIRY DATE</td>
+                    <td>REMARKS</td>
+                </tr>';
+
+        $planned_qty = 0;
+        $actual_qty = 0;
+        $total_unit_price = 0;
+        foreach ($details as $key => $val) {
+            $sku = Sku::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sku_id" => $val['sku_id']));
+            $uom = UOM::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $val['uom_id']));
+            $uom_name = isset($uom->uom_name) ? $uom->uom_name : "";
+
+            $html .= '<tr>
+                            <td>' . $sku->sku_code . '</td>
+                            <td>' . $sku->description . '</td>
+                            <td>' . $sku->brand->brand_name . '</td>
+                            <td>' . $sku->type . '</td>
+                            <td>' . $val['planned_quantity'] . '</td>
+                            <td>' . $val['quantity_issued'] . '</td>
+                            <td>' . $uom_name . '</td>
+                            <td>&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
+                            <td>&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
+                            <td>' . $val['expiration_date'] . '</td>
+                            <td>' . $val['remarks'] . '</td>
+                        </tr>';
+
+            $planned_qty += $val['planned_quantity'];
+            $actual_qty += $val['quantity_issued'];
+            $total_unit_price += $val['unit_price'];
+        }
+
+        $html .= '<tr>
+                    <td colspan="11"></td>
+                </tr>';
+
+        $html .= '<tr>
+                    <td colspan="11"></td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align: right;">GRAND TOTAL</td>
+                    <td>' . $planned_qty . '</td>
+                    <td>' . $actual_qty . '</td>
+                    <td></td>
+                    <td>&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
+                    <td>&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
+                    <td colspan="2"></td>
+                </tr>';
+
+        $html .= '</table><br/><br/><br/>
+            
+               <table class="table_footer">
+                    <tr>
+                        <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">REMARKS</td>
+                        <td style="width: 30px;"></td>
+                        <td style="width: 80px;">SHIPPED VIA:</td>
+                        <td class="border-bottom" style="width: 120px;"></td>
+                        <td style="width: 30px;"></td>
+                        <td style="width: 100px;">TRUCK NO.:</td>
+                        <td class="border-bottom" style="width: 130px;"></td>
+                    </tr>
+                    <tr>
+                        <td rowspan="5" style="border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td>
+                        <td colspan="2"></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>CHECKED BY:</td>
+                        <td class="border-bottom"></td>
+                        <td></td>
+                        <td>DRIVER"S NAME:</td>
+                        <td class="border-bottom"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>AUTHORIZED BY:</td>
+                        <td class="border-bottom"></td>
+                        <td></td>
+                        <td>DRIVER"S SIGNATURE:</td>
+                        <td class="border-bottom"></td>
+                    </tr>
+                    <tr><td colspan="6"></td></tr>
+                    <tr><td colspan="6"></td></tr>
+                    <tr>
+                        <td colspan="5"></td>
+                        <td colspan="2">Received the above goods in good order and condition</td>
+                    </tr>
+                    <tr><td colspan="6"></td></tr>
+                    <tr><td colspan="6"></td></tr>
+                    <tr><td colspan="6"></td></tr>
+                    <tr><td colspan="6"></td></tr>
+                    <tr>
+                        <td colspan="5"></td>
+                        <td colspan="2" class="border-bottom"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5"></td>
+                        <td colspan="2" style="text-align: center;">NAME & SIGNATURE OF RECEIPIENT</td>
+                    </tr>
+                </table><br/><br/><br/><br/><br/>';
+        
+        $html .= '<table class="noted" style="border-style: dashed dashed dashed dashed;">
+                    <tr>
+                        <td>Noted:</td>
+                        <td colspan="11"></td>
+                    </tr> 
+                    <tr>
+                        <td></td>
+                        <td colspan="2"><b>TERM</b></td>
+                        <td colspan="2"><b>DEEFINITION</b></td>
+                        <td colspan="6"></td>
+                    </tr>  
+                    <tr><td colspan="11"></td></tr>
+                    <tr>
+                        <td></td>
+                        <td colspan="2">Allocation</td>
+                        <td colspan="2">Planned QTY</td>
+                        <td colspan="6"></td>
+                    </tr>    
+                    <tr>
+                        <td></td>
+                        <td colspan="2">Qty Issued</td>
+                        <td colspan="2">Actual QTY</td>
+                        <td colspan="6"></td>
+                    </tr>  
+                    <tr>
+                        <td></td>
+                        <td colspan="2">Refe Num</td>
+                        <td colspan="2">Ref DR (source no.)</td>
+                        <td colspan="6"></td>
+                    </tr>  
+                    <tr><td colspan="11"></td></tr>              
+                </table>';
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        $pdf->Output('outgoing.pdf', 'I');
     }
 
 }
