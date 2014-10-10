@@ -151,10 +151,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="col-md-6">
             <div id="input_label" class="pull-left col-md-5">
-                <?php echo $form->labelEx($incoming, 'transaction_date'); ?>
+                <?php echo $form->labelEx($incoming, 'transaction_date'); ?><br/>
+                <?php echo $form->labelEx($incoming, 'dr_date'); ?>
             </div>
             <div class="pull-right col-md-7">
                 <?php echo $form->textFieldGroup($incoming, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'value' => date("Y-m-d"), 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+
+                <?php echo $form->textFieldGroup($incoming, 'dr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
             </div>
         </div>
 
@@ -207,7 +210,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         'class' => 'span5',
                     ),
                     'widgetOptions' => array(
-                        'htmlOptions' => array('style' => 'resize: none; width: 200px;'),
+                        'htmlOptions' => array('class' => 'ignore', 'style' => 'resize: none; width: 200px;', 'maxlength' => 150),
                     ),
                     'labelOptions' => array('label' => false)));
                 ?>
@@ -916,6 +919,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     transaction_table.fnDeleteRow(0, null, true);
                 }
 
+                $("#IncomingInventory_dr_date").val(data.headers.dr_date);
                 $("#IncomingInventory_campaign_no").val(data.headers.campaign_no);
                 $("#IncomingInventory_pr_no").val(data.headers.pr_no);
                 $("#IncomingInventory_pr_date").val(data.headers.pr_date);
@@ -1068,7 +1072,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     $(function() {
-        $('#IncomingInventory_transaction_date, #IncomingInventory_pr_date, #IncomingInventory_plan_delivery_date, #IncomingInventory_revised_delivery_date, #IncomingInventoryDetail_expiration_date, #IncomingInventoryDetail_return_date').datepicker({
+        $('#IncomingInventory_transaction_date, #IncomingInventory_dr_date, #IncomingInventory_pr_date, #IncomingInventory_plan_delivery_date, #IncomingInventory_revised_delivery_date, #IncomingInventoryDetail_expiration_date, #IncomingInventoryDetail_return_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'});

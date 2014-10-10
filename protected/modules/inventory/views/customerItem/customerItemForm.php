@@ -207,7 +207,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->labelEx($customer_item, 'poi_id'); ?><br/>
                 <?php echo $form->label($customer_item, 'Outlet Code'); ?><br/>
-                <?php echo $form->label($customer_item, 'Address'); ?>
+                <?php echo $form->label($customer_item, 'Address'); ?><br/>
+                <?php echo $form->labelEx($customer_item, 'remarks'); ?>
 
             </div>
             <div class="pull-right col-md-7">
@@ -217,6 +218,17 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <div id="CustomerItem_poi_primary_code" class="autofill_text"></div>
                 <div id="CustomerItem_poi_address1" class="autofill_text"></div>
+                
+                <?php
+                echo $form->textAreaGroup($customer_item, 'remarks', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => 'span5',
+                    ),
+                    'widgetOptions' => array(
+                        'htmlOptions' => array('class' => 'ignore', 'style' => 'resize: none; width: 200px;', 'maxlength' => 150),
+                    ),
+                    'labelOptions' => array('label' => false)));
+                ?>                
 
             </div>
         </div>

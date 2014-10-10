@@ -325,6 +325,7 @@ class IncomingInventoryController extends Controller {
         }
 
         $header = array(
+            "dr_date" => isset($value->outgoingInventory->dr_date) ? $value->outgoingInventory->dr_date : null,
             "campaign_no" => isset($value->outgoingInventory->campaign_no) ? $value->outgoingInventory->campaign_no : null,
             "pr_no" => isset($value->outgoingInventory->pr_no) ? $value->outgoingInventory->pr_no : null,
             "pr_date" => isset($value->outgoingInventory->pr_date) ? $value->outgoingInventory->pr_date : null,
@@ -844,7 +845,7 @@ class IncomingInventoryController extends Controller {
         $pr_no = $headers['pr_no'];
         $rra_no = $headers['rra_no'];
         $dr_no = $headers['dr_no'];
-        $dr_date = "";
+        $dr_date = $headers['dr_date'];
 
         $pdf = Globals::pdf();
 

@@ -954,7 +954,7 @@ class CustomerItemController extends Controller {
                         <td class="border-bottom" style="width: 130px;"></td>
                     </tr>
                     <tr>
-                        <td rowspan="5" style="border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"></td>
+                        <td rowspan="5" style="border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"><br/><br/>' . $headers['remarks'] . '</td>
                         <td colspan="2"></td>
                     </tr>
                     <tr>
