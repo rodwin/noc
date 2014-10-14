@@ -55,6 +55,11 @@ class Attendance extends CFormModel {
     * @soap
     */
     public $teamlead;
+    /**
+    * @var string year
+    * @soap
+    */
+    public $year;
     
     
     
@@ -70,6 +75,7 @@ class Attendance extends CFormModel {
                     'quarter'=>'Quarter',
                     'brand'=>'Brand',
                     'teamlead'=>'Teamlead',
+                    'year'=>'Year',
 
             );
     }

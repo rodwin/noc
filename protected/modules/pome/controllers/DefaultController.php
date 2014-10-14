@@ -72,6 +72,11 @@ class DefaultController extends Controller
             $qtr[1]['name']='AMJ';
             $qtr[2]['name']='JAS';
             $qtr[3]['name']='OND';
+            
+            $year[0]['id']='2013';
+            $year[1]['id']='2014';
+            $year[2]['id']='2015';
+            $year[3]['id']='2016';
 
             
                 
@@ -83,6 +88,7 @@ class DefaultController extends Controller
             $qtr = CHtml::listData($qtr, 'name', 'name');
             $brand= CHtml::listData($data2,'id', 'name');
             $teamlead= CHtml::listData($data3,'parent_leader', 'code');
+            $year= CHtml::listData($year,'id', 'id');
 
    
 
@@ -96,6 +102,7 @@ class DefaultController extends Controller
                 'brand' => $brand,
                 'qtr' => $qtr,
                 'teamlead' => $teamlead,
+                'year' => $year,
 
             ));
 		
@@ -133,120 +140,113 @@ class DefaultController extends Controller
                 $province = 0;
             }
             $month = $_GET['month'];
-            $data_ = $pome->getAttendance($region,$province,$_GET['month'],$_GET['brand']);
-            $data_bws = $pome->getBwsRoute($_GET['agency'],$region,$province,$_GET['month'],$_GET['brand']);
-            $ac = $pome->GetAttendanceCount();
-            $attendance_count = array();
-            foreach($ac as $keyac => $valac){
-                $attendance_count[$valac['monthly_id']] = $valac['target'];
-            }
+            $data_actual = $pome->getActualAttendance($_GET['month'],$_GET['brand'],$_GET['year']);
+            $data_actual_half = $pome->getReasonHalfday($_GET['month'],$_GET['brand'],$_GET['year']);
+            $data_bws = $pome->getBwsRoute($_GET['agency'],$region,$province,$_GET['month'],$_GET['brand'],$_GET['year']);
 
-            $data_attendance = $pome->getAttendance($_GET['agency'],$region,$province,$_GET['month'],$_GET['brand']);
-            
             $rt_details = array();
-            foreach($data_attendance as $keya => $vala){
+            foreach($data_actual as $keya => $vala){
                 
-                if(isset($data_attendance[$keya-1])){
-                    if($data_attendance[$keya-1]['name'] == $vala['name']){                 
-                        $rt_details[$vala['id']] =$vala['reason_code'];
+                if(isset($data_actual[$keya-1])){
+                    if($data_actual[$keya-1]['id'] == $vala['id']){                 
+                        $rt_details[$vala['id']]['rt_reason'] =$vala['reason_code'];
+                        $rt_details[$vala['id']]['rtd_reason'] =''; 
                     }else{
-                        $rt_details[$vala['id']] =$vala['reason_code']; 
+                        $rt_details[$vala['id']]['rt_reason'] =$vala['reason_code'];
+                        $rt_details[$vala['id']]['rtd_reason'] =''; 
                     }
                     
                 }else{
-                        $rt_details[$vala['id']] =$vala['reason_code']; 
+                        $rt_details[$vala['id']]['rt_reason'] =$vala['reason_code']; 
+                        $rt_details[$vala['id']]['rtd_reason'] =''; 
                 }
                 
             }
-          
+           
+            foreach($data_actual_half as $keyb => $valb){
+                
+                if(isset($rt_details[$valb['id']])){
+                  
+                   $rt_details[$valb['id']]['rtd_reason'] = $valb['reason_code'] ;  
+                }
+                
+            }
+//            pr($rt_details);
+//            exit;
             $attendance =array();
             $count = 0;
             $key_count =0;
             $bws_count = 1;
+            $target_attendance = 0;
+            $actual_attendance=0;
+            $value =0;
+            unset($data_actual);
+            unset($data_actual_half);
             foreach($data_bws as $key => $val){
                 
                  if(isset($data_bws[$key-1])){
                 
                     if($data_bws[$key-1]['name'] == $val['name'] ){
                         
-                    
-                        if($val['reason_code'] == '001'){
-                          $count+=0;
-                          $attendance[$key_count]['attendance'] = $count;  
-                          $attendance[$key_count]['name'] = $val['name'];     
-                        }else{
-                            if(isset($rt_details[$val['id']])){
-                               $count+=0.5; 
+                        $target_attendance++;
+                        $attendance[$key_count]['name'] = $val['name'];
+                        $attendance[$key_count]['target_attendance'] = $target_attendance;
+                        if(isset($rt_details[$val['id']])){
+                            if($rt_details[$val['id']]['rt_reason']== '001' && $rt_details[$val['id']]['rt_reason']!= null ){
+                                $actual_attendance =0;
+                                $attendance[$key_count]['actual_attendance'] += $actual_attendance;
+                            }elseif($rt_details[$val['id']]['rtd_reason']== '004' && $rt_details[$val['id']]['rtd_reason']!= null ){
+                                $actual_attendance =0.5;
+                                $attendance[$key_count]['actual_attendance'] += $actual_attendance;
                             }else{
-                               $count+=1;
+                                $actual_attendance =1;
+                                $attendance[$key_count]['actual_attendance'] += $actual_attendance; 
                             }
-                          
-                          $attendance[$key_count]['attendance'] = $count;  
-                          $attendance[$key_count]['name'] = $val['name'];  
-                          
                         }
-                        
-                        if($data_bws[$key-1]['pps_id'] == $val['pps_id'] ){
-                            $bws_count +=0; 
-                        }else{
-                            $bws_count +=1;
-                        }
-                        $attendance[$key_count]['count'] = $bws_count;
-                       
                     }else{
-                        $bws_count =1;
+                        $target_attendance = 0;
+                        $target_attendance++;
                         $key_count++;
-                        $count =0;
-                        if($val['reason_code'] == '001'){
-                          $count+=0;
-                          $attendance[$key_count]['attendance'] = $count;  
-                          $attendance[$key_count]['name'] = $val['name'];     
-                        }else{
-                            if(isset($rt_details[$val['id']])){
-                               $count+=0.5; 
+                        $value = 0;
+                        $attendance[$key_count]['name'] = $val['name'];
+                        $attendance[$key_count]['target_attendance'] = $target_attendance;
+                        $attendance[$key_count]['actual_attendance'] = 0;
+                        if(isset($rt_details[$val['id']])){
+                            if($rt_details[$val['id']]['rt_reason']== '001' && $rt_details[$val['id']]['rt_reason']!= null ){
+                                $actual_attendance =0;
+                                $attendance[$key_count]['actual_attendance'] += $actual_attendance;
+                            }elseif($rt_details[$val['id']]['rtd_reason']== '004' && $rt_details[$val['id']]['rtd_reason']!= null ){
+                                $actual_attendance =0.5;
+                                $attendance[$key_count]['actual_attendance'] += $actual_attendance;
                             }else{
-                               $count+=1;
+                                $actual_attendance =1;
+                                $attendance[$key_count]['actual_attendance'] += $actual_attendance; 
                             }
-                        
-                          $attendance[$key_count]['attendance'] = $count;  
-                          $attendance[$key_count]['name'] = $val['name']; 
-                          $attendance[$key_count]['ac_count'] = $attendance_count[$month];  
                         }
-                        
-                        if($data_bws[$key-1]['pps_id'] == $val['pps_id'] ){
-                           $bws_count +0; 
-                        }else{
-                            $bws_count +1;
-                        }
-                        $attendance[$key_count]['count'] = $bws_count;
-                        $attendance[$key_count]['ac_count'] = $attendance_count[$month];  
                     }
                  
                 }else{
-                        if($val['reason_code'] == '001'){
-                          $count+=0;
-                          $attendance[$key_count]['attendance'] = $count;  
-                          $attendance[$key_count]['name'] = $val['name'];   
-                        }else{
-                            if(isset($rt_details[$val['id']])){
-                                $count+=0.5; 
-                            }else{
-                                $count+=1; 
-                            }
-                            
-                          $attendance[$key_count]['attendance'] = $count;  
-                          $attendance[$key_count]['name'] = $val['name'];  
-                         
-                        }  
-                         
-                           $bws_count +1;
-                          
-                           $attendance[$key_count]['count'] = $bws_count;  
-                           $attendance[$key_count]['ac_count'] = $attendance_count[$month];  
+                    
+                    $target_attendance++;
+                    $attendance[$key_count]['name'] = $val['name'];
+                    $attendance[$key_count]['target_attendance'] = $target_attendance;
+                    $attendance[$key_count]['actual_attendance'] = 0;
+                    if(isset($rt_details[$val['id']])){
+                        if($rt_details[$val['id']]['rt_reason']== '001' && $rt_details[$val['id']]['rt_reason']!= null ){
+                            $actual_attendance =0;                      
+                            $attendance[$key_count]['actual_attendance'] += $actual_attendance;
+                        }elseif($rt_details[$val['id']]['rtd_reason']== '004' && $rt_details[$val['id']]['rtd_reason']!= null ){
+                            $actual_attendance =0.5;
+                            $attendance[$key_count]['actual_attendance'] += $actual_attendance;
+                        }else{                          
+                            $actual_attendance =1;
+                            $attendance[$key_count]['actual_attendance'] += $actual_attendance; 
+                        }
+                    }
                    
                 }
             }
-            unset($attendance_count);
+
             unset($rt_details);
 //            pr($attendance);
             echo json_encode($attendance);
@@ -276,105 +276,110 @@ class DefaultController extends Controller
                
             }
             
-           
             $detailed = new Pome;
-            $reach = $detailed->getTargetReach($_GET['month'],$ph,$_GET['brand']);
+           
+            $bws_route = $detailed->getBwsRouteDetailedReach($_GET['agency'],$region,$_GET['month'],$_GET['brand'],$_GET['year']);
+//            $bws = $detailed->getBwsByAgency($region,$province,$_GET['agency'],$_GET['brand']);        
+//            
+            $reach = $detailed->getTargetReach($_GET['month'],$ph,$_GET['brand'],$_GET['year']);
+            $bws_target = array();
+            $bws_actual = array();
+            $bws_par = array();          
+            $detail_array =array();
             
-            $bws_reach = array();
-            $str = '';
-            foreach($reach as $keya => $vala){
-                $str .=$vala['id'].",";
-                $bws_reach[$vala['id']] =$vala['reach'];  
+            $str='';
+            foreach($reach as $key => $val){
+                $bws_target[$val['id']] =$val['reach'];
+                $str .=$val['id'].",";
+            }            
+            $str = substr($str, 0, -1);
+            
+            $actual = $detailed->getActualReach($_GET['month'],$ph,$str);          
+            foreach($actual as $keya=> $vala){
+                $bws_actual[$vala['route_id']]['reach'] = $vala['reach'];
             }
-
-            $str = substr($str, 0, -1); 
-            $bws = $detailed->getBwsByAgency($region,$province,$_GET['agency'],$_GET['brand'],$str);
-          
-            $actual = $detailed->getActualReach($_GET['month'],$ph,$str);
-            
-            $actual_array = array();
-            $value_actual = 0;
-            $key_count_actual = 0;
-            foreach($actual as $keyb => $valb){
-                
-                if(isset($actual[$keyb-1])){
-                
-                    if($actual[$keyb-1]['route_id'] == $valb['route_id'] ){   
-                        
-                        $value_actual +=$valb['reach'];
-                        $actual_array[$valb['route_id']]=$value_actual;
-                                           
-                    }else{
-                   
-                        $value_actual =0;
-                        
-                        $value_actual =$valb['reach'];
-                        $actual_array[$valb['route_id']] =$value_actual;
-                        
-                    }
-                 
-                }else{                 
-                        $value_actual =$valb['reach'];
-                        $actual_array[$valb['route_id']] =$value_actual;
-                } 
+ 
+            $data_actual_par = $detailed->getParDetailedReach($_GET['agency'],$region,$_GET['month'],$_GET['brand'],$_GET['year']);
+            foreach($data_actual_par as $keyb=> $valb){
+                $bws_par[$valb['name']] = $valb['par'];
             }
             
-            $detail_array = array();
             $key_count = 0;
-            $value = 0;
-            $values =0;
-            foreach($bws as $key => $val){
-                if(isset($bws[$key-1])){
+            $target_reach = 0;
+            $actual_reach = 0;
+            $target_attendance = 0;
+            $actual_attendance=0;
+            foreach($bws_route as $keyc=>$valc){
                 
-                    if($bws[$key-1]['name'] == $val['name'] ){  
-                        
-                        $detail_array[$key_count]['name'] =$val['name']; 
-                        $detail_array[$key_count]['id'] =$val['id'];
-                        if(isset($bws_reach[$val['id']])){
-                            $value +=$bws_reach[$val['id']];
-                            $detail_array[$key_count]['target_reach'] = $value; 
-                        }else{
-                            $detail_array[$key_count]['target_reach'] = 0; 
-                        }   
-                        if(isset($actual_array[$val['id']])){
-                             $values +=$actual_array[$val['id']];
-                             $detail_array[$key_count]['actual_reach'] =$values;  
+                 if(isset($bws_route[$keyc-1])){
+                
+                    if($bws_route[$keyc-1]['name'] == $valc['name'] ){
+                        $target_attendance++;
+                        $detail_array[$key_count]['name'] = $valc['name'];
+                        $detail_array[$key_count]['target_attendance'] = $target_attendance;
+                        if(isset($bws_target[$valc['id']])){
+                            $target_reach +=$bws_target[$valc['id']];
+                            $detail_array[$key_count]['target_reach'] = $target_reach ;
                         }
+                        if(isset($bws_actual[$valc['id']]['reach'])){
+                            $actual_reach +=$bws_actual[$valc['id']]['reach'];
+                            $detail_array[$key_count]['actual_reach'] =$actual_reach ;
+                        }
+                        
+//                        $actual_attendance =1;
+//                        $detail_array[$key_count]['actual_attendance'] += $actual_attendance; 
+                         $detail_array[$key_count]['par'] = $bws_par[$valc['name']]; 
+                            
+                       
+                    
                     }else{
                         $key_count++;
-                        $value =0;
-                        $values =0;
-                        $detail_array[$key_count]['name'] =$val['name'];
-                        $detail_array[$key_count]['id'] =$val['id'];
-                        if(isset($bws_reach[$val['id']])){
-                            $value =$bws_reach[$val['id']];
-                            $detail_array[$key_count]['target_reach'] =$value;  
-                        }else{
-                            $detail_array[$key_count]['target_reach'] = 0; 
+                        $target_reach=0;
+                        $actual_reach=0;
+                        $target_attendance = 0;
+                        $target_attendance++;
+                        $detail_array[$key_count]['name'] = $valc['name'];
+                        $detail_array[$key_count]['target_attendance'] = $target_attendance;
+                        $detail_array[$key_count]['actual_attendance'] = 0;
+                        $detail_array[$key_count]['target_reach'] = 0;
+                        if(isset($bws_target[$valc['id']])){
+                            $target_reach +=$bws_target[$valc['id']];
+                            $detail_array[$key_count]['target_reach'] = $target_reach ;
                         }
-                        if(isset($actual_array[$val['id']])){
-                             $values =$actual_array[$val['id']];
-                             $detail_array[$key_count]['actual_reach'] =$values;  
+                        if(isset($bws_actual[$valc['id']]['reach'])){
+                            $actual_reach +=$bws_actual[$valc['id']]['reach'];
+                            $detail_array[$key_count]['actual_reach'] =$actual_reach ;
                         }
+                        
+//                        $actual_attendance =1;
+//                        $detail_array[$key_count]['actual_attendance'] += $actual_attendance; 
+                        $detail_array[$key_count]['par'] = $bws_par[$valc['name']]; 
+                          
                     }
                  
                 }else{
-                    $detail_array[$key_count]['name'] =$val['name'];
-                    $detail_array[$key_count]['id'] =$val['id'];
-                    if(isset($bws_reach[$val['id']])){                       
-                        $value =$bws_reach[$val['id']];
-                        $detail_array[$key_count]['target_reach'] =$value ; 
-                    }else{
-                            $detail_array[$key_count]['target_reach'] = 0; 
-                        }
-                    if(isset($actual_array[$val['id']])){
-                             $values =$actual_array[$val['id']];
-                             $detail_array[$key_count]['actual_reach'] =$values;  
-                    }
-                    
                    
+                    $detail_array[$key_count]['name'] = $valc['name'];
+                    $detail_array[$key_count]['target_attendance'] = $target_attendance;
+                    $detail_array[$key_count]['actual_attendance'] = 0;
+                    $detail_array[$key_count]['target_reach'] = 0;
+                    if(isset($bws_target[$valc['id']])){
+                        $target_reach =$bws_target[$valc['id']];
+                        $detail_array[$key_count]['target_reach'] =$target_reach ;
+                    }
+                    if(isset($bws_actual[$valc['id']]['reach'])){
+                        $actual_reach =$bws_actual[$valc['id']]['reach'];
+                        $detail_array[$key_count]['actual_reach'] =$actual_reach ;
+                    }
+                  
+//                    $actual_attendance =1;
+                    $detail_array[$key_count]['par'] = $bws_par[$valc['name']]; 
+                     
                 }
             }
+//           pr($detail_array);
+//            exit;
+            
 //            pr($detail_array);
             echo json_encode($detail_array);
        
@@ -395,25 +400,57 @@ class DefaultController extends Controller
                 $to = '2014-09-30';
                
             }elseif($_GET['qtr'] == 'JFM'){
-                $from = date('Y-01-01');
-                $to = date('Y-03-31');
+                $from = date($_GET['year'].'-01-01');
+                $to = date($_GET['year'].'-03-31');
                 
                
             }elseif($_GET['qtr'] == 'AMJ'){
-                $from = date('Y-04-01');
-                $to = date('Y-06-30');
+                $from = date($_GET['year'].'-04-01');
+                $to = date($_GET['year'].'-06-30');
             }elseif($_GET['qtr'] == 'JAS'){
-                $from = date('Y-07-01');
-                $to = date('Y-09-30'); 
+                $from = date($_GET['year'].'-07-01');
+                $to = date($_GET['year'].'-09-30'); 
             }elseif($_GET['qtr'] == 'OND'){
-                 $from = date('Y-10-01');
-                $to = date('Y-12-31'); 
+                 $from = date($_GET['year'].'-10-01');
+                $to = date($_GET['year'].'-12-31'); 
             }
-      
+//            pr($to);
             $total = new Pome;
             $reach = $total->getTargetReachQTR($from,$to,$_GET['brand']);
             $bws = $total->getBwsByAgencyQTR($agency,$from,$to,$_GET['brand']);
-            $actual = $total->GetActualReachQTR($from,$to,$_GET['brand']);           
+//            pr($bws);
+            $actual = $total->GetActualReachQTR($from,$to,$_GET['brand']);   
+            
+            $data_actual_par = $total->getParTotalNational($_GET['agency'],$from,$to,$_GET['brand'],$_GET['year']);
+//            pr($data_actual_par);
+            $par =0;
+            $bws_par = array();
+            foreach($data_actual_par as $keyb=> $valb){
+                 if(isset($data_actual_par[$keyb-1])){
+                    $month_name_pos = date('F',strtotime($valb['date']));
+//                    pr($month_name_pos);
+                    $month_name_neg  = date('F',strtotime($data_actual_par[$keyb-1]['date']));     
+                    if($month_name_neg == $month_name_pos ){ 
+                        $par++;
+
+                        $bws_par[$month_name_pos] = $par ;
+                        
+                    }else{
+                        $par = 0;
+                        $par++;
+
+                        $bws_par[$month_name_pos] = $par ;
+                        
+                    }
+                 }else{
+                    $month_name_pos = date('F',strtotime($valb['date']));   
+                        $par++;
+                        $bws_par[$month_name_pos] = $par ;
+                        
+                    
+                 }
+                
+            }
             
             foreach($reach as $keya => $vala){
                 
@@ -455,14 +492,15 @@ class DefaultController extends Controller
                 if(isset($bws[$key-1])){
                     $month_name_pos = date('F',strtotime($val['date']));
                     $month_name_neg  = date('F',strtotime($bws[$key-1]['date']));
-                    if($month_name_neg == $month_name_pos ){            
-                        if(isset($bws_reach[$val['id']])){
-                        $value +=$bws_reach[$val['id']];
-                        $month_name  = date('F',strtotime($val['date']));
-                        $total_array[$key_count]['target_reach'] = $value; 
+                    if($month_name_neg == $month_name_pos ){  
+                        $target_attendance ++;
+                        $total_array[$key_count]['target_attendance'] =$target_attendance;
                         $total_array[$key_count]['name'] =$month_name; 
-                   
-                      
+                        $total_array[$key_count]['par'] =isset($bws_par[$month_name]) ?$bws_par[$month_name]:''; 
+                        if(isset($bws_reach[$val['id']])){
+                            $value +=$bws_reach[$val['id']];
+                            $month_name  = date('F',strtotime($val['date']));
+                            $total_array[$key_count]['target_reach'] = $value; 
                         }   
                         if(isset($actual_array[$val['id']])){
                              $values +=$actual_array[$val['id']];
@@ -475,12 +513,14 @@ class DefaultController extends Controller
                         $key_count++;
                         $value =0;
                         $values =0;
-                        if(isset($bws_reach[$val['id']])){
-                            $month_name  = date('F',strtotime($val['date']));
+                        $month_name  = date('F',strtotime($val['date']));
+                        $target_attendance =1;
+                        $total_array[$key_count]['target_attendance'] =$target_attendance;
+                        $total_array[$key_count]['name'] =$month_name;
+                        $total_array[$key_count]['par'] =isset($bws_par[$month_name]) ?$bws_par[$month_name]:''; 
+                        if(isset($bws_reach[$val['id']])){                          
                             $value =$bws_reach[$val['id']];
-                            $total_array[$key_count]['target_reach'] =$value; 
-                            $total_array[$key_count]['name'] =$month_name;
-                          
+                            $total_array[$key_count]['target_reach'] =$value;  
                         }
                         if(isset($actual_array[$val['id']])){
                              $values =$actual_array[$val['id']];
@@ -492,12 +532,14 @@ class DefaultController extends Controller
                     }
                  
                 }else{
+                    $target_attendance = 1;
+                    $total_array[$key_count]['target_attendance'] =$target_attendance;
                     $month_name  = date('F',strtotime($val['date']));
+                    $total_array[$key_count]['name'] =$month_name;
+                    $total_array[$key_count]['par'] =isset($bws_par[$month_name]) ?$bws_par[$month_name]:''; 
                     if(isset($bws_reach[$val['id']])){                       
                         $value =$bws_reach[$val['id']];
                         $total_array[$key_count]['target_reach'] =$value ; 
-                        $total_array[$key_count]['name'] =$month_name;
-                    
                     }
                     if(isset($actual_array[$val['id']])){
                              $values =$actual_array[$val['id']];
@@ -520,68 +562,87 @@ class DefaultController extends Controller
         {
 
             $total = new Pome;           
-            $reach = $total->getTargetReachPerLeader($_GET['month'],$_GET['agency'],$_GET['brand'],$_GET['teamlead'],$_GET['ph']);
-            $str='';
+            $reach = $total->getTargetReachPerLeader($_GET['month'],$_GET['agency'],$_GET['brand'],$_GET['teamlead'],$_GET['ph'],$_GET['year']);
             $stra='';
             foreach($reach as $keya => $vala){
-                $str .=$vala['id'].",";
-                $stra .=$vala['route_id'].",";
-                $bws_reach[$vala['id']] =$vala['reach'];  
+                $stra .=$vala['route_id'].","; 
             }
 
-            $str = substr($str, 0, -1); 
             $stra = substr($stra, 0, -1); 
             $actual = $total->getActualReachPerLeader($_GET['agency'],$_GET['brand'],$_GET['teamlead'],$stra,$_GET['ph']);
+            $data_actual_half = $total->GetParLeaderReach($_GET['month'],$_GET['agency'],$_GET['brand'],$_GET['teamlead'],$_GET['year']);
+            $actual_reach = array();
+            foreach($actual as $keyb => $valb)
+            {
+                $actual_reach[$valb['id']]['reach'] = $valb['actual_reach'];
+            }
+           
+            foreach($data_actual_half as $keyb=> $valb){
+                $bws_actual_half[$valb['code']] = $valb['par'];
+            }
             
+    
             
             $detail_array = array();
             $key_count = 0;
-            $value = 0;
-            $actual_val = 0;
-            foreach($actual as $key => $val){
-                if(isset($actual[$key-1])){
+            $target_reach = 0;
+            $actual_reach_ = 0;
+            $target_attendance = 0;
+            $actual_attendance=0;
+            foreach($reach as $key => $val){
+                if(isset($reach[$key-1])){
                 
-                    if($actual[$key-1]['code'] == $val['code'] ){            
-                        if(isset($bws_reach[$val['pps_id']])){
-                        $value +=$bws_reach[$val['pps_id']];
-                        $actual_val +=$val['actual_reach'];
-                        $detail_array[$key_count]['target_reach'] = $value; 
-                        $detail_array[$key_count]['code'] =$val['code']; 
-                        $detail_array[$key_count]['pps_id'] =$val['pps_id'];
-                        $detail_array[$key_count]['actual_reach'] = $actual_val;
-                      
-                        }   
+                    if($reach[$key-1]['code'] == $val['code'] ){    
+                        $target_attendance++;
+                        $detail_array[$key_count]['target_reach'] +=$val['reach'] ;
+                        $detail_array[$key_count]['code'] =$val['code'];
+                        $detail_array[$key_count]['target_attendance'] = $target_attendance;
+                        if(isset($actual_reach[$val['route_id']])){                       
+                            $actual_reach_ =$actual_reach[$val['route_id']]['reach'];                   
+                            $detail_array[$key_count]['actual_reach'] +=$actual_reach_;
+                        }
+                        $detail_array[$key_count]['par'] = $bws_actual_half[$val['code']]; 
                        
                     }else{
                         $key_count++;
-                        $value =0;
-                        $actual_val = 0;
-                        if(isset($bws_reach[$val['pps_id']])){
-                            $value =$bws_reach[$val['pps_id']];
-                            $actual_val =$val['actual_reach'];
-                            $detail_array[$key_count]['target_reach'] =$value; 
-                            $detail_array[$key_count]['code'] =$val['code'];
-                            $detail_array[$key_count]['pps_id'] =$val['pps_id'];
-                            $detail_array[$key_count]['actual_reach'] =$actual_val;
+                        $target_attendance=1;
+                        $actual_attendance=0;
+                         $actual_reach_ = 0;
+                        $detail_array[$key_count]['target_reach'] =0;
+                        $detail_array[$key_count]['target_reach'] +=$val['reach'] ;
+                        $detail_array[$key_count]['code'] =$val['code'];
+                        $detail_array[$key_count]['actual_attendance'] = 0;
+                        $detail_array[$key_count]['actual_reach'] = 0;
+                        $detail_array[$key_count]['target_attendance'] = $target_attendance;
+                        if(isset($actual_reach[$val['route_id']])){                       
+                            $actual_reach_ =$actual_reach[$val['route_id']]['reach'];                   
+                            $detail_array[$key_count]['actual_reach'] +=$actual_reach_;
                         }
-                       
+                        $detail_array[$key_count]['par'] = $bws_actual_half[$val['code']]; 
                     }
                  
                 }else{
-                    if(isset($bws_reach[$val['pps_id']])){                       
-                        $value =$bws_reach[$val['pps_id']];
-                        $actual_val =$val['actual_reach'];
-                        $detail_array[$key_count]['target_reach'] =$value ; 
-                        $detail_array[$key_count]['code'] =$val['code'];
-                        $detail_array[$key_count]['pps_id'] =$val['pps_id'];
-                        $detail_array[$key_count]['actual_reach'] =$actual_val;
+                    $target_attendance =1;
+                    $detail_array[$key_count]['target_reach'] =0;
+                    $detail_array[$key_count]['target_reach'] +=$val['reach'] ;
+                    $detail_array[$key_count]['code'] =$val['code'];
+                    $detail_array[$key_count]['actual_attendance'] = 0;
+                    $detail_array[$key_count]['target_attendance'] = 1;
+                    $detail_array[$key_count]['actual_reach'] = 0;
+                    if(isset($actual_reach[$val['route_id']])){                       
+                        $actual_reach_ =$actual_reach[$val['route_id']]['reach'];                   
+                        $detail_array[$key_count]['actual_reach'] +=$actual_reach_;
                     }
+                    
+                    $detail_array[$key_count]['par'] = $bws_actual_half[$val['code']]; 
+                     
                    
                     
                    
                 }
             }
 //            pr($detail_array);
+//            exit;
             echo json_encode($detail_array);
             
             
@@ -592,117 +653,248 @@ class DefaultController extends Controller
             
             $total = new Pome;   
             $month = $_GET['month'];
-            $actual = $total->GetRoutePerLeader($_GET['month'],$_GET['agency'],$_GET['brand'],$_GET['teamlead']);
-            $attendance = $total->GetAttendancePerLeader($_GET['month'],$_GET['agency'],$_GET['brand'],$_GET['teamlead']);
+            $data_actual = $total->GetRoutePerLeader($_GET['month'],$_GET['agency'],$_GET['brand'],$_GET['teamlead'],$_GET['year']);
+            $data_actual_half = $total->GetAttendanceHalfPerLeader($_GET['month'],$_GET['agency'],$_GET['brand'],$_GET['teamlead'],$_GET['year']);
+            $bws_route = $total->getBwsRoutePerLeader($_GET['agency'],$_GET['month'],$_GET['brand'],$_GET['teamlead'],$_GET['year']);
             $data_attendance = array();
-            $ac = $total->GetAttendanceCount();
-            $attendance_count = array();
-            foreach($ac as $keyac => $valac){
-                $attendance_count[$valac['monthly_id']] = $valac['target'];
-            }
-            
-            
-            foreach($attendance as $keya => $vala){
+ 
+            $rt_details = array();
+            foreach($data_actual as $keya => $vala){
                 
-                if(isset($attendance[$keya-1])){
-                    if($attendance[$keya-1]['name'] == $vala['name']){                 
-                        $data_attendance[$vala['id']] =$vala['reason_code'];
+                if(isset($data_actual[$keya-1])){
+                    if($data_actual[$keya-1]['id'] == $vala['id']){                 
+                        $rt_details[$vala['id']]['rt_reason'] =$vala['reason_code'];
+                        $rt_details[$vala['id']]['rtd_reason'] =''; 
                     }else{
-                        $data_attendance[$vala['id']] =$vala['reason_code']; 
+                        $rt_details[$vala['id']]['rt_reason'] =$vala['reason_code'];
+                        $rt_details[$vala['id']]['rtd_reason'] =''; 
                     }
                     
                 }else{
-                        $data_attendance[$vala['id']] =$vala['reason_code']; 
+                        $rt_details[$vala['id']]['rt_reason'] =$vala['reason_code']; 
+                        $rt_details[$vala['id']]['rtd_reason'] =''; 
+                }
+                
+            }
+           
+            foreach($data_actual_half as $keyb => $valb){
+                
+                if(isset($rt_details[$valb['id']])){
+                  
+                   $rt_details[$valb['id']]['rtd_reason'] = $valb['reason_code'] ;  
                 }
                 
             }
             
-            $attendance1 =array();
+            $attendance =array();
             $count = 0;
             $key_count =0;
-//            $bws_count = 1;
-            foreach($actual as $key => $val){
+            $bws_count = 1;
+            $target_attendance = 0;
+            $actual_attendance=0;
+            $value =0;
+            unset($data_actual);
+            unset($data_actual_half);
+            foreach($bws_route as $key => $val){
                 
-                 if(isset($actual[$key-1])){
+                 if(isset($bws_route[$key-1])){
                 
-                    if($actual[$key-1]['code'] == $val['code'] ){
+                    if($bws_route[$key-1]['code'] == $val['code'] ){
                         
-                    
-                        if($val['reason_code'] == '001'){
-                          $count+=0;
-                          $attendance1[$key_count]['attendance'] = $count;  
-                          $attendance1[$key_count]['code'] = $val['code'];     
-                        }else{
-                            if(isset($data_attendance[$val['id']])){
-                               $count+=0.5; 
+                        $target_attendance++;
+                        $attendance[$key_count]['code'] = $val['code'];
+                        $attendance[$key_count]['target_attendance'] = $target_attendance;
+                        if(isset($rt_details[$val['id']])){
+                            if($rt_details[$val['id']]['rt_reason']== '001' && $rt_details[$val['id']]['rt_reason']!= null ){
+                                $actual_attendance =0;
+                                $attendance[$key_count]['actual_attendance'] += $actual_attendance;
+                            }elseif($rt_details[$val['id']]['rtd_reason']== '004' && $rt_details[$val['id']]['rtd_reason']!= null ){
+                                $actual_attendance =0.5;
+                                $attendance[$key_count]['actual_attendance'] += $actual_attendance;
                             }else{
-                               $count+=1;
+                                $actual_attendance =1;
+                                $attendance[$key_count]['actual_attendance'] += $actual_attendance; 
                             }
-                          
-                          $attendance1[$key_count]['attendance'] = $count;  
-                          $attendance1[$key_count]['code'] = $val['code'];  
-                          
                         }
-                        $attendance1[$key_count]['count'] = $attendance_count[$month];  
-//                        if($actual[$key-1]['pps_id'] == $val['pps_id'] ){
-//                            $bws_count +=0; 
-//                        }else{
-//                            $bws_count +=1;
-//                        }
-//                        $attendance1[$key_count]['count'] = $bws_count;
-                       
                     }else{
-//                        $bws_count =1;
+                        $target_attendance = 0;
+                        $target_attendance++;
                         $key_count++;
-                        $count =0;
-                        if($val['reason_code'] == '001'){
-                          $count+=0;
-                          $attendance1[$key_count]['attendance'] = $count;  
-                          $attendance1[$key_count]['code'] = $val['code'];     
-                        }else{
-                            if(isset($data_attendance[$val['id']])){
-                               $count+=0.5; 
+                        $value = 0;
+                        $attendance[$key_count]['code'] = $val['code'];
+                        $attendance[$key_count]['target_attendance'] = $target_attendance;
+                        $attendance[$key_count]['actual_attendance'] = 0;
+                        if(isset($rt_details[$val['id']])){
+                            if($rt_details[$val['id']]['rt_reason']== '001' && $rt_details[$val['id']]['rt_reason']!= null ){
+                                $actual_attendance =0;
+                                $attendance[$key_count]['actual_attendance'] += $actual_attendance;
+                            }elseif($rt_details[$val['id']]['rtd_reason']== '004' && $rt_details[$val['id']]['rtd_reason']!= null ){
+                                $actual_attendance =0.5;
+                                $attendance[$key_count]['actual_attendance'] += $actual_attendance;
                             }else{
-                               $count+=1;
+                                $actual_attendance =1;
+                                $attendance[$key_count]['actual_attendance'] += $actual_attendance; 
                             }
-                        
-                          $attendance1[$key_count]['attendance'] = $count;  
-                          $attendance1[$key_count]['code'] = $val['code']; 
                         }
-                        $attendance1[$key_count]['count'] = $attendance_count[$month];  
-//                        if($actual[$key-1]['pps_id'] == $val['pps_id'] ){
-//                           $bws_count +0; 
-//                        }else{
-//                            $bws_count +1;
-//                        }
-//                        $attendance1[$key_count]['count'] = $bws_count;
                     }
                  
                 }else{
-                        if($val['reason_code'] == '001'){
-                          $count+=0;
-                          $attendance1[$key_count]['attendance'] = $count;  
-                          $attendance1[$key_count]['code'] = $val['code'];   
+                    
+                    $target_attendance++;
+                    $attendance[$key_count]['code'] = $val['code'];
+                    $attendance[$key_count]['target_attendance'] = $target_attendance;
+                    $attendance[$key_count]['actual_attendance'] = 0;
+                    if(isset($rt_details[$val['id']])){
+                        if($rt_details[$val['id']]['rt_reason']== '001' && $rt_details[$val['id']]['rt_reason']!= null ){
+                            $actual_attendance =0;
+                            $value =+ $actual_attendance;
+                            $attendance[$key_count]['actual_attendance'] += $actual_attendance;
+                        }elseif($rt_details[$val['id']]['rtd_reason']== '004' && $rt_details[$val['id']]['rtd_reason']!= null ){
+                            $actual_attendance =0.5;
+                            $value =+ $actual_attendance;
+                            $attendance[$key_count]['actual_attendance'] += $actual_attendance;
                         }else{
-                            if(isset($data_attendance[$val['id']])){
-                                $count+=0.5; 
-                            }else{
-                                $count+=1; 
-                            }
-                            
-                          $attendance1[$key_count]['attendance'] = $count;  
-                          $attendance1[$key_count]['code'] = $val['code'];  
-                         
-                        }  
-                         
-//                           $bws_count +1;
-//                          
-                           $attendance1[$key_count]['count'] = $attendance_count[$month];  
-//                   
+                           
+                            $actual_attendance =1;
+                            $value =+ $actual_attendance;
+                            $attendance[$key_count]['actual_attendance'] += $actual_attendance; 
+                        }
+                    }
+                   
                 }
             }
             
+//            pr($attendance);
+            echo json_encode($attendance);
+        }
+        
+        public function ActionTotalNationalReachHistory()
+        {
+            if(isset($_GET['agency'])){
+                $agency = $_GET['agency'];
+            }else{
+                $agency = 6;
+            }
+            
+            if($_GET['qtr'] == 'JFM'){
+                $from = date($_GET['year'].'-07-01');
+                $to = date($_GET['year'].'-12-31');
+                $name = 'JAS-OND';
+    
+            }elseif($_GET['qtr'] == 'AMJ'){
+                $from = date($_GET['year'].'-07-01');
+                $to = date($_GET['year'].'-03-31');
+                 $name = 'JAS-JFM';
+            }elseif($_GET['qtr'] == 'OND'){
+                 $from = date($_GET['year'].'-07-01');
+                $to = date($_GET['year'].'-09-30'); 
+                 $name = 'JAS';
+            }elseif($_GET['qtr'] == 'JAS'){
+                $from = '';
+                $to = ''; 
+                $name = '';
+            }
 
-            echo json_encode($attendance1);
+            $total = new Pome;
+            $reach = $total->getTargetReachQTR($from,$to,$_GET['brand']);
+            $bws = $total->getBwsByAgencyQTR($agency,$from,$to,$_GET['brand']);
+            $actual = $total->GetActualReachQTR($from,$to,$_GET['brand']);   
+            
+            $data_actual_par = $total->getParTotalNational($_GET['agency'],$from,$to,$_GET['brand'],$_GET['year']);
+//            pr($data_actual_par);
+            $par =0;
+            $bws_par = array();
+            $bws_reach = array();
+            foreach($data_actual_par as $keyb=> $valb){
+//                 if(isset($data_actual_par[$keyb-1])){
+//                    $month_name_pos = date('F',strtotime($valb['date']));
+//                    $month_name_neg  = date('F',strtotime($data_actual_par[$keyb-1]['date']));     
+//                    if($month_name_neg == $month_name_pos ){ 
+                        $par++;
+
+                        $bws_par[$name] = $par ;
+                        
+//                    }else{
+//                        $par = 0;
+//                        $par++;
+//
+//                        $bws_par[$month_name_pos] = $par ;
+//                        
+//                    }
+//                 }else{
+//                    $month_name_pos = date('F',strtotime($valb['date']));   
+//                        $par++;
+//                        $bws_par[$month_name_pos] = $par ;
+//                        
+//                    
+//                 }
+                
+            }
+//            pr($bws_par);
+            foreach($reach as $keya => $vala){
+                
+                $bws_reach[$vala['id']] =$vala['reach'];  
+            }
+            
+            $actual_array = array();
+            $value_actual = 0;
+            $key_count_actual = 0;
+            foreach($actual as $keyb => $valb){
+                
+                if(isset($actual[$keyb-1])){
+                
+                    if($actual[$keyb-1]['id'] == $valb['id'] ){   
+                        
+                        $value_actual +=$valb['reach'];
+                        $actual_array[$valb['id']]=$value_actual;
+                                           
+                    }else{
+                   
+                        $value_actual =0;
+                        
+                        $value_actual =$valb['reach'];
+                        $actual_array[$valb['id']] =$value_actual;
+                        
+                    }
+                 
+                }else{                 
+                        $value_actual =$valb['reach'];
+                        $actual_array[$valb['id']] =$value_actual;
+                } 
+            }
+            
+            $total_array = array();
+            $key_count = 0;
+            $value = 0;
+            $values =0;
+            $target_attendance=0;
+            foreach($bws as $key => $val){
+
+                    $target_attendance ++;
+                    $total_array[$key_count]['target_attendance'] =$target_attendance;
+//                    $month_name  = date('F',strtotime($val['date']));
+                    $total_array[$key_count]['name'] =$name;
+                    $total_array[$key_count]['par'] =$bws_par[$name];
+//                    $total_array[$key_count]['par'] =isset($bws_par[$month_name]) ?$bws_par[$month_name]:''; 
+                    if(isset($bws_reach[$val['id']])){                       
+                        $value +=$bws_reach[$val['id']];
+                        $total_array[$key_count]['target_reach'] =$value ; 
+                    }else{
+                       $value +=0;
+                        $total_array[$key_count]['target_reach'] =$value ;  
+                    }
+                    if(isset($actual_array[$val['id']])){
+                             $values +=$actual_array[$val['id']];
+                             $total_array[$key_count]['actual_reach'] =$values;  
+                    }else{
+                           $values +=0;
+                            $total_array[$key_count]['actual_reach'] =$values;   
+                    }
+
+            }
+//         pr($total_array);
+            echo json_encode($total_array);
+            
+            
         }
 }
