@@ -769,12 +769,12 @@ class InventoryController extends Controller {
 
         $incoming_inbound = array_merge($receiving_arr, $incoming_arr);
 
-        $sort1 = array();
+        $sort1['sort'] = array();
         foreach ($incoming_inbound as $key1 => $val1) {
-            $sort1['order'][$key1] = $val1['created_date'];
+            $sort1['sort'][$key1] = $val1['created_date'];
         }
 
-        array_multisort($sort1['order'], SORT_DESC, $incoming_inbound);
+        array_multisort($sort1['sort'], SORT_DESC, $incoming_inbound);
         $new_incoming_inbound_arr = array_slice($incoming_inbound, 0, 3);
 
         $c3 = new CDbCriteria;
@@ -833,12 +833,12 @@ class InventoryController extends Controller {
         
         $outbound_outgoing = array_merge($outbound_arr, $outgoing_arr);
         
-        $sort2 = array();
+        $sort2['sort'] = array();
         foreach ($outbound_outgoing as $key2 => $val2) {
-            $sort2['order'][$key2] = $val2['created_date'];
+            $sort2['sort'][$key2] = $val2['created_date'];
         }
         
-        array_multisort($sort2['order'], SORT_DESC, $outbound_outgoing);
+        array_multisort($sort2['sort'], SORT_DESC, $outbound_outgoing);
         $new_outbound_outgoing_arr = array_slice($outbound_outgoing, 0, 3);
         
         $output = array(
