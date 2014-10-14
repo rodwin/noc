@@ -29,7 +29,7 @@ class BrandController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data'),
+                'actions' => array('create', 'update', 'data', 'loadBrandByBrandCategory'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -273,6 +273,21 @@ class BrandController extends Controller {
             echo CActiveForm::validate($model);
             Yii::app()->end();
         }
+    }
+
+    public function actionLoadBrandByBrandCategory() {
+
+        $brand_category_id = Yii::app()->request->getParam('brand_category');
+
+        $c = new CDbCriteria;
+        $c->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND brand_category_id = "' . $brand_category_id . '"';
+        $c->order = "t.brand_name ASC";
+
+        $data = CHtml::listData(Brand::model()->findAll($c), 'brand_id', 'brand_name');
+
+        echo "<option value=''>Select Brand</option>";
+        foreach ($data as $value => $brand_name)
+            echo CHtml::tag('option', array('value' => $value), CHtml::encode($brand_name), true);
     }
 
 }

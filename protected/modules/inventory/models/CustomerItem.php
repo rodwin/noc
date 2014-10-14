@@ -26,6 +26,7 @@
 class CustomerItem extends CActiveRecord {
 
     public $search_string;
+    public $total_quantity;
 
     const CUSTOMER_ITEM_LABEL = "Outgoing";
 

@@ -31,6 +31,7 @@
 class ReceivingInventory extends CActiveRecord {
 
     public $search_string;
+    public $total_quantity;
 
     const RECEIVING_LABEL = "Incoming";
 

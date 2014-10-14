@@ -22,6 +22,7 @@ class IncomingInventory extends CActiveRecord {
 
     public $search_string;
     public $outgoing_inventory_id;
+    public $total_quantity;
 
     const INCOMING_LABEL = "Inbound";
 

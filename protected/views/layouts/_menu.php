@@ -1,6 +1,6 @@
 <?php
 $main_menu = array(
-    array('label' => 'Dashboard', 'url' => '#', 'icon' => 'fa fa-dashboard', 'visible' => !Yii::app()->user->isGuest, 'items' => array(
+    array('label' => 'Dashboard', 'url' => array(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['dashboard']), 'icon' => 'fa fa-dashboard', 'visible' => !Yii::app()->user->isGuest, 'items' => array(
             array('label' => 'Pome', 'icon' => 'fa fa-angle-double-right', 'url' => array('/pome/default'), 'visible' => isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['pome'])),
         )),
     array('label' => 'Location Viewer', 'url' => array('locationviewer'), 'icon' => 'fa fa-map-marker', 'visible' => isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['locationviewer'])),
