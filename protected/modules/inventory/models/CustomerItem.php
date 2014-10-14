@@ -26,6 +26,7 @@
 class CustomerItem extends CActiveRecord {
 
     public $search_string;
+    public $total_quantity;
 
     const CUSTOMER_ITEM_LABEL = "Outgoing";
 
@@ -46,6 +47,7 @@ class CustomerItem extends CActiveRecord {
             array('company_id, rra_no, pr_no, pr_date, dr_no, poi_id, transaction_date', 'required'),
             array('company_id, rra_no, campaign_no, pr_no, dr_no, reference_dr_no, source_zone_id, poi_id, salesman_id, created_by, updated_by', 'length', 'max' => 50),
             array('total_amount', 'length', 'max' => 18),
+            array('remarks', 'length', 'max' => 150),
             array('source_zone_id', 'isValidZone'),
             array('salesman_id', 'isValidEmployee'),
             array('poi_id', 'isValidPoi'),
@@ -53,7 +55,7 @@ class CustomerItem extends CActiveRecord {
             array('plan_delivery_date, revised_delivery_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('customer_item_id, company_id, rra_no, pr_no, pr_date, dr_no, reference_dr_no, source_zone_id, poi_id, salesman_id, transaction_date, plan_delivery_date, revised_delivery_date, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('customer_item_id, company_id, rra_no, pr_no, pr_date, dr_no, reference_dr_no, source_zone_id, poi_id, salesman_id, transaction_date, plan_delivery_date, revised_delivery_date, remarks, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
 
@@ -134,6 +136,7 @@ class CustomerItem extends CActiveRecord {
             'transaction_date' => 'Transaction Date',
             'plan_delivery_date' => 'Plan Delivery Date',
             'revised_delivery_date' => 'Revised Delivery Date',
+            'remarks' => 'Remarks',
             'total_amount' => 'Total Amount',
             'created_date' => 'Created Date',
             'created_by' => 'Created By',
@@ -173,6 +176,7 @@ class CustomerItem extends CActiveRecord {
         $criteria->compare('transaction_date', $this->transaction_date, true);
         $criteria->compare('plan_delivery_date', $this->plan_delivery_date, true);
         $criteria->compare('revised_delivery_date', $this->revised_delivery_date, true);
+        $criteria->compare('remarks', $this->remarks, true);
         $criteria->compare('total_amount', $this->total_amount, true);
         $criteria->compare('created_date', $this->created_date, true);
         $criteria->compare('created_by', $this->created_by, true);
@@ -282,6 +286,7 @@ class CustomerItem extends CActiveRecord {
                 'pr_date' => $this->pr_date,
                 'plan_delivery_date' => $this->plan_delivery_date,
                 'revised_delivery_date' => $this->revised_delivery_date,
+                'remarks' => $this->remarks,
                 'total_amount' => $this->total_amount,
                 'created_by' => $this->created_by,
             );

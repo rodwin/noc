@@ -207,7 +207,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->labelEx($customer_item, 'poi_id'); ?><br/>
                 <?php echo $form->label($customer_item, 'Outlet Code'); ?><br/>
-                <?php echo $form->label($customer_item, 'Address'); ?>
+                <?php echo $form->label($customer_item, 'Address'); ?><br/>
+                <?php echo $form->labelEx($customer_item, 'remarks'); ?>
 
             </div>
             <div class="pull-right col-md-7">
@@ -217,6 +218,17 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <div id="CustomerItem_poi_primary_code" class="autofill_text"></div>
                 <div id="CustomerItem_poi_address1" class="autofill_text"></div>
+                
+                <?php
+                echo $form->textAreaGroup($customer_item, 'remarks', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => 'span5',
+                    ),
+                    'widgetOptions' => array(
+                        'htmlOptions' => array('class' => 'ignore', 'style' => 'resize: none; width: 200px;', 'maxlength' => 150),
+                    ),
+                    'labelOptions' => array('label' => false)));
+                ?>                
 
             </div>
         </div>
@@ -485,7 +497,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="row no-print">
             <div class="col-xs-12">
-                <button class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
+                <button id="btn_print" class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
                 <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload DR</button>
                 <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>
             </div>
@@ -532,6 +544,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     var item_details_table;
     var headers = "transaction";
     var details = "details";
+    var print = "print";
     var total_amount = 0;
     var reference_DRNo;
     $(function() {
@@ -600,7 +613,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         var data = $("#customer-item-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable()});
 
-        if ($("#btn_save, #btn_add_item").is("[disabled=disabled]")) {
+        if ($("#btn_save, #btn_add_item, #btn_print").is("[disabled=disabled]")) {
             return false;
         } else {
             $.ajax({
@@ -609,9 +622,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 data: data,
                 dataType: "json",
                 beforeSend: function(data) {
-                    $("#btn_save, #btn_add_item").attr("disabled", "disabled");
+                    $("#btn_save, #btn_add_item, #btn_print").attr("disabled", "disabled");
                     if (form == headers) {
                         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
+                    } else if (form == print) {
+                        $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Loading...');
                     }
                 },
                 success: function(data) {
@@ -619,8 +634,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 },
                 error: function(data) {
                     alert("Error occured: Please try again.");
-                    $("#btn_save, #btn_add_item").attr('disabled', false);
+                    $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
                     $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
+                    $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
                 }
             });
         }
@@ -686,6 +702,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $('#customer-item-form select:not(.ignore), input:not(.ignore), textarea:not(.ignore)').val('');
                 $('.inventory_uom_selected').html('');
 
+            } else if (data.form == print && serializeTransactionTable().length > 0) {
+                printPDF(data.print);
             }
 
             $("#item_details_table tbody tr").removeClass('success');
@@ -693,8 +711,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             growlAlert(data.type, data.message);
 
-            $("#btn_save, #btn_add_item").attr('disabled', false);
+            $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
             $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
+            $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
 
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
@@ -702,8 +721,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             });
         }
 
-        $("#btn_save, #btn_add_item").attr('disabled', false);
+        $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
+        $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
     }
 
     function growlAlert(type, message) {
@@ -782,6 +802,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
     $('#btn-upload').click(function() {
         $('#file_uploads').click();
+    });
+
+    $('#btn_print').click(function() {
+        send(print);
     });
 
     $("#CustomerItemDetail_quantity_issued").keyup(function(e) {
@@ -959,5 +983,38 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'});
     });
+
+    function printPDF(data) {
+
+        $.ajax({
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/customerItem/print'); ?> ',
+            type: 'POST',
+            dataType: "json",
+            data: {"post_data": data},
+            success: function(data) {
+                if (data.success === true) {
+                    var params = [
+                        'height=' + screen.height,
+                        'width=' + screen.width,
+                        'fullscreen=yes'
+                    ].join(',');
+
+                    var tab = window.open(<?php echo "'" . Yii::app()->createUrl($this->module->id . '/customerItem/loadPDF') . "'" ?> + "&id=" + data.id, "_blank", params);
+
+                    if (tab) {
+                        tab.focus();
+                        tab.moveTo(0, 0);
+                    } else {
+                        alert('Please allow popups for this site');
+                    }
+                }
+
+                return false;
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+    }
 
 </script>

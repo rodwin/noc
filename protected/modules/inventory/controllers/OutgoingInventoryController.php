@@ -31,7 +31,7 @@ class OutgoingInventoryController extends Controller {
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('create', 'update', 'data', 'loadInventoryDetails', 'outgoingInvDetailData', 'afterDeleteTransactionRow', 'invData', 'uploadAttachment', 'preview', 'download', 'searchCampaignNo', 'loadPRNos', 'loadInvByPRNo',
-                    'deleteOutgoingDetail', 'deleteAttachment'),
+                    'deleteOutgoingDetail', 'deleteAttachment', 'print', 'loadPDF'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -206,7 +206,7 @@ class OutgoingInventoryController extends Controller {
             $data['success'] = false;
             $data["type"] = "success";
 
-            if ($_POST['form'] == "transaction") {
+            if ($_POST['form'] == "transaction" || $_POST['form'] == "print") {
                 $data['form'] = $_POST['form'];
 
                 if (isset($_POST['OutgoingInventory'])) {
@@ -225,15 +225,22 @@ class OutgoingInventoryController extends Controller {
                         $data["type"] = "danger";
                     } else {
 
-                        $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
+                        if ($data['form'] == "print") {
 
-                        if ($outgoing->create($transaction_details)) {
-                            $data['message'] = 'Successfully created';
+                            $data['print'] = $_POST;
                             $data['success'] = true;
                         } else {
-                            $data['message'] = 'Unable to process';
-                            $data['success'] = false;
-                            $data["type"] = "danger";
+
+                            $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
+
+                            if ($outgoing->create($transaction_details)) {
+                                $data['message'] = 'Successfully created';
+                                $data['success'] = true;
+                            } else {
+                                $data['message'] = 'Unable to process';
+                                $data['success'] = false;
+                                $data["type"] = "danger";
+                            }
                         }
                     }
                 }
@@ -722,7 +729,7 @@ class OutgoingInventoryController extends Controller {
             }
 
             $row = array();
-            $row['file_name'] = $icon."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$value->file_name;
+            $row['file_name'] = $icon . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . $value->file_name;
 
             $row['links'] = '<a class="btn btn-sm btn-default" title="Delete" href="' . $this->createUrl('/inventory/outgoinginventory/download', array('id' => $value->attachment_id)) . '">
                                 <i class="glyphicon glyphicon-download"></i>
@@ -776,6 +783,7 @@ class OutgoingInventoryController extends Controller {
             $receiving_arr[$k1]['campaign_no'] = $v1->campaign_no;
             $receiving_arr[$k1]['pr_no'] = $v1->pr_no;
             $receiving_arr[$k1]['pr_date'] = $v1->pr_date;
+            $receiving_arr[$k1]['source_zone_id'] = $v1->zone_id;
         }
 
         foreach ($incoming as $k2 => $v2) {
@@ -783,6 +791,7 @@ class OutgoingInventoryController extends Controller {
             $incoming_arr[$k2]['campaign_no'] = $v2->campaign_no;
             $incoming_arr[$k2]['pr_no'] = $v2->pr_no;
             $incoming_arr[$k2]['pr_date'] = $v2->pr_date;
+            $incoming_arr[$k2]['source_zone_id'] = $v2->source_zone_id;
         }
 
         $return = array_merge($receiving_arr, $incoming_arr);
@@ -925,6 +934,314 @@ class OutgoingInventoryController extends Controller {
 
         echo json_encode($data);
         Yii::app()->end();
+    }
+
+    public function actionPrint() {
+
+        unset(Yii::app()->session["post_pdf_data_id"]);
+
+        Yii::app()->session["post_pdf_data_id"] = 'post_pdf_data_' . Globals::generateV4UUID();
+        Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = Yii::app()->request->getParam('post_data');
+
+        $return = array();
+        if (Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] == "") {
+            $return["success"] = false;
+            return false;
+        }
+
+        $return["success"] = true;
+        $return["id"] = Yii::app()->session["post_pdf_data_id"];
+
+        echo json_encode($return);
+        Yii::app()->end();
+    }
+
+    public function actionLoadPDF($id) {
+
+        $data = Yii::app()->session[$id];
+
+        ob_start();
+
+        $headers = $data['OutgoingInventory'];
+        $details = $data['transaction_details'];
+
+        $c1 = new CDbCriteria();
+        $c1->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.zone_id = "' . $headers['destination_zone_id'] . '"';
+        $c1->with = array("salesOffice");
+        $zone = Zone::model()->find($c1);
+
+        $c2 = new CDbCriteria();
+        $c2->select = new CDbExpression('t.*, CONCAT(TRIM(barangay.barangay_name), ", ", TRIM(municipal.municipal_name), ", ", TRIM(province.province_name), ", ", TRIM(region.region_name)) AS full_address');
+        $c2->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = "' . $zone->salesOffice->sales_office_id . '"';
+        $c2->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
+        $c2->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
+        $c2->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
+        $c2->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
+        $salesoffice = Salesoffice::model()->find($c2);
+
+        $c5 = new CDbCriteria;
+        $c5->select = "t.*, zone.*";
+        $c5->condition = 't.company_id = "' . Yii::app()->user->company_id . '"';
+        $c5->with = array("zone");
+        $employee = Employee::model()->find($c5);
+
+        if ($employee && $employee->default_zone_id == $zone->zone_id) {
+            $sales_office_name = isset($employee->zone->zone_name) ? $employee->zone->zone_name : "";
+            $sales_office_address = isset($employee->address1) ? $employee->address1 : "";
+        } else {
+            $sales_office_name = isset($salesoffice->sales_office_name) ? $salesoffice->sales_office_name : "";
+            $sales_office_address = isset($salesoffice->full_address) ? $salesoffice->full_address : "";
+        }
+        
+        $transaction_date = $headers['transaction_date'];
+        $plan_delivery_date = $headers['plan_delivery_date'];
+        $pr_no = $headers['pr_no'];
+        $rra_no = $headers['rra_no'];
+        $rra_date = $headers['pr_date'];
+        $dr_no = $headers['dr_no'];
+
+        $c3 = new CDbCriteria();
+        $c3->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.zone_id = "' . $headers['source_zone_id'] . '"';
+        $c3->with = array("salesOffice");
+        $souce_zone = Zone::model()->find($c3);
+
+        $c4 = new CDbCriteria();
+        $c4->select = new CDbExpression('t.*, CONCAT(TRIM(barangay.barangay_name), ", ", TRIM(municipal.municipal_name), ", ", TRIM(province.province_name), ", ", TRIM(region.region_name)) AS full_address');
+        $c4->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = "' . $souce_zone->salesOffice->sales_office_id . '"';
+        $c4->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
+        $c4->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
+        $c4->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
+        $c4->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
+        $source_salesoffice = Salesoffice::model()->find($c4);
+
+        $source_sales_office_name = isset($source_salesoffice->sales_office_name) ? $source_salesoffice->sales_office_name : "";
+        $source_sales_office_contact_person = "";
+        $source_sales_office_address = isset($source_salesoffice->full_address) ? $source_salesoffice->full_address : "";
+
+
+        $pdf = Globals::pdf();
+
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        $pdf->SetFont('DejaVu Sans', '', 10);
+
+        $pdf->AddPage();
+
+        $html = '
+            <style type="text/css">
+                .text-center { text-align: center; }
+                .title { font-size: 12px; }
+                .sub-title { font-size: 10px; }
+                .title-report { font-size: 15px; font-weight: bold; } 
+                .table_main { font-size: 8px; }
+                .table_details { font-size: 8px; width: 100%; }
+                .table_footer { font-size: 8px; width: 100%; }
+                .border-bottom { border-bottom: 1px solid #333; font-size: 8px; }
+                .row_label { width: 120px; }
+                .row_content_sm { width: 100px; }
+                .row_content_lg { width: 300px; }
+                .noted { font-size: 8px; }
+                .align-right { text-align: right; }
+            </style>
+
+            <div id="header" class="text-center">
+                <span class="title">ASIA BREWERY INCORPORATED</span><br/>
+                <span class="sub-title">6th FLOOR ALLIED BANK CENTER, AYALA AVENUE, MAKATI CITY</span><br/>
+                <span class="title-report">DELIVERY RECEIPT</span>
+            </div><br/><br/>
+
+            <table class="table_main">
+                <tr>
+                    <td clss="row_label">SALES OFFICE / SALESMAN</td>
+                    <td class="border-bottom row_content_lg">' . $sales_office_name . '</td>
+                    <td style="width: 10px;"></td>
+                    <td clss="row_label">DELIVERY DATE</td>
+                    <td class="border-bottom row_content_sm">' . $transaction_date . '</td>
+                </tr>
+                <tr>
+                    <td>ADDRESS</td>
+                    <td class="border-bottom">' . $sales_office_address . '</td>
+                    <td></td>
+                    <td>PLAN DATE</td>
+                    <td class="border-bottom">' . $plan_delivery_date . '</td>
+                </tr>
+            </table><br/><br/>
+
+            <table class="table_main">
+                <tr>
+                    <td clss="row_label">PR NUMBER</td>
+                    <td class="border-bottom row_content_sm">' . $pr_no . '</td>
+                    <td style="width: 10px;"></td>
+                    <td clss="row_label">WAREHOUSE NAME</td>
+                    <td class="border-bottom row_content_lg">' . $source_sales_office_name . '</td>
+                </tr>
+                <tr>
+                    <td>RRA NUMBER</td>
+                    <td class="border-bottom">' . $rra_no . '</td>
+                    <td></td>
+                    <td>CONTACT PERSON</td>
+                    <td class="border-bottom">' . $source_sales_office_contact_person . '</td>
+                </tr>
+                <tr>
+                    <td>RRA DATE</td>
+                    <td class="border-bottom">' . $rra_date . '</td>
+                    <td></td>
+                    <td>ADDRESS</td>
+                    <td class="border-bottom">' . $source_sales_office_address . '</td>
+                </tr>
+                <tr>
+                    <td>DR NUMBER</td>
+                    <td class="border-bottom">' . $dr_no . '</td>
+                    <td></td>
+                    <td></td>
+                    <td class="border-bottom"></td>
+                </tr>
+            </table><br/><br/><br/>  
+        
+            <table class="table_details" border="1">
+                <tr>
+                    <td>MM CODE</td>
+                    <td>MM DESCRIPTION</td>
+                    <td>MM BRAND</td>
+                    <td>MM CATEGORY</td>
+                    <td>ALLOCATION</td>
+                    <td>QUANTITY ISSUED</td>
+                    <td>UOM</td>
+                    <td>UNIT PRICE</td>
+                    <td>AMOUNT</td>
+                    <td>EXPIRY DATE</td>
+                    <td>REMARKS</td>
+                </tr>';
+
+        $planned_qty = 0;
+        $actual_qty = 0;
+        $total_unit_price = 0;
+        foreach ($details as $key => $val) {
+            $sku = Sku::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sku_id" => $val['sku_id']));
+            $uom = UOM::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $val['uom_id']));
+
+            $html .= '<tr>
+                            <td>' . $sku->sku_code . '</td>
+                            <td>' . $sku->description . '</td>
+                            <td>' . $sku->brand->brand_name . '</td>
+                            <td>' . $sku->type . '</td>
+                            <td>' . $val['planned_quantity'] . '</td>
+                            <td>' . $val['quantity_issued'] . '</td>
+                            <td>' . $uom->uom_name . '</td>
+                            <td class="align-right">&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
+                            <td class="align-right">&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
+                            <td>' . $val['expiration_date'] . '</td>
+                            <td>' . $val['remarks'] . '</td>
+                        </tr>';
+
+            $planned_qty += $val['planned_quantity'];
+            $actual_qty += $val['quantity_issued'];
+            $total_unit_price += $val['unit_price'];
+        }
+
+        $html .= '<tr>
+                    <td colspan="11"></td>
+                </tr>';
+
+        $html .= '<tr>
+                    <td colspan="11"></td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align: right;">GRAND TOTAL</td>
+                    <td>' . $planned_qty . '</td>
+                    <td>' . $actual_qty . '</td>
+                    <td></td>
+                    <td class="align-right">&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
+                    <td class="align-right">&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
+                    <td colspan="2"></td>
+                </tr>';
+
+        $html .= '</table><br/><br/><br/>
+            
+            <table class="table_footer">
+                <tr>
+                    <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">REMARKS</td>
+                    <td style="width: 30px;"></td>
+                    <td style="width: 80px;">SHIPPED VIA:</td>
+                    <td class="border-bottom" style="width: 120px;"></td>
+                    <td style="width: 30px;"></td>
+                    <td style="width: 100px;">TRUCK NO.:</td>
+                    <td class="border-bottom" style="width: 130px;"></td>
+                </tr>
+                <tr>
+                    <td rowspan="5" style="border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"><br/><br/>' . $headers['remarks'] . '</td>
+                    <td colspan="2"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>CHECKED BY:</td>
+                    <td class="border-bottom"></td>
+                    <td></td>
+                    <td>DRIVER"S NAME:</td>
+                    <td class="border-bottom"></td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>AUTHORIZED BY:</td>
+                    <td class="border-bottom"></td>
+                    <td></td>
+                    <td>DRIVER"S SIGNATURE:</td>
+                    <td class="border-bottom"></td>
+                </tr>
+                <tr><td colspan="6"></td></tr>
+                <tr><td colspan="6"></td></tr>
+                <tr>
+                    <td colspan="5"></td>
+                    <td colspan="2">Received the above goods in good order and condition</td>
+                </tr>
+                <tr><td colspan="6"></td></tr>
+                <tr><td colspan="6"></td></tr>
+                <tr><td colspan="6"></td></tr>
+                <tr><td colspan="6"></td></tr>
+                <tr>
+                    <td colspan="5"></td>
+                    <td colspan="2" class="border-bottom"></td>
+                </tr>
+                <tr>
+                    <td colspan="5"></td>
+                    <td colspan="2" style="text-align: center;">NAME & SIGNATURE OF RECEIPIENT</td>
+                </tr>
+            </table><br/><br/><br/><br/><br/>';
+
+        $html .= '<table class="noted" style="border-style: dashed dashed dashed dashed;">
+                    <tr>
+                        <td>Noted:</td>
+                        <td colspan="11"></td>
+                    </tr> 
+                    <tr>
+                        <td></td>
+                        <td colspan="2"><b>TERM</b></td>
+                        <td colspan="2"><b>DEEFINITION</b></td>
+                        <td colspan="6"></td>
+                    </tr>  
+                    <tr><td colspan="11"></td></tr>
+                    <tr>
+                        <td></td>
+                        <td colspan="2">Allocation</td>
+                        <td colspan="2">Planned QTY</td>
+                        <td colspan="6"></td>
+                    </tr>    
+                    <tr>
+                        <td></td>
+                        <td colspan="2">Qty Issued</td>
+                        <td colspan="2">Actual QTY</td>
+                        <td colspan="6"></td>
+                    </tr>  
+                    <tr><td colspan="11"></td></tr>              
+                </table>';
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        $pdf->Output('outbound.pdf', 'I');
     }
 
 }

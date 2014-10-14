@@ -161,7 +161,11 @@ $this->breadcrumbs = array(
             "columnDefs": [{
                     "targets": [9],
                     "visible": false
-                }]
+                }],
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(9)', nRow).addClass("text-center");
+
+            }
         });
 
         $('#outgoing-inventory_table tbody').on('click', 'tr', function() {

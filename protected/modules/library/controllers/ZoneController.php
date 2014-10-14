@@ -96,7 +96,8 @@ class ZoneController extends Controller {
         foreach ($zone as $key => $val) {
             $return[$key]['zone_id'] = $val->zone_id;
             $return[$key]['zone_name'] = $val->zone_name;
-            $return[$key]['sales_office'] = isset($val->salesOffice->sales_office_name) ? $val->salesOffice->sales_office_name : '';
+            $return[$key]['sales_office_id'] = isset($val->salesOffice->sales_office_id) ? $val->salesOffice->sales_office_id : '';
+            $return[$key]['sales_office_name'] = isset($val->salesOffice->sales_office_name) ? $val->salesOffice->sales_office_name : '';
         }
 
         echo json_encode($return);
@@ -118,7 +119,8 @@ class ZoneController extends Controller {
         foreach ($zone as $key => $val) {
             $return[$key]['zone_id'] = $val->zone_id;
             $return[$key]['zone_name'] = $val->zone_name;
-            $return[$key]['sales_office'] = isset($val->salesOffice->sales_office_name) ? $val->salesOffice->sales_office_name : '';
+            $return[$key]['sales_office_id'] = isset($val->salesOffice->sales_office_id) ? $val->salesOffice->sales_office_id : '';
+            $return[$key]['sales_office_name'] = isset($val->salesOffice->sales_office_name) ? $val->salesOffice->sales_office_name : '';
         }
 
         echo json_encode($return);
