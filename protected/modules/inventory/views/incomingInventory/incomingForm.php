@@ -197,6 +197,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->labelEx($incoming, 'plan_delivery_date'); ?><br/>
                 <?php echo $form->labelEx($incoming, 'revised_delivery_date'); ?><br/>
+                <?php echo $form->labelEx($incoming, 'plan_arrival_date'); ?><br/>
                 <?php echo $form->labelEx($incoming, 'remarks'); ?>
 
             </div>
@@ -205,6 +206,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->textFieldGroup($incoming, 'plan_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($incoming, 'revised_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+
+                <?php echo $form->textFieldGroup($incoming, 'plan_arrival_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php
                 echo $form->textAreaGroup($incoming, 'remarks', array(
@@ -930,6 +933,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $("#IncomingInventory_destination_zone_id").val(data.headers.destination_zone_name);
                 $("#IncomingInventory_destination_zone").val(data.headers.destination_zone_id);
                 $("#IncomingInventory_plan_delivery_date").val(data.headers.plan_delivery_date);
+                $("#IncomingInventory_plan_arrival_date").val(data.headers.plan_arrival_date);
                 $("#IncomingInventory_outgoing_inventory_id").val(data.headers.outgoing_inventory_id);
 
                 total_amount = 0;
@@ -1075,7 +1079,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     $(function() {
-        $('#IncomingInventory_transaction_date, #IncomingInventory_dr_date, #IncomingInventory_pr_date, #IncomingInventory_plan_delivery_date, #IncomingInventory_revised_delivery_date, #IncomingInventoryDetail_expiration_date, #IncomingInventoryDetail_return_date').datepicker({
+        $('#IncomingInventory_transaction_date, #IncomingInventory_dr_date, #IncomingInventory_pr_date, #IncomingInventory_plan_delivery_date, #IncomingInventory_revised_delivery_date, #IncomingInventory_plan_arrival_date, #IncomingInventoryDetail_expiration_date, #IncomingInventoryDetail_return_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'});

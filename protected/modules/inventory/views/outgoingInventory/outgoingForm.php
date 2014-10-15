@@ -215,7 +215,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->labelEx($outgoing, 'plan_delivery_date'); ?><br/>
                 <?php echo $form->labelEx($outgoing, 'revised_delivery_date'); ?><br/>
-                <?php // echo $form->labelEx($outgoing, 'actual_delivery_date'); ?>
+                <?php echo $form->labelEx($outgoing, 'plan_arrival_date'); ?><br/>
                 <?php echo $form->labelEx($outgoing, 'remarks'); ?>
 
             </div>
@@ -225,7 +225,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($outgoing, 'revised_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-                <?php // echo $form->textFieldGroup($outgoing, 'actual_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($outgoing, 'plan_arrival_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php
                 echo $form->textAreaGroup($outgoing, 'remarks', array(
@@ -1089,7 +1089,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     $(function() {
-        $('#OutgoingInventory_pr_date, #OutgoingInventory_dr_date, #OutgoingInventory_plan_delivery_date, #OutgoingInventory_revised_delivery_date, #OutgoingInventory_actual_delivery_date, #OutgoingInventory_transaction_date, #OutgoingInventoryDetail_expiration_date, #OutgoingInventoryDetail_return_date').datepicker({
+        $('#OutgoingInventory_pr_date, #OutgoingInventory_dr_date, #OutgoingInventory_plan_delivery_date, #OutgoingInventory_revised_delivery_date, #OutgoingInventory_plan_arrival_date, #OutgoingInventory_transaction_date, #OutgoingInventoryDetail_expiration_date, #OutgoingInventoryDetail_return_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'});

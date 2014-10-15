@@ -940,7 +940,7 @@ class OutgoingInventoryController extends Controller {
 
         unset(Yii::app()->session["post_pdf_data_id"]);
 
-        Yii::app()->session["post_pdf_data_id"] = 'post_pdf_data_' . Globals::generateV4UUID();
+        Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
         Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = Yii::app()->request->getParam('post_data');
 
         $return = array();
@@ -1053,45 +1053,45 @@ class OutgoingInventoryController extends Controller {
 
             <table class="table_main">
                 <tr>
-                    <td clss="row_label">SALES OFFICE / SALESMAN</td>
+                    <td clss="row_label" style="font-weight: bold;">SALES OFFICE / SALESMAN</td>
                     <td class="border-bottom row_content_lg">' . $sales_office_name . '</td>
                     <td style="width: 10px;"></td>
-                    <td clss="row_label">DELIVERY DATE</td>
+                    <td clss="row_label" style="font-weight: bold;">DELIVERY DATE</td>
                     <td class="border-bottom row_content_sm">' . $transaction_date . '</td>
                 </tr>
                 <tr>
-                    <td>ADDRESS</td>
+                    <td style="font-weight: bold;">ADDRESS</td>
                     <td class="border-bottom">' . $sales_office_address . '</td>
                     <td></td>
-                    <td>PLAN DATE</td>
+                    <td style="font-weight: bold;">PLAN DATE</td>
                     <td class="border-bottom">' . $plan_delivery_date . '</td>
                 </tr>
             </table><br/><br/>
 
             <table class="table_main">
                 <tr>
-                    <td clss="row_label">PR NUMBER</td>
+                    <td clss="row_label" style="font-weight: bold;">PR NUMBER</td>
                     <td class="border-bottom row_content_sm">' . $pr_no . '</td>
                     <td style="width: 10px;"></td>
-                    <td clss="row_label">WAREHOUSE NAME</td>
+                    <td clss="row_label" style="font-weight: bold;">WAREHOUSE NAME</td>
                     <td class="border-bottom row_content_lg">' . $source_sales_office_name . '</td>
                 </tr>
                 <tr>
-                    <td>RRA NUMBER</td>
+                    <td style="font-weight: bold;">RRA NUMBER</td>
                     <td class="border-bottom">' . $rra_no . '</td>
                     <td></td>
-                    <td>CONTACT PERSON</td>
+                    <td style="font-weight: bold;">CONTACT PERSON</td>
                     <td class="border-bottom">' . $source_sales_office_contact_person . '</td>
                 </tr>
                 <tr>
-                    <td>RRA DATE</td>
+                    <td style="font-weight: bold;">RRA DATE</td>
                     <td class="border-bottom">' . $rra_date . '</td>
                     <td></td>
-                    <td>ADDRESS</td>
+                    <td style="font-weight: bold;">ADDRESS</td>
                     <td class="border-bottom">' . $source_sales_office_address . '</td>
                 </tr>
                 <tr>
-                    <td>DR NUMBER</td>
+                    <td style="font-weight: bold;">DR NUMBER</td>
                     <td class="border-bottom">' . $dr_no . '</td>
                     <td></td>
                     <td></td>
@@ -1101,17 +1101,17 @@ class OutgoingInventoryController extends Controller {
         
             <table class="table_details" border="1">
                 <tr>
-                    <td>MM CODE</td>
-                    <td>MM DESCRIPTION</td>
-                    <td>MM BRAND</td>
-                    <td>MM CATEGORY</td>
-                    <td>ALLOCATION</td>
-                    <td>QUANTITY ISSUED</td>
-                    <td>UOM</td>
-                    <td>UNIT PRICE</td>
-                    <td>AMOUNT</td>
-                    <td>EXPIRY DATE</td>
-                    <td>REMARKS</td>
+                    <td style="font-weight: bold;">MM CODE</td>
+                    <td style="font-weight: bold; width: 100px;">MM DESCRIPTION</td>
+                    <td style="font-weight: bold;">MM BRAND</td>
+                    <td style="font-weight: bold;">MM CATEGORY</td>
+                    <td style="font-weight: bold; width: 65px;">ALLOCATION</td>
+                    <td style="font-weight: bold; width: 55px;">QUANTITY ISSUED</td>
+                    <td style="font-weight: bold; width: 40px;">UOM</td>
+                    <td style="font-weight: bold;">UNIT PRICE</td>
+                    <td style="font-weight: bold;">AMOUNT</td>
+                    <td style="font-weight: bold;">EXPIRY DATE</td>
+                    <td style="font-weight: bold;">REMARKS</td>
                 </tr>';
 
         $planned_qty = 0;
@@ -1142,13 +1142,9 @@ class OutgoingInventoryController extends Controller {
 
         $html .= '<tr>
                     <td colspan="11"></td>
-                </tr>';
-
-        $html .= '<tr>
-                    <td colspan="11"></td>
                 </tr>
                 <tr>
-                    <td colspan="4" style="text-align: right;">GRAND TOTAL</td>
+                    <td colspan="4" style="text-align: right; font-weight: bold;">GRAND TOTAL</td>
                     <td>' . $planned_qty . '</td>
                     <td>' . $actual_qty . '</td>
                     <td></td>
@@ -1161,12 +1157,12 @@ class OutgoingInventoryController extends Controller {
             
             <table class="table_footer">
                 <tr>
-                    <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">REMARKS</td>
-                    <td style="width: 30px;"></td>
-                    <td style="width: 80px;">SHIPPED VIA:</td>
+                    <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000; font-weight: bold;">REMARKS:</td>
+                    <td style="width: 20px;"></td>
+                    <td style="width: 90px; font-weight: bold;">SHIPPED VIA:</td>
                     <td class="border-bottom" style="width: 120px;"></td>
-                    <td style="width: 30px;"></td>
-                    <td style="width: 100px;">TRUCK NO.:</td>
+                    <td style="width: 20px;"></td>
+                    <td style="width: 110px; font-weight: bold;">TRUCK NO.:</td>
                     <td class="border-bottom" style="width: 130px;"></td>
                 </tr>
                 <tr>
@@ -1175,10 +1171,10 @@ class OutgoingInventoryController extends Controller {
                 </tr>
                 <tr>
                     <td></td>
-                    <td>CHECKED BY:</td>
+                    <td style="font-weight: bold;">CHECKED BY:</td>
                     <td class="border-bottom"></td>
                     <td></td>
-                    <td>DRIVER"S NAME:</td>
+                    <td style="font-weight: bold;">DRIVER"S NAME:</td>
                     <td class="border-bottom"></td>
                 </tr>
                 <tr>
@@ -1186,10 +1182,10 @@ class OutgoingInventoryController extends Controller {
                 </tr>
                 <tr>
                     <td></td>
-                    <td>AUTHORIZED BY:</td>
+                    <td style="font-weight: bold;">AUTHORIZED BY:</td>
                     <td class="border-bottom"></td>
                     <td></td>
-                    <td>DRIVER"S SIGNATURE:</td>
+                    <td style="font-weight: bold;">DRIVER"S SIGNATURE:</td>
                     <td class="border-bottom"></td>
                 </tr>
                 <tr><td colspan="6"></td></tr>

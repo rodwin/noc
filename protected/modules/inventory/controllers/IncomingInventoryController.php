@@ -333,6 +333,7 @@ class IncomingInventoryController extends Controller {
             "destination_zone_id" => isset($value->outgoingInventory->destination_zone_id) ? $value->outgoingInventory->destination_zone_id : null,
             "destination_zone_name" => isset($value->outgoingInventory->zone->zone_name) ? $value->outgoingInventory->zone->zone_name : null,
             "plan_delivery_date" => isset($value->outgoingInventory->plan_delivery_date) ? $value->outgoingInventory->plan_delivery_date : null,
+            "plan_arrival_date" => isset($value->outgoingInventory->plan_arrival_date) ? $value->outgoingInventory->plan_arrival_date : null,
             "outgoing_inventory_id" => isset($value->outgoingInventory->outgoing_inventory_id) ? $value->outgoingInventory->outgoing_inventory_id : null,
             "rra_no" => isset($value->outgoingInventory->rra_no) ? $value->outgoingInventory->rra_no : null,
         );
@@ -900,62 +901,62 @@ class IncomingInventoryController extends Controller {
         
         <table class="table_main">
             <tr>
-                <td clss="row_label">SALES OFFICE / SALESMAN</td>
+                <td clss="row_label" style="font-weight: bold;">SALES OFFICE / SALESMAN</td>
                 <td class="border-bottom row_content_lg">' . $sales_office_name . '</td>
                 <td style="width: 10px;"></td>
-                <td clss="row_label">DELIVERY DATE</td>
+                <td clss="row_label" style="font-weight: bold;">DELIVERY DATE</td>
                 <td class="border-bottom row_content_sm">' . $transaction_date . '</td>
             </tr>
             <tr>
-                <td>ADDRESS</td>
+                <td style="font-weight: bold;">ADDRESS</td>
                 <td class="border-bottom">' . $sales_office_address . '</td>
                 <td></td>
-                <td>PLAN DELIVERY DATE</td>
+                <td style="font-weight: bold;">PLAN DELIVERY DATE</td>
                 <td class="border-bottom">' . $plan_delivery_date . '</td>
             </tr>
         </table><br/><br/>
         
         <table class="table_main">
             <tr>
-                <td clss="row_label">PR NUMBER</td>
+                <td clss="row_label" style="font-weight: bold;">PR NUMBER</td>
                 <td class="border-bottom row_content_sm">' . $pr_no . '</td>
                 <td style="width: 10px;"></td>
-                <td clss="row_label">WAREHOUSE NAME</td>
+                <td clss="row_label" style="font-weight: bold;">WAREHOUSE NAME</td>
                 <td class="border-bottom row_content_lg">' . $source_sales_office_name . '</td>
             </tr>
             <tr>
-                <td>RRA NUMBER</td>
+                <td style="font-weight: bold;">RRA NUMBER</td>
                 <td class="border-bottom">' . $rra_no . '</td>
                 <td></td>
-                <td>CONTACT PERSON</td>
+                <td style="font-weight: bold;">CONTACT PERSON</td>
                 <td class="border-bottom">' . $source_sales_office_contact_person . '</td>
             </tr>
             <tr>
-                <td>DR NUMBER</td>
+                <td style="font-weight: bold;">DR NUMBER</td>
                 <td class="border-bottom">' . $dr_no . '</td>
                 <td></td>
-                <td>ADDRESS</td>
+                <td style="font-weight: bold;">ADDRESS</td>
                 <td class="border-bottom">' . $source_sales_office_address . '</td>
             </tr>
             <tr>
-                <td>DR DATE</td>
+                <td style="font-weight: bold;">DR DATE</td>
                 <td class="border-bottom">' . $dr_date . '</td>
             </tr>
         </table><br/><br/><br/> 
         
         <table class="table_details" border="1">
             <tr>
-                <td>MM CODE</td>
-                <td>MM DESCRIPTION</td>
-                <td>MM BRAND</td>
-                <td>MM CATEGORY</td>
-                <td>ALLOCATION</td>
-                <td>QUANTITY RECEIVED</td>
-                <td>UOM</td>
-                <td>UNIT PRICE</td>
-                <td>AMOUNT</td>
-                <td>EXPIRY DATE</td>
-                <td>REMARKS</td>
+                <td style="font-weight: bold;">MM CODE</td>
+                <td style="font-weight: bold; width: 100px;">MM DESCRIPTION</td>
+                <td style="font-weight: bold;">MM BRAND</td>
+                <td style="font-weight: bold;">MM CATEGORY</td>
+                <td style="font-weight: bold; width: 65px;">ALLOCATION</td>
+                <td style="font-weight: bold; width: 55px;">QUANTITY RECEIVED</td>
+                <td style="font-weight: bold; width: 40px;">UOM</td>
+                <td style="font-weight: bold;">UNIT PRICE</td>
+                <td style="font-weight: bold;">AMOUNT</td>
+                <td style="font-weight: bold;">EXPIRY DATE</td>
+                <td style="font-weight: bold;">REMARKS</td>
             </tr>';
 
         $planned_qty = 0;
@@ -986,13 +987,9 @@ class IncomingInventoryController extends Controller {
 
         $html .= '<tr>
                     <td colspan="11"></td>
-                </tr>';
-
-        $html .= '<tr>
-                    <td colspan="11"></td>
                 </tr>
                 <tr>
-                    <td colspan="4" style="text-align: right;">GRAND TOTAL</td>
+                    <td colspan="4" style="text-align: right; font-weight: bold;">GRAND TOTAL</td>
                     <td>' . $planned_qty . '</td>
                     <td>' . $actual_qty . '</td>
                     <td></td>
@@ -1005,11 +1002,11 @@ class IncomingInventoryController extends Controller {
             
                 <table class="table_footer">
                     <tr>
-                        <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">REMARKS</td>
+                        <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000; font-weight: bold;">REMARKS:</td>
                         <td style="width: 100px;"></td>
-                        <td style="width: 150px;">DELIVERED BY</td>
+                        <td style="width: 150px; font-weight: bold;">DELIVERED BY:</td>
                         <td style="width: 100px;"></td>
-                        <td style="width: 150px;">RECEIVED BY</td>
+                        <td style="width: 150px; font-weight: bold;">RECEIVED BY:</td>
                     </tr>
                     <tr>
                         <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000; min-height: 50px; height: 50px;"><br/><br/>' . $headers['remarks'] . '</td>

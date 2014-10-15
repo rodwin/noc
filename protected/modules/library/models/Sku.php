@@ -720,7 +720,7 @@ class Sku extends CActiveRecord {
     public function skuAllTypes() {
         return array(
             'PROMO',
-            'MERCHANDIZING',
+            'MERCHANDISING',
             Sku::INFRA,
         );
     }
