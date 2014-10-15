@@ -15,7 +15,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
 
 <div class="row">
     <div class="col-md-6">
-        <div class="box box-solid box-danger">
+        <div id="inv_notification" class="box box-solid box-danger">
             <div class="box-header">
                 <i class="fa fa-warning"></i>
                 <h3 class="box-title">Notification</h3>
@@ -33,11 +33,12 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                     </table>
                 </div>
             </div>
+            <div class="loading-img" style="display: none;"></div>
         </div>        
     </div>
 
     <div class="col-md-6">
-        <div class="box box-solid box-info">
+        <div id="inv_summary_line_chart" class="box box-solid box-info">
             <div class="box-header">
                 <i class="fa fa-bar-chart-o"></i>
                 <h3 class="box-title">Inventory Summary</h3>
@@ -77,6 +78,8 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
 
                 <div class="clearfix"></div>
             </div>
+            <div class="overlay" style="display: none;"></div>
+            <div class="loading-img" style="display: none;"></div>
         </div>
     </div>
 </div>
@@ -166,13 +169,20 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
     $(function() {
 
         $.ajax({
-            dataType: 'json',
-            url: "<?php echo Yii::app()->createUrl('inventory/inventory/loadTotalInventoryPerMonth'); ?>"
-        }).done(function(data) {
+            url: '<?php echo Yii::app()->createUrl('inventory/inventory/loadTotalInventoryPerMonth'); ?>',
+            dataType: "json",
+            beforeSend: function(data) {
+                $("#inv_summary_line_chart .loading-img").show();
+            },
+            success: function(data) {
 
-            inventory_line_chart.setData(data);
-        }).fail(function() {
-            alert("Error occured: Please try again.");
+                inventory_line_chart.setData(data);
+                $("#inv_summary_line_chart .loading-img").hide();
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+                $("#inv_summary_line_chart .loading-img").hide();
+            }
         });
 
         inventory_line_chart = new Morris.Line({
@@ -205,20 +215,22 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
         });
 
         $.ajax({
-            dataType: 'json',
-            url: "<?php echo Yii::app()->createUrl('inventory/inventory/loadNotifications'); ?>"
-        }).done(function(data) {
+            dataType: "json",
+            url: "<?php echo Yii::app()->createUrl('inventory/inventory/loadNotifications'); ?>",
+            beforeSend: function(data) {},
+            success: function(data) {
 
-            $.each(data.data, function(i, v) {
-                notification_table.fnAddData([
-                    v.transaction_type,
-                    v.plan_date,
-                    v.status
-                ]);
-            });
-
-        }).fail(function() {
-            alert("Error occured: Please try again.");
+                $.each(data.data, function(i, v) {
+                    notification_table.fnAddData([
+                        v.transaction_type,
+                        v.plan_date,
+                        v.status
+                    ]);
+                });
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
         });
 
         incoming_inbound_table = $('#incoming_inbound_table').dataTable({
@@ -304,15 +316,21 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
 
         $.ajax({
             type: "POST",
-            dataType: 'json',
+            dataType: "json",
             url: "<?php echo Yii::app()->createUrl('inventory/inventory/loadTotalInventoryPerMonthByBrandCategoryID'); ?>",
-            data: {"brand_category_id": brand_category_id, "brand_id": brand_id}
-        }).done(function(data) {
+            data: {"brand_category_id": brand_category_id, "brand_id": brand_id},
+            beforeSend: function(data) {
+                $("#inv_summary_line_chart .loading-img").show();
+            },
+            success: function(data) {
 
-            inventory_line_chart.setData(data);
-        }).fail(function() {
-
-            alert("Error occured: Please try again.");
+                inventory_line_chart.setData(data);
+                $("#inv_summary_line_chart .loading-img").hide();
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+                $("#inv_summary_line_chart .loading-img").hide();
+            }
         });
 
     }

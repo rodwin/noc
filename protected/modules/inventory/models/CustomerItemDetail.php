@@ -47,7 +47,7 @@ class CustomerItemDetail extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, inventory_id, sku_id, uom_id, quantity_issued, amount', 'required'),
+            array('company_id, sku_id, uom_id, quantity_issued, amount', 'required'),
             array('customer_item_id, inventory_id, planned_quantity, quantity_issued, inventory_on_hand', 'numerical', 'integerOnly' => true),
             array('company_id, batch_no, sku_id, uom_id, sku_status_id, created_by, updated_by', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),
@@ -217,7 +217,7 @@ class CustomerItemDetail extends CActiveRecord {
         $customer_item_transaction_detail = new CustomerItemDetail;
         $customer_item_transaction_detail->customer_item_id = $customer_item_id;
         $customer_item_transaction_detail->company_id = $company_id;
-        $customer_item_transaction_detail->inventory_id = $inventory_id;
+//        $customer_item_transaction_detail->inventory_id = $inventory_id;
         $customer_item_transaction_detail->batch_no = $batch_no;
         $customer_item_transaction_detail->sku_id = $sku_id;
         $customer_item_transaction_detail->uom_id = $uom_id;
@@ -233,7 +233,7 @@ class CustomerItemDetail extends CActiveRecord {
         $customer_item_transaction_detail->created_by = $created_by;
 
         if ($customer_item_transaction_detail->save(false)) {
-            $this->decreaseInventory($customer_item_transaction_detail->inventory_id, $customer_item_transaction_detail->quantity_issued, $transaction_date, $customer_item_transaction_detail->unit_price, $customer_item_transaction_detail->created_by);
+            $this->decreaseInventory($inventory_id, $customer_item_transaction_detail->quantity_issued, $transaction_date, $customer_item_transaction_detail->unit_price, $customer_item_transaction_detail->created_by);
         } else {
             return $customer_item_transaction_detail->getErrors();
         }

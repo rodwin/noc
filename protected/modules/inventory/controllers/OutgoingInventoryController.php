@@ -1210,34 +1210,7 @@ class OutgoingInventoryController extends Controller {
                     <td colspan="5"></td>
                     <td colspan="2" style="text-align: center;">NAME & SIGNATURE OF RECEIPIENT</td>
                 </tr>
-            </table><br/><br/><br/><br/><br/>';
-
-        $html .= '<table class="noted" style="border-style: dashed dashed dashed dashed;">
-                    <tr>
-                        <td>Noted:</td>
-                        <td colspan="11"></td>
-                    </tr> 
-                    <tr>
-                        <td></td>
-                        <td colspan="2"><b>TERM</b></td>
-                        <td colspan="2"><b>DEEFINITION</b></td>
-                        <td colspan="6"></td>
-                    </tr>  
-                    <tr><td colspan="11"></td></tr>
-                    <tr>
-                        <td></td>
-                        <td colspan="2">Allocation</td>
-                        <td colspan="2">Planned QTY</td>
-                        <td colspan="6"></td>
-                    </tr>    
-                    <tr>
-                        <td></td>
-                        <td colspan="2">Qty Issued</td>
-                        <td colspan="2">Actual QTY</td>
-                        <td colspan="6"></td>
-                    </tr>  
-                    <tr><td colspan="11"></td></tr>              
-                </table>';
+            </table>';
 
         $pdf->writeHTML($html, true, false, true, false, '');
 
