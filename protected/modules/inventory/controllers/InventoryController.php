@@ -758,7 +758,7 @@ class InventoryController extends Controller {
             $row['pr_no'] = $v2->pr_no;
             $row['dr_no'] = $v2->dr_no;
             $row['source'] = $v2->zone->zone_name;
-            $row['plan_arrival_date'] = date("d-M", strtotime($v2->plan_delivery_date));
+            $row['plan_arrival_date'] = isset($v2->plan_arrival_date) ? date("d-M", strtotime($v2->plan_arrival_date)) : "";
             $row['qty'] = $v2->total_quantity;
             $row['amount'] = "&#x20B1;" . number_format($v2->total_amount, 2, '.', ',');
             $row['status'] = $status;
@@ -796,7 +796,7 @@ class InventoryController extends Controller {
             $row['pr_no'] = $v3->pr_no;
             $row['dr_no'] = $v3->dr_no;
             $row['source'] = $v3->zone->zone_name;
-            $row['plan_arrival_date'] = date("d-M", strtotime($v3->plan_arrival_date));
+            $row['plan_arrival_date'] = isset($v3->plan_arrival_date) ? date("d-M", strtotime($v3->plan_arrival_date)) : "";
             $row['qty'] = $v3->total_quantity;
             $row['amount'] = "&#x20B1;" . number_format($v3->total_amount, 2, '.', ',');
             $row['status'] = $status;
@@ -822,7 +822,7 @@ class InventoryController extends Controller {
             $row['pr_no'] = $v4->pr_no;
             $row['dr_no'] = $v4->dr_no;
             $row['source'] = $v4->zone->zone_name;
-            $row['plan_arrival_date'] = date("d-M", strtotime($v4->plan_delivery_date));
+            $row['plan_arrival_date'] = isset($v4->plan_delivery_date) ? date("d-M", strtotime($v4->plan_delivery_date)) : "";
             $row['qty'] = $v4->total_quantity;
             $row['amount'] = "&#x20B1;" . number_format($v4->total_amount, 2, '.', ',');
             $row['status'] = "";

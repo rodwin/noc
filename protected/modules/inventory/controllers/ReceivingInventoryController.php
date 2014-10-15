@@ -959,11 +959,11 @@ class ReceivingInventoryController extends Controller {
             
         <table class="table_footer">
             <tr>
-                <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">DELIVERY REMARKS</td>
+                <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">DELIVERY REMARKS:</td>
                 <td style="width: 100px;"></td>
-                <td style="width: 150px;">DELIVERED BY</td>
+                <td style="width: 150px;">DELIVERED BY:</td>
                 <td style="width: 100px;"></td>
-                <td style="width: 150px;">RECEIVED BY</td>
+                <td style="width: 150px;">RECEIVED BY:</td>
             </tr>
             <tr>
                 <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000; min-height: 50px; height: 50px;"><br/><br/><br/><br/><br/>' . $headers['delivery_remarks'] . '</td>

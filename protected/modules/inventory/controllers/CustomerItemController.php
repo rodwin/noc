@@ -946,7 +946,7 @@ class CustomerItemController extends Controller {
             
                <table class="table_footer">
                     <tr>
-                        <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">REMARKS</td>
+                        <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">REMARKS:</td>
                         <td style="width: 30px;"></td>
                         <td style="width: 80px;">SHIPPED VIA:</td>
                         <td class="border-bottom" style="width: 120px;"></td>

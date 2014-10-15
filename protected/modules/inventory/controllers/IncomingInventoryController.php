@@ -333,6 +333,7 @@ class IncomingInventoryController extends Controller {
             "destination_zone_id" => isset($value->outgoingInventory->destination_zone_id) ? $value->outgoingInventory->destination_zone_id : null,
             "destination_zone_name" => isset($value->outgoingInventory->zone->zone_name) ? $value->outgoingInventory->zone->zone_name : null,
             "plan_delivery_date" => isset($value->outgoingInventory->plan_delivery_date) ? $value->outgoingInventory->plan_delivery_date : null,
+            "plan_arrival_date" => isset($value->outgoingInventory->plan_arrival_date) ? $value->outgoingInventory->plan_arrival_date : null,
             "outgoing_inventory_id" => isset($value->outgoingInventory->outgoing_inventory_id) ? $value->outgoingInventory->outgoing_inventory_id : null,
             "rra_no" => isset($value->outgoingInventory->rra_no) ? $value->outgoingInventory->rra_no : null,
         );
@@ -1005,11 +1006,11 @@ class IncomingInventoryController extends Controller {
             
                 <table class="table_footer">
                     <tr>
-                        <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">REMARKS</td>
+                        <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">REMARKS:</td>
                         <td style="width: 100px;"></td>
-                        <td style="width: 150px;">DELIVERED BY</td>
+                        <td style="width: 150px;">DELIVERED BY:</td>
                         <td style="width: 100px;"></td>
-                        <td style="width: 150px;">RECEIVED BY</td>
+                        <td style="width: 150px;">RECEIVED BY:</td>
                     </tr>
                     <tr>
                         <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000; min-height: 50px; height: 50px;"><br/><br/>' . $headers['remarks'] . '</td>

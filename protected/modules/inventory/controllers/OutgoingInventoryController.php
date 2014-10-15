@@ -940,7 +940,7 @@ class OutgoingInventoryController extends Controller {
 
         unset(Yii::app()->session["post_pdf_data_id"]);
 
-        Yii::app()->session["post_pdf_data_id"] = 'post_pdf_data_' . Globals::generateV4UUID();
+        Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
         Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = Yii::app()->request->getParam('post_data');
 
         $return = array();
@@ -1161,7 +1161,7 @@ class OutgoingInventoryController extends Controller {
             
             <table class="table_footer">
                 <tr>
-                    <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">REMARKS</td>
+                    <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">REMARKS:</td>
                     <td style="width: 30px;"></td>
                     <td style="width: 80px;">SHIPPED VIA:</td>
                     <td class="border-bottom" style="width: 120px;"></td>

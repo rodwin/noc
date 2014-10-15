@@ -45,11 +45,11 @@ class IncomingInventory extends CActiveRecord {
             array('total_amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
             array('destination_zone_id', 'isValidZone'),
-            array('transaction_date, pr_date, plan_delivery_date, revised_delivery_date, dr_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
+            array('transaction_date, pr_date, plan_delivery_date, revised_delivery_date, plan_arrival_date, dr_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('transaction_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('incoming_inventory_id, company_id, campaign_no, pr_no, pr_date, dr_no, dr_date, source_zone_id, destination_zone_id, transaction_date, plan_delivery_date, revised_delivery_date, status, total_amount, created_date, created_by, updated_date, updated_by, rra_no', 'safe', 'on' => 'search'),
+            array('incoming_inventory_id, company_id, campaign_no, pr_no, pr_date, dr_no, dr_date, source_zone_id, destination_zone_id, transaction_date, plan_delivery_date, revised_delivery_date, plan_arrival_date, status, total_amount, created_date, created_by, updated_date, updated_by, rra_no', 'safe', 'on' => 'search'),
         );
     }
 
@@ -70,6 +70,9 @@ class IncomingInventory extends CActiveRecord {
         }
         if ($this->revised_delivery_date == "") {
             $this->revised_delivery_date = null;
+        }
+        if ($this->plan_arrival_date == "") {
+            $this->plan_arrival_date = null;
         }
 
         return parent::beforeValidate();
@@ -105,6 +108,7 @@ class IncomingInventory extends CActiveRecord {
             'transaction_date' => 'Transaction Date',
             'plan_delivery_date' => 'Plan Delivery Date',
             'revised_delivery_date' => 'Revised Delivery Date',
+            'plan_arrival_date' => 'Plan Arrival Date',
             'status' => 'Status',
             'remarks' => 'Remarks',
             'total_amount' => 'Total Amount',
@@ -145,6 +149,7 @@ class IncomingInventory extends CActiveRecord {
         $criteria->compare('transaction_date', $this->transaction_date, true);
         $criteria->compare('plan_delivery_date', $this->plan_delivery_date, true);
         $criteria->compare('revised_delivery_date', $this->revised_delivery_date, true);
+        $criteria->compare('plan_arrival_date', $this->plan_arrival_date, true);
         $criteria->compare('remarks', $this->remarks, true);
         $criteria->compare('total_amount', $this->total_amount, true);
         $criteria->compare('created_date', $this->created_date, true);
@@ -269,6 +274,7 @@ class IncomingInventory extends CActiveRecord {
                 'pr_date' => $this->pr_date,
                 'plan_delivery_date' => $this->plan_delivery_date,
                 'revised_delivery_date' => $this->revised_delivery_date,
+                'plan_arrival_date' => $this->plan_arrival_date,
                 'status' => $incoming_status,
                 'remarks' => $this->remarks,
                 'total_amount' => $this->total_amount,

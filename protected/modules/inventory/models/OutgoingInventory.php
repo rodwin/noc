@@ -61,7 +61,7 @@ class OutgoingInventory extends CActiveRecord {
             array('remarks', 'length', 'max' => 150),
             array('closed', 'length', 'max' => 1),
             array('destination_zone_id', 'isValidZone'),
-            array('pr_date, dr_date, transaction_date, plan_delivery_date, revised_delivery_date, actual_delivery_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
+            array('pr_date, dr_date, transaction_date, plan_delivery_date, plan_arrival_date, revised_delivery_date, actual_delivery_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('pr_date, plan_delivery_date, revised_delivery_date, actual_delivery_date, plan_arrival_date, transaction_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
@@ -89,6 +89,9 @@ class OutgoingInventory extends CActiveRecord {
         }
         if ($this->actual_delivery_date == "") {
             $this->actual_delivery_date = null;
+        }
+        if ($this->plan_arrival_date == "") {
+            $this->plan_arrival_date = null;
         }
 
         return parent::beforeValidate();
@@ -293,6 +296,7 @@ class OutgoingInventory extends CActiveRecord {
                 'pr_no' => $this->pr_no,
                 'pr_date' => $this->pr_date,
                 'plan_delivery_date' => $this->plan_delivery_date,
+                'plan_arrival_date' => $this->plan_arrival_date,
                 'revised_delivery_date' => $this->revised_delivery_date,
                 'actual_delivery_date' => $this->actual_delivery_date,
                 'transaction_date' => $this->transaction_date,
