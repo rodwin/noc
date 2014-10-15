@@ -650,7 +650,7 @@ class DefaultController extends Controller
         
         public function ActionTlAttendance()
         {
-            
+           
             $total = new Pome;   
             $month = $_GET['month'];
             $data_actual = $total->GetRoutePerLeader($_GET['month'],$_GET['agency'],$_GET['brand'],$_GET['teamlead'],$_GET['year']);
@@ -777,13 +777,15 @@ class DefaultController extends Controller
             }
             
             if($_GET['qtr'] == 'JFM'){
-                $from = date($_GET['year'].'-07-01');
-                $to = date($_GET['year'].'-12-31');
+                $year = $_GET['year'] - 1;
+                $from = date($year.'-07-01');
+                $to = date($year.'-12-31');
                 $name = 'JAS-OND';
     
             }elseif($_GET['qtr'] == 'AMJ'){
-                $from = date($_GET['year'].'-07-01');
-                $to = date($_GET['year'].'-03-31');
+                $year = $_GET['year'] - 1;
+                $from = date($year.'-07-01');
+                $to = date($year.'-03-31');
                  $name = 'JAS-JFM';
             }elseif($_GET['qtr'] == 'OND'){
                  $from = date($_GET['year'].'-07-01');
@@ -794,7 +796,8 @@ class DefaultController extends Controller
                 $to = ''; 
                 $name = '';
             }
-
+//           pr($from);
+//           pr($to);
             $total = new Pome;
             $reach = $total->getTargetReachQTR($from,$to,$_GET['brand']);
             $bws = $total->getBwsByAgencyQTR($agency,$from,$to,$_GET['brand']);
