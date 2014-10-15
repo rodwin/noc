@@ -128,7 +128,7 @@ class IncomingInventoryDetail extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, inventory_id, sku_id, uom_id, source_zone_id, quantity_received, amount', 'required'),
+            array('company_id, sku_id, uom_id, source_zone_id, quantity_received, amount', 'required'),
             array('incoming_inventory_id, inventory_id, planned_quantity, quantity_received, inventory_on_hand', 'numerical', 'integerOnly' => true),
             array('company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, status, created_by, updated_by', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),
@@ -325,7 +325,7 @@ class IncomingInventoryDetail extends CActiveRecord {
         $incoming_transaction_detail = new IncomingInventoryDetail;
         $incoming_transaction_detail->incoming_inventory_id = $incoming_inventory_id;
         $incoming_transaction_detail->company_id = $company_id;
-        $incoming_transaction_detail->inventory_id = $inventory_id;
+//        $incoming_transaction_detail->inventory_id = $inventory_id;
         $incoming_transaction_detail->batch_no = $batch_no;
         $incoming_transaction_detail->sku_id = $sku_id;
         $incoming_transaction_detail->uom_id = $uom_id;
