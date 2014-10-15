@@ -94,14 +94,14 @@ class Pome extends CFormModel {
        }
        
       
-        $current_month = date('m');
-        if($month == $current_month ){
-          $date1 = date($year.'-'.$month.'-d');
-          $to = date($year.'-m-d',strtotime($date1)); 
-        }else{
+//        $current_month = date('m');
+//        if($month == $current_month ){
+//          $date1 = date($year.'-'.$month.'-d');
+//          $to = date($year.'-m-d',strtotime($date1)); 
+//        }else{
           $date1 = date($year.'-'.$month.'-01');
           $to = date($year.'-m-t',strtotime($date1));
-        }
+//        }
 
          $from = date($year.'-'.$month.'-01');
 
@@ -622,14 +622,14 @@ class Pome extends CFormModel {
        }
        
       
-        $current_month = date('m');
-        if($month == $current_month ){
-          $date1 = date($year.'-'.$month.'-d');
-          $to = date($year.'-m-d',strtotime($date1)); 
-        }else{
+//        $current_month = date('m');
+//        if($month == $current_month ){
+//          $date1 = date($year.'-'.$month.'-d');
+//          $to = date($year.'-m-d',strtotime($date1)); 
+//        }else{
           $date1 = date($year.'-'.$month.'-01');
           $to = date($year.'-m-t',strtotime($date1));
-        }
+//        }
 
         $from = date($year.'-'.$month.'-01');
 
