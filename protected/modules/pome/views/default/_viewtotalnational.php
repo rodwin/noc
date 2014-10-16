@@ -159,7 +159,7 @@
                 $("#TotalNational_qtr").hide();  
              },
             'success':function(data) {
-             alert(data.length);
+             //alert(data.length);
                for(var i = 0; i < data.length; i++){
                     labels_ttl_view.push(data[i].name);
                   
