@@ -25,7 +25,8 @@ class InventoryController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view', 'trans', 'test', 'increase', 'history', 'decrease', 'convert', 'move', 'updateStatus', 'apply'),
+                'actions' => array('index', 'view', 'trans', 'test', 'increase', 'history', 'decrease', 'convert', 'move', 'updateStatus', 'apply', 'loadTotalInventoryPerMonth',
+                    'loadTotalInventoryPerMonthByBrandCategoryID', 'loadNotifications', 'loadAllTransactionInv'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -636,6 +637,217 @@ class InventoryController extends Controller {
             echo CActiveForm::validate($model);
             Yii::app()->end();
         }
+    }
+
+    public function actionLoadTotalInventoryPerMonth() {
+
+        $months = array();
+        for ($i = 0; $i < 6; $i++) {
+            $row = array();
+
+            $year = date('Y', strtotime(date('Y-m') . " -" . $i . " month"));
+            $month = date('m', strtotime(date('Y-m') . " -" . $i . " month"));
+
+            $inventory = Inventory::model()->getTotalInventoryOnHandByMonth($year, $month);
+
+            $row["month"] = $year . "-" . $month;
+            $row["inventory_on_hand"] = isset($inventory->inventory_on_hand) ? $inventory->inventory_on_hand : 0;
+            $row["inventory"] = 0;
+
+            $months[] = $row;
+        }
+
+        echo json_encode($months);
+        Yii::app()->end();
+    }
+
+    public function actionLoadTotalInventoryPerMonthByBrandCategoryID() {
+
+        $brand_category_id = Yii::app()->request->getParam("brand_category_id");
+        $brand_id = Yii::app()->request->getParam("brand_id");
+
+        $months = array();
+        for ($i = 0; $i < 6; $i++) {
+            $row = array();
+
+            $year = date('Y', strtotime(date('Y-m') . " -" . $i . " month"));
+            $month = date('m', strtotime(date('Y-m') . " -" . $i . " month"));
+
+            $inventory = Inventory::model()->getTotalInventoryOnHandByMonthAndByBrand($year, $month, $brand_category_id, $brand_id);
+
+            $row["month"] = $year . "-" . $month;
+            $row["inventory_on_hand"] = isset($inventory->inventory_on_hand) ? $inventory->inventory_on_hand : 0;
+            $row["inventory"] = 0;
+
+            $months[] = $row;
+        }
+
+        echo json_encode($months);
+        Yii::app()->end();
+    }
+
+    public function actionLoadNotifications() {
+
+        $c = new CDbCriteria;
+        $c->condition = "t.closed = 0";
+        $outbound = OutgoingInventory::model()->findAll($c);
+
+        $outbound_arr = array();
+        foreach ($outbound as $key => $val) {
+            $row = array();
+
+            $status = Inventory::model()->status($val->status);
+
+            $row['transaction_type'] = '<a href="#" title="Click to view" data-toggle="tooltip"><b>' . strtoupper(OutgoingInventory::OUTGOING_LABEL) . '</b></a>';
+            $row['plan_date'] = date("d-M", strtotime($val->plan_arrival_date));
+            $row['status'] = $status;
+
+            $outbound_arr['data'][] = $row;
+        }
+
+        $output = array_merge($outbound_arr);
+
+        echo json_encode($output);
+        Yii::app()->end();
+    }
+
+    public function actionLoadAllTransactionInv() {
+
+        $c1 = new CDbCriteria;
+        $c1->select = "t.*, SUM(receiving_inventory_detail.quantity_received) as total_quantity";
+        $c1->join = "INNER JOIN receiving_inventory_detail ON receiving_inventory_detail.receiving_inventory_id = t.receiving_inventory_id";
+        $c1->order = "t.created_date DESC";
+        $c1->limit = 3;
+        $c1->group = "t.receiving_inventory_id";
+        $receiving = ReceivingInventory::model()->findAll($c1);
+
+        $receiving_arr = array();
+        foreach ($receiving as $k1 => $v1) {
+            $row = array();
+
+            $row['transaction_date'] = date("d-M", strtotime($v1->transaction_date));
+            $row['transaction_type'] = strtoupper(ReceivingInventory::RECEIVING_LABEL);
+            $row['pr_no'] = $v1->pr_no;
+            $row['dr_no'] = $v1->dr_no;
+            $row['source'] = $v1->zone->zone_name;
+            $row['plan_arrival_date'] = date("d-M", strtotime($v1->plan_arrival_date));
+            $row['qty'] = $v1->total_quantity;
+            $row['amount'] = "&#x20B1;" . number_format($v1->total_amount, 2, '.', ',');
+            $row['status'] = "";
+            $row['created_date'] = $v1->created_date;
+
+            $receiving_arr[] = $row;
+        }
+
+        $c2 = new CDbCriteria;
+        $c2->select = "t.*, SUM(incoming_inventory_detail.quantity_received) as total_quantity";
+        $c2->join = "INNER JOIN incoming_inventory_detail ON incoming_inventory_detail.incoming_inventory_id = t.incoming_inventory_id";
+        $c2->order = "t.created_date DESC";
+        $c2->limit = 3;
+        $c2->group = "t.incoming_inventory_id";
+        $incoming = IncomingInventory::model()->findAll($c2);
+
+        $incoming_arr = array();
+        foreach ($incoming as $k1 => $v2) {
+            $row = array();
+
+            $status = Inventory::model()->status($v2->status);
+
+            $row['transaction_date'] = date("d-M", strtotime($v2->transaction_date));
+            $row['transaction_type'] = strtoupper(IncomingInventory::INCOMING_LABEL);
+            $row['pr_no'] = $v2->pr_no;
+            $row['dr_no'] = $v2->dr_no;
+            $row['source'] = $v2->zone->zone_name;
+            $row['plan_arrival_date'] = isset($v2->plan_arrival_date) ? date("d-M", strtotime($v2->plan_arrival_date)) : "";
+            $row['qty'] = $v2->total_quantity;
+            $row['amount'] = "&#x20B1;" . number_format($v2->total_amount, 2, '.', ',');
+            $row['status'] = $status;
+            $row['created_date'] = $v2->created_date;
+
+            $incoming_arr[] = $row;
+        }
+
+        $incoming_inbound = array_merge($receiving_arr, $incoming_arr);
+
+        $sort1['sort'] = array();
+        foreach ($incoming_inbound as $key1 => $val1) {
+            $sort1['sort'][$key1] = $val1['created_date'];
+        }
+
+        array_multisort($sort1['sort'], SORT_DESC, $incoming_inbound);
+        $new_incoming_inbound_arr = array_slice($incoming_inbound, 0, 3);
+
+        $c3 = new CDbCriteria;
+        $c3->select = "t.*, SUM(outgoing_inventory_detail.quantity_issued) as total_quantity";
+        $c3->join = "INNER JOIN outgoing_inventory_detail ON outgoing_inventory_detail.outgoing_inventory_id = t.outgoing_inventory_id";
+        $c3->order = "t.created_date DESC";
+        $c3->limit = 3;
+        $c3->group = "t.outgoing_inventory_id";
+        $outbound = OutgoingInventory::model()->findAll($c3);
+
+        $outbound_arr = array();
+        foreach ($outbound as $k3 => $v3) {
+            $row = array();
+            
+            $status = Inventory::model()->status($v3->status);
+
+            $row['transaction_date'] = date("d-M", strtotime($v3->transaction_date));
+            $row['transaction_type'] = strtoupper(OutgoingInventory::OUTGOING_LABEL);
+            $row['pr_no'] = $v3->pr_no;
+            $row['dr_no'] = $v3->dr_no;
+            $row['source'] = $v3->zone->zone_name;
+            $row['plan_arrival_date'] = isset($v3->plan_arrival_date) ? date("d-M", strtotime($v3->plan_arrival_date)) : "";
+            $row['qty'] = $v3->total_quantity;
+            $row['amount'] = "&#x20B1;" . number_format($v3->total_amount, 2, '.', ',');
+            $row['status'] = $status;
+            $row['created_date'] = $v3->created_date;
+
+            $outbound_arr[] = $row;
+        }
+
+        $c4 = new CDbCriteria;
+        $c4->select = "t.*, SUM(customer_item_detail.quantity_issued) as total_quantity";
+        $c4->join = "INNER JOIN customer_item_detail ON customer_item_detail.customer_item_id = t.customer_item_id";
+        $c4->order = "t.created_date DESC";
+        $c4->limit = 3;
+        $c4->group = "t.customer_item_id";
+        $outgoing = CustomerItem::model()->findAll($c4);
+
+        $outgoing_arr = array();
+        foreach ($outgoing as $k4 => $v4) {
+            $row = array();
+
+            $row['transaction_date'] = date("d-M", strtotime($v4->transaction_date));
+            $row['transaction_type'] = strtoupper(CustomerItem::CUSTOMER_ITEM_LABEL);
+            $row['pr_no'] = $v4->pr_no;
+            $row['dr_no'] = $v4->dr_no;
+            $row['source'] = $v4->zone->zone_name;
+            $row['plan_arrival_date'] = isset($v4->plan_delivery_date) ? date("d-M", strtotime($v4->plan_delivery_date)) : "";
+            $row['qty'] = $v4->total_quantity;
+            $row['amount'] = "&#x20B1;" . number_format($v4->total_amount, 2, '.', ',');
+            $row['status'] = "";
+            $row['created_date'] = $v4->created_date;
+
+            $outgoing_arr[] = $row;
+        }   
+        
+        $outbound_outgoing = array_merge($outbound_arr, $outgoing_arr);
+        
+        $sort2['sort'] = array();
+        foreach ($outbound_outgoing as $key2 => $val2) {
+            $sort2['sort'][$key2] = $val2['created_date'];
+        }
+        
+        array_multisort($sort2['sort'], SORT_DESC, $outbound_outgoing);
+        $new_outbound_outgoing_arr = array_slice($outbound_outgoing, 0, 3);
+        
+        $output = array(
+            'incoming_inbound' => $new_incoming_inbound_arr,
+            'outbound_outgoing' => $new_outbound_outgoing_arr
+        );
+
+        echo json_encode($output);
+        Yii::app()->end();
     }
 
 }

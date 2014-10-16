@@ -26,6 +26,7 @@
 class CustomerItem extends CActiveRecord {
 
     public $search_string;
+    public $total_quantity;
 
     const CUSTOMER_ITEM_LABEL = "Outgoing";
 
@@ -285,6 +286,7 @@ class CustomerItem extends CActiveRecord {
                 'pr_date' => $this->pr_date,
                 'plan_delivery_date' => $this->plan_delivery_date,
                 'revised_delivery_date' => $this->revised_delivery_date,
+                'remarks' => $this->remarks,
                 'total_amount' => $this->total_amount,
                 'created_by' => $this->created_by,
             );

@@ -755,6 +755,29 @@ class ReceivingInventoryController extends Controller {
 
         unset(Yii::app()->session["post_pdf_data_id"]);
 
+
+        Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
+        Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = Yii::app()->request->getParam('post_data');
+
+        $return = array();
+        if (Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] == "") {
+            $return["success"] = false;
+            return false;
+        }
+
+        $return["success"] = true;
+        $return["id"] = Yii::app()->session["post_pdf_data_id"];
+
+        echo json_encode($return);
+        Yii::app()->end();
+    }
+
+    public function actionLoadPDF($id) {
+
+        $data = Yii::app()->session[$id];
+        
+        ob_start();
+
         Yii::app()->session["post_pdf_data_id"] = 'post_pdf_data_' . Globals::generateV4UUID();
         Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = Yii::app()->request->getParam('post_data');
 
@@ -789,7 +812,7 @@ class ReceivingInventoryController extends Controller {
 
         $c3 = new CDbCriteria();
         $c3->select = new CDbExpression('t.*, CONCAT(TRIM(barangay.barangay_name), ", ", TRIM(municipal.municipal_name), ", ", TRIM(province.province_name), ", ", TRIM(region.region_name)) AS full_address');
-        $c3->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = "' . $zone->salesOffice->sales_office_id . '"';
+        $c3->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = "' . $headers['sales_office_id'] . '"';
         $c3->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
         $c3->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
         $c3->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
@@ -837,12 +860,15 @@ class ReceivingInventoryController extends Controller {
             .sub-title { font-size: 10px; }
             .title-report { font-size: 15px; font-weight: bold; } 
             .table_main { font-size: 8px; }
-            .table_details { font-size: 8px; width: 100%; }
+
+            .table_details { font-size: 8px; }
+
             .table_footer { font-size: 8px; width: 100%; }
             .border-bottom { border-bottom: 1px solid #333; font-size: 8px; }
             .row_label { width: 120px; }
             .row_content_sm { width: 100px; }
             .row_content_lg { width: 300px; }
+            .align-right { text-align: right; }
         </style>
                 
         <div id="header" class="text-center">
@@ -854,65 +880,67 @@ class ReceivingInventoryController extends Controller {
         <br/><br/>
         <table class="table_main">
             <tr>
-                <td clss="row_label">WAREHOUSE NAME</td>
+                <td clss="row_label" style="font-weight: bold;">WAREHOUSE NAME</td>
                 <td class="border-bottom row_content_lg">' . $warehouse_name . '</td>
                 <td style="width: 10px;"></td>
-                <td clss="row_label">DELIVERY DATE</td>
+                <td clss="row_label" style="font-weight: bold;">DELIVERY DATE</td>
                 <td class="border-bottom row_content_sm">' . $transaction_date . '</td>
             </tr>
             <tr>
-                <td>ADDRESS</td>
+                <td style="font-weight: bold;">ADDRESS</td>
                 <td class="border-bottom">' . $warehouse_address . '</td>
                 <td></td>
-                <td>PLAN DELIVERY DATE</td>
+                <td style="font-weight: bold;">PLAN DELIVERY DATE</td>
                 <td class="border-bottom">' . $plan_delivery_date . '</td>
             </tr>
         </table><br/><br/>
                 
         <table class="table_main">
             <tr>
-                <td clss="row_label">CAMPAIGN NUMBER</td>
+                <td clss="row_label" style="font-weight: bold;">CAMPAIGN NUMBER</td>
                 <td class="border-bottom row_content_sm">' . $campaign_no . '</td>
                 <td style="width: 10px;"></td>
-                <td clss="row_label">DESTINATION ZONE</td>
+                <td clss="row_label" style="font-weight: bold;">DESTINATION ZONE</td>
                 <td class="border-bottom row_content_lg">' . $destination_zone . '</td>
             </tr>
             <tr>
-                <td>PR NUMBER</td>
+                <td style="font-weight: bold;">PR NUMBER</td>
                 <td class="border-bottom">' . $pr_no . '</td>
                 <td></td>
-                <td>SUPPLIER NAME</td>
+                <td style="font-weight: bold;">SUPPLIER NAME</td>
                 <td class="border-bottom">' . $supplier_name . '</td>
             </tr>
             <tr>
-                <td>PR DATE</td>
+                <td style="font-weight: bold;">PR DATE</td>
                 <td class="border-bottom">' . $pr_date . '</td>
                 <td></td>
-                <td>CONTACT PERSON</td>
+                <td style="font-weight: bold;">CONTACT PERSON</td>
                 <td class="border-bottom">' . $contact_person . '</td>
             </tr>
             <tr>
-                <td>DR NUMBER</td>
+                <td style="font-weight: bold;">DR NUMBER</td>
                 <td class="border-bottom">' . $dr_no . '</td>
                 <td></td>
-                <td>ADDRESS</td>
+                <td style="font-weight: bold;">ADDRESS</td>
                 <td class="border-bottom">' . $address . '</td>
             </tr>
         </table><br/><br/><br/>  
         
         <table class="table_details" border="1">
             <tr>
-                <td>MM CODE</td>
-                <td>MM DESCRIPTION</td>
-                <td>MM BRAND</td>
-                <td>MM CATEGORY</td>
-                <td>PLAN QUANTITY</td>
-                <td>QUANTITY RECEIVED</td>
-                <td>UOM</td>
-                <td>UNIT PRICE</td>
-                <td>AMOUNT</td>
-                <td>MM STATUS</td>
-                <td>MM REMARKS</td>
+
+                <td style="font-weight: bold;">MM CODE</td>
+                <td style="font-weight: bold; width: 100px;">MM DESCRIPTION</td>
+                <td style="font-weight: bold;">MM BRAND</td>
+                <td style="font-weight: bold;">MM CATEGORY</td>
+                <td style="font-weight: bold; width: 55px;">PLAN QUANTITY</td>
+                <td style="font-weight: bold; width: 55px;">QUANTITY RECEIVED</td>
+                <td style="font-weight: bold; width: 40px;">UOM</td>
+                <td style="font-weight: bold;">UNIT PRICE</td>
+                <td style="font-weight: bold;">AMOUNT</td>
+                <td style="font-weight: bold;">MM STATUS</td>
+                <td style="font-weight: bold;">MM REMARKS</td>
+
             </tr>';
 
         $planned_qty = 0;
@@ -932,8 +960,10 @@ class ReceivingInventoryController extends Controller {
                         <td>' . $val['planned_quantity'] . '</td>
                         <td>' . $val['qty_received'] . '</td>
                         <td>' . $uom->uom_name . '</td>
-                        <td>&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
-                        <td>&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
+
+                        <td class="align-right">&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
+                        <td class="align-right">&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
+
                         <td>' . $status . '</td>
                         <td>' . $val['remarks'] . '</td>
                     </tr>';
@@ -947,12 +977,14 @@ class ReceivingInventoryController extends Controller {
                     <td colspan="11"></td>
                 </tr>
                 <tr>
-                    <td colspan="4" style="text-align: right;">GRAND TOTAL</td>
+                    <td colspan="4" style="text-align: right; font-weight: bold;">GRAND TOTAL</td>
                     <td>' . $planned_qty . '</td>
                     <td>' . $actual_qty . '</td>
                     <td></td>
-                    <td>&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
-                    <td>&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
+
+                    <td class="align-right">&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
+                    <td class="align-right">&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
+
                     <td colspan="2"></td>
                 </tr>';
 
@@ -960,11 +992,12 @@ class ReceivingInventoryController extends Controller {
             
         <table class="table_footer">
             <tr>
-                <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">DELIVERY REMARKS</td>
+
+                <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000; font-weight: bold;">DELIVERY REMARKS:</td>
                 <td style="width: 100px;"></td>
-                <td style="width: 150px;">DELIVERED BY</td>
+                <td style="width: 150px; font-weight: bold;">DELIVERED BY:</td>
                 <td style="width: 100px;"></td>
-                <td style="width: 150px;">RECEIVED BY</td>
+                <td style="width: 150px; font-weight: bold;">RECEIVED BY:</td>
             </tr>
             <tr>
                 <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000; min-height: 50px; height: 50px;"><br/><br/><br/><br/><br/>' . $headers['delivery_remarks'] . '</td>

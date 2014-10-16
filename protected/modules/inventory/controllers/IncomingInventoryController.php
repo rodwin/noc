@@ -84,8 +84,8 @@ class IncomingInventoryController extends Controller {
             $row['pr_date'] = $value->pr_date;
             $row['dr_no'] = $value->dr_no;
             $row['rra_no'] = $value->rra_no;
-            $row['zone_id'] = $value->zone_id;
-            $row['zone_name'] = $value->zone->zone_name;
+            $row['destination_zone_id'] = $value->destination_zone_id;
+            $row['destination_zone_name'] = $value->zone->zone_name;
             $row['transaction_date'] = $value->transaction_date;
             $row['status'] = $status;
             $row['total_amount'] = $value->total_amount;
@@ -325,12 +325,15 @@ class IncomingInventoryController extends Controller {
         }
 
         $header = array(
+            "dr_date" => isset($value->outgoingInventory->dr_date) ? $value->outgoingInventory->dr_date : null,
             "campaign_no" => isset($value->outgoingInventory->campaign_no) ? $value->outgoingInventory->campaign_no : null,
             "pr_no" => isset($value->outgoingInventory->pr_no) ? $value->outgoingInventory->pr_no : null,
             "pr_date" => isset($value->outgoingInventory->pr_date) ? $value->outgoingInventory->pr_date : null,
-            "zone_id" => isset($value->outgoingInventory->destination_zone_id) ? $value->outgoingInventory->destination_zone_id : null,
-            "zone_name" => isset($value->outgoingInventory->zone->zone_name) ? $value->outgoingInventory->zone->zone_name : null,
+            "source_zone_id" => isset($value->source_zone_id) ? $value->source_zone_id : null,
+            "destination_zone_id" => isset($value->outgoingInventory->destination_zone_id) ? $value->outgoingInventory->destination_zone_id : null,
+            "destination_zone_name" => isset($value->outgoingInventory->zone->zone_name) ? $value->outgoingInventory->zone->zone_name : null,
             "plan_delivery_date" => isset($value->outgoingInventory->plan_delivery_date) ? $value->outgoingInventory->plan_delivery_date : null,
+            "plan_arrival_date" => isset($value->outgoingInventory->plan_arrival_date) ? $value->outgoingInventory->plan_arrival_date : null,
             "outgoing_inventory_id" => isset($value->outgoingInventory->outgoing_inventory_id) ? $value->outgoingInventory->outgoing_inventory_id : null,
             "rra_no" => isset($value->outgoingInventory->rra_no) ? $value->outgoingInventory->rra_no : null,
         );
@@ -786,7 +789,9 @@ class IncomingInventoryController extends Controller {
 
         unset(Yii::app()->session["post_pdf_data_id"]);
 
-        Yii::app()->session["post_pdf_data_id"] = 'post_pdf_data_' . Globals::generateV4UUID();
+
+        Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
+
         Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = Yii::app()->request->getParam('post_data');
 
         $return = array();
@@ -805,14 +810,15 @@ class IncomingInventoryController extends Controller {
     public function actionLoadPDF($id) {
 
         $data = Yii::app()->session[$id];
-
         ob_start();
 
         $headers = $data['IncomingInventory'];
         $details = $data['transaction_details'];
 
         $c1 = new CDbCriteria();
-        $c1->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.zone_id = "' . $headers['zone_id'] . '"';
+
+        $c1->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.zone_id = "' . $headers['destination_zone_id'] . '"';
+
         $c1->with = array("salesOffice");
         $zone = Zone::model()->find($c1);
 
@@ -824,11 +830,12 @@ class IncomingInventoryController extends Controller {
         $c2->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
         $c2->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
         $salesoffice = Salesoffice::model()->find($c2);
-       
+        
         $c3 = new CDbCriteria;
         $c3->select = new CDbExpression('t.*, CONCAT(TRIM(t.first_name), " ", TRIM(t.last_name)) as fullname');
         $c3->condition = 't.company_id = "' . Yii::app()->user->company_id . '"';
-        $c2->join .= ' LEFT JOIN zone ON zone.zone_id = t.default_zone_id';
+        $c3->join .= ' LEFT JOIN zone ON zone.zone_id = t.default_zone_id';
+
         $employee = Employee::model()->find($c3);
 
         if ($employee && $employee->default_zone_id == $zone->zone_id) {
@@ -844,7 +851,28 @@ class IncomingInventoryController extends Controller {
         $pr_no = $headers['pr_no'];
         $rra_no = $headers['rra_no'];
         $dr_no = $headers['dr_no'];
-        $dr_date = "";
+
+        $dr_date = $headers['dr_date'];
+
+        $c4 = new CDbCriteria();
+        $c4->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.zone_id = "' . $headers['source_zone_id'] . '"';
+        $c4->with = array("salesOffice");
+        $source_zone = Zone::model()->find($c4);
+
+        $c5 = new CDbCriteria();
+        $c5->select = new CDbExpression('t.*, CONCAT(TRIM(barangay.barangay_name), ", ", TRIM(municipal.municipal_name), ", ", TRIM(province.province_name), ", ", TRIM(region.region_name)) AS full_address');
+        $c5->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = "' . $source_zone->salesOffice->sales_office_id . '"';
+        $c5->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
+        $c5->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
+        $c5->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
+        $c5->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
+        $source_salesoffice = Salesoffice::model()->find($c5);
+
+        $source_sales_office_name = isset($source_salesoffice->sales_office_name) ? $source_salesoffice->sales_office_name : "";
+        $source_sales_office_contact_person = "";
+        $source_sales_office_address = isset($source_salesoffice->full_address) ? $source_salesoffice->full_address : "";
+
+
 
         $pdf = Globals::pdf();
 
@@ -868,6 +896,9 @@ class IncomingInventoryController extends Controller {
             .row_label { width: 120px; }
             .row_content_sm { width: 100px; }
             .row_content_lg { width: 300px; }
+
+            .align-right { text-align: right; }
+
         </style>
                 
         <div id="header" class="text-center">
@@ -878,62 +909,68 @@ class IncomingInventoryController extends Controller {
         
         <table class="table_main">
             <tr>
-                <td clss="row_label">SALES OFFICE / SALESMAN</td>
+
+                <td clss="row_label" style="font-weight: bold;">SALES OFFICE / SALESMAN</td>
                 <td class="border-bottom row_content_lg">' . $sales_office_name . '</td>
                 <td style="width: 10px;"></td>
-                <td clss="row_label">DELIVERY DATE</td>
+                <td clss="row_label" style="font-weight: bold;">DELIVERY DATE</td>
                 <td class="border-bottom row_content_sm">' . $transaction_date . '</td>
             </tr>
             <tr>
-                <td>ADDRESS</td>
+                <td style="font-weight: bold;">ADDRESS</td>
                 <td class="border-bottom">' . $sales_office_address . '</td>
                 <td></td>
-                <td>PLAN DELIVERY DATE</td>
+                <td style="font-weight: bold;">PLAN DELIVERY DATE</td>
+
                 <td class="border-bottom">' . $plan_delivery_date . '</td>
             </tr>
         </table><br/><br/>
         
         <table class="table_main">
             <tr>
-                <td clss="row_label">PR NUMBER</td>
+
+                <td clss="row_label" style="font-weight: bold;">PR NUMBER</td>
                 <td class="border-bottom row_content_sm">' . $pr_no . '</td>
                 <td style="width: 10px;"></td>
-                <td clss="row_label">WAREHOUSE NAME</td>
-                <td class="border-bottom row_content_lg"></td>
+                <td clss="row_label" style="font-weight: bold;">WAREHOUSE NAME</td>
+                <td class="border-bottom row_content_lg">' . $source_sales_office_name . '</td>
             </tr>
             <tr>
-                <td>RRA NUMBER</td>
+                <td style="font-weight: bold;">RRA NUMBER</td>
                 <td class="border-bottom">' . $rra_no . '</td>
                 <td></td>
-                <td>CONTACT PERSON</td>
-                <td class="border-bottom"></td>
+                <td style="font-weight: bold;">CONTACT PERSON</td>
+                <td class="border-bottom">' . $source_sales_office_contact_person . '</td>
             </tr>
             <tr>
-                <td>DR NUMBER</td>
+                <td style="font-weight: bold;">DR NUMBER</td>
                 <td class="border-bottom">' . $dr_no . '</td>
                 <td></td>
-                <td>ADDRESS</td>
-                <td class="border-bottom"></td>
+                <td style="font-weight: bold;">ADDRESS</td>
+                <td class="border-bottom">' . $source_sales_office_address . '</td>
             </tr>
             <tr>
-                <td>DR DATE</td>
+                <td style="font-weight: bold;">DR DATE</td>
+
                 <td class="border-bottom">' . $dr_date . '</td>
             </tr>
         </table><br/><br/><br/> 
         
         <table class="table_details" border="1">
             <tr>
-                <td>MM CODE</td>
-                <td>MM DESCRIPTION</td>
-                <td>MM BRAND</td>
-                <td>MM CATEGORY</td>
-                <td>ALLOCATION</td>
-                <td>QUANTITY RECEIVED</td>
-                <td>UOM</td>
-                <td>UNIT PRICE</td>
-                <td>AMOUNT</td>
-                <td>EXPIRY DATE</td>
-                <td>REMARKS</td>
+
+                <td style="font-weight: bold;">MM CODE</td>
+                <td style="font-weight: bold; width: 100px;">MM DESCRIPTION</td>
+                <td style="font-weight: bold;">MM BRAND</td>
+                <td style="font-weight: bold;">MM CATEGORY</td>
+                <td style="font-weight: bold; width: 65px;">ALLOCATION</td>
+                <td style="font-weight: bold; width: 55px;">QUANTITY RECEIVED</td>
+                <td style="font-weight: bold; width: 40px;">UOM</td>
+                <td style="font-weight: bold;">UNIT PRICE</td>
+                <td style="font-weight: bold;">AMOUNT</td>
+                <td style="font-weight: bold;">EXPIRY DATE</td>
+                <td style="font-weight: bold;">REMARKS</td>
+
             </tr>';
 
         $planned_qty = 0;
@@ -951,8 +988,10 @@ class IncomingInventoryController extends Controller {
                         <td>' . $val['planned_quantity'] . '</td>
                         <td>' . $val['quantity_received'] . '</td>
                         <td>' . $uom->uom_name . '</td>
-                        <td>&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
-                        <td>&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
+
+                        <td class="align-right">&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
+                        <td class="align-right">&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
+
                         <td>' . $val['expiration_date'] . '</td>
                         <td>' . $val['status'] . '</td>
                     </tr>';
@@ -964,18 +1003,16 @@ class IncomingInventoryController extends Controller {
 
         $html .= '<tr>
                     <td colspan="11"></td>
-                </tr>';
 
-        $html .= '<tr>
-                    <td colspan="11"></td>
                 </tr>
                 <tr>
-                    <td colspan="4" style="text-align: right;">GRAND TOTAL</td>
+                    <td colspan="4" style="text-align: right; font-weight: bold;">GRAND TOTAL</td>
                     <td>' . $planned_qty . '</td>
                     <td>' . $actual_qty . '</td>
                     <td></td>
-                    <td>&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
-                    <td>&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
+                    <td class="align-right">&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
+                    <td class="align-right">&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
+
                     <td colspan="2"></td>
                 </tr>';
 
@@ -983,11 +1020,12 @@ class IncomingInventoryController extends Controller {
             
                 <table class="table_footer">
                     <tr>
-                        <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;">REMARKS</td>
+                        <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000; font-weight: bold;">REMARKS:</td>
                         <td style="width: 100px;"></td>
-                        <td style="width: 150px;">DELIVERED BY</td>
+                        <td style="width: 150px; font-weight: bold;">DELIVERED BY:</td>
                         <td style="width: 100px;"></td>
-                        <td style="width: 150px;">RECEIVED BY</td>
+                        <td style="width: 150px; font-weight: bold;">RECEIVED BY:</td>
+
                     </tr>
                     <tr>
                         <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000; min-height: 50px; height: 50px;"><br/><br/>' . $headers['remarks'] . '</td>

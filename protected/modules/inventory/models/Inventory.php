@@ -32,6 +32,7 @@ class Inventory extends CActiveRecord {
 
     public $search_string;
     public $inventory_on_hand;
+    public $total_ave_cost_per_unit;
 
     const INVENTORY_ACTION_TYPE_INCREASE = 'increase';
     const INVENTORY_ACTION_TYPE_DECREASE = 'decrease';
@@ -337,6 +338,111 @@ class Inventory extends CActiveRecord {
 
     public function updateInvByInvID($inventory_id, $company_id, $quantity) {
         Inventory::model()->updateAll(array('qty' => $quantity), 'inventory_id = ' . $inventory_id . ' AND company_id = "' . $company_id . '"');
+    }
+
+    public function getTotalCountInventoryByMonth($year, $month) {
+
+        $c = new CDbCriteria;
+        $c->select = "t.*, AVG(inventoryHistories.ave_cost_per_unit) as total_ave_cost_per_unit";
+        $c->condition = "YEAR(t.created_date) = '" . $year . "' AND MONTH(t.created_date) = '" . $month . "' AND inventoryHistories.created_date = (SELECT MAX(z.created_date) FROM inventory_history z WHERE z.inventory_id = t.inventory_id)";
+        $c->with = array("inventoryHistories");
+        $c->group = "YEAR(t.created_date), MONTH(t.created_date)";
+        $inventory = Inventory::model()->find($c);
+
+        return $inventory;
+    }
+
+    public function getTotalCountInventoryByMonthAndByBrand($year, $month, $brand_category_id, $brand_id) {
+
+        $qry = array();
+
+        if ($brand_category_id != "") {
+            $qry[] = "brand_category.brand_category_id = '" . $brand_category_id . "'";
+        }
+        if ($brand_id != "") {
+            $qry[] = "brand.brand_id = '" . $brand_id . "'";
+        }
+
+        if (count($qry) > 0) {
+            $criteria = "AND " . implode(" AND ", $qry);
+        } else {
+            $criteria = "";
+        }
+
+        $c = new CDbCriteria;
+        $c->select = "t.*, AVG(inventoryHistories.ave_cost_per_unit) as total_ave_cost_per_unit";
+        $c->condition = "YEAR(t.created_date) = '" . $year . "' AND MONTH(t.created_date) = '" . $month . "' AND inventoryHistories.created_date = (SELECT MAX(z.created_date) FROM inventory_history z WHERE z.inventory_id = t.inventory_id) $criteria";
+        $c->with = array("inventoryHistories");
+        $c->join = "LEFT JOIN sku ON sku.sku_id = t.sku_id";
+        $c->join .= " LEFT JOIN brand ON brand.brand_id = sku.brand_id";
+        $c->join .= " LEFT JOIN brand_category ON brand_category.brand_category_id = brand.brand_category_id";
+        $c->group = "YEAR(t.created_date), MONTH(t.created_date)";
+        $inventory = Inventory::model()->find($c);
+
+        return $inventory;
+    }
+
+    public function getTotalInventoryOnHandByMonth($year, $month) {
+
+        $c = new CDbCriteria;
+        $c->select = "t.*, SUM(t.qty) as inventory_on_hand";
+        $c->condition = "YEAR(t.created_date) = '" . $year . "' AND MONTH(t.created_date) = '" . $month . "'";
+        $c->group = "YEAR(t.created_date), MONTH(t.created_date)";
+        $inventory = Inventory::model()->find($c);
+
+        return $inventory;
+    }
+
+    public function getTotalInventoryOnHandByMonthAndByBrand($year, $month, $brand_category_id, $brand_id) {
+
+        $qry = array();
+
+        if ($brand_category_id != "") {
+            $qry[] = "brand_category.brand_category_id = '" . $brand_category_id . "'";
+        }
+        if ($brand_id != "") {
+            $qry[] = "brand.brand_id = '" . $brand_id . "'";
+        }
+
+        if (count($qry) > 0) {
+            $criteria = "AND " . implode(" AND ", $qry);
+        } else {
+            $criteria = "";
+        }
+
+        $c = new CDbCriteria;
+        $c->select = "t.*, SUM(t.qty) as inventory_on_hand";
+        $c->condition = "YEAR(t.created_date) = '" . $year . "' AND MONTH(t.created_date) = '" . $month . "' $criteria";
+        $c->join = "LEFT JOIN sku ON sku.sku_id = t.sku_id";
+        $c->join .= " LEFT JOIN brand ON brand.brand_id = sku.brand_id";
+        $c->join .= " LEFT JOIN brand_category ON brand_category.brand_category_id = brand.brand_category_id";
+        $c->group = "YEAR(t.created_date), MONTH(t.created_date)";
+        $inventory = Inventory::model()->find($c);
+
+        return $inventory;
+    }
+
+    public function status($status_value) {
+
+        $status = "";
+        switch ($status_value) {
+            case OutgoingInventory::OUTGOING_PENDING_STATUS:
+                $status = '<span class="label label-warning">' . OutgoingInventory::OUTGOING_PENDING_STATUS . '</span>';
+                break;
+            case OutgoingInventory::OUTGOING_COMPLETE_STATUS:
+                $status = '<span class="label label-success">' . OutgoingInventory::OUTGOING_COMPLETE_STATUS . '</span>';
+                break;
+            case OutgoingInventory::OUTGOING_INCOMPLETE_STATUS:
+                $status = '<span class="label label-danger">' . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . '</span>';
+                break;
+            case OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS:
+                $status = '<span class="label label-primary">' . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . '</span>';
+                break;
+            default:
+                break;
+        }
+
+        return $status;
     }
 
 }

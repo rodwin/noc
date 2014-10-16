@@ -43,7 +43,7 @@ $this->breadcrumbs = array(
                 <th><?php echo $fields['pr_date']; ?></th>
                 <th><?php echo $fields['rra_no']; ?></th>
                 <th><?php echo $fields['dr_no']; ?></th>
-                <th><?php echo $fields['zone_id']; ?></th>
+                <th><?php echo $fields['destination_zone_id']; ?></th>
                 <th><?php echo $fields['status']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
                 <th><?php echo $fields['created_date']; ?></th>
@@ -152,7 +152,7 @@ $this->breadcrumbs = array(
                 {"name": "pr_date", "data": "pr_date"},
                 {"name": "rra_no", "data": "rra_no"},
                 {"name": "dr_no", "data": "dr_no"},
-                {"name": "zone_name", "data": "zone_name"},
+                {"name": "destination_zone_name", "data": "destination_zone_name"},
                 {"name": "status", "data": "status"},
                 {"name": "total_amount", "data": "total_amount"},
                 {"name": "created_date", "data": "created_date"},

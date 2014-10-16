@@ -151,10 +151,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="col-md-6">
             <div id="input_label" class="pull-left col-md-5">
-                <?php echo $form->labelEx($incoming, 'transaction_date'); ?>
+                <?php echo $form->labelEx($incoming, 'transaction_date'); ?><br/>
+                <?php echo $form->labelEx($incoming, 'dr_date'); ?>
             </div>
             <div class="pull-right col-md-7">
                 <?php echo $form->textFieldGroup($incoming, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'value' => date("Y-m-d"), 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+
+                <?php echo $form->textFieldGroup($incoming, 'dr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
             </div>
         </div>
 
@@ -168,7 +171,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->labelEx($incoming, 'campaign_no'); ?><br/>
                 <?php echo $form->labelEx($incoming, 'pr_no'); ?><br/>
                 <?php echo $form->labelEx($incoming, 'pr_date'); ?><br/>
-                <?php echo $form->labelEx($incoming, 'zone_id'); ?>
+                <?php echo $form->labelEx($incoming, 'destination_zone_id'); ?>
 
             </div>
 
@@ -180,8 +183,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($incoming, 'pr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo CHtml::textField('zone_id', '', array('id' => 'IncomingInventory_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone", 'readonly' => true)); ?>
-                <?php echo $form->textFieldGroup($incoming, 'zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'IncomingInventory_zone', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
+                <?php echo CHtml::textField('destination_zone_id', '', array('id' => 'IncomingInventory_destination_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone", 'readonly' => true)); ?>
+                <?php echo $form->textFieldGroup($incoming, 'destination_zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'IncomingInventory_destination_zone', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
+
+                <?php echo $form->textFieldGroup($incoming, 'source_zone_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
 
             </div>
 
@@ -192,6 +197,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->labelEx($incoming, 'plan_delivery_date'); ?><br/>
                 <?php echo $form->labelEx($incoming, 'revised_delivery_date'); ?><br/>
+                <?php echo $form->labelEx($incoming, 'plan_arrival_date'); ?><br/>
                 <?php echo $form->labelEx($incoming, 'remarks'); ?>
 
             </div>
@@ -201,13 +207,15 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($incoming, 'revised_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
+                <?php echo $form->textFieldGroup($incoming, 'plan_arrival_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+
                 <?php
                 echo $form->textAreaGroup($incoming, 'remarks', array(
                     'wrapperHtmlOptions' => array(
                         'class' => 'span5',
                     ),
                     'widgetOptions' => array(
-                        'htmlOptions' => array('style' => 'resize: none; width: 200px;'),
+                        'htmlOptions' => array('class' => 'ignore', 'style' => 'resize: none; width: 200px;', 'maxlength' => 150),
                     ),
                     'labelOptions' => array('label' => false)));
                 ?>
@@ -490,8 +498,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="row no-print">
             <div class="col-xs-12">
-                <button class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
-                <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload</button>
+
+                <button id="btn_print" class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
+                <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload RRA / DR</button>
                 <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>  
             </div>
         </div>
@@ -537,6 +546,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     var transaction_table;
     var headers = "transaction";
     var details = "details";
+    var print = "print";
     var total_amount = 0;
     $(function() {
 
@@ -631,7 +641,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         var data = $("#incoming-inventory-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable()});
 
-        if ($("#btn_save, #btn_add_item").is("[disabled=disabled]")) {
+        if ($("#btn_save, #btn_add_item, #btn_print").is("[disabled=disabled]")) {
             return false;
         } else {
             $.ajax({
@@ -640,9 +650,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 data: data,
                 dataType: "json",
                 beforeSend: function(data) {
-                    $("#btn_save, #btn_add_item").attr("disabled", "disabled");
+                    $("#btn_save, #btn_add_item, #btn_print").attr("disabled", "disabled");
                     if (form == headers) {
                         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
+                    } else if (form == print) {
+                        $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Loading...');
                     }
                 },
                 success: function(data) {
@@ -650,8 +662,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 },
                 error: function(data) {
                     alert("Error occured: Please try again.");
-                    $("#btn_save, #btn_add_item").attr('disabled', false);
+                    $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
                     $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
+                    $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
                 }
             });
         }
@@ -767,6 +780,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
 //                $("#IncomingInventoryDetail_quantity_received, #IncomingInventoryDetail_unit_price, #IncomingInventoryDetail_amount").val(0);
 
+            } else if (data.form == print && serializeTransactionTable().length > 0) {
+                printPDF(data.print);
             }
 
             inventory_table.fnMultiFilter();
@@ -776,6 +791,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             $("#btn_save, #btn_add_item").attr('disabled', false);
             $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
+            $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
 
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
@@ -783,8 +799,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             });
         }
 
-        $("#btn_save, #btn_add_item").attr('disabled', false);
+        $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
+        $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
     }
 
     function growlAlert(type, message) {
@@ -871,6 +888,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         $('#file_uploads').click();
     });
 
+    $('#btn_print').click(function() {
+        send(print);
+    });
+
     $("#IncomingInventoryDetail_quantity_received").keyup(function(e) {
         var unit_price = 0;
         if ($("#IncomingInventoryDetail_unit_price").val() != "") {
@@ -904,13 +925,16 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     transaction_table.fnDeleteRow(0, null, true);
                 }
 
+                $("#IncomingInventory_dr_date").val(data.headers.dr_date);
                 $("#IncomingInventory_campaign_no").val(data.headers.campaign_no);
                 $("#IncomingInventory_pr_no").val(data.headers.pr_no);
                 $("#IncomingInventory_pr_date").val(data.headers.pr_date);
                 $("#IncomingInventory_rra_no").val(data.headers.rra_no);
-                $("#IncomingInventory_zone_id").val(data.headers.zone_name);
-                $("#IncomingInventory_zone").val(data.headers.zone_id);
+                $("#IncomingInventory_source_zone_id").val(data.headers.source_zone_id);
+                $("#IncomingInventory_destination_zone_id").val(data.headers.destination_zone_name);
+                $("#IncomingInventory_destination_zone").val(data.headers.destination_zone_id);
                 $("#IncomingInventory_plan_delivery_date").val(data.headers.plan_delivery_date);
+                $("#IncomingInventory_plan_arrival_date").val(data.headers.plan_arrival_date);
                 $("#IncomingInventory_outgoing_inventory_id").val(data.headers.outgoing_inventory_id);
 
                 total_amount = 0;
@@ -1056,10 +1080,43 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     $(function() {
-        $('#IncomingInventory_transaction_date, #IncomingInventory_pr_date, #IncomingInventory_plan_delivery_date, #IncomingInventory_revised_delivery_date, #IncomingInventoryDetail_expiration_date, #IncomingInventoryDetail_return_date').datepicker({
+        $('#IncomingInventory_transaction_date, #IncomingInventory_dr_date, #IncomingInventory_pr_date, #IncomingInventory_plan_delivery_date, #IncomingInventory_revised_delivery_date, #IncomingInventory_plan_arrival_date, #IncomingInventoryDetail_expiration_date, #IncomingInventoryDetail_return_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'});
     });
+
+    function printPDF(data) {
+
+        $.ajax({
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/ReceivingInventory/print'); ?> ',
+            type: 'POST',
+            dataType: "json",
+            data: {"post_data": data},
+            success: function(data) {
+                if (data.success === true) {
+                    var params = [
+                        'height=' + screen.height,
+                        'width=' + screen.width,
+                        'fullscreen=yes'
+                    ].join(',');
+
+                    var tab = window.open(<?php echo "'" . Yii::app()->createUrl($this->module->id . '/IncomingInventory/loadPDF') . "'" ?> + "&id=" + data.id, "_blank", params);
+
+                    if (tab) {
+                        tab.focus();
+                        tab.moveTo(0, 0);
+                    } else {
+                        alert('Please allow popups for this site');
+                    }
+                }
+
+                return false;
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+    }
 
 </script>
