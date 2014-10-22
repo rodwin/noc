@@ -174,6 +174,11 @@ class OutgoingInventoryDetail extends CActiveRecord {
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
             'updated_by' => 'Updated By',
+            'campaign_no' => 'Campaign No',
+            'pr_no' => 'PR No',
+            'pr_date' => 'PR Date',
+            'plan_arrival_date' => 'Plan Arrival Date',
+            'revised_delivery_date' => 'Revised Delivery Date',
         );
     }
 

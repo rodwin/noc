@@ -379,6 +379,8 @@ class CustomerItemController extends Controller {
             $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['return_date'] = $value->return_date;
             $row['remarks'] = $value->remarks;
+            $row['campaign_no'] = $value->campaign_no;
+            $row['pr_no'] = $value->pr_no;
 
             $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/customerItem/deleteCustomerItemDetail', array('customer_item_detail_id' => $value->customer_item_detail_id)) . '">
                                 <i class="glyphicon glyphicon-trash"></i>

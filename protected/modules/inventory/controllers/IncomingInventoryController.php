@@ -83,6 +83,7 @@ class IncomingInventoryController extends Controller {
 //            $row['pr_no'] = $value->pr_no;
 //            $row['pr_date'] = $value->pr_date;
             $row['dr_no'] = $value->dr_no;
+            $row['dr_date'] = $value->dr_date;
             $row['rra_no'] = $value->rra_no;
             $row['rra_date'] = $value->rra_date;
             $row['destination_zone_id'] = $value->destination_zone_id;
@@ -322,7 +323,7 @@ class IncomingInventoryController extends Controller {
             "rra_date" => isset($value->outgoingInventory->rra_date) ? $value->outgoingInventory->rra_date : null,
 //            "campaign_no" => isset($value->outgoingInventory->campaign_no) ? $value->outgoingInventory->campaign_no : null,
 //            "pr_no" => isset($value->outgoingInventory->pr_no) ? $value->outgoingInventory->pr_no : null,
-//            "pr_date" => isset($value->outgoingInventory->pr_date) ? $value->outgoingInventory->pr_date : null,
+            "dr_date" => isset($value->outgoingInventory->transaction_date) ? $value->outgoingInventory->transaction_date : null,
             "source_zone_id" => "",
             "destination_zone_id" => isset($value->outgoingInventory->destination_zone_id) ? $value->outgoingInventory->destination_zone_id : null,
             "destination_zone_name" => isset($value->outgoingInventory->zone->zone_name) ? $value->outgoingInventory->zone->zone_name : null,
@@ -379,7 +380,7 @@ class IncomingInventoryController extends Controller {
         $c->compare("company_id", Yii::app()->user->company_id);
         $c->compare("incoming_inventory_id", $incoming_inv_id);
         $incoming_inv_details = IncomingInventoryDetail::model()->findAll($c);
-
+         
         $output = array();
         foreach ($incoming_inv_details as $key => $value) {
             $row = array();
@@ -420,6 +421,8 @@ class IncomingInventoryController extends Controller {
             $row['return_date'] = $value->return_date;
             $row['status'] = $status;
             $row['remarks'] = $value->remarks;
+            $row['campaign_no'] = $value->campaign_no;
+            $row['pr_no'] = $value->pr_no;
 
             $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/incomingInventory/deleteIncomingDetail', array('incoming_inv_detail_id' => $value->incoming_inventory_detail_id)) . '">
                                 <i class="glyphicon glyphicon-trash"></i>

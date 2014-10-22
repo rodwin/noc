@@ -414,6 +414,8 @@ class OutgoingInventoryController extends Controller {
             $row['return_date'] = $value->return_date;
             $row['status'] = $status;
             $row['remarks'] = $value->remarks;
+            $row['campaign_no'] = $value->campaign_no;
+            $row['pr_no'] = $value->pr_no;
 
             $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/outgoingInventory/deleteOutgoingDetail', array('outgoing_inv_detail_id' => $value->outgoing_inventory_detail_id)) . '">
                                 <i class="glyphicon glyphicon-trash"></i>
