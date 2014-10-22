@@ -1005,22 +1005,30 @@ class OutgoingInventoryController extends Controller {
             $sales_office_name = isset($salesoffice->sales_office_name) ? $salesoffice->sales_office_name : "";
             $sales_office_address = isset($salesoffice->full_address) ? $salesoffice->full_address : "";
         }
-        
+
         $transaction_date = $headers['transaction_date'];
         $plan_delivery_date = $headers['plan_delivery_date'];
-        $pr_no = $headers['pr_no'];
+
+        $pr_nos = "";
+        foreach ($details as $key => $val) {
+            $inv = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $val['inventory_id']));
+
+            $pr_nos .= $inv->pr_no . ",";
+        }
+        
+        $pr_no = substr($pr_nos, 0, -1);
         $rra_no = $headers['rra_no'];
-        $rra_date = $headers['pr_date'];
+        $rra_date = $headers['rra_date'];
         $dr_no = $headers['dr_no'];
 
         $c3 = new CDbCriteria();
         $c3->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.zone_id = "' . $headers['source_zone_id'] . '"';
         $c3->with = array("salesOffice");
         $souce_zone = Zone::model()->find($c3);
-
+        
         $c4 = new CDbCriteria();
         $c4->select = new CDbExpression('t.*, CONCAT(TRIM(barangay.barangay_name), ", ", TRIM(municipal.municipal_name), ", ", TRIM(province.province_name), ", ", TRIM(region.region_name)) AS full_address');
-        $c4->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = "' . $souce_zone->salesOffice->sales_office_id . '"';
+        $c4->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = ""';
         $c4->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
         $c4->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
         $c4->join .= ' LEFT JOIN province ON province.province_code = t.province_id';

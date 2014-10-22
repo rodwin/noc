@@ -182,9 +182,9 @@ class IncomingInventoryController extends Controller {
                         } else {
 
                             $incoming->outgoing_inventory_id = $_POST['IncomingInventory']['outgoing_inventory_id'];
-                            
+
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
-                            
+
                             if ($incoming->create($transaction_details)) {
                                 $data['message'] = 'Successfully created';
                                 $data['success'] = true;
@@ -214,7 +214,7 @@ class IncomingInventoryController extends Controller {
                         $data['success'] = false;
                         $data["type"] = "danger";
                     } else {
-                        
+
                         $c = new CDbCriteria;
                         $c->compare('t.company_id', Yii::app()->user->company_id);
                         $c->compare('t.sku_id', $transaction_detail->sku_id);
@@ -838,10 +838,19 @@ class IncomingInventoryController extends Controller {
 
         $transaction_date = $headers['transaction_date'];
         $plan_delivery_date = $headers['plan_delivery_date'];
-        $pr_no = $headers['pr_no'];
+
+        $pr_nos = "";
+        foreach ($details as $key => $val) {
+            if ($val['inventory_id'] != "") {
+                $inv = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $val['inventory_id']));
+                $pr_nos .= $inv->pr_no . ",";
+            }
+        }
+
+        $pr_no = substr($pr_nos, 0, -1);
         $rra_no = $headers['rra_no'];
         $dr_no = $headers['dr_no'];
-        $dr_date = $headers['dr_date'];
+        $dr_date = $headers['transaction_date'];
 
         $c4 = new CDbCriteria();
         $c4->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.zone_id = "' . $headers['source_zone_id'] . '"';
@@ -850,7 +859,7 @@ class IncomingInventoryController extends Controller {
 
         $c5 = new CDbCriteria();
         $c5->select = new CDbExpression('t.*, CONCAT(TRIM(barangay.barangay_name), ", ", TRIM(municipal.municipal_name), ", ", TRIM(province.province_name), ", ", TRIM(region.region_name)) AS full_address');
-        $c5->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = "' . $source_zone->salesOffice->sales_office_id . '"';
+        $c5->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = ""';
         $c5->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
         $c5->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
         $c5->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
