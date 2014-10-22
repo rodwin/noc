@@ -40,16 +40,16 @@ class IncomingInventory extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, dr_no, dr_date, pr_no, pr_date, transaction_date, rra_no', 'required'),
-            array('company_id, campaign_no, pr_no, dr_no, source_zone_id, destination_zone_id, status, created_by, updated_by, rra_no', 'length', 'max' => 50),
+            array('company_id, dr_no, transaction_date', 'required'),
+            array('company_id, dr_no, source_zone_id, destination_zone_id, status, created_by, updated_by, rra_no', 'length', 'max' => 50),
             array('total_amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
             array('destination_zone_id', 'isValidZone'),
-            array('transaction_date, pr_date, plan_delivery_date, revised_delivery_date, plan_arrival_date, dr_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
+            array('transaction_date, plan_delivery_date, rra_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('transaction_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('incoming_inventory_id, company_id, campaign_no, pr_no, pr_date, dr_no, dr_date, source_zone_id, destination_zone_id, transaction_date, plan_delivery_date, revised_delivery_date, plan_arrival_date, status, total_amount, created_date, created_by, updated_date, updated_by, rra_no', 'safe', 'on' => 'search'),
+            array('incoming_inventory_id, company_id, dr_no, rra_date, source_zone_id, destination_zone_id, transaction_date, plan_delivery_date, status, total_amount, created_date, created_by, updated_date, updated_by, rra_no', 'safe', 'on' => 'search'),
         );
     }
 
@@ -68,12 +68,15 @@ class IncomingInventory extends CActiveRecord {
         if ($this->plan_delivery_date == "") {
             $this->plan_delivery_date = null;
         }
-        if ($this->revised_delivery_date == "") {
-            $this->revised_delivery_date = null;
+        if ($this->rra_date == "") {
+            $this->rra_date = null;
         }
-        if ($this->plan_arrival_date == "") {
-            $this->plan_arrival_date = null;
-        }
+//        if ($this->revised_delivery_date == "") {
+//            $this->revised_delivery_date = null;
+//        }
+//        if ($this->plan_arrival_date == "") {
+//            $this->plan_arrival_date = null;
+//        }
 
         return parent::beforeValidate();
     }
@@ -97,18 +100,18 @@ class IncomingInventory extends CActiveRecord {
         return array(
             'incoming_inventory_id' => 'Incoming Inventory',
             'company_id' => 'Company',
-            'campaign_no' => 'Campaign No',
-            'pr_no' => 'PR No',
-            'pr_date' => 'PR Date',
+//            'campaign_no' => 'Campaign No',
+//            'pr_no' => 'PR No',
+//            'pr_date' => 'PR Date',
             'dr_no' => 'DR No',
-            'dr_date' => 'DR Date',
+            'rra_date' => 'RRA Date',
             'rra_no' => 'RRA No',
             'source_zone_id' => 'Source Zone',
             'destination_zone_id' => 'Destination Zone',
             'transaction_date' => 'Transaction Date',
             'plan_delivery_date' => 'Plan Delivery Date',
-            'revised_delivery_date' => 'Revised Delivery Date',
-            'plan_arrival_date' => 'Plan Arrival Date',
+//            'revised_delivery_date' => 'Revised Delivery Date',
+//            'plan_arrival_date' => 'Plan Arrival Date',
             'status' => 'Status',
             'remarks' => 'Remarks',
             'total_amount' => 'Total Amount',
@@ -138,18 +141,18 @@ class IncomingInventory extends CActiveRecord {
 
         $criteria->compare('incoming_inventory_id', $this->incoming_inventory_id);
         $criteria->compare('company_id', Yii::app()->user->company_id);
-        $criteria->compare('campaign_no', $this->campaign_no, true);
-        $criteria->compare('pr_no', $this->pr_no, true);
-        $criteria->compare('pr_date', $this->pr_date, true);
+//        $criteria->compare('campaign_no', $this->campaign_no, true);
+//        $criteria->compare('pr_no', $this->pr_no, true);
+//        $criteria->compare('pr_date', $this->pr_date, true);
         $criteria->compare('dr_no', $this->dr_no, true);
-        $criteria->compare('dr_date', $this->dr_date, true);
+        $criteria->compare('rra_date', $this->rra_date, true);
         $criteria->compare('rra_no', $this->rra_no, true);
         $criteria->compare('source_zone_id', $this->source_zone_id, true);
         $criteria->compare('destination_zone_id', $this->destination_zone_id, true);
         $criteria->compare('transaction_date', $this->transaction_date, true);
         $criteria->compare('plan_delivery_date', $this->plan_delivery_date, true);
-        $criteria->compare('revised_delivery_date', $this->revised_delivery_date, true);
-        $criteria->compare('plan_arrival_date', $this->plan_arrival_date, true);
+//        $criteria->compare('revised_delivery_date', $this->revised_delivery_date, true);
+//        $criteria->compare('plan_arrival_date', $this->plan_arrival_date, true);
         $criteria->compare('remarks', $this->remarks, true);
         $criteria->compare('total_amount', $this->total_amount, true);
         $criteria->compare('created_date', $this->created_date, true);
@@ -166,38 +169,42 @@ class IncomingInventory extends CActiveRecord {
         switch ($col) {
 
             case 0:
-                $sort_column = 't.campaign_no';
-                break;
+//                $sort_column = 't.campaign_no';
+//                break;
+//
+//            case 1:
+//                $sort_column = 't.pr_no';
+//                break;
+//
+//            case 2:
+//                $sort_column = 't.pr_date';
+//                break;
 
-            case 1:
-                $sort_column = 't.pr_no';
-                break;
-
-            case 2:
-                $sort_column = 't.pr_date';
-                break;
-
-            case 3:
-                $sort_column = 't.rra_no';
-                break;
-
-            case 4:
+            case 0:
                 $sort_column = 't.dr_no';
                 break;
 
-            case 5:
+            case 1:
+                $sort_column = 't.rra_no';
+                break;
+
+            case 2:
+                $sort_column = 't.rra_date';
+                break;
+
+            case 3:
                 $sort_column = 'zone.zone_name';
                 break;
 
-            case 6:
+            case 4:
                 $sort_column = 't.status';
                 break;
 
-            case 7:
+            case 5:
                 $sort_column = 't.total_amount';
                 break;
 
-            case 8:
+            case 6:
                 $sort_column = 't.created_date';
                 break;
         }
@@ -205,15 +212,16 @@ class IncomingInventory extends CActiveRecord {
 
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
-        $criteria->compare('t.campaign_no', $columns[0]['search']['value'], true);
-        $criteria->compare('t.pr_no', $columns[1]['search']['value'], true);
-        $criteria->compare('t.pr_date', $columns[2]['search']['value'], true);
-        $criteria->compare('t.dr_no', $columns[3]['search']['value'], true);
-        $criteria->compare('t.rra_no', $columns[4]['search']['value'], true);
-        $criteria->compare('zone.zone_name', $columns[5]['search']['value'], true);
-        $criteria->compare('t.status', $columns[6]['search']['value'], true);
-        $criteria->compare('t.total_amount', $columns[7]['search']['value'], true);
-        $criteria->compare('t.created_date', $columns[8]['search']['value'], true);
+//        $criteria->compare('t.campaign_no', $columns[0]['search']['value'], true);
+//        $criteria->compare('t.pr_no', $columns[1]['search']['value'], true);
+//        $criteria->compare('t.pr_date', $columns[2]['search']['value'], true);
+        $criteria->compare('t.dr_no', $columns[0]['search']['value'], true);
+        $criteria->compare('t.rra_no', $columns[1]['search']['value'], true);
+        $criteria->compare('t.rra_date', $columns[2]['search']['value'], true);
+        $criteria->compare('zone.zone_name', $columns[3]['search']['value'], true);
+        $criteria->compare('t.status', $columns[4]['search']['value'], true);
+        $criteria->compare('t.total_amount', $columns[5]['search']['value'], true);
+        $criteria->compare('t.created_date', $columns[6]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
@@ -251,6 +259,8 @@ class IncomingInventory extends CActiveRecord {
 
         if (array_key_exists(OutgoingInventory::OUTGOING_PENDING_STATUS, $item_status)) {
             $incoming_status = OutgoingInventory::OUTGOING_PENDING_STATUS;
+        } else if (array_key_exists(OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS, $item_status)) {
+            $incoming_status = OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS;
         } else if (array_key_exists(OutgoingInventory::OUTGOING_INCOMPLETE_STATUS, $item_status)) {
             $incoming_status = OutgoingInventory::OUTGOING_INCOMPLETE_STATUS;
         } else {
@@ -263,18 +273,18 @@ class IncomingInventory extends CActiveRecord {
 
             $incoming_inventory_data = array(
                 'company_id' => $this->company_id,
-                'campaign_no' => $this->campaign_no,
-                'pr_no' => $this->pr_no,
+//                'campaign_no' => $this->campaign_no,
+//                'pr_no' => $this->pr_no,
                 'dr_no' => $this->dr_no,
-                'dr_date' => $this->dr_date,
                 'rra_no' => $this->rra_no,
+                'rra_date' => $this->rra_date,
                 'source_zone_id' => $this->source_zone_id,
                 'destination_zone_id' => $this->destination_zone_id,
                 'transaction_date' => $this->transaction_date,
-                'pr_date' => $this->pr_date,
+//                'pr_date' => $this->pr_date,
                 'plan_delivery_date' => $this->plan_delivery_date,
-                'revised_delivery_date' => $this->revised_delivery_date,
-                'plan_arrival_date' => $this->plan_arrival_date,
+//                'revised_delivery_date' => $this->revised_delivery_date,
+//                'plan_arrival_date' => $this->plan_arrival_date,
                 'status' => $incoming_status,
                 'remarks' => $this->remarks,
                 'total_amount' => $this->total_amount,
@@ -294,7 +304,7 @@ class IncomingInventory extends CActiveRecord {
 
                     Yii::app()->session['tid'] = $incoming_inventory->incoming_inventory_id;
                     for ($i = 0; $i < count($transaction_details); $i++) {
-                        IncomingInventoryDetail::model()->createIncomingTransactionDetails($incoming_inventory->incoming_inventory_id, $incoming_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_received'], $transaction_details[$i]['amount'], $transaction_details[$i]['inventory_on_hand'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $incoming_inventory->created_by, $transaction_details[$i]['status'], $transaction_details[$i]['outgoing_inventory_detail_id'], $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $incoming_inventory->destination_zone_id, $incoming_inventory->transaction_date);
+                        IncomingInventoryDetail::model()->createIncomingTransactionDetails($incoming_inventory->incoming_inventory_id, $incoming_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_received'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $incoming_inventory->created_by, $transaction_details[$i]['status'], $transaction_details[$i]['outgoing_inventory_detail_id'], $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $incoming_inventory->destination_zone_id, $incoming_inventory->transaction_date);
                     }
 
                     return true;
