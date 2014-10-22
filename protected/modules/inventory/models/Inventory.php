@@ -57,14 +57,14 @@ class Inventory extends CActiveRecord {
         return array(
             array('company_id, sku_id, qty', 'required'),
             array('qty', 'numerical', 'integerOnly' => true),
-            array('company_id, sku_id, uom_id, zone_id, sku_status_id, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, sku_id, uom_id, zone_id, sku_status_id, created_by, updated_by, campaign_no, pr_no', 'length', 'max' => 50),
             array('reference_no', 'length', 'max' => 250),
             array('cost_per_unit', 'length', 'max' => 18),
             array('cost_per_unit', 'match', 'pattern' => '/^[0-9]{1,9}(\.[0-9]{0,2})?$/'),
-            array('transaction_date,expiration_date, updated_date, expiration_date', 'safe'),
+            array('transaction_date,expiration_date, updated_date, expiration_date, pr_date, plan_arrival_date, revised_delivery_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('inventory_id, company_id, sku_id, qty, uom_id, zone_id, sku_status_id, created_date, created_by, updated_date, updated_by, expiration_date, reference_no', 'safe', 'on' => 'search'),
+            array('inventory_id, company_id, sku_id, qty, uom_id, zone_id, sku_status_id, created_date, created_by, updated_date, updated_by, expiration_date, reference_no, campaign_no, pr_no, pr_date, plan_arrival_date, revised_delivery_date', 'safe', 'on' => 'search'),
         );
     }
 
@@ -84,6 +84,14 @@ class Inventory extends CActiveRecord {
 
         if ($this->sku_status_id == "") {
             $this->sku_status_id = null;
+        }
+
+        if ($this->plan_arrival_date == "") {
+            $this->plan_arrival_date = null;
+        }
+
+        if ($this->revised_delivery_date == "") {
+            $this->revised_delivery_date = null;
         }
 
         return parent::beforeValidate();
@@ -130,7 +138,12 @@ class Inventory extends CActiveRecord {
             'updated_date' => 'Updated Date',
             'updated_by' => 'Updated By',
             'expiration_date' => 'Expiration Date',
-            'reference_no' => 'Reference No',
+            'reference_no' => 'Batch No',
+            'campaign_no' => 'Campaign No',
+            'pr_no' => 'PR No',
+            'pr_date' => 'PR Date',
+            'plan_arrival_date' => 'Plan Arrival Date',
+            'revised_delivery_date' => 'Revised Delivery Date',
         );
     }
 
@@ -164,9 +177,77 @@ class Inventory extends CActiveRecord {
         $criteria->compare('updated_by', $this->updated_by, true);
         $criteria->compare('expiration_date', $this->expiration_date, true);
         $criteria->compare('reference_no', $this->reference_no, true);
+        $criteria->compare('campaign_no', $this->campaign_no, true);
+        $criteria->compare('pr_no', $this->pr_no, true);
+        $criteria->compare('pr_date', $this->pr_date, true);
+        $criteria->compare('plan_arrival_date', $this->plan_arrival_date, true);
+        $criteria->compare('revised_delivery_date', $this->revised_delivery_date, true);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
+        ));
+    }
+
+    public function olddata($col, $order_dir, $limit, $offset, $columns) {
+        switch ($col) {
+
+            case 0:
+                $sort_column = 'sku.sku_code';
+                break;
+            case 1:
+                $sort_column = 'sku.description';
+                break;
+            case 2:
+                $sort_column = 'qty';
+                break;
+            case 3:
+                $sort_column = 'uom.uom_name';
+                break;
+            case 5:
+                $sort_column = 'zone.zone_name';
+                break;
+            case 6:
+                $sort_column = 'skuStatus.status_name';
+                break;
+            case 7:
+                $sort_column = 't.campaign_no';
+                break;
+            case 8:
+                $sort_column = 'expiration_date';
+                break;
+            case 9:
+                $sort_column = 'reference_no';
+                break;
+            case 10:
+                $sort_column = 'sku.brand.brand_name';
+                break;
+            case 11:
+                $sort_column = 'zone.salesOffice.sales_office_name';
+                break;
+        }
+
+
+        $criteria = new CDbCriteria;
+        $criteria->compare('t.company_id', Yii::app()->user->company_id);
+        $criteria->compare('sku.sku_code', $columns[0]['search']['value'], true);
+        $criteria->compare('sku.description', $columns[1]['search']['value'], true);
+        $criteria->compare('qty', $columns[2]['search']['value'], true);
+        $criteria->compare('uom.uom_name', $columns[3]['search']['value'], true);
+        $criteria->compare('zone.zone_name', $columns[5]['search']['value'], true);
+        $criteria->compare('skuStatus.status_name', $columns[6]['search']['value'], true);
+        $criteria->compare('t.campaign_no', $columns[7]['search']['value'], true);
+        $criteria->compare('expiration_date', $columns[8]['search']['value'], true);
+        $criteria->compare('reference_no', $columns[9]['search']['value'], true);
+        $criteria->compare('sku.brand.brand_name', $columns[10]['search']['value'], true);
+        $criteria->compare('zone.salesOffice.sales_office_name', $columns[11]['search']['value'], true);
+        $criteria->order = "$sort_column $order_dir";
+        $criteria->with = array('sku', 'sku.brand', 'skuStatus', 'uom', 'zone', 'zone.salesOffice');
+        $criteria->limit = $limit;
+        $criteria->offset = $offset;
+
+        return new CActiveDataProvider($this, array(
+            'criteria' => $criteria,
+            'pagination' => false,
         ));
     }
 
@@ -192,19 +273,30 @@ class Inventory extends CActiveRecord {
                 $sort_column = 'skuStatus.status_name';
                 break;
             case 7:
-                $sort_column = 'expiration_date';
+                $sort_column = 't.campaign_no';
                 break;
             case 8:
-                $sort_column = 'reference_no';
+                $sort_column = 't.pr_no';
                 break;
             case 9:
-                $sort_column = 'sku.brand.brand_name';
+                $sort_column = 't.pr_date';
                 break;
             case 10:
+                $sort_column = 't.plan_arrival_date';
+                break;
+            case 11:
+                $sort_column = 't.reference_no';
+                break;
+            case 12:
+                $sort_column = 't.expiration_date';
+                break;
+            case 13:
+                $sort_column = 'sku.brand.brand_name';
+                break;
+            case 14:
                 $sort_column = 'zone.salesOffice.sales_office_name';
                 break;
         }
-
 
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
@@ -214,10 +306,14 @@ class Inventory extends CActiveRecord {
         $criteria->compare('uom.uom_name', $columns[3]['search']['value'], true);
         $criteria->compare('zone.zone_name', $columns[5]['search']['value'], true);
         $criteria->compare('skuStatus.status_name', $columns[6]['search']['value'], true);
-        $criteria->compare('expiration_date', $columns[7]['search']['value'], true);
-        $criteria->compare('reference_no', $columns[8]['search']['value'], true);
-        $criteria->compare('sku.brand.brand_name', $columns[9]['search']['value'], true);
-        $criteria->compare('zone.salesOffice.sales_office_name', $columns[10]['search']['value'], true);
+        $criteria->compare('t.campaign_no', $columns[7]['search']['value'], true);
+        $criteria->compare('t.pr_no', $columns[8]['search']['value'], true);
+        $criteria->compare('t.pr_date', $columns[9]['search']['value'], true);
+        $criteria->compare('t.plan_arrival_date', $columns[10]['search']['value'], true);
+        $criteria->compare('t.reference_no', $columns[11]['search']['value'], true);
+        $criteria->compare('t.expiration_date', $columns[12]['search']['value'], true);
+        $criteria->compare('sku.brand.brand_name', $columns[13]['search']['value'], true);
+        $criteria->compare('zone.salesOffice.sales_office_name', $columns[14]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->with = array('sku', 'sku.brand', 'skuStatus', 'uom', 'zone', 'zone.salesOffice');
         $criteria->limit = $limit;

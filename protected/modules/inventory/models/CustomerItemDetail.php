@@ -32,6 +32,7 @@
 class CustomerItemDetail extends CActiveRecord {
 
     public $search_string;
+    public $inventory_on_hand;
 
     /**
      * @return string the associated database table name
@@ -48,17 +49,28 @@ class CustomerItemDetail extends CActiveRecord {
         // will receive user inputs.
         return array(
             array('company_id, sku_id, uom_id, quantity_issued, amount', 'required'),
-            array('customer_item_id, inventory_id, planned_quantity, quantity_issued, inventory_on_hand', 'numerical', 'integerOnly' => true),
-            array('company_id, batch_no, sku_id, uom_id, sku_status_id, created_by, updated_by', 'length', 'max' => 50),
+            array('customer_item_id, inventory_id, planned_quantity, quantity_issued', 'numerical', 'integerOnly' => true),
+            array('company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, created_by, updated_by', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
+            array('source_zone_id', 'isValidZone'),
             array('unit_price, amount', 'match', 'pattern' => '/^[0-9]{1,9}(\.[0-9]{0,2})?$/'),
             array('expiration_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('expiration_date, return_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('customer_item_detail_id, customer_item_id, company_id, inventory_id, batch_no, sku_id, uom_id, sku_status_id, unit_price, expiration_date, planned_quantity, quantity_issued, amount, inventory_on_hand, return_date, remarks, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('customer_item_detail_id, customer_item_id, company_id, inventory_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, unit_price, expiration_date, planned_quantity, quantity_issued, amount, return_date, remarks, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
+    }
+
+    public function isValidZone($attribute) {
+        $model = Zone::model()->findByPk($this->$attribute);
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'Zone is invalid.');
+        }
+
+        return;
     }
 
     public function beforeValidate() {
@@ -73,6 +85,7 @@ class CustomerItemDetail extends CActiveRecord {
         // class name for the relations automatically generated below.
         return array(
             'customerItem' => array(self::BELONGS_TO, 'CustomerItem', 'customer_item_id'),
+            'zone' => array(self::BELONGS_TO, 'Zone', 'source_zone_id'),
             'sku' => array(self::BELONGS_TO, 'Sku', 'sku_id'),
             'uom' => array(self::BELONGS_TO, 'Uom', 'uom_id'),
             'skuStatus' => array(self::BELONGS_TO, 'SkuStatus', 'sku_status_id'),
@@ -91,13 +104,14 @@ class CustomerItemDetail extends CActiveRecord {
             'batch_no' => 'Batch No',
             'sku_id' => 'Sku',
             'uom_id' => 'Uom',
-            'sku_status_id' => 'Sku Status',
+            'sku_status_id' => Sku::SKU_LABEL . ' Status',
+            'source_zone_id' => 'Source Zone',
             'unit_price' => 'Unit Price',
             'expiration_date' => 'Expiration Date',
             'planned_quantity' => 'Planned Quantity',
             'quantity_issued' => 'Quantity Issued',
             'amount' => 'Amount',
-            'inventory_on_hand' => 'Inventory On Hand',
+//            'inventory_on_hand' => 'Inventory On Hand',
             'return_date' => 'Return Date',
             'remarks' => 'Remarks',
             'created_date' => 'Created Date',
@@ -132,12 +146,13 @@ class CustomerItemDetail extends CActiveRecord {
         $criteria->compare('sku_id', $this->sku_id, true);
         $criteria->compare('uom_id', $this->uom_id, true);
         $criteria->compare('sku_status_id', $this->sku_status_id, true);
+        $criteria->compare('source_zone_id', $this->source_zone_id, true);
         $criteria->compare('unit_price', $this->unit_price, true);
         $criteria->compare('expiration_date', $this->expiration_date, true);
         $criteria->compare('planned_quantity', $this->planned_quantity);
         $criteria->compare('quantity_issued', $this->quantity_issued);
         $criteria->compare('amount', $this->amount, true);
-        $criteria->compare('inventory_on_hand', $this->inventory_on_hand);
+//        $criteria->compare('inventory_on_hand', $this->inventory_on_hand);
         $criteria->compare('return_date', $this->return_date, true);
         $criteria->compare('remarks', $this->remarks, true);
         $criteria->compare('created_date', $this->created_date, true);
@@ -212,28 +227,40 @@ class CustomerItemDetail extends CActiveRecord {
         return parent::model($className);
     }
 
-    public function createCustomerItemTransactionDetails($customer_item_id, $company_id, $inventory_id, $batch_no, $sku_id, $unit_price, $expiration_date, $planned_quantity, $quantity_issued, $amount, $inventory_on_hand, $return_date, $remarks, $created_by = null, $uom_id, $sku_status_id, $transaction_date) {
+    public function createCustomerItemTransactionDetails($customer_item_id, $company_id, $inventory_id, $batch_no, $sku_id, $source_zone_id, $unit_price, $expiration_date, $planned_quantity, $quantity_issued, $amount, $return_date, $remarks, $created_by = null, $uom_id, $sku_status_id, $transaction_date) {
 
+        $inventory = Inventory::model()->findByAttributes(array("inventory_id" => $inventory_id, "company_id" => $company_id));
+        
+        $ret_date = ($return_date != "" ? $return_date : null);
+        $exp_date = ($expiration_date != "" ? $expiration_date : null);
+        $cost_per_unit = (isset($unit_price) ? $unit_price : 0);
+        
         $customer_item_transaction_detail = new CustomerItemDetail;
         $customer_item_transaction_detail->customer_item_id = $customer_item_id;
         $customer_item_transaction_detail->company_id = $company_id;
-//        $customer_item_transaction_detail->inventory_id = $inventory_id;
+        $customer_item_transaction_detail->inventory_id = $inventory_id;
         $customer_item_transaction_detail->batch_no = $batch_no;
         $customer_item_transaction_detail->sku_id = $sku_id;
         $customer_item_transaction_detail->uom_id = $uom_id;
         $customer_item_transaction_detail->sku_status_id = $sku_status_id;
-        $customer_item_transaction_detail->unit_price = isset($unit_price) ? $unit_price : "";
-        $customer_item_transaction_detail->expiration_date = $expiration_date != "" ? $expiration_date : null;
+        $customer_item_transaction_detail->source_zone_id = $source_zone_id;
+        $customer_item_transaction_detail->unit_price = $cost_per_unit;
+        $customer_item_transaction_detail->expiration_date = $exp_date;
         $customer_item_transaction_detail->planned_quantity = $planned_quantity;
         $customer_item_transaction_detail->quantity_issued = $quantity_issued != "" ? $quantity_issued : 0;
         $customer_item_transaction_detail->amount = $amount;
-        $customer_item_transaction_detail->inventory_on_hand = $inventory_on_hand;
-        $customer_item_transaction_detail->return_date = $return_date != "" ? $return_date : null;
+//        $customer_item_transaction_detail->inventory_on_hand = $inventory_on_hand;
+        $customer_item_transaction_detail->return_date = $ret_date;
         $customer_item_transaction_detail->remarks = $remarks;
         $customer_item_transaction_detail->created_by = $created_by;
+        $customer_item_transaction_detail->campaign_no = $inventory->campaign_no;
+        $customer_item_transaction_detail->pr_no = $inventory->pr_no;
+        $customer_item_transaction_detail->pr_date = $inventory->pr_date;
+        $customer_item_transaction_detail->plan_arrival_date = $inventory->plan_arrival_date;
+        $customer_item_transaction_detail->revised_delivery_date = $inventory->revised_delivery_date;
 
         if ($customer_item_transaction_detail->save(false)) {
-            $this->decreaseInventory($inventory_id, $customer_item_transaction_detail->quantity_issued, $transaction_date, $customer_item_transaction_detail->unit_price, $customer_item_transaction_detail->created_by);
+            $this->decreaseInventory($customer_item_transaction_detail->inventory_id, $customer_item_transaction_detail->quantity_issued, $transaction_date, $customer_item_transaction_detail->unit_price, $customer_item_transaction_detail->created_by);
         } else {
             return $customer_item_transaction_detail->getErrors();
         }

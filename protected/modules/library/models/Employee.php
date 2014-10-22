@@ -128,6 +128,31 @@ class Employee extends CActiveRecord {
     * @soap
     */
    public $supervisor_id;
+   
+   /**
+    * @var SalesOffice sales_office_obj
+    * @soap
+    */
+   public $sales_office_obj;
+   
+   /**
+    * @var string default_zone_id
+    * @soap
+    */
+   public $default_zone_id;
+   
+   /**
+    * @var Company company_obj
+    * @soap
+    */
+   public $company_obj;
+   
+   /**
+    * @var Zone zone_obj
+    * @soap
+    */
+   public $zone_obj;
+   
    public $search_string;
    public $fullname;
    public $employee_status_code;
@@ -356,12 +381,15 @@ class Employee extends CActiveRecord {
 
    public function retriveEmployeeByCriteria(EmployeeCriteria $employee_criteria) {
       $cdbcriteria = new CDbCriteria();
-      $cdbcriteria->with = array('salesOffice', 'employeeType', 'employeeStatus');
-      $cdbcriteria->compare('t.company_id', $employee_criteria->company_id);
+      //$cdbcriteria->select = "t.*, employee_status.employee_status_code AS employee_status_code";
+      $cdbcriteria->with = array('salesOffice', 'employeeType', 'employeeStatus', 'company', 'zone');
+      $cdbcriteria->compare('company.code', $employee_criteria->company_code);
       $cdbcriteria->compare('t.employee_code', $employee_criteria->employee_code);
       $cdbcriteria->compare('salesOffice.sales_office_code', $employee_criteria->sales_office_code);
       $cdbcriteria->compare('t.password', $employee_criteria->password);
-
+//       pr($cdbcriteria);
+//       pr('____________________________________________________________________________________');
+//      pre(Employee::model()->find($cdbcriteria));
       return Employee::model()->find($cdbcriteria);
    }
 

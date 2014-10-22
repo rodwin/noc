@@ -80,23 +80,27 @@ return false;
     ?>
 </div><!-- search-form -->
 
-<?php $fields = Inventory::model()->attributeLabels(); ?>
+<?php $invFields = Inventory::model()->attributeLabels(); ?>
 <?php $skuFields = Sku::model()->attributeLabels(); ?>
 <div class="box-body table-responsive">
-    <table id="inventory_table" class="table table-bordered">
+    <table id="inventory_table" class="table table-bordered table-hover">
         <thead>
             <tr>
                 <th><?php echo $skuFields['sku_code']; ?></th>
                 <th><?php echo $skuFields['description']; ?></th>
-                <th><?php echo $fields['qty']; ?></th>
-                <th><?php echo $fields['uom_id']; ?></th>
-                <th>Action Qty <span title="Type a numeric value into a row's field below to see a list of Transaction options." data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
-                <th><?php echo $fields['zone_id']; ?></th>
-                <th><?php echo $fields['sku_status_id']; ?></th>
-                <th><?php echo $fields['expiration_date']; ?></th>
-                <th><?php echo $fields['reference_no']; ?></th>
-                <th><?php echo $fields['brand_name']; ?></th>
-                <th><?php echo $fields['sales_office_name']; ?></th>
+                <th><?php echo $invFields['qty']; ?></th>
+                <th><?php echo $invFields['uom_id']; ?></th>
+                <th class="hide_row">Action Qty <i class="fa fa-fw fa-info-circle" data-toggle="popover" content="And here's some amazing content. It's very engaging. right?"></i></th>
+                <th><?php echo $invFields['zone_id']; ?></th>
+                <th><?php echo $invFields['sku_status_id']; ?></th>
+                <th><?php echo $invFields['campaign_no']; ?></th>
+                <th><?php echo $invFields['pr_no']; ?></th>
+                <th><?php echo $invFields['pr_date']; ?></th>
+                <th><?php echo $invFields['plan_arrival_date']; ?></th>
+                <th><?php echo $invFields['reference_no']; ?></th>
+                <th><?php echo $invFields['expiration_date']; ?></th>
+                <th><?php echo $invFields['brand_name']; ?></th>
+                <th><?php echo $invFields['sales_office_name']; ?></th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -106,17 +110,20 @@ return false;
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
+                <td class="filter"></td>
                 <td class="filter" id="hide_textbox"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
                 <td class="filter" id="hide_textbox"></td>
                 <td class="filter" id="hide_textbox"></td>
-                <td class="filter" id="hide_textbox"></td>            
             </tr>
         </thead>
-
     </table>
 </div>
 
@@ -178,8 +185,12 @@ return false;
                 {"name": "action_qty", "data": "action_qty", 'sortable': false, "class": 'action_qty'},
                 {"name": "zone_name", "data": "zone_name"},
                 {"name": "sku_status_name", "data": "sku_status_name"},
-                {"name": "expiration_date", "data": "expiration_date"},
+                {"name": "campaign_no", "data": "campaign_no"},
+                {"name": "pr_no", "data": "pr_no"},
+                {"name": "pr_date", "data": "pr_date"},
+                {"name": "plan_arrival_date", "data": "plan_arrival_date"},
                 {"name": "reference_no", "data": "reference_no"},
+                {"name": "expiration_date", "data": "expiration_date"},
                 {"name": "brand_name", "data": "brand_name"},
                 {"name": "sales_office_name", "data": "sales_office_name"},
                 {"name": "links", "data": "links", 'sortable': false}
