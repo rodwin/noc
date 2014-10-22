@@ -79,11 +79,12 @@ class IncomingInventoryController extends Controller {
             }
 
             $row['incoming_inventory_id'] = $value->incoming_inventory_id;
-            $row['campaign_no'] = $value->campaign_no;
-            $row['pr_no'] = $value->pr_no;
-            $row['pr_date'] = $value->pr_date;
+//            $row['campaign_no'] = $value->campaign_no;
+//            $row['pr_no'] = $value->pr_no;
+//            $row['pr_date'] = $value->pr_date;
             $row['dr_no'] = $value->dr_no;
             $row['rra_no'] = $value->rra_no;
+            $row['rra_date'] = $value->rra_date;
             $row['destination_zone_id'] = $value->destination_zone_id;
             $row['destination_zone_name'] = $value->zone->zone_name;
             $row['transaction_date'] = $value->transaction_date;
@@ -143,7 +144,7 @@ class IncomingInventoryController extends Controller {
 
         $c = new CDbCriteria;
         $c->compare("company_id", Yii::app()->user->company_id);
-        $c->condition = "status IN ('" . OutgoingInventory::OUTGOING_PENDING_STATUS . "','" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "') AND closed = 0";
+        $c->condition = "closed = 0";
         $c->order = "dr_no ASC";
         $outgoing_inv_dr_nos = CHtml::listData(OutgoingInventory::model()->findAll($c), "dr_no", "dr_no");
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
@@ -181,9 +182,9 @@ class IncomingInventoryController extends Controller {
                         } else {
 
                             $incoming->outgoing_inventory_id = $_POST['IncomingInventory']['outgoing_inventory_id'];
-
+                            
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
-
+                            
                             if ($incoming->create($transaction_details)) {
                                 $data['message'] = 'Successfully created';
                                 $data['success'] = true;
@@ -213,58 +214,51 @@ class IncomingInventoryController extends Controller {
                         $data['success'] = false;
                         $data["type"] = "danger";
                     } else {
-
+                        
                         $c = new CDbCriteria;
                         $c->compare('t.company_id', Yii::app()->user->company_id);
-                        $c->compare('t.inventory_id', $transaction_detail->inventory_id);
-                        $c->with = array("sku");
-                        $inventory = Inventory::model()->find($c);
+                        $c->compare('t.sku_id', $transaction_detail->sku_id);
+                        $c->with = array('brand', 'company', 'defaultUom', 'defaultZone');
+                        $sku_details = Sku::model()->find($c);
 
-                        if ($transaction_detail->quantity_received <= $inventory->qty) {
-                            $data['success'] = true;
-                            $data['message'] = 'Successfully Added Item';
+                        $data['success'] = true;
+                        $data['message'] = 'Successfully Added Item';
 
-                            $status = "";
-                            $qty_received = $transaction_detail->quantity_received != "" ? $transaction_detail->quantity_received : 0;
-                            $planned_qty = $transaction_detail->planned_quantity != "" ? $transaction_detail->planned_quantity : 0;
+                        $status = "";
+                        $qty_received = $transaction_detail->quantity_received != "" ? $transaction_detail->quantity_received : 0;
+                        $planned_qty = $transaction_detail->planned_quantity != "" ? $transaction_detail->planned_quantity : 0;
 
-                            if ($qty_received == $planned_qty) {
-                                $status = OutgoingInventory::OUTGOING_COMPLETE_STATUS;
-                            } else if ($qty_received < $planned_qty) {
-                                $status = OutgoingInventory::OUTGOING_INCOMPLETE_STATUS;
-                            } else if ($qty_received > $planned_qty) {
-                                $status = OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS;
-                            }
-
-                            $data['details'] = array(
-                                "inventory_id" => isset($inventory->inventory_id) ? $inventory->inventory_id : null,
-                                "sku_id" => isset($inventory->sku->sku_id) ? $inventory->sku->sku_id : null,
-                                "sku_code" => isset($inventory->sku->sku_code) ? $inventory->sku->sku_code : null,
-                                "sku_description" => isset($inventory->sku->description) ? $inventory->sku->description : null,
-                                'brand_name' => isset($inventory->sku->brand->brand_name) ? $inventory->sku->brand->brand_name : null,
-                                'unit_price' => isset($transaction_detail->unit_price) ? $transaction_detail->unit_price : 0,
-                                'batch_no' => isset($transaction_detail->batch_no) ? $transaction_detail->batch_no : null,
-                                'source_zone_id' => isset($transaction_detail->source_zone_id) ? $transaction_detail->source_zone_id : null,
-                                'source_zone_name' => isset($transaction_detail->zone->zone_name) ? $transaction_detail->zone->zone_name : null,
-                                'expiration_date' => isset($transaction_detail->expiration_date) ? $transaction_detail->expiration_date : null,
-                                'planned_quantity' => $planned_qty,
-                                'quantity_received' => $qty_received,
-                                'amount' => $transaction_detail->amount != "" ? $transaction_detail->amount : 0,
-                                'inventory_on_hand' => $transaction_detail->inventory_on_hand != "" ? $transaction_detail->inventory_on_hand : 0,
-                                'reference_no' => isset($transaction_detail->pr_no) ? $transaction_detail->pr_no : null,
-                                'return_date' => isset($transaction_detail->return_date) ? $transaction_detail->return_date : null,
-                                'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
-                                'outgoing_inventory_detail_id' => "",
-                                'status' => $status,
-                                'uom_id' => isset($transaction_detail->uom_id) ? $transaction_detail->uom_id : null,
-                                'sku_status_id' => isset($transaction_detail->sku_status_id) ? $transaction_detail->sku_status_id : null,
-                            );
-                        } else {
-
-                            $data['message'] = 'Quantity Received greater than inventory on hand';
-                            $data['success'] = false;
-                            $data["type"] = "danger";
+                        if ($qty_received == $planned_qty) {
+                            $status = OutgoingInventory::OUTGOING_COMPLETE_STATUS;
+                        } else if ($qty_received < $planned_qty) {
+                            $status = OutgoingInventory::OUTGOING_INCOMPLETE_STATUS;
+                        } else if ($qty_received > $planned_qty) {
+                            $status = OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS;
                         }
+
+                        $data['details'] = array(
+                            "inventory_id" => "",
+                            "sku_id" => isset($sku_details->sku_id) ? $sku_details->sku_id : null,
+                            "sku_code" => isset($sku_details->sku_code) ? $sku_details->sku_code : null,
+                            "sku_description" => isset($sku_details->description) ? $sku_details->description : null,
+                            'brand_name' => isset($sku_details->brand->brand_name) ? $sku_details->brand->brand_name : null,
+                            'unit_price' => isset($transaction_detail->unit_price) ? $transaction_detail->unit_price : 0,
+                            'batch_no' => isset($transaction_detail->batch_no) ? $transaction_detail->batch_no : null,
+                            'source_zone_id' => isset($transaction_detail->source_zone_id) ? $transaction_detail->source_zone_id : null,
+                            'source_zone_name' => isset($transaction_detail->zone->zone_name) ? $transaction_detail->zone->zone_name : null,
+                            'expiration_date' => isset($transaction_detail->expiration_date) ? $transaction_detail->expiration_date : null,
+                            'planned_quantity' => $planned_qty,
+                            'quantity_received' => $qty_received,
+                            'amount' => $transaction_detail->amount != "" ? $transaction_detail->amount : 0,
+                            'inventory_on_hand' => $transaction_detail->inventory_on_hand != "" ? $transaction_detail->inventory_on_hand : 0,
+                            'reference_no' => isset($transaction_detail->pr_no) ? $transaction_detail->pr_no : null,
+                            'return_date' => isset($transaction_detail->return_date) ? $transaction_detail->return_date : null,
+                            'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
+                            'outgoing_inventory_detail_id' => "",
+                            'status' => $status,
+                            'uom_id' => isset($transaction_detail->uom_id) ? $transaction_detail->uom_id : null,
+                            'sku_status_id' => isset($transaction_detail->sku_status_id) ? $transaction_detail->sku_status_id : null,
+                        );
                     }
                 }
             }
@@ -325,15 +319,15 @@ class IncomingInventoryController extends Controller {
         }
 
         $header = array(
-            "dr_date" => isset($value->outgoingInventory->dr_date) ? $value->outgoingInventory->dr_date : null,
-            "campaign_no" => isset($value->outgoingInventory->campaign_no) ? $value->outgoingInventory->campaign_no : null,
-            "pr_no" => isset($value->outgoingInventory->pr_no) ? $value->outgoingInventory->pr_no : null,
-            "pr_date" => isset($value->outgoingInventory->pr_date) ? $value->outgoingInventory->pr_date : null,
-            "source_zone_id" => isset($value->source_zone_id) ? $value->source_zone_id : null,
+            "rra_date" => isset($value->outgoingInventory->rra_date) ? $value->outgoingInventory->rra_date : null,
+//            "campaign_no" => isset($value->outgoingInventory->campaign_no) ? $value->outgoingInventory->campaign_no : null,
+//            "pr_no" => isset($value->outgoingInventory->pr_no) ? $value->outgoingInventory->pr_no : null,
+//            "pr_date" => isset($value->outgoingInventory->pr_date) ? $value->outgoingInventory->pr_date : null,
+            "source_zone_id" => "",
             "destination_zone_id" => isset($value->outgoingInventory->destination_zone_id) ? $value->outgoingInventory->destination_zone_id : null,
             "destination_zone_name" => isset($value->outgoingInventory->zone->zone_name) ? $value->outgoingInventory->zone->zone_name : null,
             "plan_delivery_date" => isset($value->outgoingInventory->plan_delivery_date) ? $value->outgoingInventory->plan_delivery_date : null,
-            "plan_arrival_date" => isset($value->outgoingInventory->plan_arrival_date) ? $value->outgoingInventory->plan_arrival_date : null,
+//            "plan_arrival_date" => isset($value->outgoingInventory->plan_arrival_date) ? $value->outgoingInventory->plan_arrival_date : null,
             "outgoing_inventory_id" => isset($value->outgoingInventory->outgoing_inventory_id) ? $value->outgoingInventory->outgoing_inventory_id : null,
             "rra_no" => isset($value->outgoingInventory->rra_no) ? $value->outgoingInventory->rra_no : null,
         );
@@ -808,7 +802,7 @@ class IncomingInventoryController extends Controller {
     public function actionLoadPDF($id) {
 
         $data = Yii::app()->session[$id];
-        
+
         ob_start();
 
         $headers = $data['IncomingInventory'];
@@ -827,7 +821,7 @@ class IncomingInventoryController extends Controller {
         $c2->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
         $c2->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
         $salesoffice = Salesoffice::model()->find($c2);
-        
+
         $c3 = new CDbCriteria;
         $c3->select = new CDbExpression('t.*, CONCAT(TRIM(t.first_name), " ", TRIM(t.last_name)) as fullname');
         $c3->condition = 't.company_id = "' . Yii::app()->user->company_id . '"';
@@ -882,7 +876,7 @@ class IncomingInventoryController extends Controller {
             .text-center { text-align: center; }
             .title { font-size: 12px; }
             .sub-title { font-size: 10px; }
-            .title-report { font-size: 15px; font-weight: bold; } 
+            .title-report { font-size: 15px; font-weight: bold; }
             .table_main { font-size: 8px; }
             .table_details { font-size: 8px; width: 100%; }
             .table_footer { font-size: 8px; width: 100%; }
@@ -892,13 +886,13 @@ class IncomingInventoryController extends Controller {
             .row_content_lg { width: 300px; }
             .align-right { text-align: right; }
         </style>
-                
+
         <div id="header" class="text-center">
             <span class="title">ASIA BREWERY INCORPORATED</span><br/>
             <span class="sub-title">6th FLOOR ALLIED BANK CENTER, AYALA AVENUE, MAKATI CITY</span><br/>
             <span class="title-report"> RECEIVING REPORT</span>
         </div><br/><br/>
-        
+
         <table class="table_main">
             <tr>
                 <td clss="row_label" style="font-weight: bold;">SALES OFFICE / SALESMAN</td>
@@ -915,7 +909,7 @@ class IncomingInventoryController extends Controller {
                 <td class="border-bottom">' . $plan_delivery_date . '</td>
             </tr>
         </table><br/><br/>
-        
+
         <table class="table_main">
             <tr>
                 <td clss="row_label" style="font-weight: bold;">PR NUMBER</td>
@@ -942,8 +936,8 @@ class IncomingInventoryController extends Controller {
                 <td style="font-weight: bold;">DR DATE</td>
                 <td class="border-bottom">' . $dr_date . '</td>
             </tr>
-        </table><br/><br/><br/> 
-        
+        </table><br/><br/><br/>
+
         <table class="table_details" border="1">
             <tr>
                 <td style="font-weight: bold;">MM CODE</td>
@@ -999,7 +993,7 @@ class IncomingInventoryController extends Controller {
                 </tr>';
 
         $html .= '</table><br/><br/><br/>
-            
+
                 <table class="table_footer">
                     <tr>
                         <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000; font-weight: bold;">REMARKS:</td>
