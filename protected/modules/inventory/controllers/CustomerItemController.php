@@ -62,12 +62,13 @@ class CustomerItemController extends Controller {
             $row = array();
             $row['customer_item_id'] = $value->customer_item_id;
             $row['rra_no'] = $value->rra_no;
-            $row['campaign_no'] = $value->campaign_no;
-            $row['pr_no'] = $value->pr_no;
-            $row['pr_date'] = $value->pr_date;
+            $row['rra_date'] = $value->rra_date;
+//            $row['campaign_no'] = $value->campaign_no;
+//            $row['pr_no'] = $value->pr_no;
+//            $row['pr_date'] = $value->pr_date;
             $row['dr_no'] = $value->dr_no;
-            $row['source_zone_id'] = $value->source_zone_id;
-            $row['source_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
+//            $row['source_zone_id'] = $value->source_zone_id;
+//            $row['source_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
             $row['poi_id'] = $value->poi_id;
             $row['poi_name'] = isset($value->poi->short_name) ? $value->poi->short_name : null;
             $row['transaction_date'] = $value->transaction_date;
@@ -123,7 +124,6 @@ class CustomerItemController extends Controller {
         $customer_item = new CustomerItem;
         $transaction_detail = new CustomerItemDetail;
         $sku = new Sku;
-        $reference_dr_nos = CHtml::listData(IncomingInventory::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id)), "dr_no", "dr_no");
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
         $model = new Attachment;
@@ -208,6 +208,8 @@ class CustomerItemController extends Controller {
                                 'brand_name' => isset($inventory->sku->brand->brand_name) ? $inventory->sku->brand->brand_name : null,
                                 'unit_price' => isset($transaction_detail->unit_price) ? $transaction_detail->unit_price : 0,
                                 'batch_no' => isset($transaction_detail->batch_no) ? $transaction_detail->batch_no : null,
+                                'source_zone_id' => isset($transaction_detail->source_zone_id) ? $transaction_detail->source_zone_id : null,
+                                'source_zone_name' => isset($transaction_detail->zone->zone_name) ? $transaction_detail->zone->zone_name : null,
                                 'expiration_date' => isset($transaction_detail->expiration_date) ? $transaction_detail->expiration_date : null,
                                 'planned_quantity' => $transaction_detail->planned_quantity != "" ? $transaction_detail->planned_quantity : 0,
                                 'quantity_issued' => $transaction_detail->quantity_issued != "" ? $transaction_detail->quantity_issued : 0,
@@ -235,7 +237,6 @@ class CustomerItemController extends Controller {
         $this->render('customerItemForm', array(
             'customer_item' => $customer_item,
             'transaction_detail' => $transaction_detail,
-            'reference_dr_nos' => $reference_dr_nos,
             'sku' => $sku,
             'uom' => $uom,
             'sku_status' => $sku_status,
@@ -773,7 +774,7 @@ class CustomerItemController extends Controller {
 
         $c2 = new CDbCriteria();
         $c2->select = new CDbExpression('t.*, CONCAT(TRIM(barangay.barangay_name), ", ", TRIM(municipal.municipal_name), ", ", TRIM(province.province_name), ", ", TRIM(region.region_name)) AS full_address');
-        $c2->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = "' . $zone->salesOffice->sales_office_id . '"';
+        $c2->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = ""';
         $c2->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
         $c2->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
         $c2->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
@@ -785,8 +786,15 @@ class CustomerItemController extends Controller {
 
         $transaction_date = $headers['transaction_date'];
         $plan_delivery_date = $headers['plan_delivery_date'];
-        $reference_no = $headers['reference_dr_no'];
-        $pr_no = $headers['pr_no'];
+        
+        $pr_nos = "";
+        foreach ($details as $key => $val) {
+            $inv = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $val['inventory_id']));
+
+            $pr_nos .= $inv->pr_no . ",";
+        }
+        
+        $pr_no = substr($pr_nos, 0, -1);        
         $rra_no = $headers['rra_no'];
         $dr_no = $headers['dr_no'];
 
@@ -856,30 +864,25 @@ class CustomerItemController extends Controller {
             
             <table class="table_main">
                 <tr>
-                    <td clss="row_label" style="font-weight: bold;">REFERENCE NUMBER</td>
-                    <td class="border-bottom row_content_sm">' . $reference_no . '</td>
+                    <td clss="row_label" style="font-weight: bold;">PR NUMBER</td>
+                    <td class="border-bottom row_content_sm">'.$pr_no.'</td>
                     <td style="width: 10px;"></td>
                     <td clss="row_label" style="font-weight: bold;">CUSTOMER NAME</td>
                     <td class="border-bottom row_content_lg">' . $poi_name . '</td>
                 </tr>
                 <tr>
-                    <td clss="row_label" style="font-weight: bold;">PR NUMBER</td>
-                    <td class="border-bottom row_content_sm">' . $pr_no . '</td>
+                    <td clss="row_label" style="font-weight: bold;">RRA NUMBER</td>
+                    <td class="border-bottom row_content_sm">' . $rra_no . '</td>
                     <td style="width: 10px;"></td>
                     <td clss="row_label" style="font-weight: bold;">CONTACT PERSON</td>
                     <td class="border-bottom row_content_lg"></td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold;">RRA NUMBER</td>
-                    <td class="border-bottom">' . $rra_no . '</td>
+                    <td style="font-weight: bold;">DR NUMBER</td>
+                    <td class="border-bottom">' . $dr_no . '</td>
                     <td></td>
                     <td style="font-weight: bold;">ADDRESS</td>
                     <td class="border-bottom">' . $poi_address . '</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: bold;">DR NUMBER</td>
-                    <td class="border-bottom">' . $dr_no . '</td>
-                    <td colspan="3"></td>
                 </tr>
             </table><br/><br/><br/>  
         
@@ -924,10 +927,6 @@ class CustomerItemController extends Controller {
             $actual_qty += $val['quantity_issued'];
             $total_unit_price += $val['unit_price'];
         }
-
-        $html .= '<tr>
-                    <td colspan="11"></td>
-                </tr>';
 
         $html .= '<tr>
                     <td colspan="11"></td>
