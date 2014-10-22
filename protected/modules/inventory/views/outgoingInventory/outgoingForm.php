@@ -207,10 +207,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 <th><?php echo $skuFields['sku_code']; ?></th>
                                 <th><?php echo $skuFields['description']; ?></th>
                                 <th><?php echo $invFields['qty']; ?></th>
-                                <th><?php echo $invFields['uom_id']; ?></th>
+                                <th class="hide_row"><?php echo $invFields['uom_id']; ?></th>
                                 <th class="hide_row">Action Qty <i class="fa fa-fw fa-info-circle" data-toggle="popover" content="And here's some amazing content. It's very engaging. right?"></i></th>
                                 <th><?php echo $invFields['zone_id']; ?></th>
-                                <th><?php echo $invFields['sku_status_id']; ?></th>
+                                <th class="hide_row"><?php echo $invFields['sku_status_id']; ?></th>
                                 <th><?php echo $invFields['campaign_no']; ?></th>
                                 <th><?php echo $invFields['pr_no']; ?></th>
                                 <th><?php echo $invFields['pr_date']; ?></th>
@@ -226,10 +226,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 <td class="filter"></td>
                                 <td class="filter"></td>
                                 <td class="filter"></td>
-                                <td class="filter"></td>
+                                <td class="filter hide_row"></td>
                                 <td class="filter hide_row"></td>
                                 <td class="filter"></td>
-                                <td class="filter"></td>
+                                <td class="filter hide_row"></td>
                                 <td class="filter"></td>
                                 <td class="filter"></td>
                                 <td class="filter"></td>
@@ -564,12 +564,12 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 {"name": "plan_arrival_date", "data": "plan_arrival_date"},
                 {"name": "reference_no", "data": "reference_no"},
                 {"name": "expiration_date", "data": "expiration_date"},
-                {"name": "brand_name", "data": "brand_name"},
-                {"name": "sales_office_name", "data": "sales_office_name"},
+                {"name": "brand_name", "data": "brand_name", 'sortable': false},
+                {"name": "sales_office_name", "data": "sales_office_name", 'sortable': false},
                 {"name": "links", "data": "links", 'sortable': false}
             ],
             "columnDefs": [{
-                    "targets": [4, 15],
+                    "targets": [3,4,6,15],
                     "visible": false
                 }]
         });
