@@ -380,7 +380,7 @@ class IncomingInventoryController extends Controller {
         $c->compare("company_id", Yii::app()->user->company_id);
         $c->compare("incoming_inventory_id", $incoming_inv_id);
         $incoming_inv_details = IncomingInventoryDetail::model()->findAll($c);
-         
+
         $output = array();
         foreach ($incoming_inv_details as $key => $value) {
             $row = array();
@@ -843,10 +843,15 @@ class IncomingInventoryController extends Controller {
         $plan_delivery_date = $headers['plan_delivery_date'];
 
         $pr_nos = "";
+        $pr_no_arr = array();
         foreach ($details as $key => $val) {
             if ($val['inventory_id'] != "") {
                 $inv = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $val['inventory_id']));
-                $pr_nos .= $inv->pr_no . ",";
+                
+                if (!in_array($inv->pr_no, $pr_no_arr)) {
+                    array_push($pr_no_arr, $inv->pr_no);
+                    $pr_nos .= $inv->pr_no . ",";
+                }
             }
         }
 

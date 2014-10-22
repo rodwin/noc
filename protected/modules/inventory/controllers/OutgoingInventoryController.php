@@ -1012,10 +1012,14 @@ class OutgoingInventoryController extends Controller {
         $plan_delivery_date = $headers['plan_delivery_date'];
 
         $pr_nos = "";
+        $pr_no_arr = array();
         foreach ($details as $key => $val) {
             $inv = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $val['inventory_id']));
-
-            $pr_nos .= $inv->pr_no . ",";
+            
+            if (!in_array($inv->pr_no, $pr_no_arr)) {
+                array_push($pr_no_arr, $inv->pr_no);
+                $pr_nos .= $inv->pr_no . ",";
+            }
         }
 
         $pr_no = substr($pr_nos, 0, -1);

@@ -566,7 +566,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         var i = 0;
         $('#inventory_table thead tr#filter_row td.filter').each(function() {
-            $(this).html('<input type="text" class="form-control input-sm" placeholder="" colPos="' + i + '" />');
+            $(this).html('<input type="text" class="form-control input-sm ignore" placeholder="" colPos="' + i + '" />');
             i++;
         });
 

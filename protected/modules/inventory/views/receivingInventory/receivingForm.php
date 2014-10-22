@@ -505,7 +505,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         var i = 0;
         $('#sku_table thead tr#filter_row td.filter').each(function() {
-            $(this).html('<input type="text" class="form-control input-sm" onclick="stopPropagation(event);" placeholder="" colPos="' + i + '" />');
+            $(this).html('<input type="text" class="form-control input-sm ignore" onclick="stopPropagation(event);" placeholder="" colPos="' + i + '" />');
             i++;
         });
 

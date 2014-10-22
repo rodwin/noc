@@ -788,15 +788,19 @@ class CustomerItemController extends Controller {
 
         $transaction_date = $headers['transaction_date'];
         $plan_delivery_date = $headers['plan_delivery_date'];
-        
+
         $pr_nos = "";
+        $pr_no_arr = array();
         foreach ($details as $key => $val) {
             $inv = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $val['inventory_id']));
 
-            $pr_nos .= $inv->pr_no . ",";
+            if (!in_array($inv->pr_no, $pr_no_arr)) {
+                array_push($pr_no_arr, $inv->pr_no);
+                $pr_nos .= $inv->pr_no . ",";
+            }
         }
-        
-        $pr_no = substr($pr_nos, 0, -1);        
+
+        $pr_no = substr($pr_nos, 0, -1);
         $rra_no = $headers['rra_no'];
         $dr_no = $headers['dr_no'];
 
@@ -867,7 +871,7 @@ class CustomerItemController extends Controller {
             <table class="table_main">
                 <tr>
                     <td clss="row_label" style="font-weight: bold;">PR NUMBER</td>
-                    <td class="border-bottom row_content_sm">'.$pr_no.'</td>
+                    <td class="border-bottom row_content_sm">' . $pr_no . '</td>
                     <td style="width: 10px;"></td>
                     <td clss="row_label" style="font-weight: bold;">CUSTOMER NAME</td>
                     <td class="border-bottom row_content_lg">' . $poi_name . '</td>
@@ -910,7 +914,7 @@ class CustomerItemController extends Controller {
             $sku = Sku::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sku_id" => $val['sku_id']));
             $uom = UOM::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $val['uom_id']));
             $uom_name = isset($uom->uom_name) ? $uom->uom_name : "";
-            
+
             $html .= '<tr>
                             <td>' . $sku->sku_code . '</td>
                             <td>' . $sku->description . '</td>
