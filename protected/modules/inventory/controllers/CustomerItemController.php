@@ -962,7 +962,7 @@ class CustomerItemController extends Controller {
                         <td style="font-weight: bold;">CHECKED BY:</td>
                         <td class="border-bottom"></td>
                         <td></td>
-                        <td style="font-weight: bold;">DRIVER"S NAME:</td>
+                        <td style="font-weight: bold;">DRIVER' . "'" . 'S NAME:</td>
                         <td class="border-bottom"></td>
                     </tr>
                     <tr>
@@ -973,7 +973,7 @@ class CustomerItemController extends Controller {
                         <td style="font-weight: bold;">AUTHORIZED BY:</td>
                         <td class="border-bottom"></td>
                         <td></td>
-                        <td style="font-weight: bold;">DRIVER"S SIGNATURE:</td>
+                        <td style="font-weight: bold;">DRIVER' . "'" . 'S SIGNATURE:</td>
                         <td class="border-bottom"></td>
                     </tr>
                     <tr><td colspan="6"></td></tr>

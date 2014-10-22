@@ -1015,7 +1015,7 @@ class OutgoingInventoryController extends Controller {
 
             $pr_nos .= $inv->pr_no . ",";
         }
-        
+
         $pr_no = substr($pr_nos, 0, -1);
         $rra_no = $headers['rra_no'];
         $rra_date = $headers['rra_date'];
@@ -1025,7 +1025,7 @@ class OutgoingInventoryController extends Controller {
         $c3->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.zone_id = "' . $headers['source_zone_id'] . '"';
         $c3->with = array("salesOffice");
         $souce_zone = Zone::model()->find($c3);
-        
+
         $c4 = new CDbCriteria();
         $c4->select = new CDbExpression('t.*, CONCAT(TRIM(barangay.barangay_name), ", ", TRIM(municipal.municipal_name), ", ", TRIM(province.province_name), ", ", TRIM(region.region_name)) AS full_address');
         $c4->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = ""';
@@ -1195,7 +1195,7 @@ class OutgoingInventoryController extends Controller {
                     <td style="font-weight: bold;">CHECKED BY:</td>
                     <td class="border-bottom"></td>
                     <td></td>
-                    <td style="font-weight: bold;">DRIVER"S NAME:</td>
+                    <td style="font-weight: bold;">DRIVER' . "'" . 'S NAME:</td>
                     <td class="border-bottom"></td>
                 </tr>
                 <tr>
@@ -1206,7 +1206,7 @@ class OutgoingInventoryController extends Controller {
                     <td style="font-weight: bold;">AUTHORIZED BY:</td>
                     <td class="border-bottom"></td>
                     <td></td>
-                    <td style="font-weight: bold;">DRIVER"S SIGNATURE:</td>
+                    <td style="font-weight: bold;">DRIVER' . "'" . 'S SIGNATURE:</td>
                     <td class="border-bottom"></td>
                 </tr>
                 <tr><td colspan="6"></td></tr>
