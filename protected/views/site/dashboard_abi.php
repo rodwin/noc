@@ -26,7 +26,8 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                         <thead>
                             <tr>
                                 <th>Transaction Type</th>
-                                <th>Plan Date</th>
+                                <th>DR No</th>
+                                <th>DR Date</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -224,7 +225,8 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                 $.each(data.data, function(i, v) {
                     notification_table.fnAddData([
                         v.transaction_type,
-                        v.plan_date,
+                        v.dr_no,
+                        v.dr_date,
                         v.status
                     ]);
                 });
