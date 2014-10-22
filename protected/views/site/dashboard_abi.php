@@ -217,7 +217,8 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
         $.ajax({
             dataType: "json",
             url: "<?php echo Yii::app()->createUrl('inventory/inventory/loadNotifications'); ?>",
-            beforeSend: function(data) {},
+            beforeSend: function(data) {
+            },
             success: function(data) {
 
                 $.each(data.data, function(i, v) {
@@ -293,7 +294,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
         var curr_month = d.getMonth();
         var month = row['month'].split("-");
 
-        chartLineLabel = m_long_names[curr_month] + " " + month[0] + "<br/>" + "<p class='text-green'>Total Inventory: " + row['inventory_on_hand'] + "</p>";
+        chartLineLabel = m_long_names[curr_month] + " " + month[0] + "<br/>" + "<p class='text-green'>Total Inventory: " + commaSeparateNumber(row['inventory_on_hand']) + "</p>";
 
         return chartLineLabel;
     }
@@ -369,6 +370,13 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
             ]);
         });
 
+    }
+
+    function commaSeparateNumber(val) {
+        while (/(\d+)(\d{3})/.test(val.toString())) {
+            val = val.toString().replace(/(\d+)(\d{3})/, '$1' + ',' + '$2');
+        }
+        return val;
     }
 
 </script>

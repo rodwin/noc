@@ -83,19 +83,19 @@ class OutgoingInventoryController extends Controller {
             $row['outgoing_inventory_id'] = $value->outgoing_inventory_id;
             $row['rra_no'] = $value->rra_no;
             $row['dr_no'] = $value->dr_no;
-            $row['dr_date'] = $value->dr_date;
+            $row['rra_date'] = $value->rra_date;
             $row['destination_zone_id'] = $value->destination_zone_id;
             $row['destination_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
             $row['contact_person'] = $value->contact_person;
             $row['contact_no'] = $value->contact_no;
             $row['address'] = $value->address;
-            $row['campaign_no'] = $value->campaign_no;
-            $row['pr_no'] = $value->pr_no;
-            $row['pr_date'] = $value->pr_date;
+//            $row['campaign_no'] = $value->campaign_no;
+//            $row['pr_no'] = $value->pr_no;
+//            $row['pr_date'] = $value->pr_date;
             $row['plan_delivery_date'] = $value->plan_delivery_date;
-            $row['revised_delivery_date'] = $value->revised_delivery_date;
-            $row['actual_delivery_date'] = $value->actual_delivery_date;
-            $row['plan_arrival_date'] = $value->plan_arrival_date;
+//            $row['revised_delivery_date'] = $value->revised_delivery_date;
+//            $row['actual_delivery_date'] = $value->actual_delivery_date;
+//            $row['plan_arrival_date'] = $value->plan_arrival_date;
             $row['transaction_date'] = $value->transaction_date;
             $row['status'] = $status;
             $row['total_amount'] = $value->total_amount;
@@ -154,6 +154,19 @@ class OutgoingInventoryController extends Controller {
             $row['updated_by'] = $value->updated_by;
             $row['expiration_date'] = $value->expiration_date;
             $row['reference_no'] = $value->reference_no;
+            $row['campaign_no'] = $value->campaign_no;
+            $row['pr_no'] = $value->pr_no;
+            $row['pr_date'] = $value->pr_date;
+            $row['plan_arrival_date'] = $value->plan_arrival_date;
+            $row['revised_delivery_date'] = $value->revised_delivery_date;
+
+
+            $row['links'] = '<a class="btn btn-sm btn-default" title="Inventory Record History" href="' . $this->createUrl('/inventory/inventory/history', array('inventory_id' => $value->inventory_id)) . '">
+                                <i class="glyphicon glyphicon-time"></i>
+                            </a>
+                            <a class="btn btn-sm btn-default" title="Item Detail" href="' . $this->createUrl('/library/sku/update', array('id' => $value->sku_id)) . '">
+                                <i class="glyphicon glyphicon-wrench"></i>
+                            </a>';
 
             $output['data'][] = $row;
         }
@@ -279,7 +292,7 @@ class OutgoingInventoryController extends Controller {
                                 "sku_code" => isset($inventory->sku->sku_code) ? $inventory->sku->sku_code : null,
                                 "sku_description" => isset($inventory->sku->description) ? $inventory->sku->description : null,
                                 'brand_name' => isset($inventory->sku->brand->brand_name) ? $inventory->sku->brand->brand_name : null,
-                                'unit_price' => isset($transaction_detail->unit_price) ? $transaction_detail->unit_price : 0,
+                                'unit_price' => isset($transaction_detail->unit_price) && $transaction_detail->unit_price != "" ? $transaction_detail->unit_price : 0,
                                 'batch_no' => isset($transaction_detail->batch_no) ? $transaction_detail->batch_no : null,
                                 'source_zone_id' => isset($transaction_detail->source_zone_id) ? $transaction_detail->source_zone_id : null,
                                 'source_zone_name' => isset($transaction_detail->zone->zone_name) ? $transaction_detail->zone->zone_name : null,
