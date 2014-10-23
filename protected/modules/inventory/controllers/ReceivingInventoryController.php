@@ -78,7 +78,7 @@ class ReceivingInventoryController extends Controller {
             $row['zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
             $row['plan_delivery_date'] = $value->plan_delivery_date;
             $row['revised_delivery_date'] = $value->revised_delivery_date;
-//            $row['actual_delivery_date'] = $value->actual_delivery_date;
+            $row['actual_delivery_date'] = $value->actual_delivery_date;
             $row['plan_arrival_date'] = $value->plan_arrival_date;
             $row['transaction_date'] = $value->transaction_date;
             $row['delivery_remarks'] = $value->delivery_remarks;
@@ -396,7 +396,7 @@ class ReceivingInventoryController extends Controller {
             'sku_description' => isset($sku->description) ? $sku->description : null,
             'sku_default_uom_id' => isset($sku->defaultUom->uom_id) ? $sku->defaultUom->uom_id : null,
             'sku_default_uom_name' => isset($sku->defaultUom->uom_name) ? $sku->defaultUom->uom_name : null,
-            'default_unit_price' => isset($sku->default_unit_price) ? $sku->default_unit_price : "",
+            'default_unit_price' => isset($sku->default_unit_price) ? $sku->default_unit_price : 0,
             'inventory_on_hand' => isset($inventory->inventory_on_hand) ? $inventory->inventory_on_hand : 0,
         );
 

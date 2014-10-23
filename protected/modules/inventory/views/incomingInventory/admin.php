@@ -38,12 +38,11 @@ $this->breadcrumbs = array(
     <table id="incoming-inventory_table" class="table table-bordered">
         <thead>
             <tr>
-                <!--<th><?php // echo $fields['campaign_no'];  ?></th>-->
-                <!--<th><?php // echo $fields['pr_no'];  ?></th>-->
-                <!--<th><?php // echo $fields['pr_date'];  ?></th>-->
-                <th><?php echo $fields['dr_no']; ?></th>
+                <th><?php echo $fields['campaign_no']; ?></th>
+                <th><?php echo $fields['pr_no']; ?></th>
+                <th><?php echo $fields['pr_date']; ?></th>
                 <th><?php echo $fields['rra_no']; ?></th>
-                <th><?php echo $fields['rra_date']; ?></th>
+                <th><?php echo $fields['dr_no']; ?></th>
                 <th><?php echo $fields['destination_zone_id']; ?></th>
                 <th><?php echo $fields['status']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
@@ -53,9 +52,8 @@ $this->breadcrumbs = array(
         </thead>     
         <thead>
             <tr id="filter_row">
-                <!--<td class="filter"></td>-->
-                <!--<td class="filter"></td>-->
-                <!--<td class="filter"></td>-->
+                <td class="filter"></td>
+                <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
@@ -82,11 +80,11 @@ $this->breadcrumbs = array(
                 <table id="incoming-inventory-details_table" class="table table-bordered">
                     <thead>
                         <tr>
-                            <!--<th><?php echo $incomingInvFields['batch_no']; ?></th>-->
+                            <th><?php echo $incomingInvFields['batch_no']; ?></th>
                             <th><?php echo $skuFields['sku_code']; ?></th>
                             <th><?php echo $skuFields['description']; ?></th>
                             <th><?php echo $skuFields['brand_id']; ?></th>
-                            <!--<th><?php echo $incomingInvFields['source_zone_id']; ?></th>-->
+                            <th><?php echo $incomingInvFields['source_zone_id']; ?></th>
                             <th><?php echo $incomingInvFields['unit_price']; ?></th>
                             <th><?php echo $incomingInvFields['planned_quantity']; ?></th>
                             <th><?php echo $incomingInvFields['quantity_received']; ?></th>
@@ -98,8 +96,8 @@ $this->breadcrumbs = array(
                     </thead>
                     <thead>
                         <tr id="filter_row">
-<!--                            <td class="filter"></td>
-                            <td class="filter"></td>-->
+                            <td class="filter"></td>
+                            <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
@@ -146,15 +144,14 @@ $this->breadcrumbs = array(
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
-            "order": [[6, "asc"]],
+            "order": [[8, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/IncomingInventory/data'); ?>",
             "columns": [
-//                {"name": "campaign_no", "data": "campaign_no"},
-//                {"name": "pr_no", "data": "pr_no"},
-//                {"name": "pr_date", "data": "pr_date"},
-                {"name": "dr_no", "data": "dr_no"},
+                {"name": "campaign_no", "data": "campaign_no"},
+                {"name": "pr_no", "data": "pr_no"},
+                {"name": "pr_date", "data": "pr_date"},
                 {"name": "rra_no", "data": "rra_no"},
-                {"name": "rra_date", "data": "rra_date"},
+                {"name": "dr_no", "data": "dr_no"},
                 {"name": "destination_zone_name", "data": "destination_zone_name"},
                 {"name": "status", "data": "status"},
                 {"name": "total_amount", "data": "total_amount"},
@@ -162,11 +159,11 @@ $this->breadcrumbs = array(
                 {"name": "links", "data": "links", 'sortable': false}
             ],
             "columnDefs": [{
-                    "targets": [6],
+                    "targets": [8],
                     "visible": false
                 }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(5)', nRow).addClass("text-center");
+                $('td:eq(8)', nRow).addClass("text-center");
 
             }
         });
@@ -332,11 +329,11 @@ $this->breadcrumbs = array(
 
                 $.each(data.data, function(i, v) {
                     incoming_inventory_table_detail.fnAddData([
-//                        v.batch_no,
+                        v.batch_no,
                         v.sku_code,
                         v.sku_description,
                         v.brand_name,
-//                        v.source_zone_name,
+                        v.source_zone_name,
                         v.unit_price,
                         v.planned_quantity,
                         v.quantity_received,

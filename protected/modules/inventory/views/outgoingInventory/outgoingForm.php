@@ -16,7 +16,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.date
 $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.extensions.js', CClientScript::POS_END);
 ?>
 
-<script src="<?php echo Yii::app()->baseUrl; ?>/js/jquery.validate.js" type="text/javascript"></script>
 
 <style type="text/css">
     .typeahead {
@@ -80,7 +79,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
 <style type="text/css">
 
-    #inventory_table tbody tr { cursor: pointer }
+    #item_details_table tbody tr { cursor: pointer }
 
     #transaction_table td { text-align:center; }
     #transaction_table td + td { text-align: left; }
@@ -102,7 +101,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         box-shadow: 0 5px 10px rgba(0,0,0,.2);
     }
 
-    #hide_textbox input { display:none; }
+    #hide_textbox input {display:none;}
 
 </style>  
 
@@ -128,20 +127,20 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         <div class="col-md-6 clearfix">
             <div id="input_label" class="pull-left col-md-5">
 
-                <?php echo $form->labelEx($outgoing, 'dr_no'); ?><br/>
                 <?php echo $form->labelEx($outgoing, 'rra_no'); ?><br/>
-                <?php echo $form->labelEx($outgoing, 'rra_date'); ?><br/>
+                <?php echo $form->labelEx($outgoing, 'dr_no'); ?><br/>
+                <?php echo $form->labelEx($outgoing, 'dr_date'); ?><br/>
                 <?php echo $form->labelEx($outgoing, 'destination_zone_id'); ?>
 
             </div>
 
             <div class="pull-right col-md-7">
 
-                <?php echo $form->textFieldGroup($outgoing, 'dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
-
                 <?php echo $form->textFieldGroup($outgoing, 'rra_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, "value" => "")), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo $form->textFieldGroup($outgoing, 'rra_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($outgoing, 'dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+
+                <?php echo $form->textFieldGroup($outgoing, 'dr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo CHtml::textField('destination_zone', '', array('id' => 'OutgoingInventory_destination_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone")); ?>
                 <?php echo $form->textFieldGroup($outgoing, 'destination_zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'OutgoingInventory_destination_zone', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
@@ -157,8 +156,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->labelEx($outgoing, 'contact_person'); ?><br/>
                 <?php echo $form->labelEx($outgoing, 'contact_no'); ?><br/>
                 <?php echo $form->labelEx($outgoing, 'address'); ?>
-                <?php echo $form->labelEx($outgoing, 'plan_delivery_date'); ?><br/>
-                <?php echo $form->labelEx($outgoing, 'remarks'); ?>
 
             </div>
             <div class="pull-right col-md-7">
@@ -171,8 +168,64 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($outgoing, 'address', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 200)), 'labelOptions' => array('label' => false))); ?>
 
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <h4 class="control-label text-primary"><b><?php echo Sku::SKU_LABEL; ?> Information</b></h4>
+
+        <div class="col-md-6 clearfix">
+            <div id="input_label" class="pull-left col-md-5">
+
+                <?php echo $form->labelEx($outgoing, 'campaign_no'); ?><br/>
+                <?php echo $form->labelEx($outgoing, 'pr_no'); ?><br/>
+                <?php echo $form->labelEx($outgoing, 'pr_date'); ?>
+
+            </div>
+
+            <div class="pull-right col-md-7">
+
+                <?php echo $form->textFieldGroup($outgoing, 'campaign_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore typeahead span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+
+                <?php // echo $form->textFieldGroup($outgoing, 'pr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+
+                <?php
+                echo $form->dropDownListGroup($outgoing, 'pr_no', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => '',
+                    ),
+                    'widgetOptions' => array(
+                        'data' => array(),
+                        'htmlOptions' => array('class' => 'ignore span5', 'multiple' => false, 'onchange' => "PRNoChange(this.value)"),
+                    ),
+                    'labelOptions' => array('label' => false)));
+                ?>
+
+                <?php echo $form->textFieldGroup($outgoing, 'pr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+
+                <?php echo $form->textFieldGroup($outgoing, 'source_zone_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-6">
+            <div id="input_label" class="pull-left col-md-5">
+
+                <?php echo $form->labelEx($outgoing, 'plan_delivery_date'); ?><br/>
+                <?php echo $form->labelEx($outgoing, 'revised_delivery_date'); ?><br/>
+                <?php echo $form->labelEx($outgoing, 'plan_arrival_date'); ?><br/>
+                <?php echo $form->labelEx($outgoing, 'remarks'); ?>
+
+            </div>
+            <div class="pull-right col-md-7">
 
                 <?php echo $form->textFieldGroup($outgoing, 'plan_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+
+                <?php echo $form->textFieldGroup($outgoing, 'revised_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+
+                <?php echo $form->textFieldGroup($outgoing, 'plan_arrival_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php
                 echo $form->textAreaGroup($outgoing, 'remarks', array(
@@ -184,8 +237,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     ),
                     'labelOptions' => array('label' => false)));
                 ?>
-
-                <?php echo $form->textFieldGroup($outgoing, 'source_zone_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
 
             </div>
         </div>
@@ -200,48 +251,39 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php $skuFields = Sku::model()->attributeLabels(); ?>
                 <?php $invFields = Inventory::model()->attributeLabels(); ?>
 
-                <div class="table-responsive">
-                    <table id="inventory_table" class="table table-bordered table-hover">
+                <div class="table-responsive">            
+                    <table id="item_details_table" class="table table-bordered">
                         <thead>
                             <tr>
+                                <th class="hide_row"><?php echo $invFields['inventory_id']; ?></th>
+                                <th class="hide_row"><?php echo $skuFields['sku_id']; ?></th>
                                 <th><?php echo $skuFields['sku_code']; ?></th>
                                 <th><?php echo $skuFields['description']; ?></th>
-                                <th><?php echo $invFields['qty']; ?></th>
-                                <th class="hide_row"><?php echo $invFields['uom_id']; ?></th>
-                                <th class="hide_row">Action Qty <i class="fa fa-fw fa-info-circle" data-toggle="popover" content="And here's some amazing content. It's very engaging. right?"></i></th>
-                                <th><?php echo $invFields['zone_id']; ?></th>
-                                <th class="hide_row"><?php echo $invFields['sku_status_id']; ?></th>
-                                <th><?php echo $invFields['campaign_no']; ?></th>
-                                <th><?php echo $invFields['pr_no']; ?></th>
-                                <th><?php echo $invFields['pr_date']; ?></th>
-                                <th><?php echo $invFields['plan_arrival_date']; ?></th>
-                                <th><?php echo $invFields['reference_no']; ?></th>
+                                <th><?php echo $skuFields['brand_id']; ?></th>
+                                <th><?php echo $invFields['cost_per_unit']; ?></th>
+                                <th>Inventory On Hand</th>
+                                <th><?php echo $invFields['uom_id']; ?></th>
+                                <th><?php echo $invFields['sku_status_id']; ?></th>
                                 <th><?php echo $invFields['expiration_date']; ?></th>
-                                <th><?php echo $invFields['brand_name']; ?></th>
-                                <th><?php echo $invFields['sales_office_name']; ?></th>
-                            </tr>
+                                <th><?php echo $invFields['reference_no']; ?></th>
+                            </tr>                                    
                         </thead>
                         <thead>
                             <tr id="filter_row">
-                                <td class="filter"></td>
-                                <td class="filter"></td>
-                                <td class="filter"></td>
                                 <td class="filter hide_row"></td>
                                 <td class="filter hide_row"></td>
                                 <td class="filter"></td>
-                                <td class="filter hide_row"></td>
                                 <td class="filter"></td>
                                 <td class="filter"></td>
                                 <td class="filter"></td>
                                 <td class="filter"></td>
                                 <td class="filter"></td>
                                 <td class="filter"></td>
-                                <td class="filter" id="hide_textbox"></td>
-                                <td class="filter" id="hide_textbox"></td>
+                                <td class="filter"></td>
+                                <td class="filter"></td>
                             </tr>
                         </thead>
-
-                    </table>
+                    </table>                            
                 </div><br/>
 
                 <div class="col-md-6 clearfix">
@@ -255,7 +297,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                     <?php echo $form->labelEx($sku, 'sub_type'); ?><br/>
                                     <?php echo $form->labelEx($sku, 'brand_id'); ?><br/>
                                     <?php echo $form->labelEx($sku, 'sku_code'); ?><br/>
-                                    <?php echo $form->labelEx($sku, 'description'); ?>
+                                    <?php echo $form->labelEx($sku, 'description'); ?><br/>
+                                    <?php echo $form->labelEx($transaction_detail, 'uom_id'); ?><br/>
+                                    <?php echo $form->labelEx($transaction_detail, 'sku_status_id'); ?>
 
                                 </div>
                                 <div class="pull-right col-md-7">
@@ -286,7 +330,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                         ),
                                         'widgetOptions' => array(
                                             'data' => $uom,
-                                            'htmlOptions' => array('multiple' => false, 'prompt' => 'Select UOM', 'class' => 'span5', 'style' => 'display: none;'),
+                                            'htmlOptions' => array('multiple' => false, 'prompt' => 'Select UOM', 'class' => 'span5'),
                                         ),
                                         'labelOptions' => array('label' => false)));
                                     ?>
@@ -298,7 +342,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                         ),
                                         'widgetOptions' => array(
                                             'data' => $sku_status,
-                                            'htmlOptions' => array('class' => 'span5', 'multiple' => false, 'prompt' => 'Select ' . Sku::SKU_LABEL . ' Status', 'style' => 'display: none;'),
+                                            'htmlOptions' => array('class' => 'span5', 'multiple' => false, 'prompt' => 'Select ' . Sku::SKU_LABEL . ' Status'),
                                         ),
                                         'labelOptions' => array('label' => false)));
                                     ?>
@@ -312,47 +356,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     </div>
 
                     <div id="input_label" class="pull-left col-md-5">
-                        <?php echo $form->labelEx($transaction_detail, 'source_zone_id'); ?><br/>
-                        <?php echo $form->label($transaction_detail,'Inventory On Hand'); ?>
-                    </div>
-                    <div class="pull-right col-md-7">
-
-                        <?php echo CHtml::textField('source_zone', '', array('id' => 'OutgoingInventoryDetail_source_zone_id', 'class' => 'typeahead form-control span5', 'placeholder' => "Source Zone", 'readonly' => true)); ?>
-                        <?php echo $form->textFieldGroup($transaction_detail, 'source_zone_id', array('widgetOptions' => array('htmlOptions' => array("id" => "OutgoingInventoryDetail_source_zone", 'class' => 'span5', "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
-
-                        <div class="span5">
-                            <?php
-                            echo $form->textFieldGroup($transaction_detail, 'inventory_on_hand', array(
-                                'widgetOptions' => array(
-                                    'htmlOptions' => array("class" => "span5", 'readonly' => true)
-                                ),
-                                'labelOptions' => array('label' => false),
-                                'append' => '<b class="inventory_uom_selected"></b>'
-                            ));
-                            ?>
-                        </div>
-                        
-                    </div>
-                </div>
-
-                <div class="col-md-6 clearfix">
-                    <div id="input_label" class="pull-left col-md-5">
-
-                        <?php echo $form->labelEx($transaction_detail, 'batch_no'); ?><br/>
-                        <?php echo $form->labelEx($transaction_detail, 'expiration_date'); ?><br/>
                         <?php echo $form->labelEx($sku, 'planned_quantity'); ?><br/>
-                        <?php echo $form->labelEx($transaction_detail, 'quantity_issued'); ?><br/>
-                        <?php echo $form->labelEx($transaction_detail, 'unit_price'); ?><br/>
-                        <?php echo $form->labelEx($transaction_detail, 'amount'); ?><br/>
-                        <?php echo $form->labelEx($transaction_detail, 'return_date'); ?><br/>
-                        <?php echo $form->labelEx($transaction_detail, 'remarks'); ?>
-
+                        <?php echo $form->labelEx($transaction_detail, 'inventory_on_hand'); ?>
                     </div>
                     <div class="pull-right col-md-7">
-
-                        <?php echo $form->textFieldGroup($transaction_detail, 'batch_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
-
-                        <?php echo $form->textFieldGroup($transaction_detail, 'expiration_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                         <div class="span5">
                             <?php
@@ -365,7 +372,44 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             ));
                             ?>
                         </div>
-                        
+
+
+                        <div class="span5">
+                            <?php
+                            echo $form->textFieldGroup($transaction_detail, 'inventory_on_hand', array(
+                                'widgetOptions' => array(
+                                    'htmlOptions' => array("class" => "span5", 'readonly' => true)
+                                ),
+                                'labelOptions' => array('label' => false),
+                                'append' => '<b class="inventory_uom_selected"></b>'
+                            ));
+                            ?>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 clearfix">
+                    <div id="input_label" class="pull-left col-md-5">
+
+                        <?php echo $form->labelEx($transaction_detail, 'batch_no'); ?><br/>
+                        <?php echo $form->labelEx($transaction_detail, 'source_zone_id'); ?><br/>
+                        <?php echo $form->labelEx($transaction_detail, 'expiration_date'); ?><br/>
+                        <?php echo $form->labelEx($transaction_detail, 'quantity_issued'); ?><br/>
+                        <?php echo $form->labelEx($transaction_detail, 'unit_price'); ?><br/>
+                        <?php echo $form->labelEx($transaction_detail, 'amount'); ?><br/>
+                        <?php echo $form->labelEx($transaction_detail, 'return_date'); ?><br/>
+                        <?php echo $form->labelEx($transaction_detail, 'remarks'); ?>
+
+                    </div>
+                    <div class="pull-right col-md-7">
+
+                        <?php echo $form->textFieldGroup($transaction_detail, 'batch_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+
+                        <?php echo CHtml::textField('source_zone', '', array('id' => 'OutgoingInventoryDetail_source_zone_id', 'class' => 'typeahead form-control span5', 'placeholder' => "Source Zone", 'readonly' => true)); ?>
+                        <?php echo $form->textFieldGroup($transaction_detail, 'source_zone_id', array('widgetOptions' => array('htmlOptions' => array("id" => "OutgoingInventoryDetail_source_zone", 'class' => 'span5', "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
+
+                        <?php echo $form->textFieldGroup($transaction_detail, 'expiration_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+
                         <div class="span5">
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'quantity_issued', array(
@@ -432,49 +476,27 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         <div class="table-responsive">            
             <table id="transaction_table" class="table table-bordered table-hover table-striped">
                 <thead>
-<!--                    <tr>
-                        <th><button id="delete_row_btn" class="btn btn-danger btn-sm" onclick="deleteTransactionRow()" style="display: none;"><i class="fa fa-trash-o"></i></button></th>
-                        <th class=""><?php echo $skuFields['sku_id']; ?></th>
-                        <th><?php echo $skuFields['sku_code']; ?></th>
-                        <th><?php echo $skuFields['description']; ?></th>
-                        <th><?php echo $skuFields['brand_id']; ?></th>
-                        <th><?php echo $outgoingDetailFields['unit_price']; ?></th>
-                        <th><?php echo $outgoingDetailFields['batch_no']; ?></th>
-                        <th class="">Source Zone ID</th>
-                        <th><?php echo $outgoingDetailFields['source_zone_id']; ?></th>
-                        <th><?php echo $outgoingDetailFields['expiration_date']; ?></th>
-                        <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
-                        <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
-                        <th><?php echo $outgoingDetailFields['amount']; ?></th>
-                        <th><?php // echo $outgoingDetailFields['inventory_on_hand']; ?></th>
-                        <th class=""><?php echo $outgoingDetailFields['return_date']; ?></th>
-                        <th class="hide_row"><?php echo $outgoingDetailFields['remarks']; ?></th>
-                        <th class="hide_row">Inventory</th>
-                        <th class="hide_row"><?php echo $outgoingDetailFields['uom_id']; ?></th>
-                        <th class="hide_row"><?php echo $outgoingDetailFields['sku_status_id']; ?></th>
-                    </tr> -->
                     <tr>
-                        <th style="text-align: center;"><button id="delete_row_btn" class="btn btn-danger btn-sm" onclick="deleteTransactionRow()" style="display: none;"><i class="fa fa-trash-o"></i></button></th>
+                        <th><button id="delete_row_btn" class="btn btn-danger btn-sm" onclick="deleteTransactionRow()" style="display: none;"><i class="fa fa-trash-o"></i></button></th>
                         <th class="hide_row"><?php echo $skuFields['sku_id']; ?></th>
                         <th><?php echo $skuFields['sku_code']; ?></th>
                         <th><?php echo $skuFields['description']; ?></th>
                         <th><?php echo $skuFields['brand_id']; ?></th>
                         <th><?php echo $outgoingDetailFields['unit_price']; ?></th>
                         <th><?php echo $outgoingDetailFields['batch_no']; ?></th>
+                        <th class="hide_row">Source Zone ID</th>
+                        <th><?php echo $outgoingDetailFields['source_zone_id']; ?></th>
                         <th><?php echo $outgoingDetailFields['expiration_date']; ?></th>
                         <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
                         <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
-                        <th class="hide_row"><?php echo $outgoingDetailFields['uom_id']; ?></th>
-                        <th class="hide_row"><?php echo $outgoingDetailFields['uom_id']; ?></th>
-                        <th class="hide_row"><?php echo $outgoingDetailFields['sku_status_id']; ?></th>
-                        <th class="hide_row"><?php echo $outgoingDetailFields['sku_status_id']; ?></th>
                         <th><?php echo $outgoingDetailFields['amount']; ?></th>
+                        <th><?php echo $outgoingDetailFields['inventory_on_hand']; ?></th>
+                        <th class=""><?php echo $outgoingDetailFields['return_date']; ?></th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['remarks']; ?></th>
-                        <th class="hide_row"><?php echo $outgoingDetailFields['return_date']; ?></th>
                         <th class="hide_row">Inventory</th>
-                        <th class="hide_row><?php echo $outgoingDetailFields['source_zone_id']; ?></th>
-                        <th class="hide_row><?php echo $outgoingDetailFields['source_zone_id']; ?></th>
-                    </tr>    
+                        <th class="hide_row"><?php echo $outgoingDetailFields['uom_id']; ?></th>
+                        <th class="hide_row"><?php echo $outgoingDetailFields['sku_status_id']; ?></th>
+                    </tr>                                    
                 </thead>
             </table>                            
         </div>
@@ -543,7 +565,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         inventory_table = $('#inventory_table').dataTable({
             "filter": true,
-            "dom": '<"pull-right"i>t',
+            "dom": '<"text-center"r><"pull-right"i>t',
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
@@ -558,18 +580,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 {"name": "action_qty", "data": "action_qty", 'sortable': false, "class": 'action_qty'},
                 {"name": "zone_name", "data": "zone_name"},
                 {"name": "sku_status_name", "data": "sku_status_name"},
-                {"name": "campaign_no", "data": "campaign_no"},
-                {"name": "pr_no", "data": "pr_no"},
-                {"name": "pr_date", "data": "pr_date"},
-                {"name": "plan_arrival_date", "data": "plan_arrival_date"},
-                {"name": "reference_no", "data": "reference_no"},
                 {"name": "expiration_date", "data": "expiration_date"},
-                {"name": "brand_name", "data": "brand_name", 'sortable': false},
-                {"name": "sales_office_name", "data": "sales_office_name", 'sortable': false},
-                {"name": "links", "data": "links", 'sortable': false}
+                {"name": "reference_no", "data": "reference_no"},
+                {"name": "brand_name", "data": "brand_name"},
+                {"name": "sales_office_name", "data": "sales_office_name"}
             ],
             "columnDefs": [{
-                    "targets": [3,4,6,15],
+                    "targets": [4],
                     "visible": false
                 }]
         });
@@ -642,7 +659,22 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             "serverSide": false,
             "bAutoWidth": false,
             "columnDefs": [{
-                    "targets": [1, 10, 11, 12, 13, 15, 16, 17, 18, 19],
+                    "targets": [1],
+                    "visible": false
+                }, {
+                    "targets": [7],
+                    "visible": false
+                }, {
+                    "targets": [15],
+                    "visible": false
+                }, {
+                    "targets": [16],
+                    "visible": false
+                }, {
+                    "targets": [17],
+                    "visible": false
+                }, {
+                    "targets": [18],
                     "visible": false
                 }]
         });
@@ -690,11 +722,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         var e = $(".error");
         for (var i = 0; i < e.length; i++) {
-            var $element = $(e[i]);
-
-            $element.data("title", "")
-                    .removeClass("error")
-                    .tooltip("destroy");
+            $(e[i]).removeClass('error');
         }
 
         if (data.success === true) {
@@ -727,20 +755,18 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     data.details.brand_name,
                     data.details.unit_price,
                     data.details.batch_no,
+                    data.details.source_zone_id,
+                    data.details.source_zone_name,
                     data.details.expiration_date,
                     data.details.planned_quantity,
                     data.details.quantity_issued,
-                    data.details.uom_id,
-                    "",
-                    data.details.sku_status_id,
-                    "",
                     data.details.amount,
-                    data.details.remarks,
+                    data.details.inventory_on_hand,
                     data.details.return_date,
+                    data.details.remarks,
                     data.details.inventory_id,
-                    data.details.source_zone_id,
-                    data.details.source_zone_name,
-//                    data.details.inventory_on_hand,
+                    data.details.uom_id,
+                    data.details.sku_status_id
                 ]);
 
                 total_amount = (parseFloat(total_amount) + parseFloat(data.details.amount));
@@ -757,9 +783,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 printPDF(data.print);
             }
 
-//            $("#item_details_table tbody tr").removeClass('success');
-//            PRNoChange(selected_pr_no);
-            inventory_table.fnMultiFilter();
+            $("#item_details_table tbody tr").removeClass('success');
+            PRNoChange(selected_pr_no);
         } else {
 
             growlAlert(data.type, data.message);
@@ -770,11 +795,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
-
-                var $element = $(element);
-                $element.data("title", v)
-                        .addClass("error")
-                        .tooltip();
+                element.classList.add("error");
             });
         }
 
@@ -808,7 +829,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $("#OutgoingInventoryDetail_expiration_date").val(data.expiration_date);
                 $("#OutgoingInventoryDetail_uom_id").val(data.uom_id);
                 $("#OutgoingInventoryDetail_sku_status_id").val(data.sku_status_id);
-                $("#OutgoingInventoryDetail_planned_quantity, #OutgoingInventoryDetail_quantity_issued, #OutgoingInventoryDetail_amount").val("");
+//                $("#OutgoingInventoryDetail_amount").val(0);
             },
             error: function(data) {
                 alert("Error occured: Please try again.");
@@ -840,7 +861,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         for (var i = 0; i < aTrs.length; i++) {
             $(aTrs[i]).find('input:checkbox:checked').each(function() {
                 var row_data = transaction_table.fnGetData(aTrs[i]);
-                total_amount = (parseFloat(total_amount) - parseFloat(row_data[14]));
+                total_amount = (parseFloat(total_amount) - parseFloat(row_data[12]));
                 $("#OutgoingInventory_total_amount").val(total_amount);
 
                 transaction_table.fnDeleteRow(aTrs[i]);
@@ -867,22 +888,22 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         var aTrs = transaction_table.fnGetNodes();
         for (var i = 0; i < aTrs.length; i++) {
             var row_data = transaction_table.fnGetData(aTrs[i]);
-            
+
             row_datas.push({
                 "sku_id": row_data[1],
                 "unit_price": row_data[5],
                 "batch_no": row_data[6],
-                "expiration_date": row_data[7],
-                "planned_quantity": row_data[8],
-                "quantity_issued": row_data[9],
-                "uom_id": row_data[10],
-                "sku_status_id": row_data[12],
-                "amount": row_data[14],
+                "source_zone_id": row_data[7],
+                "expiration_date": row_data[9],
+                "planned_quantity": row_data[10],
+                "quantity_issued": row_data[11],
+                "amount": row_data[12],
+                "inventory_on_hand": row_data[13],
+                "return_date": row_data[14],
                 "remarks": row_data[15],
-//                "inventory_on_hand": row_data[13],
-                "return_date": row_data[16],
-                "inventory_id": row_data[17],
-                "source_zone_id": row_data[18],
+                "inventory_id": row_data[16],
+                "uom_id": row_data[17],
+                "sku_status_id": row_data[18],
             });
         }
 
@@ -928,37 +949,37 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     });
 
     $(function() {
-//        var campaign_no = new Bloodhound({
-//            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('campaign_nos'),
-//            queryTokenizer: Bloodhound.tokenizers.whitespace,
-//            prefetch: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo', array('value' => '')) ?>',
-//            remote: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo'); ?>&value=%QUERY'
-//        });
-//
-//        campaign_no.initialize();
-//
-//        $('#OutgoingInventory_campaign_no').typeahead(null, {
-//            name: 'campaign_nos',
-//            displayKey: 'campaign_no',
-//            source: campaign_no.ttAdapter(),
-//            templates: {
-//                suggestion: Handlebars.compile([
-////                    '<p class="repo-name">{{campaign_no}}</p>',
-//                    '<p class="repo-description">{{campaign_no}}</p>'
-//                ].join(''))
-//            }
-//
-//        }).on('typeahead:selected', function(obj, datum) {
-//            $("#OutgoingInventory_campaign_no").val(datum.campaign_no);
-//            $("#OutgoingInventory_source_zone_id").val(datum.source_zone_id);
-//
-//            loadPRNos(datum.campaign_no, datum.transaction);
-//        });
-//
-//        jQuery('#OutgoingInventory_campaign_no').on('input', function() {
-//            $('#OutgoingInventory_pr_no').empty();
-//            $('#OutgoingInventory_source_zone_id').val("");
-//        });
+        var campaign_no = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('campaign_nos'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            prefetch: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo', array('value' => '')) ?>',
+            remote: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo'); ?>&value=%QUERY'
+        });
+
+        campaign_no.initialize();
+
+        $('#OutgoingInventory_campaign_no').typeahead(null, {
+            name: 'campaign_nos',
+            displayKey: 'campaign_no',
+            source: campaign_no.ttAdapter(),
+            templates: {
+                suggestion: Handlebars.compile([
+//                    '<p class="repo-name">{{campaign_no}}</p>',
+                    '<p class="repo-description">{{campaign_no}}</p>'
+                ].join(''))
+            }
+
+        }).on('typeahead:selected', function(obj, datum) {
+            $("#OutgoingInventory_campaign_no").val(datum.campaign_no);
+            $("#OutgoingInventory_source_zone_id").val(datum.source_zone_id);
+
+            loadPRNos(datum.campaign_no, datum.transaction);
+        });
+
+        jQuery('#OutgoingInventory_campaign_no').on('input', function() {
+            $('#OutgoingInventory_pr_no').empty();
+            $('#OutgoingInventory_source_zone_id').val("");
+        });
 
         var zone = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('zone'),
@@ -1068,7 +1089,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     $(function() {
-        $('#OutgoingInventory_pr_date, #OutgoingInventory_rra_date, #OutgoingInventory_plan_delivery_date, #OutgoingInventory_revised_delivery_date, #OutgoingInventory_plan_arrival_date, #OutgoingInventory_transaction_date, #OutgoingInventoryDetail_expiration_date, #OutgoingInventoryDetail_return_date').datepicker({
+        $('#OutgoingInventory_pr_date, #OutgoingInventory_dr_date, #OutgoingInventory_plan_delivery_date, #OutgoingInventory_revised_delivery_date, #OutgoingInventory_plan_arrival_date, #OutgoingInventory_transaction_date, #OutgoingInventoryDetail_expiration_date, #OutgoingInventoryDetail_return_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'});

@@ -91,7 +91,7 @@ class Sku extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('sku_id, sku_code, company_id, sku_name, default_uom_id', 'required'),
+            array('sku_id, sku_code, company_id, sku_name', 'required'),
             array('low_qty_threshold, high_qty_threshold', 'numerical', 'integerOnly' => true, 'max' => 9999999, 'min' => 0),
             array('sku_id, sku_code, company_id, brand_id, default_uom_id, type, sub_type, default_zone_id, created_by, updated_by', 'length', 'max' => 50),
             array('sku_name, description', 'length', 'max' => 150),

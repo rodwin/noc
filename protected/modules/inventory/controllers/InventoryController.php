@@ -406,11 +406,6 @@ class InventoryController extends Controller {
             $row['updated_by'] = $value->updated_by;
             $row['expiration_date'] = $value->expiration_date;
             $row['reference_no'] = $value->reference_no;
-            $row['campaign_no'] = $value->campaign_no;
-            $row['pr_no'] = $value->pr_no;
-            $row['pr_date'] = $value->pr_date;
-            $row['plan_arrival_date'] = $value->plan_arrival_date;
-            $row['revised_delivery_date'] = $value->revised_delivery_date;
 
 
             $row['links'] = '<a class="btn btn-sm btn-default" title="Inventory Record History" href="' . $this->createUrl('/inventory/inventory/history', array('inventory_id' => $value->inventory_id)) . '">
