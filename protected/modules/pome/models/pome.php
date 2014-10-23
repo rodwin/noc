@@ -689,42 +689,6 @@ class Pome extends CFormModel {
    
     public function getParTotalNational($agency,$from,$to,$brand,$year)
     {
-
-        $current_date = date('Y-m-d');
-        $given_date = date('Y-m-d',strtotime($to));
-
-
-        if($given_date > $current_date){
-
-                $to = date($year.'-m-d');
-
-        }else{
-             $to = $to;
-        }
-                  
-       if($brand != 0){
-           $brand = 'and d.brand_id ='.$brand;
-       }else{
-           $brand= '';
-       }
-       
-           $sql ="SELECT d.date,a.id
-                    FROM  [pg_mapping].[dbo].[pome_route] d               
-                    inner join [pg_mapping].[dbo].[pome_pps] a on a.id = d.pps_id
-                    where d.date between '$from' and '$to' and a.agency_id =  $agency 
-                    group by d.date,a.id
-                    order by d.date
-                ";
-
-          $command = Yii::app()->db3->createCommand($sql);
-          $data = $command->queryAll();
-
-
-          return $data;
-    }
-    
-    public function getParPerRegion($agency,$from,$to,$brand,$year,$region)
-    {
         $current_month = date('m');
         $given_date = date('m',strtotime($to));
         if(strtotime($given_date)> strtotime($to)){
@@ -741,22 +705,12 @@ class Pome extends CFormModel {
            $brand= '';
        }
        
-       if($region==0){
-           $region = '';
-           $select = 'e.name';
-       }else{
-           $region = 'and e.id='.$region;
-           $select = 'b.name';
-       }
-       
-           $sql ="SELECT $select,count(d.id) as par
-                FROM  [pg_mapping].[dbo].[pome_route] d               
-                inner join [pg_mapping].[dbo].[pome_pps] a on a.id = d.pps_id
-                inner join [pg_mapping].[dbo].[province]  b on b.id = a.province_id
-                left join  [pg_mapping].[dbo].[region] e on e.id = b.region_id
-                where d.date between '$from' and '$to' and a.agency_id = $agency $brand $region
-                group by $select
-                order by $select
+           $sql ="SELECT d.date,a.id
+                    FROM  [pg_mapping].[dbo].[pome_route] d               
+                    inner join [pg_mapping].[dbo].[pome_pps] a on a.id = d.pps_id
+                    where d.date between '$from' and '$to' and a.agency_id =  $agency 
+                    group by d.date,a.id
+                    order by d.date
                 ";
 //pr($sql);
           $command = Yii::app()->db3->createCommand($sql);

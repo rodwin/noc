@@ -180,9 +180,8 @@
             'dataType': 'json',
             'data':'agency='+agency.value+'&region='+region.value+'&month='+month.value+'&province='+province.value+'&brand='+brand.value+'&year='+att_year.value,
              beforeSend: function(){
-//               $("#detail_table_loader_attendance").show();  
-//               $("#container").hide();  
-                 chart.showLoading();
+               $("#detail_table_loader_attendance").show();  
+               $("#container").hide();             
              },
             'success':function(data) {
               
@@ -193,12 +192,10 @@
                     var target = data[i].target_attendance - data[i].actual_attendance;
                     var targettl = data[i].target_attendance;
                     var percentage = data[i].actual_attendance / data[i].target_attendance * 100;
-                    var par = data[i].par / data[i].target_attendance * 100;
-                    var coloring = percentage / par *100;
-                    if(coloring >= 100)
+                    if(percentage >= 95)
                     {
                         color = 'green';
-                    }else if(coloring >= 90 && coloring <99){
+                    }else if(percentage >= 90 && percentage <95){
                         color = 'yellow';
                     }else{
                         color = 'red';
@@ -211,17 +208,15 @@
                chart.xAxis[0].setCategories(labels)
                chart.series[0].setData(attendance_target)
                chart.series[1].setData(attendance_reach)
-//               $("#detail_table_loader_attendance").hide();  
-//               $("#container").show();
-               chart.hideLoading();
+               $("#detail_table_loader_attendance").hide();  
+               $("#container").show();
                
               
                
             },
             error: function(jqXHR, exception) {
-//               $("#detail_table_loader_attendance").hide();  
-//               $("#container").show();
-                chart.hideLoading();
+               $("#detail_table_loader_attendance").hide();  
+               $("#container").show();
                alert('An error occured: '+ exception);
             }
          }); 
