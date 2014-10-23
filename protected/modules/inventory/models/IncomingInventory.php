@@ -265,10 +265,10 @@ class IncomingInventory extends CActiveRecord {
 
         if (array_key_exists(OutgoingInventory::OUTGOING_PENDING_STATUS, $item_status)) {
             $incoming_status = OutgoingInventory::OUTGOING_PENDING_STATUS;
-        } else if (array_key_exists(OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS, $item_status)) {
-            $incoming_status = OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS;
         } else if (array_key_exists(OutgoingInventory::OUTGOING_INCOMPLETE_STATUS, $item_status)) {
             $incoming_status = OutgoingInventory::OUTGOING_INCOMPLETE_STATUS;
+        } else if (array_key_exists(OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS, $item_status)) {
+            $incoming_status = OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS;
         } else {
             $incoming_status = OutgoingInventory::OUTGOING_COMPLETE_STATUS;
         }
