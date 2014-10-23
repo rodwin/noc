@@ -100,7 +100,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                         <th>PR No.</th>
                         <th>DR No.</th>
                         <th>Supplier / Source Zone</th>
-                        <th>Plan Arrival Date</th>
+                        <th>Plan Delivery Date</th>
                         <th>Quantity</th>
                         <th>Amount</th>
                         <th>Status</th>
@@ -125,7 +125,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                     <th>PR No.</th>
                     <th>DR No.</th>
                     <th>Destination Zone</th>
-                    <th>Plan Arrival Date</th>
+                    <th>Plan Delivery Date</th>
                     <th>Quantity</th>
                     <th>Amount</th>
                     <th>Status</th>
@@ -149,7 +149,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                     <th>PR No.</th>
                     <th>DR No.</th>
                     <th>MM Description</th>
-                    <th>Expiration Date</th>
+                    <th>Return Date</th>
                     <th>Quantity</th>
                     <th>Amount</th>
                     <th>Status</th>
@@ -347,7 +347,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                 v.pr_no,
                 v.dr_no,
                 v.source,
-                v.plan_arrival_date,
+                v.plan_delivery_date,
                 v.qty,
                 v.amount,
                 v.status
@@ -365,7 +365,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                 v.pr_no,
                 v.dr_no,
                 v.source,
-                v.plan_arrival_date,
+                v.plan_delivery_date,
                 v.qty,
                 v.amount,
                 v.status

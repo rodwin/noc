@@ -313,7 +313,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                     <div id="input_label" class="pull-left col-md-5">
                         <?php echo $form->labelEx($transaction_detail, 'source_zone_id'); ?><br/>
-                        <?php echo $form->label($transaction_detail,'Inventory On Hand'); ?>
+                        <?php echo $form->label($transaction_detail, 'Inventory On Hand'); ?>
                     </div>
                     <div class="pull-right col-md-7">
 
@@ -331,7 +331,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             ));
                             ?>
                         </div>
-                        
+
                     </div>
                 </div>
 
@@ -365,7 +365,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             ));
                             ?>
                         </div>
-                        
+
                         <div class="span5">
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'quantity_issued', array(
@@ -446,7 +446,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
                         <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
                         <th><?php echo $outgoingDetailFields['amount']; ?></th>
-                        <th><?php // echo $outgoingDetailFields['inventory_on_hand']; ?></th>
+                        <th><?php // echo $outgoingDetailFields['inventory_on_hand'];     ?></th>
                         <th class=""><?php echo $outgoingDetailFields['return_date']; ?></th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['remarks']; ?></th>
                         <th class="hide_row">Inventory</th>
@@ -473,7 +473,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th class="hide_row"><?php echo $outgoingDetailFields['return_date']; ?></th>
                         <th class="hide_row">Inventory</th>
                         <th class="hide_row><?php echo $outgoingDetailFields['source_zone_id']; ?></th>
-                        <th class="hide_row><?php echo $outgoingDetailFields['source_zone_id']; ?></th>
+                            <th class="hide_row><?php echo $outgoingDetailFields['source_zone_id']; ?></th>
                     </tr>    
                 </thead>
             </table>                            
@@ -569,7 +569,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 {"name": "links", "data": "links", 'sortable': false}
             ],
             "columnDefs": [{
-                    "targets": [3,4,6,15],
+                    "targets": [3, 4, 6, 15],
                     "visible": false
                 }]
         });
@@ -867,7 +867,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         var aTrs = transaction_table.fnGetNodes();
         for (var i = 0; i < aTrs.length; i++) {
             var row_data = transaction_table.fnGetData(aTrs[i]);
-            
+
             row_datas.push({
                 "sku_id": row_data[1],
                 "unit_price": row_data[5],
@@ -982,10 +982,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         }).on('typeahead:selected', function(obj, datum) {
             $("#OutgoingInventory_destination_zone").val(datum.zone_id);
+            loadEmployeeByDefaultZone(datum.zone_id);
         });
 
         jQuery('#OutgoingInventory_destination_zone_id').on('input', function() {
-            $("#OutgoingInventory_destination_zone").val("");
+            $("#OutgoingInventory_destination_zone, #OutgoingInventory_contact_person, #OutgoingInventory_contact_no, #OutgoingInventory_address").val("");
         });
     });
 
@@ -1105,6 +1106,24 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 alert("Error occured: Please try again.");
             }
         });
+    }
+
+    function loadEmployeeByDefaultZone(zone_id) {
+
+        $.ajax({
+            url: '<?php echo Yii::app()->createUrl('/library/employee/loadEmployeeByDefaultZone'); ?>' + '&zone_id=' + zone_id,
+            type: 'POST',
+            dataType: "json",
+            success: function(data) {
+                $("#OutgoingInventory_contact_person").val(data.fullname);
+                $("#OutgoingInventory_contact_no").val(data.home_phone_number);
+                $("#OutgoingInventory_address").val(data.address1);
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+
     }
 
 </script>

@@ -705,7 +705,7 @@ class InventoryController extends Controller {
 
             $row['transaction_type'] = '<a href="#" title="Click to view" data-toggle="tooltip"><b>' . strtoupper(OutgoingInventory::OUTGOING_LABEL) . '</b></a>';
             $row['dr_no'] = $val->dr_no;
-            $row['dr_date'] = $val->transaction_date;
+            $row['dr_date'] = date("d-M", strtotime($val->dr_date));
             $row['status'] = $status;
 
             $outbound_arr['data'][] = $row;
@@ -733,10 +733,10 @@ class InventoryController extends Controller {
 
             $row['transaction_date'] = date("d-M", strtotime($v1->transaction_date));
             $row['transaction_type'] = strtoupper(ReceivingInventory::RECEIVING_LABEL);
-            $row['pr_no'] = "";
+            $row['pr_no'] = $v1->pr_no;
             $row['dr_no'] = $v1->dr_no;
             $row['source'] = "";
-            $row['plan_arrival_date'] = date("d-M", strtotime($v1->plan_arrival_date));
+            $row['plan_delivery_date'] = isset($v1->plan_delivery_date) ? date("d-M", strtotime($v1->plan_delivery_date)) : "";
             $row['qty'] = $v1->total_quantity;
             $row['amount'] = "&#x20B1;" . number_format($v1->total_amount, 2, '.', ',');
             $row['status'] = "";
@@ -754,17 +754,26 @@ class InventoryController extends Controller {
         $incoming = IncomingInventory::model()->findAll($c2);
 
         $incoming_arr = array();
+        $incoming_pr_nos = "";
+        $incoming_pr_nos_arr = array();;
         foreach ($incoming as $k1 => $v2) {
             $row = array();
 
             $status = Inventory::model()->status($v2->status);
-
+            
+            $incoming_details = IncomingInventoryDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "incoming_inventory_id" => $v2->incoming_inventory_id));
+            
+            if (!in_array($incoming_details->pr_no, $incoming_pr_nos_arr)) {
+                array_push($incoming_pr_nos_arr, $incoming_details->pr_no);
+                $incoming_pr_nos .= $incoming_details->pr_no . ",";
+            }
+            
             $row['transaction_date'] = date("d-M", strtotime($v2->transaction_date));
             $row['transaction_type'] = strtoupper(IncomingInventory::INCOMING_LABEL);
-            $row['pr_no'] = "";
+            $row['pr_no'] = substr($incoming_pr_nos, 0, -1);
             $row['dr_no'] = $v2->dr_no;
             $row['source'] = "";
-            $row['plan_arrival_date'] = isset($v2->plan_arrival_date) ? date("d-M", strtotime($v2->plan_arrival_date)) : "";
+            $row['plan_delivery_date'] = isset($v2->plan_delivery_date) ? date("d-M", strtotime($v2->plan_delivery_date)) : "";
             $row['qty'] = $v2->total_quantity;
             $row['amount'] = "&#x20B1;" . number_format($v2->total_amount, 2, '.', ',');
             $row['status'] = $status;
@@ -792,17 +801,26 @@ class InventoryController extends Controller {
         $outbound = OutgoingInventory::model()->findAll($c3);
 
         $outbound_arr = array();
+        $outbound_pr_nos = "";
+        $outbound_pr_nos_arr = array();
         foreach ($outbound as $k3 => $v3) {
             $row = array();
             
             $status = Inventory::model()->status($v3->status);
+            
+            $outbound_details = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "outgoing_inventory_id" => $v3->outgoing_inventory_id));
+            
+            if (!in_array($outbound_details->pr_no, $outbound_pr_nos_arr)) {
+                array_push($outbound_pr_nos_arr, $outbound_details->pr_no);
+                $outbound_pr_nos .= $outbound_details->pr_no . ",";
+            }
 
             $row['transaction_date'] = date("d-M", strtotime($v3->transaction_date));
             $row['transaction_type'] = strtoupper(OutgoingInventory::OUTGOING_LABEL);
-            $row['pr_no'] = "";
+            $row['pr_no'] = substr($outbound_pr_nos, 0, -1);
             $row['dr_no'] = $v3->dr_no;
             $row['source'] = "";
-            $row['plan_arrival_date'] = isset($v3->plan_arrival_date) ? date("d-M", strtotime($v3->plan_arrival_date)) : "";
+            $row['plan_delivery_date'] = isset($v3->plan_delivery_date) ? date("d-M", strtotime($v3->plan_delivery_date)) : "";
             $row['qty'] = $v3->total_quantity;
             $row['amount'] = "&#x20B1;" . number_format($v3->total_amount, 2, '.', ',');
             $row['status'] = $status;
@@ -820,15 +838,24 @@ class InventoryController extends Controller {
         $outgoing = CustomerItem::model()->findAll($c4);
 
         $outgoing_arr = array();
+        $outgoing_pr_nos = "";
+        $outgoing_pr_nos_arr = array();
         foreach ($outgoing as $k4 => $v4) {
             $row = array();
+            
+            $outgoing_details = CustomerItemDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "customer_item_id" => $v4->customer_item_id));
+            
+            if (!in_array($outgoing_details->pr_no, $outgoing_pr_nos_arr)) {
+                array_push($outgoing_pr_nos_arr, $outgoing_details->pr_no);
+                $outgoing_pr_nos .= $outgoing_details->pr_no . ",";
+            }
 
             $row['transaction_date'] = date("d-M", strtotime($v4->transaction_date));
             $row['transaction_type'] = strtoupper(CustomerItem::CUSTOMER_ITEM_LABEL);
-            $row['pr_no'] = "";
+            $row['pr_no'] = $outgoing_pr_nos;
             $row['dr_no'] = $v4->dr_no;
             $row['source'] = "";
-            $row['plan_arrival_date'] = isset($v4->plan_delivery_date) ? date("d-M", strtotime($v4->plan_delivery_date)) : "";
+            $row['plan_delivery_date'] = isset($v4->plan_delivery_date) ? date("d-M", strtotime($v4->plan_delivery_date)) : "";
             $row['qty'] = $v4->total_quantity;
             $row['amount'] = "&#x20B1;" . number_format($v4->total_amount, 2, '.', ',');
             $row['status'] = "";
