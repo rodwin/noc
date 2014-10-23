@@ -623,7 +623,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 ]);
 
                 total_amount = (parseFloat(total_amount) + parseFloat(data.details.amount));
-                $("#ReceivingInventory_total_amount").val(total_amount);
+                $("#ReceivingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
 
                 growlAlert(data.type, data.message);
 
@@ -719,7 +719,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             $(aTrs[i]).find('input:checkbox:checked').each(function() {
                 var row_data = transaction_table.fnGetData(aTrs[i]);
                 total_amount = (parseFloat(total_amount) - parseFloat(row_data[14]));
-                $("#ReceivingInventory_total_amount").val(total_amount);
+                $("#ReceivingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
 
                 transaction_table.fnDeleteRow(aTrs[i]);
             });
@@ -800,9 +800,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         if ($("#ReceivingInventoryDetail_unit_price").val() != "") {
             var unit_price = $("#ReceivingInventoryDetail_unit_price").val();
         }
-
+        
         var amount = ($("#ReceivingInventoryDetail_quantity_received").val() * unit_price);
-        $("#ReceivingInventoryDetail_amount").val(amount);
+        $("#ReceivingInventoryDetail_amount").val(parseFloat(amount).toFixed(2));
     });
 
     $("#ReceivingInventoryDetail_unit_price").keyup(function(e) {
@@ -812,7 +812,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         var amount = (qty * $("#ReceivingInventoryDetail_unit_price").val());
-        $("#ReceivingInventoryDetail_amount").val(amount);
+        $("#ReceivingInventoryDetail_amount").val(parseFloat(amount).toFixed(2));
     });
 
     $(function() {

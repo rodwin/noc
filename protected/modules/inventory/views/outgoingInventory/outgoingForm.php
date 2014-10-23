@@ -744,7 +744,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 ]);
 
                 total_amount = (parseFloat(total_amount) + parseFloat(data.details.amount));
-                $("#OutgoingInventory_total_amount").val(total_amount);
+                $("#OutgoingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
 
                 growlAlert(data.type, data.message);
 
@@ -841,7 +841,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             $(aTrs[i]).find('input:checkbox:checked').each(function() {
                 var row_data = transaction_table.fnGetData(aTrs[i]);
                 total_amount = (parseFloat(total_amount) - parseFloat(row_data[14]));
-                $("#OutgoingInventory_total_amount").val(total_amount);
+                $("#OutgoingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
 
                 transaction_table.fnDeleteRow(aTrs[i]);
 
@@ -914,7 +914,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         var amount = ($("#OutgoingInventoryDetail_quantity_issued").val() * unit_price);
-        $("#OutgoingInventoryDetail_amount").val(amount);
+        $("#OutgoingInventoryDetail_amount").val(parseFloat(amount).toFixed(2));
     });
 
     $("#OutgoingInventoryDetail_unit_price").keyup(function(e) {
@@ -924,7 +924,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         var amount = (qty * $("#OutgoingInventoryDetail_unit_price").val());
-        $("#OutgoingInventoryDetail_amount").val(amount);
+        $("#OutgoingInventoryDetail_amount").val(parseFloat(amount).toFixed(2));
     });
 
     $(function() {

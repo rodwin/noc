@@ -680,7 +680,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 });
 
                 total_amount = (parseFloat(total_amount) + parseFloat(data.details.amount));
-                $("#IncomingInventory_total_amount").val(total_amount);
+                $("#IncomingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
 
                 growlAlert(data.type, data.message);
 
@@ -812,7 +812,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         var amount = ($("#IncomingInventoryDetail_quantity_received").val() * unit_price);
-        $("#IncomingInventoryDetail_amount").val(amount);
+        $("#IncomingInventoryDetail_amount").val(parseFloat(amount).toFixed(2));
     });
 
     $("#IncomingInventoryDetail_unit_price").keyup(function(e) {
@@ -822,7 +822,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         var amount = (qty * $("#IncomingInventoryDetail_unit_price").val());
-        $("#IncomingInventoryDetail_amount").val(amount);
+        $("#IncomingInventoryDetail_amount").val(parseFloat(amount).toFixed(2));
     });
 
     $('#IncomingInventory_dr_no').change(function() {
@@ -851,7 +851,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $("#IncomingInventory_outgoing_inventory_id").val(data.headers.outgoing_inventory_id);
 
                 total_amount = 0;
-                $("#IncomingInventory_total_amount").val(total_amount);
+                $("#IncomingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
                 $('#delete_row_btn').fadeOut('slow');
 
                 if (data.transaction_details.length > 0) {
@@ -936,7 +936,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 }
 
-                $("#IncomingInventory_total_amount").val(total_amount);
+                $("#IncomingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
 
             },
             error: function(data) {
@@ -973,7 +973,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             $(aTrs[i]).find('input:checkbox:checked').each(function() {
                 var row_data = transaction_table.fnGetData(aTrs[i]);
                 total_amount = (parseFloat(total_amount) - parseFloat(row_data[14]));
-                $("#IncomingInventory_total_amount").val(total_amount);
+                $("#IncomingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
 
                 transaction_table.fnDeleteRow(aTrs[i]);
             });

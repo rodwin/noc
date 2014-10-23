@@ -45,7 +45,7 @@ class CustomerItem extends CActiveRecord {
         // will receive user inputs.
         return array(
             array('company_id, dr_no, transaction_date', 'required'),
-            array('company_id, rra_no, dr_no, source_zone_id, poi_id, salesman_id, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, rra_no, dr_no, source_zone_id, poi_id, salesman_id, created_by, updated_by, status', 'length', 'max' => 50),
             array('total_amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
             array('source_zone_id', 'isValidZone'),
@@ -55,7 +55,7 @@ class CustomerItem extends CActiveRecord {
             array('plan_delivery_date, rra_date, created_date, updated_date, dr_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('customer_item_id, company_id, rra_no, dr_no, dr_date, source_zone_id, poi_id, salesman_id, transaction_date, rra_date, plan_delivery_date, remarks, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('customer_item_id, company_id, rra_no, dr_no, dr_date, source_zone_id, poi_id, salesman_id, transaction_date, rra_date, plan_delivery_date, remarks, status, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
 
@@ -65,7 +65,7 @@ class CustomerItem extends CActiveRecord {
         if ($data == null) {
             return;
         }
-        
+
         $model = Zone::model()->findByPk($this->$attribute);
 
         if (!Validator::isResultSetWithRows($model)) {
@@ -142,12 +142,13 @@ class CustomerItem extends CActiveRecord {
             'dr_date' => 'DR Date',
 //            'reference_dr_no' => 'Reference No',
             'source_zone_id' => 'Source Zone',
-            'poi_id' => 'Outlet',
+            'poi_id' => Poi::POI_LABEL,
             'salesman_id' => 'Salesman',
             'transaction_date' => 'Transaction Date',
             'plan_delivery_date' => 'Plan Delivery Date',
 //            'revised_delivery_date' => 'Revised Delivery Date',
             'remarks' => 'Remarks',
+            'status' => 'Status',
             'total_amount' => 'Total Amount',
             'created_date' => 'Created Date',
             'created_by' => 'Created By',
@@ -190,6 +191,7 @@ class CustomerItem extends CActiveRecord {
         $criteria->compare('plan_delivery_date', $this->plan_delivery_date, true);
 //        $criteria->compare('revised_delivery_date', $this->revised_delivery_date, true);
         $criteria->compare('remarks', $this->remarks, true);
+        $criteria->compare('status', $this->status, true);
         $criteria->compare('total_amount', $this->total_amount, true);
         $criteria->compare('created_date', $this->created_date, true);
         $criteria->compare('created_by', $this->created_by, true);
@@ -221,10 +223,14 @@ class CustomerItem extends CActiveRecord {
                 break;
 
             case 4:
-                $sort_column = 't.total_amount';
+                $sort_column = 't.status';
                 break;
 
             case 5:
+                $sort_column = 't.total_amount';
+                break;
+
+            case 6:
                 $sort_column = 't.created_date';
                 break;
         }
@@ -236,8 +242,9 @@ class CustomerItem extends CActiveRecord {
         $criteria->compare('t.rra_no', $columns[1]['search']['value'], true);
         $criteria->compare('t.rra_date', $columns[2]['search']['value'], true);
         $criteria->compare('poi.short_name', $columns[3]['search']['value'], true);
-        $criteria->compare('t.total_amount', $columns[4]['search']['value'], true);
-        $criteria->compare('t.created_date', $columns[5]['search']['value'], true);
+        $criteria->compare('t.status', $columns[4]['search']['value'], true);
+        $criteria->compare('t.total_amount', $columns[5]['search']['value'], true);
+        $criteria->compare('t.created_date', $columns[6]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
@@ -286,6 +293,7 @@ class CustomerItem extends CActiveRecord {
                 'plan_delivery_date' => $this->plan_delivery_date,
 //                'revised_delivery_date' => $this->revised_delivery_date,
                 'remarks' => $this->remarks,
+                'status' => OutgoingInventory::OUTGOING_PENDING_STATUS,
                 'total_amount' => $this->total_amount,
                 'created_by' => $this->created_by,
             );
