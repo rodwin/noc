@@ -87,6 +87,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
      */
     public $sku_obj;
     public $search_string;
+    public $inventory_id;
 
     /**
      * @return string the associated database table name
@@ -102,18 +103,29 @@ class OutgoingInventoryDetail extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, sku_id, uom_id, source_zone_id, quantity_issued, amount', 'required'),
-            array('outgoing_inventory_id, inventory_id, planned_quantity, quantity_issued, inventory_on_hand', 'numerical', 'integerOnly' => true),
+            array('company_id, sku_id, uom_id, quantity_issued, amount', 'required'),
+            array('outgoing_inventory_id, inventory_id, planned_quantity, quantity_issued', 'numerical', 'integerOnly' => true),
             array('company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, status, created_by, updated_by', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
+            array('source_zone_id', 'isValidZone'),
             array('unit_price, amount', 'match', 'pattern' => '/^[0-9]{1,9}(\.[0-9]{0,2})?$/'),
             array('expiration_date, return_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('expiration_date, return_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('outgoing_inventory_detail_id, outgoing_inventory_id, company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, unit_price, expiration_date, quantity_issued, amount, inventory_on_hand, return_date, status, remarks, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('outgoing_inventory_detail_id, outgoing_inventory_id, company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, unit_price, expiration_date, quantity_issued, amount, return_date, status, remarks, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
+    }
+
+    public function isValidZone($attribute) {
+        $model = Zone::model()->findByPk($this->$attribute);
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'Zone is invalid.');
+        }
+
+        return;
     }
 
     public function beforeValidate() {
@@ -154,7 +166,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
             'planned_quantity' => 'Planned Quantity',
             'quantity_issued' => 'Actual Quantity',
             'amount' => 'Amount',
-            'inventory_on_hand' => 'Inventory On Hand',
+//            'inventory_on_hand' => 'Inventory On Hand',
             'return_date' => 'Return Date',
             'status' => 'Status',
             'remarks' => 'Remarks',
@@ -162,6 +174,11 @@ class OutgoingInventoryDetail extends CActiveRecord {
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
             'updated_by' => 'Updated By',
+            'campaign_no' => 'Campaign No',
+            'pr_no' => 'PR No',
+            'pr_date' => 'PR Date',
+            'plan_arrival_date' => 'Plan Arrival Date',
+            'revised_delivery_date' => 'Revised Delivery Date',
         );
     }
 
@@ -196,7 +213,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
         $criteria->compare('planned_quantity', $this->planned_quantity);
         $criteria->compare('quantity_issued', $this->quantity_issued);
         $criteria->compare('amount', $this->amount, true);
-        $criteria->compare('inventory_on_hand', $this->inventory_on_hand);
+//        $criteria->compare('inventory_on_hand', $this->inventory_on_hand);
         $criteria->compare('return_date', $this->return_date, true);
         $criteria->compare('status', $this->status, true);
         $criteria->compare('remarks', $this->remarks, true);
@@ -272,30 +289,41 @@ class OutgoingInventoryDetail extends CActiveRecord {
         return parent::model($className);
     }
 
-    public function createOutgoingTransactionDetails($outgoing_inventory_id, $company_id, $inventory_id, $batch_no, $sku_id, $source_zone_id, $unit_price, $expiration_date, $planned_quantity, $quantity_issued, $amount, $inventory_on_hand, $return_date, $remarks, $created_by = null, $uom_id, $sku_status_id, $transaction_date) {
+    public function createOutgoingTransactionDetails($outgoing_inventory_id, $company_id, $inventory_id, $batch_no, $sku_id, $source_zone_id, $unit_price, $expiration_date, $planned_quantity, $quantity_issued, $amount, $return_date, $remarks, $created_by = null, $uom_id, $sku_status_id, $transaction_date) {
+
+        $inventory = Inventory::model()->findByAttributes(array("inventory_id" => $inventory_id, "company_id" => $company_id));
+
+        $ret_date = ($return_date != "" ? $return_date : null);
+        $exp_date = ($expiration_date != "" ? $expiration_date : null);
+        $cost_per_unit = (isset($unit_price) ? $unit_price : 0);
 
         $outgoing_transaction_detail = new OutgoingInventoryDetail;
         $outgoing_transaction_detail->outgoing_inventory_id = $outgoing_inventory_id;
         $outgoing_transaction_detail->company_id = $company_id;
-//        $outgoing_transaction_detail->inventory_id = $inventory_id;
+        $outgoing_transaction_detail->inventory_id = $inventory_id;
         $outgoing_transaction_detail->batch_no = $batch_no;
         $outgoing_transaction_detail->sku_id = $sku_id;
         $outgoing_transaction_detail->uom_id = $uom_id;
         $outgoing_transaction_detail->sku_status_id = $sku_status_id;
         $outgoing_transaction_detail->source_zone_id = $source_zone_id;
-        $outgoing_transaction_detail->unit_price = isset($unit_price) ? $unit_price : "";
-        $outgoing_transaction_detail->expiration_date = $expiration_date != "" ? $expiration_date : null;
+        $outgoing_transaction_detail->unit_price = $cost_per_unit;
+        $outgoing_transaction_detail->expiration_date = $exp_date;
         $outgoing_transaction_detail->planned_quantity = $planned_quantity;
         $outgoing_transaction_detail->quantity_issued = $quantity_issued;
         $outgoing_transaction_detail->amount = $amount;
-        $outgoing_transaction_detail->inventory_on_hand = $inventory_on_hand;
-        $outgoing_transaction_detail->return_date = $return_date != "" ? $return_date : null;
+//        $outgoing_transaction_detail->inventory_on_hand = $inventory_on_hand;
+        $outgoing_transaction_detail->return_date = $ret_date;
         $outgoing_transaction_detail->status = OutgoingInventory::OUTGOING_PENDING_STATUS;
         $outgoing_transaction_detail->remarks = $remarks;
         $outgoing_transaction_detail->created_by = $created_by;
+        $outgoing_transaction_detail->campaign_no = $inventory->campaign_no;
+        $outgoing_transaction_detail->pr_no = $inventory->pr_no;
+        $outgoing_transaction_detail->pr_date = $inventory->pr_date;
+        $outgoing_transaction_detail->plan_arrival_date = $inventory->plan_arrival_date;
+        $outgoing_transaction_detail->revised_delivery_date = $inventory->revised_delivery_date;
 
         if ($outgoing_transaction_detail->save(false)) {
-            $this->decreaseInventory($inventory_id, $outgoing_transaction_detail->quantity_issued, $transaction_date, $outgoing_transaction_detail->unit_price, $outgoing_transaction_detail->created_by);
+            $this->decreaseInventory($inventory_id, $outgoing_transaction_detail->quantity_issued, $transaction_date, $outgoing_transaction_detail->unit_price, $outgoing_transaction_detail->created_by, $outgoing_transaction_detail->campaign_no, $outgoing_transaction_detail->pr_no, $outgoing_transaction_detail->pr_date, $outgoing_transaction_detail->plan_arrival_date, $outgoing_transaction_detail->revised_delivery_date);
         } else {
             return $outgoing_transaction_detail->getErrors();
         }

@@ -119,7 +119,9 @@
                 },
                 yAxis: {
                     min: 0,
-                    
+                    title: {
+                        text: 'Tl Attendance'
+                    },
                     stackLabels: {
                         enabled: true,
                         style: {
@@ -177,9 +179,8 @@
             'dataType': 'json',
             'data':'agency='+agency_tl.value+'&month='+month_tl.value+'&brand='+brand_tl.value+'&teamlead='+team_leader.value+'&year='+tl_year.value,
              beforeSend: function(){
-//                $("#detail_table_loader_dtl_tl_attn").show();  
-//                $("#tlattendance").hide(); 
-                chartx.showLoading();
+                $("#detail_table_loader_dtl_tl_attn").show();  
+                $("#tlattendance").hide();         
              },
             'success':function(data) {
              
@@ -192,12 +193,10 @@
                     var target = data[i].target_attendance - data[i].actual_attendance;
                     var targettl = data[i].target_attendance;
                     var percentage = data[i].actual_attendance / data[i].target_attendance * 100;
-                    var par = data[i].par / data[i].target_attendance * 100;
-                    var answer =  percentage / par * 100;
-                    if(answer >= 100)
+                    if(percentage >= 95)
                     {
                         color = 'green';
-                    }else if(answer >= 90 && answer <99)
+                    }else if(percentage >= 90 && percentage <95)
                     {
                         color = 'yellow';
                     }else{
@@ -210,18 +209,16 @@
                chartx.xAxis[0].setCategories(labelstl)
                chartx.series[0].setData(attendancetl_target)
                chartx.series[1].setData(attendancetl_reach)
-               chartx.hideLoading();
-//               $("#detail_table_loader_dtl_tl_attn").hide();  
-//               $("#tlattendance").show();
-//            
+               $("#detail_table_loader_dtl_tl_attn").hide();  
+               $("#tlattendance").show();
+            
                
               
                
             },
             error: function(jqXHR, exception) {
-//              $("#detail_table_loader_dtl_tl_attn").hide();  
-//              $("#tlattendance").show();
-                chartx.hideLoading();
+              $("#detail_table_loader_dtl_tl_attn").hide();  
+              $("#tlattendance").show();
                alert('An error occured: '+ exception);
             }
          });
@@ -244,7 +241,9 @@
                     },
                     yAxis: {
                         min: 0,
-                        
+                        title: {
+                            text: 'Reach/Target in Ph1'
+                        },
                         stackLabels: {
                             enabled: true,
                             style: {
@@ -299,9 +298,8 @@
                 'dataType': 'json',
                 'data':'agency='+agency_tl_reach.value+'&month='+month_tl_reach.value+'&brand='+brand_tl_reach.value+'&teamlead='+team_leader_reach.value+'&ph='+team_ph.value+'&year='+tls_year.value,
                  beforeSend: function(){
-//                    $("#detail_table_loader_tl_reach").show();  
-//                    $("#tlreach").hide();   
-                      chartv.showLoading();
+                    $("#detail_table_loader_tl_reach").show();  
+                    $("#tlreach").hide();         
                 },
                 'success':function(data) {
 
@@ -332,16 +330,13 @@
                    chartv.xAxis[0].setCategories(labels_tlreach)
                    chartv.series[0].setData(target_reach_tl)
                    chartv.series[1].setData(target_actualtl)
-                   chartv.setTitle({ text: 'Reach/Target in ' + team_ph.value});
-                   chartv.hideLoading();
-//                   $("#detail_table_loader_tl_reach").hide();  
-//                   $("#tlreach").show();
+                   $("#detail_table_loader_tl_reach").hide();  
+                   $("#tlreach").show();
 
                 },
                 error: function(jqXHR, exception) {
-//                    $("#detail_table_loader_tl_reach").hide();  
-//                    $("#tlreach").show();
-                      chartv.hideLoading();
+                    $("#detail_table_loader_tl_reach").hide();  
+                    $("#tlreach").show();
                    alert('An error occured: '+ exception);
                 }
              }); 
