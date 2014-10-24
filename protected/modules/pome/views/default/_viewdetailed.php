@@ -195,9 +195,8 @@
             'dataType': 'json',
             'data':'agency='+agency.value+'&region='+region.value+'&month='+month.value+'&province='+province.value+'&ph='+ph.value+'&brand='+brand.value+'&year='+year_detail.value,
             beforeSend: function(){
-//               $("#detail_table_loader_dtl").show();  
-//               $("#detailed_reach").hide();  
-                 charts.showLoading();
+               $("#detail_table_loader_dtl").show();  
+               $("#detailed_reach").hide();           
              },
             'success':function(data) {
             
@@ -225,17 +224,15 @@
                charts.xAxis[0].setCategories(labels_detail)
                charts.series[0].setData(target_reach)
                charts.series[1].setData(target_actual)
-               charts.hideLoading();
-//               $("#detail_table_loader_dtl").hide();  
-//               $("#detailed_reach").show();
+               $("#detail_table_loader_dtl").hide();  
+               $("#detailed_reach").show();
                
               
                
             },
             error: function(jqXHR, exception) {
-//                $("#detail_table_loader_dtl").hide();  
-//                $("#detailed_reach").show();
-                  charts.hideLoading();
+                $("#detail_table_loader_dtl").hide();  
+                $("#detailed_reach").show();
                 
                alert('An error occured: '+ exception);
             }
