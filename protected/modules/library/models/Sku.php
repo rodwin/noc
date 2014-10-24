@@ -91,7 +91,7 @@ class Sku extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('sku_id, sku_code, company_id, sku_name', 'required'),
+            array('sku_id, sku_code, company_id, sku_name, default_uom_id', 'required'),
             array('low_qty_threshold, high_qty_threshold', 'numerical', 'integerOnly' => true, 'max' => 9999999, 'min' => 0),
             array('sku_id, sku_code, company_id, brand_id, default_uom_id, type, sub_type, default_zone_id, created_by, updated_by', 'length', 'max' => 50),
             array('sku_name, description', 'length', 'max' => 150),
@@ -429,13 +429,13 @@ class Sku extends CActiveRecord {
                 $sort_column = 'defaultUom.uom_name';
                 break;
 
-            case 8:
-                $sort_column = 't.supplier';
-                break;
-
-            case 9:
-                $sort_column = 'defaultZone.zone_name';
-                break;
+//            case 8:
+//                $sort_column = 't.supplier';
+//                break;
+//
+//            case 9:
+//                $sort_column = 'defaultZone.zone_name';
+//                break;
         }
 
 
@@ -449,7 +449,7 @@ class Sku extends CActiveRecord {
         $criteria->compare('t.sub_type', $columns[6]['search']['value'], true);
         $criteria->compare('defaultUom.uom_name', $columns[7]['search']['value'], true);
         $criteria->compare('t.supplier', $columns[8]['search']['value'], true);
-        $criteria->compare('defaultZone.zone_name', $columns[9]['search']['value'], true);
+//        $criteria->compare('defaultZone.zone_name', $columns[9]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;

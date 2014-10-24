@@ -29,7 +29,7 @@ class EmployeeController extends Controller {
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'getZoneByEmployeeID', 'getZoneBySalesOffice', 'search'),
+                'actions' => array('create', 'update', 'data', 'getZoneByEmployeeID', 'getZoneBySalesOffice', 'search', 'loadEmployeeByDefaultZone'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -367,6 +367,24 @@ class EmployeeController extends Controller {
             $return[$key]['employee_code'] = $val->employee_code;
             $return[$key]['fullname'] = $val->fullname;
         }
+
+        echo json_encode($return);
+        Yii::app()->end();
+    }
+
+    public function actionLoadEmployeeByDefaultZone($zone_id) {
+
+        $c = new CDbCriteria;
+        $c->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
+        $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $zone_id . "'";
+        $employee = Employee::model()->find($c);
+
+        $return = array();
+        $return['employee_id'] = isset($employee) ? $employee->employee_id : "";
+        $return['employee_code'] = isset($employee) ? $employee->employee_code : "";
+        $return['fullname'] = isset($employee) ? $employee->fullname : "";
+        $return['home_phone_number'] = isset($employee) ? $employee->home_phone_number : "";
+        $return['address1'] = isset($employee) ? $employee->address1 : "";
 
         echo json_encode($return);
         Yii::app()->end();

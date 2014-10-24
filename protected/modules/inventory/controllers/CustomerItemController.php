@@ -60,22 +60,43 @@ class CustomerItemController extends Controller {
 
         foreach ($dataProvider->getData() as $key => $value) {
             $row = array();
+
+            $status = "";
+            switch ($value->status) {
+                case OutgoingInventory::OUTGOING_PENDING_STATUS:
+                    $status = '<span class="label label-warning">' . OutgoingInventory::OUTGOING_PENDING_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_COMPLETE_STATUS:
+                    $status = '<span class="label label-success">' . OutgoingInventory::OUTGOING_COMPLETE_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_INCOMPLETE_STATUS:
+                    $status = '<span class="label label-danger">' . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS:
+                    $status = '<span class="label label-primary">' . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . '</span>';
+                    break;
+                default:
+                    break;
+            }
+
             $row['customer_item_id'] = $value->customer_item_id;
             $row['rra_no'] = $value->rra_no;
-            $row['campaign_no'] = $value->campaign_no;
-            $row['pr_no'] = $value->pr_no;
-            $row['pr_date'] = $value->pr_date;
+            $row['rra_date'] = $value->rra_date;
+//            $row['campaign_no'] = $value->campaign_no;
+//            $row['pr_no'] = $value->pr_no;
+//            $row['pr_date'] = $value->pr_date;
             $row['dr_no'] = $value->dr_no;
-            $row['source_zone_id'] = $value->source_zone_id;
-            $row['source_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
+//            $row['source_zone_id'] = $value->source_zone_id;
+//            $row['source_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
             $row['poi_id'] = $value->poi_id;
             $row['poi_name'] = isset($value->poi->short_name) ? $value->poi->short_name : null;
             $row['transaction_date'] = $value->transaction_date;
-            $row['total_amount'] = $value->total_amount;
+            $row['total_amount'] = "&#x20B1; " . number_format($value->total_amount, 2, '.', ',');
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
             $row['updated_by'] = $value->updated_by;
+            $row['status'] = $status;
 
 
             $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/customerItem/delete', array('id' => $value->customer_item_id)) . '">
@@ -123,7 +144,6 @@ class CustomerItemController extends Controller {
         $customer_item = new CustomerItem;
         $transaction_detail = new CustomerItemDetail;
         $sku = new Sku;
-        $reference_dr_nos = CHtml::listData(IncomingInventory::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id)), "dr_no", "dr_no");
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
         $model = new Attachment;
@@ -206,12 +226,14 @@ class CustomerItemController extends Controller {
                                 "sku_code" => isset($inventory->sku->sku_code) ? $inventory->sku->sku_code : null,
                                 "sku_description" => isset($inventory->sku->description) ? $inventory->sku->description : null,
                                 'brand_name' => isset($inventory->sku->brand->brand_name) ? $inventory->sku->brand->brand_name : null,
-                                'unit_price' => isset($transaction_detail->unit_price) ? $transaction_detail->unit_price : 0,
+                                'unit_price' => isset($transaction_detail->unit_price) ? number_format($transaction_detail->unit_price, 2, '.', '') : number_format(0, 2, '.', ''),
                                 'batch_no' => isset($transaction_detail->batch_no) ? $transaction_detail->batch_no : null,
+                                'source_zone_id' => isset($transaction_detail->source_zone_id) ? $transaction_detail->source_zone_id : null,
+                                'source_zone_name' => isset($transaction_detail->zone->zone_name) ? $transaction_detail->zone->zone_name : null,
                                 'expiration_date' => isset($transaction_detail->expiration_date) ? $transaction_detail->expiration_date : null,
                                 'planned_quantity' => $transaction_detail->planned_quantity != "" ? $transaction_detail->planned_quantity : 0,
                                 'quantity_issued' => $transaction_detail->quantity_issued != "" ? $transaction_detail->quantity_issued : 0,
-                                'amount' => $transaction_detail->amount != "" ? $transaction_detail->amount : 0,
+                                'amount' => $transaction_detail->amount != "" ? number_format($transaction_detail->amount, 2, '.', '') : number_format(0, 2, '.', ''),
                                 'inventory_on_hand' => $transaction_detail->inventory_on_hand != "" ? $transaction_detail->inventory_on_hand : 0,
                                 'return_date' => isset($transaction_detail->return_date) ? $transaction_detail->return_date : null,
                                 'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
@@ -235,7 +257,6 @@ class CustomerItemController extends Controller {
         $this->render('customerItemForm', array(
             'customer_item' => $customer_item,
             'transaction_detail' => $transaction_detail,
-            'reference_dr_nos' => $reference_dr_nos,
             'sku' => $sku,
             'uom' => $uom,
             'sku_status' => $sku_status,
@@ -363,6 +384,24 @@ class CustomerItemController extends Controller {
         foreach ($customer_item_details as $key => $value) {
             $row = array();
 
+            $status = "";
+            switch ($value->status) {
+                case OutgoingInventory::OUTGOING_PENDING_STATUS:
+                    $status = '<span class="label label-warning">' . OutgoingInventory::OUTGOING_PENDING_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_COMPLETE_STATUS:
+                    $status = '<span class="label label-success">' . OutgoingInventory::OUTGOING_COMPLETE_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_INCOMPLETE_STATUS:
+                    $status = '<span class="label label-danger">' . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS:
+                    $status = '<span class="label label-primary">' . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . '</span>';
+                    break;
+                default:
+                    break;
+            }
+
             $row['customer_item_detail_id'] = $value->customer_item_detail_id;
             $row['customer_item_id'] = $value->customer_item_id;
             $row['batch_no'] = $value->batch_no;
@@ -374,10 +413,13 @@ class CustomerItemController extends Controller {
             $row['expiration_date'] = $value->expiration_date;
             $row['planned_quantity'] = $value->planned_quantity;
             $row['quantity_issued'] = $value->quantity_issued;
-            $row['amount'] = $value->amount;
+            $row['amount'] = "&#x20B1; " . number_format($value->amount, 2, '.', ',');
             $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['return_date'] = $value->return_date;
             $row['remarks'] = $value->remarks;
+            $row['campaign_no'] = $value->campaign_no;
+            $row['pr_no'] = $value->pr_no;
+            $row['status'] = $status;
 
             $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/customerItem/deleteCustomerItemDetail', array('customer_item_detail_id' => $value->customer_item_detail_id)) . '">
                                 <i class="glyphicon glyphicon-trash"></i>
@@ -773,7 +815,7 @@ class CustomerItemController extends Controller {
 
         $c2 = new CDbCriteria();
         $c2->select = new CDbExpression('t.*, CONCAT(TRIM(barangay.barangay_name), ", ", TRIM(municipal.municipal_name), ", ", TRIM(province.province_name), ", ", TRIM(region.region_name)) AS full_address');
-        $c2->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = "' . $zone->salesOffice->sales_office_id . '"';
+        $c2->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = ""';
         $c2->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
         $c2->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
         $c2->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
@@ -785,8 +827,19 @@ class CustomerItemController extends Controller {
 
         $transaction_date = $headers['transaction_date'];
         $plan_delivery_date = $headers['plan_delivery_date'];
-        $reference_no = $headers['reference_dr_no'];
-        $pr_no = $headers['pr_no'];
+
+        $pr_nos = "";
+        $pr_no_arr = array();
+        foreach ($details as $key => $val) {
+            $inv = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $val['inventory_id']));
+
+            if (!in_array($inv->pr_no, $pr_no_arr)) {
+                array_push($pr_no_arr, $inv->pr_no);
+                $pr_nos .= $inv->pr_no . ",";
+            }
+        }
+
+        $pr_no = substr($pr_nos, 0, -1);
         $rra_no = $headers['rra_no'];
         $dr_no = $headers['dr_no'];
 
@@ -856,30 +909,25 @@ class CustomerItemController extends Controller {
             
             <table class="table_main">
                 <tr>
-                    <td clss="row_label" style="font-weight: bold;">REFERENCE NUMBER</td>
-                    <td class="border-bottom row_content_sm">' . $reference_no . '</td>
+                    <td clss="row_label" style="font-weight: bold;">PR NUMBER</td>
+                    <td class="border-bottom row_content_sm">' . $pr_no . '</td>
                     <td style="width: 10px;"></td>
                     <td clss="row_label" style="font-weight: bold;">CUSTOMER NAME</td>
                     <td class="border-bottom row_content_lg">' . $poi_name . '</td>
                 </tr>
                 <tr>
-                    <td clss="row_label" style="font-weight: bold;">PR NUMBER</td>
-                    <td class="border-bottom row_content_sm">' . $pr_no . '</td>
+                    <td clss="row_label" style="font-weight: bold;">RRA NUMBER</td>
+                    <td class="border-bottom row_content_sm">' . $rra_no . '</td>
                     <td style="width: 10px;"></td>
                     <td clss="row_label" style="font-weight: bold;">CONTACT PERSON</td>
                     <td class="border-bottom row_content_lg"></td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold;">RRA NUMBER</td>
-                    <td class="border-bottom">' . $rra_no . '</td>
+                    <td style="font-weight: bold;">DR NUMBER</td>
+                    <td class="border-bottom">' . $dr_no . '</td>
                     <td></td>
                     <td style="font-weight: bold;">ADDRESS</td>
                     <td class="border-bottom">' . $poi_address . '</td>
-                </tr>
-                <tr>
-                    <td style="font-weight: bold;">DR NUMBER</td>
-                    <td class="border-bottom">' . $dr_no . '</td>
-                    <td colspan="3"></td>
                 </tr>
             </table><br/><br/><br/>  
         
@@ -905,7 +953,7 @@ class CustomerItemController extends Controller {
             $sku = Sku::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sku_id" => $val['sku_id']));
             $uom = UOM::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $val['uom_id']));
             $uom_name = isset($uom->uom_name) ? $uom->uom_name : "";
-            
+
             $html .= '<tr>
                             <td>' . $sku->sku_code . '</td>
                             <td>' . $sku->description . '</td>
@@ -924,10 +972,6 @@ class CustomerItemController extends Controller {
             $actual_qty += $val['quantity_issued'];
             $total_unit_price += $val['unit_price'];
         }
-
-        $html .= '<tr>
-                    <td colspan="11"></td>
-                </tr>';
 
         $html .= '<tr>
                     <td colspan="11"></td>
@@ -963,7 +1007,7 @@ class CustomerItemController extends Controller {
                         <td style="font-weight: bold;">CHECKED BY:</td>
                         <td class="border-bottom"></td>
                         <td></td>
-                        <td style="font-weight: bold;">DRIVER"S NAME:</td>
+                        <td style="font-weight: bold;">DRIVER' . "'" . 'S NAME:</td>
                         <td class="border-bottom"></td>
                     </tr>
                     <tr>
@@ -974,7 +1018,7 @@ class CustomerItemController extends Controller {
                         <td style="font-weight: bold;">AUTHORIZED BY:</td>
                         <td class="border-bottom"></td>
                         <td></td>
-                        <td style="font-weight: bold;">DRIVER"S SIGNATURE:</td>
+                        <td style="font-weight: bold;">DRIVER' . "'" . 'S SIGNATURE:</td>
                         <td class="border-bottom"></td>
                     </tr>
                     <tr><td colspan="6"></td></tr>
