@@ -174,7 +174,7 @@ return false;
                 }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(8)', nRow).addClass("text-center");
-
+                $('td:eq(7)', nRow).addClass("text-right");
             }
         });
 
@@ -213,7 +213,7 @@ return false;
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(9)', nRow).addClass("text-center");
-
+                $('td:eq(8)', nRow).addClass("text-right");
             }
         });
         // julius code

@@ -1,6 +1,6 @@
 <?php
 $this->breadcrumbs = array(
-    'Receiving Inventories' => array('admin'),
+    ReceivingInventory::RECEIVING_LABEL . ' Inventories' => array('admin'),
     'Create',
 );
 ?>
@@ -244,7 +244,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <?php echo $form->labelEx($transaction_detail, 'planned_quantity'); ?><br/>
                         <?php echo $form->labelEx($transaction_detail, 'quantity_received'); ?><br/>
                         <?php // echo $form->labelEx($transaction_detail, 'sku_status_id'); ?>
-                        <?php echo $form->label($transaction_detail,'Inventory On Hand'); ?>
+                        <?php echo $form->label($transaction_detail, 'Inventory On Hand'); ?>
 
                     </div>
                     <div class="pull-right col-md-7">
@@ -314,7 +314,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <?php echo $form->textFieldGroup($transaction_detail, 'sku_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 50, 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
                     </div>
                 </div>
-                
+
                 <div class="col-md-6 clearfix">
                     <div id="input_label" class="pull-left col-md-5">
 
@@ -340,7 +340,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             ));
                             ?>
                         </div>
-                        
+
                         <div class="span5">
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'amount', array(
@@ -397,7 +397,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th><?php echo $receivingDetailFields['amount']; ?></th>
-                        <!--<th class=""><?php // echo $receivingDetailFields['inventory_on_hand']; ?></th>-->
+                        <!--<th class=""><?php // echo $receivingDetailFields['inventory_on_hand'];    ?></th>-->
                         <th class="hide_row"><?php echo $receivingDetailFields['remarks']; ?></th>
                     </tr>                                    
                 </thead>
@@ -489,7 +489,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 {"name": "default_unit_price", "data": "default_unit_price"}
             ]
         });
-        
+
         $('#sku_table tbody').on('click', 'tr', function() {
             if ($(this).hasClass('success')) {
                 $(this).removeClass('success');
@@ -521,7 +521,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             "serverSide": false,
             "bAutoWidth": false,
             "columnDefs": [{
-                    "targets": [1,10, 11, 12, 13, 15],
+                    "targets": [1, 10, 11, 12, 13, 15],
                     "visible": false
                 }]
         });
@@ -800,7 +800,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         if ($("#ReceivingInventoryDetail_unit_price").val() != "") {
             var unit_price = $("#ReceivingInventoryDetail_unit_price").val();
         }
-        
+
         var amount = ($("#ReceivingInventoryDetail_quantity_received").val() * unit_price);
         $("#ReceivingInventoryDetail_amount").val(parseFloat(amount).toFixed(2));
     });

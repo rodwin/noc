@@ -41,7 +41,7 @@ $this->breadcrumbs = array(
                 <th><?php echo $fields['dr_no']; ?></th>
                 <th><?php echo $fields['rra_no']; ?></th>
                 <th><?php echo $fields['rra_date']; ?></th>
-                <!--<th><?php // echo $fields['source_zone_id']; ?></th>-->
+                <!--<th><?php // echo $fields['source_zone_id'];  ?></th>-->
                 <th><?php echo $fields['poi_id']; ?></th>
                 <th><?php echo $fields['status']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
@@ -156,7 +156,7 @@ $this->breadcrumbs = array(
                 }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(6)', nRow).addClass("text-center");
-
+                $('td:eq(5)', nRow).addClass("text-right");
             }
         });
 
@@ -195,6 +195,7 @@ $this->breadcrumbs = array(
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(11)', nRow).addClass("text-center");
+                $('td:eq(8)', nRow).addClass("text-right");
             }
         });
 

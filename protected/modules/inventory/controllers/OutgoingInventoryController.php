@@ -98,7 +98,7 @@ class OutgoingInventoryController extends Controller {
 //            $row['plan_arrival_date'] = $value->plan_arrival_date;
             $row['transaction_date'] = $value->transaction_date;
             $row['status'] = $status;
-            $row['total_amount'] = $value->total_amount;
+            $row['total_amount'] = "&#x20B1; " . number_format($value->total_amount, 2, '.', ',');
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
@@ -409,7 +409,7 @@ class OutgoingInventoryController extends Controller {
             $row['expiration_date'] = $value->expiration_date;
             $row['planned_quantity'] = $value->planned_quantity;
             $row['quantity_issued'] = $value->quantity_issued;
-            $row['amount'] = $value->amount;
+            $row['amount'] = "&#x20B1; " . number_format($value->amount, 2, '.', ',');
             $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['return_date'] = $value->return_date;
             $row['status'] = $status;
@@ -1015,7 +1015,7 @@ class OutgoingInventoryController extends Controller {
         $pr_no_arr = array();
         foreach ($details as $key => $val) {
             $inv = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $val['inventory_id']));
-            
+
             if (!in_array($inv->pr_no, $pr_no_arr)) {
                 array_push($pr_no_arr, $inv->pr_no);
                 $pr_nos .= $inv->pr_no . ",";

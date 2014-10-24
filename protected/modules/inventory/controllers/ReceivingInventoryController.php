@@ -82,7 +82,7 @@ class ReceivingInventoryController extends Controller {
             $row['plan_arrival_date'] = $value->plan_arrival_date;
             $row['transaction_date'] = $value->transaction_date;
             $row['delivery_remarks'] = $value->delivery_remarks;
-            $row['total_amount'] = $value->total_amount;
+            $row['total_amount'] = "&#x20B1; " . number_format($value->total_amount, 2, '.', ',');
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
@@ -169,7 +169,8 @@ class ReceivingInventoryController extends Controller {
             $row['sku_status_name'] = isset($value->skuStatus->status_name) ? $value->skuStatus->status_name : null;
             $row['planned_quantity'] = $value->planned_quantity;
             $row['quantity_received'] = $value->quantity_received;
-            $row['amount'] = $value->amount;
+            $row['amount'] = "&#x20B1; " . number_format($value->amount, 2, '.', ',');
+            ;
             $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['remarks'] = $value->remarks;
 
@@ -774,7 +775,7 @@ class ReceivingInventoryController extends Controller {
     public function actionLoadPDF($id) {
 
         $data = Yii::app()->session[$id];
-        
+
         ob_start();
 
         $headers = $data['ReceivingInventory'];

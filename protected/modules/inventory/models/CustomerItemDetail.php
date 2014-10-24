@@ -237,11 +237,11 @@ class CustomerItemDetail extends CActiveRecord {
     public function createCustomerItemTransactionDetails($customer_item_id, $company_id, $inventory_id, $batch_no, $sku_id, $source_zone_id, $unit_price, $expiration_date, $planned_quantity, $quantity_issued, $amount, $return_date, $remarks, $created_by = null, $uom_id, $sku_status_id, $transaction_date) {
 
         $inventory = Inventory::model()->findByAttributes(array("inventory_id" => $inventory_id, "company_id" => $company_id));
-        
+
         $ret_date = ($return_date != "" ? $return_date : null);
         $exp_date = ($expiration_date != "" ? $expiration_date : null);
         $cost_per_unit = (isset($unit_price) ? $unit_price : 0);
-        
+
         $customer_item_transaction_detail = new CustomerItemDetail;
         $customer_item_transaction_detail->customer_item_id = $customer_item_id;
         $customer_item_transaction_detail->company_id = $company_id;
@@ -258,7 +258,8 @@ class CustomerItemDetail extends CActiveRecord {
         $customer_item_transaction_detail->amount = $amount;
 //        $customer_item_transaction_detail->inventory_on_hand = $inventory_on_hand;
         $customer_item_transaction_detail->return_date = $ret_date;
-        $customer_item_transaction_detail->status = OutgoingInventory::OUTGOING_PENDING_STATUS;;
+        $customer_item_transaction_detail->status = OutgoingInventory::OUTGOING_PENDING_STATUS;
+        ;
         $customer_item_transaction_detail->remarks = $remarks;
         $customer_item_transaction_detail->created_by = $created_by;
         $customer_item_transaction_detail->campaign_no = $inventory->campaign_no;

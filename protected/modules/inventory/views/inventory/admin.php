@@ -90,7 +90,7 @@ return false;
                 <th><?php echo $skuFields['description']; ?></th>
                 <th><?php echo $invFields['qty']; ?></th>
                 <th><?php echo $invFields['uom_id']; ?></th>
-                <th class="hide_row">Action Qty <i class="fa fa-fw fa-info-circle" data-toggle="popover" content="And here's some amazing content. It's very engaging. right?"></i></th>
+                <th class="hide_row">Action Qty <span title="Type a numeric value into a row's field below to see a list of Transaction options." data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
                 <th><?php echo $invFields['zone_id']; ?></th>
                 <th><?php echo $invFields['sku_status_id']; ?></th>
                 <th><?php echo $invFields['campaign_no']; ?></th>

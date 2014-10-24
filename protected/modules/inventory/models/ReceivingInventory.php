@@ -95,7 +95,7 @@ class ReceivingInventory extends CActiveRecord {
 //        }        
         if ($this->plan_arrival_date == "") {
             $this->plan_arrival_date = null;
-        }      
+        }
         if ($this->dr_date == "") {
             $this->dr_date = null;
         }
@@ -369,10 +369,24 @@ class ReceivingInventory extends CActiveRecord {
 
     public function getDeliveryRemarks() {
         return array(
-            array('id' => "ON TIME", 'title' => "ON TIME"),
-            array('id' => "DELAY", 'title' => "DELAY"),
-            array('id' => "ADVANCE", 'title' => "ADVANCE"),
+            array('id' => "ON TIME", 'title' => "ON TIME", 'label_style' => 'success'),
+            array('id' => "DELAY", 'title' => "DELAY", 'label_style' => 'danger'),
+            array('id' => "ADVANCE", 'title' => "ADVANCE", 'label_style' => 'primary'),
         );
+    }
+
+    public function getDeliveryRemarksLabel($status_value) {
+
+        $deliveryRemarks = $this->getDeliveryRemarks();
+
+        $status = "";
+        foreach ($deliveryRemarks as $val) {
+            if ($val['id'] == trim($status_value)) {
+                $status = '<span class="label label-' . $val['label_style'] . '">' . $status_value . '</span>';
+            }
+        }
+
+        return $status;
     }
 
 }

@@ -357,7 +357,7 @@ class IncomingInventoryDetail extends CActiveRecord {
 
             $inventory = Inventory::model()->findByAttributes(array("inventory_id" => Yii::app()->session['outgoing_inv_id'], "company_id" => $company_id));
         }
-        
+
         $exp_date = ($expiration_date != "" ? $expiration_date : null);
         $ret_date = ($return_date != "" ? $return_date : null);
         $sku_status_id = ($status_id != "" ? $status_id : null);

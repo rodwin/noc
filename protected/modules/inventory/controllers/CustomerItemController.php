@@ -60,7 +60,7 @@ class CustomerItemController extends Controller {
 
         foreach ($dataProvider->getData() as $key => $value) {
             $row = array();
-            
+
             $status = "";
             switch ($value->status) {
                 case OutgoingInventory::OUTGOING_PENDING_STATUS:
@@ -78,7 +78,7 @@ class CustomerItemController extends Controller {
                 default:
                     break;
             }
-            
+
             $row['customer_item_id'] = $value->customer_item_id;
             $row['rra_no'] = $value->rra_no;
             $row['rra_date'] = $value->rra_date;
@@ -91,7 +91,7 @@ class CustomerItemController extends Controller {
             $row['poi_id'] = $value->poi_id;
             $row['poi_name'] = isset($value->poi->short_name) ? $value->poi->short_name : null;
             $row['transaction_date'] = $value->transaction_date;
-            $row['total_amount'] = $value->total_amount;
+            $row['total_amount'] = "&#x20B1; " . number_format($value->total_amount, 2, '.', ',');
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
@@ -383,7 +383,7 @@ class CustomerItemController extends Controller {
         $output = array();
         foreach ($customer_item_details as $key => $value) {
             $row = array();
-            
+
             $status = "";
             switch ($value->status) {
                 case OutgoingInventory::OUTGOING_PENDING_STATUS:
@@ -413,7 +413,7 @@ class CustomerItemController extends Controller {
             $row['expiration_date'] = $value->expiration_date;
             $row['planned_quantity'] = $value->planned_quantity;
             $row['quantity_issued'] = $value->quantity_issued;
-            $row['amount'] = $value->amount;
+            $row['amount'] = "&#x20B1; " . number_format($value->amount, 2, '.', ',');
             $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['return_date'] = $value->return_date;
             $row['remarks'] = $value->remarks;

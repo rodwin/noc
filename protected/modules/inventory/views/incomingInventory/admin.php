@@ -38,8 +38,8 @@ $this->breadcrumbs = array(
     <table id="incoming-inventory_table" class="table table-bordered">
         <thead>
             <tr>
-                <!--<th><?php // echo $fields['campaign_no'];   ?></th>-->
-                <!--<th><?php // echo $fields['pr_no'];   ?></th>-->
+                <!--<th><?php // echo $fields['campaign_no'];     ?></th>-->
+                <!--<th><?php // echo $fields['pr_no'];     ?></th>-->
                 <th><?php echo $fields['dr_no']; ?></th>
                 <th><?php echo $fields['dr_date']; ?></th>
                 <th><?php echo $fields['rra_no']; ?></th>
@@ -167,7 +167,7 @@ $this->breadcrumbs = array(
                 }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(7)', nRow).addClass("text-center");
-
+                $('td:eq(6)', nRow).addClass("text-right");
             }
         });
 
@@ -206,6 +206,7 @@ $this->breadcrumbs = array(
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(11)', nRow).addClass("text-center");
+                $('td:eq(8)', nRow).addClass("text-right");
             }
         });
 
