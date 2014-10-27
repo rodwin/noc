@@ -163,12 +163,13 @@ class OutgoingInventory extends CActiveRecord {
             array('remarks', 'length', 'max' => 150),
             array('closed', 'length', 'max' => 1),
             array('destination_zone_id', 'isValidZone'),
-            array('rra_date, transaction_date, plan_delivery_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
-            array('outgoing_inventory_id, plan_delivery_date, transaction_date, created_date, updated_date', 'safe'),
+
+            array('rra_date, transaction_date, plan_delivery_date, dr_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
+            array('plan_delivery_date, transaction_date, created_date, updated_date, dr_date', 'safe'),
 
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('outgoing_inventory_id, company_id, rra_no, dr_no, source_zone_id, destination_zone_id, contact_person, contact_no, address, plan_delivery_date, transaction_date, status, remarks, total_amount, closed, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('outgoing_inventory_id, company_id, rra_no, dr_no, dr_date, source_zone_id, destination_zone_id, contact_person, contact_no, address, plan_delivery_date, transaction_date, status, remarks, total_amount, closed, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
 
@@ -190,9 +191,9 @@ class OutgoingInventory extends CActiveRecord {
         if ($this->rra_date == "") {
             $this->rra_date = null;
         }
-//        if ($this->revised_delivery_date == "") {
-//            $this->revised_delivery_date = null;
-//        }
+        if ($this->dr_date == "") {
+            $this->dr_date = null;
+        }
 //        if ($this->actual_delivery_date == "") {
 //            $this->actual_delivery_date = null;
 //        }
@@ -224,6 +225,7 @@ class OutgoingInventory extends CActiveRecord {
             'company_id' => 'Company',
             'rra_no' => 'RRA No',
             'dr_no' => 'DR No',
+            'dr_date' => 'DR Date',
             'rra_date' => 'RRA Date',
             'source_zone_id' => 'Source Zone',
             'destination_zone_id' => 'Destination Zone',
@@ -270,6 +272,7 @@ class OutgoingInventory extends CActiveRecord {
         $criteria->compare('company_id', Yii::app()->user->company_id);
         $criteria->compare('rra_no', $this->rra_no);
         $criteria->compare('dr_no', $this->dr_no, true);
+        $criteria->compare('dr_date', $this->dr_date, true);
         $criteria->compare('rra_date', $this->rra_date, true);
         $criteria->compare('source_zone_id', $this->source_zone_id, true);
         $criteria->compare('destination_zone_id', $this->destination_zone_id, true);
@@ -391,6 +394,7 @@ class OutgoingInventory extends CActiveRecord {
             $outgoing_inventory_data = array(
                 'company_id' => $this->company_id,
                 'dr_no' => $this->dr_no,
+                'dr_date' => $this->transaction_date,
                 'rra_no' => $this->rra_no,
                 'rra_date' => $this->rra_date,
                 'source_zone_id' => $this->source_zone_id,
@@ -408,15 +412,16 @@ class OutgoingInventory extends CActiveRecord {
             );
 
             $outgoing_inventory->attributes = $outgoing_inventory_data;
-            
+
             if (count($transaction_details) > 0) {
                 if ($outgoing_inventory->save(false)) {
+                    unset(Yii::app()->session['tid']);
                     Yii::app()->session['tid'] = $outgoing_inventory->outgoing_inventory_id;
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         OutgoingInventoryDetail::model()->createOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $outgoing_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $outgoing_inventory->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $outgoing_inventory->transaction_date);
                     }
                 }
-                
+
 //                return true;
             } else {
                 return false;
