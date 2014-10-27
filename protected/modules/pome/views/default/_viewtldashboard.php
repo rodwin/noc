@@ -75,7 +75,20 @@
                             )
                     );
                     ?>
-                    
+                    <?php
+                    echo $form->dropDownListGroup(
+                            $model, 'year', array(
+                        'wrapperHtmlOptions' => array(
+                            'class' => 'col-sm-5',
+                        ),
+                        'widgetOptions' => array(
+                            'data' => $year,
+                            'htmlOptions' => array('multiple' => false, 'id' => 'tl_year')
+                                
+                        )
+                            )
+                    );
+                    ?> 
      <?php $this->endWidget(); ?>
                 </div>
 
@@ -106,9 +119,7 @@
                 },
                 yAxis: {
                     min: 0,
-                    title: {
-                        text: 'Tl Attendance'
-                    },
+                    
                     stackLabels: {
                         enabled: true,
                         style: {
@@ -157,50 +168,60 @@
      var month_tl =  document.getElementById('tl_month');
      var brand_tl =  document.getElementById('tl_brand');
      var team_leader =  document.getElementById('tl_leader');
+     var tl_year =  document.getElementById('tl_year');
    
      
         $.ajax({
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TlAttendance'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'agency='+agency_tl.value+'&month='+month_tl.value+'&brand='+brand_tl.value+'&teamlead='+team_leader.value,
+            'data':'agency='+agency_tl.value+'&month='+month_tl.value+'&brand='+brand_tl.value+'&teamlead='+team_leader.value+'&year='+tl_year.value,
              beforeSend: function(){
-                $("#detail_table_loader_dtl_tl_attn").show();  
-                $("#tlattendance").hide();         
+//                $("#detail_table_loader_dtl_tl_attn").show();  
+//                $("#tlattendance").hide(); 
+                chartx.showLoading();
              },
             'success':function(data) {
              
                for(var i = 0; i < data.length; i++){
                     labelstl.push(data[i].code);
+//                    
+//                    var target = data[i].count - data[i].attendance;
+//                    var percentage = data[i].attendance / data[i].count * 100;
                     
-                    var target = data[i].count - data[i].attendance;
-                    var percentage = data[i].attendance / data[i].count * 100;
-                    if(percentage >= 95)
+                    var target = data[i].target_attendance - data[i].actual_attendance;
+                    var targettl = data[i].target_attendance;
+                    var percentage = data[i].actual_attendance / data[i].target_attendance * 100;
+                    var par = data[i].par / data[i].target_attendance * 100;
+                    var answer =  percentage / par * 100;
+                    if(answer >= 100)
                     {
                         color = 'green';
-                    }else if(percentage >= 90 && percentage <=94)
+                    }else if(answer >= 90 && answer <99)
                     {
                         color = 'yellow';
                     }else{
                         color = 'red';
                     }
-                    attendancetl_target.push({y: target, color: 'gray',mydata:data[i].count});
-                    attendancetl_reach.push({y: data[i].attendance, color: color,mydata:data[i].count});
+                    attendancetl_target.push({y: target, color: 'gray',mydata:targettl});
+                    attendancetl_reach.push({y: data[i].actual_attendance, color: color,mydata:targettl});
    
                }
                chartx.xAxis[0].setCategories(labelstl)
                chartx.series[0].setData(attendancetl_target)
                chartx.series[1].setData(attendancetl_reach)
-               $("#detail_table_loader_dtl_tl_attn").hide();  
-               $("#tlattendance").show();
-            
+               chartx.hideLoading();
+//               $("#detail_table_loader_dtl_tl_attn").hide();  
+//               $("#tlattendance").show();
+//            
                
               
                
             },
             error: function(jqXHR, exception) {
-              $("#detail_table_loader_dtl_tl_attn").hide();  
-              $("#tlattendance").show();
+//              $("#detail_table_loader_dtl_tl_attn").hide();  
+//              $("#tlattendance").show();
+                chartx.hideLoading();
                alert('An error occured: '+ exception);
             }
          });
@@ -223,9 +244,7 @@
                     },
                     yAxis: {
                         min: 0,
-                        title: {
-                            text: 'Reach/Target in Ph1'
-                        },
+                        
                         stackLabels: {
                             enabled: true,
                             style: {
@@ -273,14 +292,16 @@
           var brand_tl_reach =  document.getElementById('tl_brand');
           var team_leader_reach =  document.getElementById('tl_leader');
           var team_ph =  document.getElementById('tl_ph');
+          var tls_year =  document.getElementById('tl_year');
             $.ajax({
                 'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TlReach'); ?>",
                 'type':'get',
                 'dataType': 'json',
-                'data':'agency='+agency_tl_reach.value+'&month='+month_tl_reach.value+'&brand='+brand_tl_reach.value+'&teamlead='+team_leader_reach.value+'&ph='+team_ph.value,
+                'data':'agency='+agency_tl_reach.value+'&month='+month_tl_reach.value+'&brand='+brand_tl_reach.value+'&teamlead='+team_leader_reach.value+'&ph='+team_ph.value+'&year='+tls_year.value,
                  beforeSend: function(){
-                    $("#detail_table_loader_tl_reach").show();  
-                    $("#tlreach").hide();         
+//                    $("#detail_table_loader_tl_reach").show();  
+//                    $("#tlreach").hide();   
+                      chartv.showLoading();
                 },
                 'success':function(data) {
 
@@ -289,6 +310,8 @@
 
                         var target = data[i].target_reach - data[i].actual_reach;
                         var percentage = data[i].actual_reach / data[i].target_reach * 100;
+                        var par = data[i].par / data[i].target_attendance * 100;
+                        var test = percentage / par *100;
                         if(percentage >= 95)
                         {
                             color = 'green';
@@ -309,13 +332,16 @@
                    chartv.xAxis[0].setCategories(labels_tlreach)
                    chartv.series[0].setData(target_reach_tl)
                    chartv.series[1].setData(target_actualtl)
-                   $("#detail_table_loader_tl_reach").hide();  
-                   $("#tlreach").show();
+                   chartv.setTitle({ text: 'Reach/Target in ' + team_ph.value});
+                   chartv.hideLoading();
+//                   $("#detail_table_loader_tl_reach").hide();  
+//                   $("#tlreach").show();
 
                 },
                 error: function(jqXHR, exception) {
-                    $("#detail_table_loader_tl_reach").hide();  
-                    $("#tlreach").show();
+//                    $("#detail_table_loader_tl_reach").hide();  
+//                    $("#tlreach").show();
+                      chartv.hideLoading();
                    alert('An error occured: '+ exception);
                 }
              }); 
@@ -352,6 +378,13 @@ $('#tl_leader').change(function() {
 $('#tl_ph').change(function() {
     
   
+    redrawtlreach();
+
+    
+});
+$('#tl_year').change(function() {
+    
+   redrawattendancetl();
     redrawtlreach();
 
     

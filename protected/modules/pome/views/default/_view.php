@@ -78,6 +78,20 @@
                                 )
                     );
                     ?>
+                    <?php
+                    echo $form->dropDownListGroup(
+                            $model, 'year', array(
+                        'wrapperHtmlOptions' => array(
+                            'class' => 'col-sm-5',
+                        ),
+                        'widgetOptions' => array(
+                            'data' => $year,
+                            'htmlOptions' => array('multiple' => false, 'id' => 'att_year')
+                                
+                        )
+                            )
+                    );
+                    ?>  
                     
      <?php $this->endWidget(); ?>
                 </div>
@@ -159,49 +173,55 @@
       var month =  document.getElementById('Attendance_month');
       var province =  document.getElementById('Attendance_province');
       var brand =  document.getElementById('Attendance_brand');
+      var att_year =  document.getElementById('att_year');
         $.ajax({
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/attendance'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'agency='+agency.value+'&region='+region.value+'&month='+month.value+'&province='+province.value+'&brand='+brand.value,
+            'data':'agency='+agency.value+'&region='+region.value+'&month='+month.value+'&province='+province.value+'&brand='+brand.value+'&year='+att_year.value,
              beforeSend: function(){
-               $("#detail_table_loader_attendance").show();  
-               $("#container").hide();             
+//               $("#detail_table_loader_attendance").show();  
+//               $("#container").hide();  
+                 chart.showLoading();
              },
             'success':function(data) {
-             
+              
                for(var i = 0; i < data.length; i++){
+               
                     labels.push(data[i].name);
-                    
-                    var target = data[i].count *data[i].ac_count - data[i].attendance;
-                    var targettl = data[i].count *data[i].ac_count;
-                    var percentage = data[i].attendance / (data[i].count * data[i].ac_count) * 100;
-                    if(percentage >= 95)
+                   
+                    var target = data[i].target_attendance - data[i].actual_attendance;
+                    var targettl = data[i].target_attendance;
+                    var percentage = data[i].actual_attendance / data[i].target_attendance * 100;
+                    var par = data[i].par / data[i].target_attendance * 100;
+                    var coloring = percentage / par *100;
+                    if(coloring >= 100)
                     {
                         color = 'green';
-                    }else if(percentage >= 90 && percentage <=94)
-                    {
+                    }else if(coloring >= 90 && coloring <99){
                         color = 'yellow';
                     }else{
                         color = 'red';
                     }
                     
                     attendance_target.push({y: target, color: 'gray',mydata:targettl});
-                    attendance_reach.push({y: data[i].attendance, color: color,mydata:targettl});
+                    attendance_reach.push({y: data[i].actual_attendance, color: color,mydata:targettl});
    
                }
                chart.xAxis[0].setCategories(labels)
                chart.series[0].setData(attendance_target)
                chart.series[1].setData(attendance_reach)
-               $("#detail_table_loader_attendance").hide();  
-               $("#container").show();
+//               $("#detail_table_loader_attendance").hide();  
+//               $("#container").show();
+               chart.hideLoading();
                
               
                
             },
             error: function(jqXHR, exception) {
-               $("#detail_table_loader_attendance").hide();  
-               $("#container").show();
+//               $("#detail_table_loader_attendance").hide();  
+//               $("#container").show();
+                chart.hideLoading();
                alert('An error occured: '+ exception);
             }
          }); 
@@ -229,6 +249,11 @@ $('#Attendance_month').change(function() {
     
 });
 $('#Attendance_brand').change(function() {
+    
+    redraw(); 
+    
+});
+$('#att_year').change(function() {
     
     redraw(); 
     
