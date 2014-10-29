@@ -121,7 +121,7 @@ $this->breadcrumbs = array(
                             <th class="hide_row"><?php echo $PODFields['pod_id']; ?></th>
                             <th><?php echo $skuFields['sku_code']; ?></th>
                             <th><?php echo $skuFields['description']; ?></th>
-                            <th>Filename</th>
+                            <th>Attachment</th>
                             <th>Verification</th>
                             <th>Actions</th>
                         </tr>
@@ -651,7 +651,7 @@ $this->breadcrumbs = array(
                         v.pod_id,
                         v.sku_code,
                         v.sku_description,
-                        "",
+                        v.attachment,
                         '<input type="checkbox" onclick="showVerified(this, ' + i + ')" ' + v.verification + '/> <span class="verified_status">' + v.verified_status + '</span><p class="verified_value" style="display: none;">' + v.verified + '</p>',
                         v.links
                     ]);

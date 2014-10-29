@@ -440,11 +440,14 @@ class ProofOfDeliveryController extends Controller {
         foreach ($pod_details as $key => $value) {
             $row = array();
 
+            $pod_attachment = ProofOfDeliveryAttachment::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "pod_id" => $value->pod_id, "pod_detail_id" => $value->pod_detail_id));
+
             $row['pod_detail_id'] = $value->pod_detail_id;
             $row['pod_id'] = $value->pod_id;
             $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
             $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
             $row['verified'] = $value->verified;
+            $row['attachment'] = count($pod_attachment) > 0 ? "<b>" . count($pod_attachment) . " attachment(s)</b>" : "<b>no attachment</b>";
             $row['verification'] = $value->verified == 0 ? '' : 'checked';
             $row['verified_status'] = $value->verified == 0 ? "<span class='label label-danger'>UNVERIFIED</span>" : "<span class='label label-success'>VERIFIED</span>";
 
