@@ -221,8 +221,8 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
             beforeSend: function(data) {
             },
             success: function(data) {
-
-                $.each(data.data, function(i, v) {
+                
+                $.each(data, function(i, v) {
                     notification_table.fnAddData([
                         v.transaction_type,
                         v.dr_no,

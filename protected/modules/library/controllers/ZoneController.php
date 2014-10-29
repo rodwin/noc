@@ -25,7 +25,7 @@ class ZoneController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view', 'search', 'searchByWarehouse'),
+                'actions' => array('index', 'view', 'search', 'searchByWarehouse', 'getZoneDetails'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -346,6 +346,29 @@ class ZoneController extends Controller {
             echo CActiveForm::validate($model);
             Yii::app()->end();
         }
+    }
+
+    public function actionGetZoneDetails($zone_id) {
+
+        $c = new CDbCriteria;
+        $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.zone_id = '" . $zone_id . "'";
+        $c->with = array("salesOffice");
+        $zone = Zone::model()->find($c);
+        
+        $c1 = new CDbCriteria;
+        $c1->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
+        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $zone->zone_id . "'";
+        $employee = Employee::model()->find($c1);
+        
+        $return = array();
+        $return['zone_id'] = $zone->zone_id;
+        $return['zone_name'] = $zone->zone_name;
+        $return['so_address1'] = isset($zone->salesOffice->address1) ? $zone->salesOffice->address1 : '';
+        $return['contact_person'] = isset($employee) ? $employee->fullname : '';
+        $return['employee_work_contact_no'] = isset($employee) ? $employee->work_phone_number : '';
+
+        echo json_encode($return);
+        Yii::app()->end();
     }
 
 }

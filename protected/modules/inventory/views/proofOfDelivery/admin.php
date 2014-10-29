@@ -421,10 +421,6 @@ $this->breadcrumbs = array(
                 'type': 'POST',
                 'dataType': 'text',
                 'success': function(data) {
-                    $.growl(data, {
-                        icon: 'glyphicon glyphicon-info-sign',
-                        type: 'success'
-                    });
                 },
                 error: function(jqXHR, exception) {
                     alert('An error occured: ' + exception);
@@ -771,7 +767,7 @@ $this->breadcrumbs = array(
         selected_pod_detail_id = pod_detail_id;
 
         $.ajax({
-            type: 'POST',
+            type: 'GET',
             url: '<?php echo Yii::app()->createUrl('/inventory/ProofOfDelivery/viewPODAttachment'); ?>',
             dataType: "json",
             data: {
