@@ -767,7 +767,7 @@ $this->breadcrumbs = array(
         selected_pod_detail_id = pod_detail_id;
 
         $.ajax({
-            type: 'POST',
+            type: 'GET',
             url: '<?php echo Yii::app()->createUrl('/inventory/ProofOfDelivery/viewPODAttachment'); ?>',
             dataType: "json",
             data: {
