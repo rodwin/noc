@@ -667,9 +667,6 @@ class ProofOfDeliveryController extends Controller {
         if (file_exists('../' . $base . $url)) {
 
             Yii::app()->getRequest()->sendFile($name, file_get_contents('../' . $base . $url));
-
-            echo "Successfully downloaded";
-            exit;
         } else {
 
             throw new CHttpException(500, "Could not download file.");

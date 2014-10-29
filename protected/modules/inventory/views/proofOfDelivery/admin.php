@@ -421,10 +421,6 @@ $this->breadcrumbs = array(
                 'type': 'POST',
                 'dataType': 'text',
                 'success': function(data) {
-                    $.growl(data, {
-                        icon: 'glyphicon glyphicon-info-sign',
-                        type: 'success'
-                    });
                 },
                 error: function(jqXHR, exception) {
                     alert('An error occured: ' + exception);

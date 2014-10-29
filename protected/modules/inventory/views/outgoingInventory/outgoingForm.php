@@ -1146,5 +1146,21 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         });
 
     }
+    
+    $('#OutgoingInventory_destination_zone_id').change(function() {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl('/library/zone/getZoneDetails'); ?>' + '&zone_id=' + this.value,
+            dataType: "json",
+            success: function(data) {
+                $("#OutgoingInventory_contact_person").val(data.contact_person);
+                $("#OutgoingInventory_contact_no").val(data.employee_work_contact_no);
+                $("#OutgoingInventory_address").val(data.so_address1);
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+    });
 
 </script>
