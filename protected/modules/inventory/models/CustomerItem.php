@@ -304,9 +304,16 @@ class CustomerItem extends CActiveRecord {
                 if ($customer_item->save(false)) {
                     unset(Yii::app()->session['tid']);
                     Yii::app()->session['tid'] = $customer_item->customer_item_id;
+
+                    $customer_item_detail_id_arr = array();
                     for ($i = 0; $i < count($transaction_details); $i++) {
+                        unset(Yii::app()->session['customer_item_detail_ids']);
                         CustomerItemDetail::model()->createCustomerItemTransactionDetails($customer_item->customer_item_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $customer_item->transaction_date);
+
+                        $customer_item_detail_id_arr[]['customer_item_detail_id'] = Yii::app()->session['customer_item_detail_ids'];
                     }
+                    
+                    ProofOfDelivery::model()->customerData($customer_item, $transaction_details, $customer_item_detail_id_arr);
                 }
                 return true;
             } else {
@@ -315,7 +322,6 @@ class CustomerItem extends CActiveRecord {
 
             return true;
         } catch (Exception $exc) {
-            pr($exc);
             Yii::log($exc->getTraceAsString(), 'error');
             return false;
         }

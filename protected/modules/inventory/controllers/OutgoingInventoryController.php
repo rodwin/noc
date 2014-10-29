@@ -98,7 +98,7 @@ class OutgoingInventoryController extends Controller {
 //            $row['plan_arrival_date'] = $value->plan_arrival_date;
             $row['transaction_date'] = $value->transaction_date;
             $row['status'] = $status;
-            $row['total_amount'] = "&#x20B1; " . number_format($value->total_amount, 2, '.', ',');
+            $row['total_amount'] = "&#x20B1;" . number_format($value->total_amount, 2, '.', ',');
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
@@ -212,7 +212,8 @@ class OutgoingInventoryController extends Controller {
         $attachment = new Attachment;
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
-
+        $zone_list = CHtml::listData(Zone::model()->findAll(array("condition" => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');        
+        
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
             $data = array();
@@ -328,6 +329,7 @@ class OutgoingInventoryController extends Controller {
             'attachment' => $attachment,
             'uom' => $uom,
             'sku_status' => $sku_status,
+            'zone_list' => $zone_list,
         ));
     }
 
@@ -409,7 +411,7 @@ class OutgoingInventoryController extends Controller {
             $row['expiration_date'] = $value->expiration_date;
             $row['planned_quantity'] = $value->planned_quantity;
             $row['quantity_issued'] = $value->quantity_issued;
-            $row['amount'] = "&#x20B1; " . number_format($value->amount, 2, '.', ',');
+            $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
             $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['return_date'] = $value->return_date;
             $row['status'] = $status;

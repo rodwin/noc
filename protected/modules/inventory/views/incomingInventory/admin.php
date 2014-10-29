@@ -206,7 +206,7 @@ $this->breadcrumbs = array(
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(11)', nRow).addClass("text-center");
-                $('td:eq(8)', nRow).addClass("text-right");
+                $('td:eq(5),td:eq(8)', nRow).addClass("text-right");
             }
         });
 

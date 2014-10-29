@@ -143,8 +143,22 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($outgoing, 'rra_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo CHtml::textField('destination_zone', '', array('id' => 'OutgoingInventory_destination_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone")); ?>
-                <?php echo $form->textFieldGroup($outgoing, 'destination_zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'OutgoingInventory_destination_zone', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
+                <?php // echo CHtml::textField('destination_zone', '', array('id' => 'OutgoingInventory_destination_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone")); ?>
+                <?php // echo $form->textFieldGroup($outgoing, 'destination_zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'OutgoingInventory_destination_zone', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
+
+                <?php
+                echo $form->select2Group(
+                        $outgoing, 'destination_zone_id', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => '', 'id' => 'OutgoingInventory_destination_zone_id',
+                    ),
+                    'widgetOptions' => array(
+                        'data' => $zone_list,
+                        'options' => array(
+                        ),
+                        'htmlOptions' => array('class' => 'ignore span5', 'prompt' => '--')),
+                    'labelOptions' => array('label' => false)));
+                ?>
 
             </div>
 
@@ -446,7 +460,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
                         <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
                         <th><?php echo $outgoingDetailFields['amount']; ?></th>
-                        <th><?php // echo $outgoingDetailFields['inventory_on_hand'];         ?></th>
+                        <th><?php // echo $outgoingDetailFields['inventory_on_hand'];           ?></th>
                         <th class=""><?php echo $outgoingDetailFields['return_date']; ?></th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['remarks']; ?></th>
                         <th class="hide_row">Inventory</th>
@@ -708,6 +722,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 }
 
                 document.forms["outgoing-inventory-form"].reset();
+                $("#outgoing-inventory-form .select2-container").select2("val", "");
 
                 var oSettings = transaction_table.fnSettings();
                 var iTotalRecords = oSettings.fnRecordsTotal();
@@ -770,10 +785,16 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
+                var element2 = document.getElementById("s2id_" + i);
 
                 var $element = $(element);
                 $element.data("title", v)
                         .addClass("error")
+                        .tooltip();
+
+                var $element2 = $(element2);
+                $element2.data("title", v)
+                        .addClass("error_border")
                         .tooltip();
             });
         }

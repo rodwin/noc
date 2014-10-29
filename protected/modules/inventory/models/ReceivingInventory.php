@@ -49,7 +49,7 @@ class ReceivingInventory extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, campaign_no, pr_no, pr_date, requestor, dr_no, sales_office_id, transaction_date', 'required'),
+            array('company_id, campaign_no, pr_no, pr_date, requestor, dr_no, transaction_date', 'required'),
             array('company_id, campaign_no, pr_no, dr_no, requestor, supplier_id, sales_office_id, zone_id, delivery_remarks, created_by, updated_by', 'length', 'max' => 50),
             array('total_amount', 'length', 'max' => 18),
             array('pr_date, plan_delivery_date, revised_delivery_date, plan_arrival_date, transaction_date, dr_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
