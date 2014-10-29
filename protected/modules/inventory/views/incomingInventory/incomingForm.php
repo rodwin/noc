@@ -137,14 +137,27 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             <div class="pull-right col-md-7">
 
                 <?php
-                echo $form->dropDownListGroup($incoming, 'dr_no', array(
+//                echo $form->dropDownListGroup($incoming, 'dr_no', array(
+//                    'wrapperHtmlOptions' => array(
+//                        'class' => '',
+//                    ),
+//                    'widgetOptions' => array(
+//                        'data' => $outgoing_inv_dr_nos,
+//                        'htmlOptions' => array('class' => 'ignore span5', 'multiple' => false, 'prompt' => 'Select DR No'),
+//                    ),
+//                    'labelOptions' => array('label' => false)));
+                ?>
+
+                <?php
+                echo $form->select2Group(
+                        $incoming, 'dr_no', array(
                     'wrapperHtmlOptions' => array(
-                        'class' => '',
+                        'class' => '', 'id' => 'IncomingInventory_dr_no',
                     ),
                     'widgetOptions' => array(
                         'data' => $outgoing_inv_dr_nos,
-                        'htmlOptions' => array('class' => 'ignore span5', 'multiple' => false, 'prompt' => 'Select DR No'),
-                    ),
+                        'options' => array(),
+                        'htmlOptions' => array('class' => 'ignore span5', 'id' => 'IncomingInventory_dr_no', 'prompt' => '--')),
                     'labelOptions' => array('label' => false)));
                 ?>
 
@@ -154,7 +167,18 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($incoming, 'rra_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo CHtml::textField('destination_zone_id', '', array('id' => 'IncomingInventory_destination_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone", 'readonly' => true)); ?>
+                <?php
+                echo $form->textAreaGroup($incoming, 'destination_zone_id', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => 'span5',
+                    ),
+                    'widgetOptions' => array(
+                        'htmlOptions' => array('id' => 'IncomingInventory_destination_zone_id', 'class' => 'ignore', 'style' => 'resize: none; width: 200px;', 'maxlength' => 150, 'readonly' => true),
+                    ),
+                    'labelOptions' => array('label' => false)));
+                ?>
+
+                <?php // echo CHtml::textField('destination_zone_id', '', array('id' => 'IncomingInventory_destination_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone", 'readonly' => true)); ?>
                 <?php echo $form->textFieldGroup($incoming, 'destination_zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'IncomingInventory_destination_zone', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($incoming, 'source_zone_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
@@ -516,20 +540,25 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             "serverSide": false,
             "bAutoWidth": false,
             "columnDefs": [{
-                    "targets": [1,10,11,12,13,16,17,18,19,20],
+                    "targets": [1, 10, 11, 12, 13, 16, 17, 18, 19, 20],
                     "visible": false
                 }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(8), td:eq(10)', nRow).addClass("success");
-                
-                if (aData[21] == <?php echo "'" . OutgoingInventory::OUTGOING_PENDING_STATUS . "'"; ?>) {
-                    $('td:eq(11)', nRow).removeClass().addClass("status-label label-warning");
-                } else if (aData[21] == <?php echo "'" . OutgoingInventory::OUTGOING_COMPLETE_STATUS . "'"; ?>) {
-                    $('td:eq(11)', nRow).removeClass().addClass("status-label label-success");
-                } else if (aData[21] == <?php echo "'" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "'"; ?>) {
-                    $('td:eq(11)', nRow).removeClass().addClass("status-label label-danger");
-                } else if (aData[21] == <?php echo "'" . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . "'"; ?>) {
-                    $('td:eq(11)', nRow).removeClass().addClass("status-label label-primary");
+
+                var added_status_row_value = aData[21];
+                var status_pos_col = 21;
+
+                var pos = transaction_table.fnGetPosition(nRow);
+
+                if (added_status_row_value == <?php echo "'" . OutgoingInventory::OUTGOING_PENDING_STATUS . "'"; ?>) {
+                    transaction_table.fnUpdate("<span class='label label-warning'>" +<?php echo "'" . OutgoingInventory::OUTGOING_PENDING_STATUS . "'"; ?> + "</span>", pos, status_pos_col);
+                } else if (added_status_row_value == <?php echo "'" . OutgoingInventory::OUTGOING_COMPLETE_STATUS . "'"; ?>) {
+                    transaction_table.fnUpdate("<span class='label label-success'>" +<?php echo "'" . OutgoingInventory::OUTGOING_COMPLETE_STATUS . "'"; ?> + "</span>", pos, status_pos_col);
+                } else if (added_status_row_value == <?php echo "'" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "'"; ?>) {
+                    transaction_table.fnUpdate("<span class='label label-danger'>" +<?php echo "'" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "'"; ?> + "</span>", pos, status_pos_col);
+                } else if (added_status_row_value == <?php echo "'" . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . "'"; ?>) {
+                    transaction_table.fnUpdate("<span class='label label-primary'>" +<?php echo "'" . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . "'"; ?> + "</span>", pos, status_pos_col);
                 }
             }
         });
@@ -645,13 +674,15 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $('td:eq(8)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
                     var pos = transaction_table.fnGetPosition(this);
                     var rowData = transaction_table.fnGetData(pos);
+                    var planned_qty = parseInt(rowData[8]);
+                    var status_pos_col = 21;
 
-                    if (parseInt(value) == parseInt(rowData[8])) {
-                        transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_COMPLETE_STATUS . "'"; ?>, pos[0], 21);
-                    } else if (parseInt(value) < parseInt(rowData[8])) {
-                        transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "'"; ?>, pos[0], 21);
-                    } else if (parseInt(value) > parseInt(rowData[8])) {
-                        transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . "'"; ?>, pos[0], 21);
+                    if (parseInt(value) == planned_qty) {
+                        transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_COMPLETE_STATUS . "'"; ?>, pos[0], status_pos_col);
+                    } else if (parseInt(value) < planned_qty) {
+                        transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "'"; ?>, pos[0], status_pos_col);
+                    } else if (parseInt(value) > planned_qty) {
+                        transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . "'"; ?>, pos[0], status_pos_col);
                     }
 
                     transaction_table.fnUpdate(value, pos[0], pos[2]);
@@ -704,11 +735,16 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
-
+                var element_select2 = document.getElementById("s2id_" + i);
 
                 var $element = $(element);
                 $element.data("title", v)
                         .addClass("error")
+                        .tooltip();
+
+                var $element_select2 = $(element_select2);
+                $element_select2.data("title", v)
+                        .addClass("error_border")
                         .tooltip();
             });
         }
@@ -731,6 +767,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         var aTrs = transaction_table.fnGetNodes();
         for (var i = 0; i < aTrs.length; i++) {
             var row_data = transaction_table.fnGetData(aTrs[i]);
+            
+            var status = aTrs[i].getElementsByTagName('span')[0].innerHTML;
 
             row_datas.push({
                 "sku_id": row_data[1],
@@ -747,7 +785,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 "inventory_id": row_data[17],
                 "source_zone_id": row_data[18],
                 "outgoing_inventory_detail_id": row_data[20],
-                "status": row_data[21],
+                "status": status,
             });
         }
 
@@ -898,13 +936,15 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         $('td:eq(8)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
                             var pos = transaction_table.fnGetPosition(this);
                             var rowData = transaction_table.fnGetData(pos);
+                            var planned_qty = parseInt(rowData[8]);
+                            var status_pos_col = 21;
 
-                            if (parseInt(value) == parseInt(rowData[8])) {
-                                transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_COMPLETE_STATUS . "'"; ?>, pos[0], 21);
-                            } else if (parseInt(value) < parseInt(rowData[8])) {
-                                transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "'"; ?>, pos[0], 21);
-                            } else if (parseInt(value) > parseInt(rowData[8])) {
-                                transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . "'"; ?>, pos[0], 21);
+                            if (parseInt(value) == planned_qty) {
+                                transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_COMPLETE_STATUS . "'"; ?>, pos[0], status_pos_col);
+                            } else if (parseInt(value) < planned_qty) {
+                                transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "'"; ?>, pos[0], status_pos_col);
+                            } else if (parseInt(value) > planned_qty) {
+                                transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . "'"; ?>, pos[0], status_pos_col);
                             }
 
                             transaction_table.fnUpdate(value, pos[0], pos[2]);

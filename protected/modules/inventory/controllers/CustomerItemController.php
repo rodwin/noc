@@ -91,7 +91,7 @@ class CustomerItemController extends Controller {
             $row['poi_id'] = $value->poi_id;
             $row['poi_name'] = isset($value->poi->short_name) ? $value->poi->short_name : null;
             $row['transaction_date'] = $value->transaction_date;
-            $row['total_amount'] = "&#x20B1; " . number_format($value->total_amount, 2, '.', ',');
+            $row['total_amount'] = "&#x20B1;" . number_format($value->total_amount, 2, '.', ',');
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
@@ -146,6 +146,7 @@ class CustomerItemController extends Controller {
         $sku = new Sku;
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
+        $poi_list = CHtml::listData(Poi::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'short_name ASC')), 'poi_id',  'short_name', 'primary_code');
         $model = new Attachment;
 
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
@@ -261,6 +262,7 @@ class CustomerItemController extends Controller {
             'uom' => $uom,
             'sku_status' => $sku_status,
             'model' => $model,
+            'poi_list' => $poi_list,
         ));
     }
 
@@ -413,7 +415,7 @@ class CustomerItemController extends Controller {
             $row['expiration_date'] = $value->expiration_date;
             $row['planned_quantity'] = $value->planned_quantity;
             $row['quantity_issued'] = $value->quantity_issued;
-            $row['amount'] = "&#x20B1; " . number_format($value->amount, 2, '.', ',');
+            $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
             $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['return_date'] = $value->return_date;
             $row['remarks'] = $value->remarks;
