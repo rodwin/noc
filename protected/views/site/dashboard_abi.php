@@ -46,24 +46,12 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
             </div>
             <div class="box-body">
                 <div class="clearfix" style="margin-left: 10px; margin-right: 10px;">
-                    <div class="pull-left col-md-4">
+                    <div class="pull-left" style="width: 30%;">
                         <label>Brand Category</label><br/><br/>
                         <label>Brand</label>
                     </div>
 
-                    <div class="pull-right col-md-8">
-                        <?php
-//                        echo CHtml::dropDownList('brand_category', '', $brand_category, array(
-//                            'prompt' => 'All',
-//                            'class' => 'form-control', 'style' => 'margin-bottom: 10px;',
-//                            'ajax' => array(
-//                                'type' => 'POST',
-//                                'url' => Yii::app()->createUrl('library/brand/loadBrandByBrandCategory'), //or $this->createUrl('loadcities') if '$this' extends CController
-//                                'update' => '#brands', //or 'success' => 'function(data){...handle the data in the way you want...}',
-//                                'data' => array('brand_category' => 'js:this.value'),
-//                        )));
-                        ?>
-
+                    <div class="pull-right"  style="width: 70%;">
                         <?php
                         $this->widget(
                                 'booster.widgets.TbSelect2', array(
@@ -76,7 +64,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                             'htmlOptions' => array(
                                 'id' => 'brand_category',
                                 'class' => 'form-control', 'style' => 'margin-bottom: 10px;',
-                                'prompt' => 'All',
+                                'prompt' => 'ALL',
                                 'ajax' => array(
                                     'type' => 'POST',
                                     'url' => Yii::app()->createUrl('library/brand/loadBrandByBrandCategory'), //or $this->createUrl('loadcities') if '$this' extends CController
