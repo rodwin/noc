@@ -648,7 +648,11 @@ class ProofOfDeliveryController extends Controller {
                 $arr = explode("/", $base);
                 $base = $arr[count($arr) - 1];
                 $url = str_replace(Yii::app()->getBaseUrl(true), "", $pod_attachment->url);
-                unlink('../' . $base . $url);
+                $delete_link = '../' . $base . $url;
+                
+                if (file_exists($delete_link)) {
+                    unlink($delete_link);
+                }
 
                 echo "Successfully deleted";
                 exit;

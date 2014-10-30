@@ -443,10 +443,15 @@ $this->breadcrumbs = array(
         });
     });
 
+    var pod_detail_table, pod_attachment_table;
     function loadPODDetails(pod_id) {
         selected_pod_id = pod_id;
 
-        $.ajax({
+        if (typeof pod_detail_table != "undefined") {
+            pod_detail_table.abort();
+        }
+
+        pod_detail_table = $.ajax({
             type: 'POST',
             url: '<?php echo Yii::app()->createUrl('/inventory/ProofOfDelivery/PODDetails'); ?>' + '&pod_id=' + pod_id,
             dataType: "json",
@@ -540,8 +545,10 @@ $this->breadcrumbs = array(
                     $("#btn_save_pod_details").show();
                 }
             },
-            error: function(data) {
-                alert("Error occured: Please try again.");
+            error: function(jqXHR, exception) {
+                if (exception !== 'abort') {
+                    alert("Error occured: Please try again.");
+                }
             }
         });
     }
@@ -635,7 +642,11 @@ $this->breadcrumbs = array(
 
     function loadPODAttachment(pod_id) {
 
-        $.ajax({
+        if (typeof pod_attachment_table != "undefined") {
+            pod_attachment_table.abort();
+        }
+
+        pod_attachment_table = $.ajax({
             type: 'POST',
             url: '<?php echo Yii::app()->createUrl('/inventory/ProofOfDelivery/PODDAttachment'); ?>' + '&pod_id=' + pod_id,
             dataType: "json",
@@ -666,7 +677,7 @@ $this->breadcrumbs = array(
                         v.attachment_remarks,
                         v.links
                     ]);
-                    
+
                     var oSettings = proof_of_delivery_attachments_table.fnSettings();
 
                     $('td:eq(4)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
@@ -689,8 +700,10 @@ $this->breadcrumbs = array(
                     $("#btn_save_pod_attachment").show();
                 }
             },
-            error: function(data) {
-                alert("Error occured: Please try again.");
+            error: function(jqXHR, exception) {
+                if (exception !== 'abort') {
+                    alert("Error occured: Please try again.");
+                }
             }
         });
 
