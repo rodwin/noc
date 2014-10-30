@@ -158,7 +158,7 @@ $this->breadcrumbs = array(
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-green clearfix no-padding small-box">
-                <h4 class="modal-title pull-left margin">Upload</h4>
+                <h4 class="modal-title pull-left margin"><span class="fa fa-upload"></span>&nbsp; Upload</h4>
                 <button class="btn btn-sm btn-flat bg-green pull-right margin" data-dismiss="modal"><i class="fa fa-times"></i></button>
             </div>
 
@@ -196,7 +196,7 @@ $this->breadcrumbs = array(
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-green clearfix no-padding small-box">
-                <h4 class="modal-title pull-left margin">Attachment</h4>
+                <h4 class="modal-title pull-left margin"><span class="fa fa-paste"></span>&nbsp; Attachment</h4>
                 <button class="btn btn-sm btn-flat bg-green pull-right margin" data-dismiss="modal"><i class="fa fa-times"></i></button>
             </div>
 
