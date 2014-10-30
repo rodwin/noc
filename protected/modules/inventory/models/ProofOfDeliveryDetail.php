@@ -59,12 +59,12 @@ class ProofOfDeliveryDetail extends CActiveRecord {
             array('company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, status, campaign_no, pr_no, created_by, updated_by, verified_by', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),
             array('customer_item_detail_id', 'length', 'max' => 11),
-            array('remarks', 'length', 'max' => 150),
+            array('remarks, attachment_remarks', 'length', 'max' => 150),
             array('verified', 'length', 'max' => 1),
             array('expiration_date, return_date, pr_date, plan_arrival_date, revised_delivery_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('pod_detail_id, pod_id, company_id, inventory_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, unit_price, expiration_date, planned_quantity, quantity_received, amount, return_date, status, remarks, campaign_no, pr_no, pr_date, plan_arrival_date, revised_delivery_date, created_date, created_by, updated_date, updated_by, verified, verified_by, customer_item_detail_id', 'safe', 'on' => 'search'),
+            array('pod_detail_id, pod_id, company_id, inventory_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, unit_price, expiration_date, planned_quantity, quantity_received, amount, return_date, status, remarks, campaign_no, pr_no, pr_date, plan_arrival_date, revised_delivery_date, created_date, created_by, updated_date, updated_by, verified, verified_by, customer_item_detail_id, attachment_remarks', 'safe', 'on' => 'search'),
         );
     }
 
@@ -121,6 +121,7 @@ class ProofOfDeliveryDetail extends CActiveRecord {
             'verified' => 'Verified',
             'verified_by' => 'Verified By',
             'customer_item_detail_id' => 'Customer Item Detail',
+            'attachment_remarks' => 'Attachment Remark'
         );
     }
 
@@ -170,6 +171,7 @@ class ProofOfDeliveryDetail extends CActiveRecord {
         $criteria->compare('verified', $this->verified, true);
         $criteria->compare('verified_by', $this->verified_by, true);
         $criteria->compare('customer_item_detail_id', $this->customer_item_detail_id, true);
+        $criteria->compare('attachment_remarks', $this->customer_item_detail_id, true);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,

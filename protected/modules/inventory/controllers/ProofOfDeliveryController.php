@@ -70,6 +70,11 @@ class ProofOfDeliveryController extends Controller {
                 $verified_status = "";
             }
 
+            $c = new CDbCriteria;
+            $c->select = new CDbExpression('CONCAT(first_name, " ",last_name) AS fullname');
+            $c->condition = "company_id = '" . Yii::app()->user->company_id . "' AND user_name = '" . trim($value->verified_by) . "'";
+            $user = User::model()->find($c);
+
             $row['pod_id'] = $value->pod_id;
             $row['dr_no'] = $value->dr_no;
             $row['dr_date'] = $value->dr_date;
@@ -86,7 +91,8 @@ class ProofOfDeliveryController extends Controller {
             $row['updated_by'] = $value->updated_by;
             $row['updated_date'] = $value->updated_date;
             $row['verified'] = $verified_status;
-            $row['verified_by'] = $value->verified_by;
+            $row['verified_by'] = isset($user->fullname) ? $user->fullname : "";
+            $row['verified_date'] = $value->verified_date;
 
             $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/ProofOfDelivery/delete', array('id' => $value->pod_id)) . '">
                                 <i class="glyphicon glyphicon-trash"></i>
@@ -450,6 +456,7 @@ class ProofOfDeliveryController extends Controller {
             $row['attachment'] = count($pod_attachment) > 0 ? "<b>" . count($pod_attachment) . " attachment(s)</b>" : "<b>no attachment</b>";
             $row['verification'] = $value->verified == 0 ? '' : 'checked';
             $row['verified_status'] = $value->verified == 0 ? "<span class='label label-danger'>UNVERIFIED</span>" : "<span class='label label-success'>VERIFIED</span>";
+            $row['attachment_remarks'] = $value->attachment_remarks;
 
             $row['links'] = '<a class="btn btn-sm btn-default view_attachment" title="View" onclick="viewPODAttachment(' . $value->pod_id . ',' . $value->pod_detail_id . ', true)">
                                 <i class="glyphicon glyphicon-eye-open"></i>
@@ -490,6 +497,7 @@ class ProofOfDeliveryController extends Controller {
                     $pod_detail->updated_date = date('Y-m-d H:i:s');
                     $pod_detail->verified = $v['verified'];
                     $pod_detail->verified_by = Yii::app()->user->name;
+                    $pod_detail->attachment_remarks = $v['attachment_remarks'];
 
                     $pod_detail->save(false);
                 }
@@ -504,8 +512,11 @@ class ProofOfDeliveryController extends Controller {
             $pod = ProofOfDelivery::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "pod_id" => $pod_id));
 
             if ($pod) {
+                $pod->updated_by = Yii::app()->user->name;
+                $pod->updated_date = date('Y-m-d H:i:s');
                 $pod->verified = $pod_verified;
                 $pod->verified_by = Yii::app()->user->name;
+                $pod->verified_date = date('Y-m-d H:i:s');
 
                 if ($pod->save()) {
                     $output['success'] = true;

@@ -211,26 +211,30 @@ class CustomerItem extends CActiveRecord {
                 break;
 
             case 1:
-                $sort_column = 't.rra_no';
+                $sort_column = 't.dr_date';
                 break;
 
             case 2:
-                $sort_column = 't.rra_date';
+                $sort_column = 't.rra_no';
                 break;
 
             case 3:
-                $sort_column = 't.poi_id';
+                $sort_column = 't.rra_date';
                 break;
 
             case 4:
-                $sort_column = 't.status';
+                $sort_column = 't.poi_id';
                 break;
 
             case 5:
-                $sort_column = 't.total_amount';
+                $sort_column = 't.status';
                 break;
 
             case 6:
+                $sort_column = 't.total_amount';
+                break;
+
+            case 7:
                 $sort_column = 't.created_date';
                 break;
         }
@@ -239,12 +243,13 @@ class CustomerItem extends CActiveRecord {
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
         $criteria->compare('t.dr_no', $columns[0]['search']['value'], true);
-        $criteria->compare('t.rra_no', $columns[1]['search']['value'], true);
-        $criteria->compare('t.rra_date', $columns[2]['search']['value'], true);
-        $criteria->compare('poi.short_name', $columns[3]['search']['value'], true);
-        $criteria->compare('t.status', $columns[4]['search']['value'], true);
-        $criteria->compare('t.total_amount', $columns[5]['search']['value'], true);
-        $criteria->compare('t.created_date', $columns[6]['search']['value'], true);
+        $criteria->compare('t.dr_date', $columns[1]['search']['value'], true);
+        $criteria->compare('t.rra_no', $columns[2]['search']['value'], true);
+        $criteria->compare('t.rra_date', $columns[3]['search']['value'], true);
+        $criteria->compare('poi.short_name', $columns[4]['search']['value'], true);
+        $criteria->compare('t.status', $columns[5]['search']['value'], true);
+        $criteria->compare('t.total_amount', $columns[6]['search']['value'], true);
+        $criteria->compare('t.created_date', $columns[7]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;

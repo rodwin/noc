@@ -49,10 +49,10 @@ class ProofOfDelivery extends CActiveRecord {
             array('total_amount', 'length', 'max' => 18),
             array('customer_item_id', 'length', 'max' => 11),
             array('verified', 'length', 'max' => 1),
-            array('dr_date, rra_date, transaction_date, created_date, updated_date', 'safe'),
+            array('dr_date, rra_date, transaction_date, created_date, updated_date, verified_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('pod_id, company_id, dr_no, dr_date, rra_no, rra_date, source_zone_id, poi_id, transaction_date, status, total_amount, created_by, created_date, updated_by, updated_date, verified, verified_by, customer_item_id', 'safe', 'on' => 'search'),
+            array('pod_id, company_id, dr_no, dr_date, rra_no, rra_date, source_zone_id, poi_id, transaction_date, status, total_amount, created_by, created_date, updated_by, updated_date, verified, verified_by, verified_date, customer_item_id', 'safe', 'on' => 'search'),
         );
     }
 
@@ -95,7 +95,8 @@ class ProofOfDelivery extends CActiveRecord {
             'updated_date' => 'Updated Date',
             'verified' => 'Verified',
             'verified_by' => 'Verified By',
-            'customer_item_id' => 'Customer Item'
+            'verified_date' => 'Verified Date',
+            'customer_item_id' => 'Customer Item',
         );
     }
 
@@ -133,6 +134,7 @@ class ProofOfDelivery extends CActiveRecord {
         $criteria->compare('updated_date', $this->updated_date, true);
         $criteria->compare('verified', $this->verified, true);
         $criteria->compare('verified_by', $this->verified_by, true);
+        $criteria->compare('customer_item_id', $this->customer_item_id, true);
         $criteria->compare('customer_item_id', $this->customer_item_id, true);
 
         return new CActiveDataProvider($this, array(
@@ -183,6 +185,14 @@ class ProofOfDelivery extends CActiveRecord {
             case 9:
                 $sort_column = 't.verified_by';
                 break;
+
+            case 10:
+                $sort_column = 't.verified_date';
+                break;
+
+            case 11:
+                $sort_column = 't.created_date';
+                break;
         }
 
 
@@ -198,6 +208,8 @@ class ProofOfDelivery extends CActiveRecord {
         $criteria->compare('t.total_amount', $columns[7]['search']['value'], true);
         $criteria->compare('t.verified', $columns[8]['search']['value'], true);
         $criteria->compare('t.verified_by', $columns[9]['search']['value'], true);
+        $criteria->compare('t.verified_date', $columns[10]['search']['value'], true);
+        $criteria->compare('t.created_date', $columns[11]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;

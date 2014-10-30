@@ -39,9 +39,9 @@ $this->breadcrumbs = array(
         <thead>
             <tr>
                 <th><?php echo $fields['dr_no']; ?></th>
+                <th><?php echo $fields['dr_date'];  ?></th>
                 <th><?php echo $fields['rra_no']; ?></th>
                 <th><?php echo $fields['rra_date']; ?></th>
-                <!--<th><?php // echo $fields['source_zone_id'];  ?></th>-->
                 <th><?php echo $fields['poi_id']; ?></th>
                 <th><?php echo $fields['status']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
@@ -51,6 +51,7 @@ $this->breadcrumbs = array(
         </thead>
         <thead>
             <tr id="filter_row">
+                <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
@@ -138,10 +139,11 @@ $this->breadcrumbs = array(
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
-            "order": [[6, "asc"]],
+            "order": [[7, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/CustomerItem/data'); ?>",
             "columns": [
                 {"name": "dr_no", "data": "dr_no"},
+                {"name": "dr_date", "data": "dr_date"},
                 {"name": "rra_no", "data": "rra_no"},
                 {"name": "rra_date", "data": "rra_date"},
                 {"name": "poi_name", "data": "poi_name"},
@@ -151,12 +153,12 @@ $this->breadcrumbs = array(
                 {"name": "links", "data": "links", 'sortable': false}
             ],
             "columnDefs": [{
-                    "targets": [6],
+                    "targets": [7],
                     "visible": false
                 }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(6)', nRow).addClass("text-center");
-                $('td:eq(5)', nRow).addClass("text-right");
+                $('td:eq(7)', nRow).addClass("text-center");
+                $('td:eq(6)', nRow).addClass("text-right");
             }
         });
 
