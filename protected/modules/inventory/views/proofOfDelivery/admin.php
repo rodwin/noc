@@ -545,7 +545,7 @@ $this->breadcrumbs = array(
                     $("#btn_save_pod_details").show();
                 }
             },
-            error: function(jqXHR, exception) {
+            error: function(status, exception) {
                 if (exception !== 'abort') {
                     alert("Error occured: Please try again.");
                 }
@@ -700,7 +700,7 @@ $this->breadcrumbs = array(
                     $("#btn_save_pod_attachment").show();
                 }
             },
-            error: function(jqXHR, exception) {
+            error: function(status, exception) {
                 if (exception !== 'abort') {
                     alert("Error occured: Please try again.");
                 }

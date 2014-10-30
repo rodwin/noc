@@ -39,7 +39,7 @@ $this->breadcrumbs = array(
         <thead>
             <tr>
                 <th><?php echo $fields['dr_no']; ?></th>
-                <th><?php echo $fields['dr_date'];  ?></th>
+                <th><?php echo $fields['dr_date']; ?></th>
                 <th><?php echo $fields['rra_no']; ?></th>
                 <th><?php echo $fields['rra_date']; ?></th>
                 <th><?php echo $fields['poi_id']; ?></th>
@@ -71,9 +71,10 @@ $this->breadcrumbs = array(
     </ul>
     <div class="tab-content" id ="info">
         <div class="tab-pane active" id="tab_1">
+            <div id="ajax_loader_details"></div>
             <?php $skuFields = Sku::model()->attributeLabels(); ?>
             <?php $customerItemFields = CustomerItemDetail::model()->attributeLabels(); ?>
-            <div class="box-body table-responsive">
+            <div id="customer_item_details" class="box-body table-responsive">
                 <table id="customer-item-details_table" class="table table-bordered">
                     <thead>
                         <tr>
@@ -111,8 +112,9 @@ $this->breadcrumbs = array(
             </div>
         </div>
         <div class="tab-pane" id="tab_2">
+            <div id="ajax_loader_attachments"></div>
             <?php $attachment = Attachment::model()->attributeLabels(); ?>
-            <div class="box-body table-responsive">
+            <div id="customer_item_attachments" class="box-body table-responsive">
                 <table id="customer-item-attachment_table" class="table table-bordered">
                     <thead>
                         <tr>
@@ -300,14 +302,22 @@ $this->breadcrumbs = array(
         });
     });
 
-
+    var customer_item_details_table, customer_item_attachments_table;
     function loadCustomItemDetails(customer_item_id) {
         customerItem_id = customer_item_id;
 
-        $.ajax({
+        if (typeof customer_item_details_table != "undefined") {
+            customer_item_details_table.abort();
+        }
+
+        customer_item_details_table = $.ajax({
             type: 'POST',
             url: '<?php echo Yii::app()->createUrl('/inventory/CustomerItem/CustomerItemDetailData'); ?>' + '&customer_item_id=' + customer_item_id,
             dataType: "json",
+            beforeSend: function() {
+                $("#customer_item_details").hide();
+                $("#ajax_loader_details").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
+            },
             success: function(data) {
 
                 var oSettings = customer_item_detail_table.fnSettings();
@@ -315,6 +325,9 @@ $this->breadcrumbs = array(
                 for (var i = 0; i <= iTotalRecords; i++) {
                     customer_item_detail_table.fnDeleteRow(0, null, true);
                 }
+
+                $("#ajax_loader_details").html("");
+                $("#customer_item_details").show();
 
                 $.each(data.data, function(i, v) {
                     customer_item_detail_table.fnAddData([
@@ -333,17 +346,28 @@ $this->breadcrumbs = array(
                     ]);
                 });
             },
-            error: function(data) {
-                alert("Error occured: Please try again.");
+            error: function(status, exception) {
+                if (exception !== "abort") {
+                    alert("Error occured: Please try again.");
+                }
             }
         });
     }
 
     function loadAttachmentPreview(customerItem_id) {
-        $.ajax({
+
+        if (typeof customer_item_attachments_table != "undefined") {
+            customer_item_attachments_table.abort();
+        }
+
+        customer_item_attachments_table = $.ajax({
             type: 'POST',
             url: '<?php echo Yii::app()->createUrl('/inventory/CustomerItem/preview'); ?>' + '&id=' + customerItem_id,
             dataType: "json",
+            beforeSend: function() {
+                $("#customer_item_attachments").hide();
+                $("#ajax_loader_attachments").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
+            },
             success: function(data) {
                 var oSettings = customer_item_attachment_table.fnSettings();
                 var iTotalRecords = oSettings.fnRecordsTotal();
@@ -351,6 +375,9 @@ $this->breadcrumbs = array(
                 for (var i = 0; i <= iTotalRecords; i++) {
                     customer_item_attachment_table.fnDeleteRow(0, null, true);
                 }
+
+                $("#ajax_loader_attachments").html("");
+                $("#customer_item_attachments").show();
 
                 $.each(data.data, function(i, v) {
                     rows++;
@@ -360,8 +387,10 @@ $this->breadcrumbs = array(
                     ]);
                 });
             },
-            error: function(data) {
-                alert("Error occured: Please try again.");
+            error: function(status, exception) {
+                if (exception !== "abort") {
+                    alert("Error occured: Please try again.");
+                }
             }
         });
     }
