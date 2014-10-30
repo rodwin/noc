@@ -53,21 +53,50 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
 
                     <div class="pull-right col-md-8">
                         <?php
-                        echo CHtml::dropDownList('brand_category', '', $brand_category, array(
-                            'prompt' => 'All',
-                            'class' => 'form-control', 'style' => 'margin-bottom: 10px;',
-                            'ajax' => array(
-                                'type' => 'POST',
-                                'url' => Yii::app()->createUrl('library/brand/loadBrandByBrandCategory'), //or $this->createUrl('loadcities') if '$this' extends CController
-                                'update' => '#brands', //or 'success' => 'function(data){...handle the data in the way you want...}',
-                                'data' => array('brand_category' => 'js:this.value'),
-                        )));
+//                        echo CHtml::dropDownList('brand_category', '', $brand_category, array(
+//                            'prompt' => 'All',
+//                            'class' => 'form-control', 'style' => 'margin-bottom: 10px;',
+//                            'ajax' => array(
+//                                'type' => 'POST',
+//                                'url' => Yii::app()->createUrl('library/brand/loadBrandByBrandCategory'), //or $this->createUrl('loadcities') if '$this' extends CController
+//                                'update' => '#brands', //or 'success' => 'function(data){...handle the data in the way you want...}',
+//                                'data' => array('brand_category' => 'js:this.value'),
+//                        )));
                         ?>
 
                         <?php
-                        echo CHtml::dropDownList('brands', '', array(), array(
-                            'prompt' => 'Select Brand',
-                            'class' => 'form-control',
+                        $this->widget(
+                                'booster.widgets.TbSelect2', array(
+                            'name' => 'brand_category',
+                            'data' => $brand_category,
+                            'options' => array(
+                                'placeholder' => '',
+                                'width' => '100%',
+                            ),
+                            'htmlOptions' => array(
+                                'id' => 'brand_category',
+                                'class' => 'form-control', 'style' => 'margin-bottom: 10px;',
+                                'prompt' => 'All',
+                                'ajax' => array(
+                                    'type' => 'POST',
+                                    'url' => Yii::app()->createUrl('library/brand/loadBrandByBrandCategory'), //or $this->createUrl('loadcities') if '$this' extends CController
+                                    'update' => '#brands', //or 'success' => 'function(data){...handle the data in the way you want...}',
+                                    'data' => array('brand_category' => 'js:this.value'),
+                                )
+                            ),
+                        ));
+                        ?>
+
+                        <?php
+                        $this->widget(
+                                'booster.widgets.TbSelect2', array(
+                            'name' => 'brands',
+                            'data' => null,
+                            'options' => array(
+                                'placeholder' => '',
+                                'width' => '100%',
+                            ),
+                            'htmlOptions' => array('id' => 'brands', 'class' => 'form-control', 'prompt' => '--'),
                         ));
                         ?>
                     </div>
@@ -221,7 +250,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
             beforeSend: function(data) {
             },
             success: function(data) {
-                
+
                 $.each(data, function(i, v) {
                     notification_table.fnAddData([
                         v.transaction_type,
