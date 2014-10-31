@@ -38,8 +38,8 @@ $this->breadcrumbs = array(
     <table id="incoming-inventory_table" class="table table-bordered">
         <thead>
             <tr>
-                <!--<th><?php // echo $fields['campaign_no'];     ?></th>-->
-                <!--<th><?php // echo $fields['pr_no'];     ?></th>-->
+                <!--<th><?php // echo $fields['campaign_no'];          ?></th>-->
+                <!--<th><?php // echo $fields['pr_no'];          ?></th>-->
                 <th><?php echo $fields['dr_no']; ?></th>
                 <th><?php echo $fields['dr_date']; ?></th>
                 <th><?php echo $fields['rra_no']; ?></th>
@@ -75,10 +75,11 @@ $this->breadcrumbs = array(
     </ul>
     <div class="tab-content" id ="info">
         <div class="tab-pane active" id="tab_1">
+            <div id="ajax_loader_details"></div>
             <!--         <h4 class="control-label text-primary"><b>Item Details Table</b></h4>-->
             <?php $skuFields = Sku::model()->attributeLabels(); ?>
             <?php $incomingInvFields = IncomingInventoryDetail::model()->attributeLabels(); ?>
-            <div class="box-body table-responsive">
+            <div id="incoming_details" class="box-body table-responsive">
                 <table id="incoming-inventory-details_table" class="table table-bordered">
                     <thead>
                         <tr>
@@ -116,8 +117,9 @@ $this->breadcrumbs = array(
             </div>
         </div>
         <div class="tab-pane" id="tab_2">
+            <div id="ajax_loader_attachments"></div>
             <?php $attachment = Attachment::model()->attributeLabels(); ?>
-            <div class="box-body table-responsive">
+            <div id="incoming_attachments" class="box-body table-responsive">
                 <table id="incoming-inventory-attachment_table" class="table table-bordered">
                     <thead>
                         <tr>
@@ -316,13 +318,23 @@ $this->breadcrumbs = array(
             return false;
         });
     });
+
+    var incoming_details_table, incoming_attachments_table;
     function loadIncomingInvDetails(incoming_inv_id) {
         incoming_inventory_id = incoming_inv_id;
 
-        $.ajax({
+        if (typeof incoming_details_table != "undefined") {
+            incoming_details_table.abort();
+        }
+
+        incoming_details_table = $.ajax({
             type: 'POST',
             url: '<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/incomingInvDetailData'); ?>' + '&incoming_inv_id=' + incoming_inv_id,
             dataType: "json",
+            beforeSend: function() {
+                $("#incoming_details").hide();
+                $("#ajax_loader_details").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
+            },
             success: function(data) {
 
                 var oSettings = incoming_inventory_table_detail.fnSettings();
@@ -330,6 +342,9 @@ $this->breadcrumbs = array(
                 for (var i = 0; i <= iTotalRecords; i++) {
                     incoming_inventory_table_detail.fnDeleteRow(0, null, true);
                 }
+
+                $("#ajax_loader_details").html("");
+                $("#incoming_details").show();
 
                 $.each(data.data, function(i, v) {
                     incoming_inventory_table_detail.fnAddData([
@@ -348,17 +363,28 @@ $this->breadcrumbs = array(
                     ]);
                 });
             },
-            error: function(data) {
-                alert("Error occured: Please try again.");
+            error: function(status, exception) {
+                if (exception !== "abort") {
+                    alert("Error occured: Please try again.");
+                }
             }
         });
     }
 
-    function loadAttachmentPreview(receiving_inv_id) {
-        $.ajax({
+    function loadAttachmentPreview(incoming_inv_id) {
+
+        if (typeof incoming_attachments_table != "undefined") {
+            incoming_attachments_table.abort();
+        }
+
+        incoming_attachments_table = $.ajax({
             type: 'POST',
-            url: '<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/preview'); ?>' + '&id=' + receiving_inv_id,
+            url: '<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/preview'); ?>' + '&id=' + incoming_inv_id,
             dataType: "json",
+            beforeSend: function() {
+                $("#incoming_attachments").hide();
+                $("#ajax_loader_attachments").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
+            },
             success: function(data) {
                 var oSettings = incoming_inventory_attachment_table.fnSettings();
                 var iTotalRecords = oSettings.fnRecordsTotal();
@@ -366,6 +392,9 @@ $this->breadcrumbs = array(
                 for (var i = 0; i <= iTotalRecords; i++) {
                     incoming_inventory_attachment_table.fnDeleteRow(0, null, true);
                 }
+
+                $("#ajax_loader_attachments").html("");
+                $("#incoming_attachments").show();
 
                 $.each(data.data, function(i, v) {
                     rows++;
@@ -375,8 +404,10 @@ $this->breadcrumbs = array(
                     ]);
                 });
             },
-            error: function(data) {
-                alert("Error occured: Please try again.");
+            error: function(status, exception) {
+                if (exception !== "abort") {
+                    alert("Error occured: Please try again.");
+                }
             }
         });
     }

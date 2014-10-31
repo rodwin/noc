@@ -35,11 +35,14 @@ $this->breadcrumbs = array(
                 <th><?php echo $fields['total_amount']; ?></th>
                 <th><?php echo $fields['verified']; ?></th>
                 <th><?php echo $fields['verified_by']; ?></th>
+                <th><?php echo $fields['verified_date']; ?></th>
+                <th><?php echo $fields['created_date']; ?></th>
                 <th>Actions</th>
             </tr>
         </thead>
         <thead>
             <tr id="filter_row">
+                <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
@@ -101,6 +104,7 @@ $this->breadcrumbs = array(
                             <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
+                            <td class="filter hide_row"></td>
                             <td class="filter" id="hide_textbox"></td>  
                         </tr>
                     </thead>
@@ -123,6 +127,7 @@ $this->breadcrumbs = array(
                             <th><?php echo $skuFields['description']; ?></th>
                             <th>Attachment</th>
                             <th>Verification</th>
+                            <th>Remarks <span title="Click row to edit" data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -134,6 +139,7 @@ $this->breadcrumbs = array(
                             <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter" id="hide_textbox"></td>
+                            <td class="filter"></td>
                             <td class="filter" id="hide_textbox"></td>  
                         </tr>
                     </thead>
@@ -152,7 +158,7 @@ $this->breadcrumbs = array(
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-green clearfix no-padding small-box">
-                <h4 class="modal-title pull-left margin">Upload</h4>
+                <h4 class="modal-title pull-left margin"><span class="fa fa-upload"></span>&nbsp; Upload</h4>
                 <button class="btn btn-sm btn-flat bg-green pull-right margin" data-dismiss="modal"><i class="fa fa-times"></i></button>
             </div>
 
@@ -190,7 +196,7 @@ $this->breadcrumbs = array(
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-green clearfix no-padding small-box">
-                <h4 class="modal-title pull-left margin">Attachment</h4>
+                <h4 class="modal-title pull-left margin"><span class="fa fa-paste"></span>&nbsp; Attachment</h4>
                 <button class="btn btn-sm btn-flat bg-green pull-right margin" data-dismiss="modal"><i class="fa fa-times"></i></button>
             </div>
 
@@ -217,6 +223,7 @@ $this->breadcrumbs = array(
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
+            "order": [[11, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/ProofOfDelivery/data'); ?>",
             "columns": [
                 {"name": "dr_no", "data": "dr_no"},
@@ -229,10 +236,16 @@ $this->breadcrumbs = array(
                 {"name": "total_amount", "data": "total_amount"},
                 {"name": "verified", "data": "verified"},
                 {"name": "verified_by", "data": "verified_by"},
+                {"name": "verified_date", "data": "verified_date"},
+                {"name": "created_date", "data": "created_date"},
                 {"name": "links", "data": "links", 'sortable': false}
             ],
+            "columnDefs": [{
+                    "targets": [11],
+                    "visible": false
+                }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(10)', nRow).addClass("text-center");
+                $('td:eq(11)', nRow).addClass("text-center");
                 $('td:eq(7)', nRow).addClass("text-right");
             },
             "fnDrawCallback": function(oSettings) {
@@ -323,7 +336,8 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(4)', nRow).addClass("text-center");
+                $('td:eq(5)', nRow).addClass("text-center");
+                $('td:eq(4)', nRow).addClass("success");
             },
             "columnDefs": [{
                     "targets": [0, 1],
@@ -429,10 +443,15 @@ $this->breadcrumbs = array(
         });
     });
 
+    var pod_detail_table, pod_attachment_table;
     function loadPODDetails(pod_id) {
         selected_pod_id = pod_id;
 
-        $.ajax({
+        if (typeof pod_detail_table != "undefined") {
+            pod_detail_table.abort();
+        }
+
+        pod_detail_table = $.ajax({
             type: 'POST',
             url: '<?php echo Yii::app()->createUrl('/inventory/ProofOfDelivery/PODDetails'); ?>' + '&pod_id=' + pod_id,
             dataType: "json",
@@ -526,8 +545,10 @@ $this->breadcrumbs = array(
                     $("#btn_save_pod_details").show();
                 }
             },
-            error: function(data) {
-                alert("Error occured: Please try again.");
+            error: function(status, exception) {
+                if (exception !== 'abort') {
+                    alert("Error occured: Please try again.");
+                }
             }
         });
     }
@@ -621,7 +642,11 @@ $this->breadcrumbs = array(
 
     function loadPODAttachment(pod_id) {
 
-        $.ajax({
+        if (typeof pod_attachment_table != "undefined") {
+            pod_attachment_table.abort();
+        }
+
+        pod_attachment_table = $.ajax({
             type: 'POST',
             url: '<?php echo Yii::app()->createUrl('/inventory/ProofOfDelivery/PODDAttachment'); ?>' + '&pod_id=' + pod_id,
             dataType: "json",
@@ -649,8 +674,24 @@ $this->breadcrumbs = array(
                         v.sku_description,
                         v.attachment,
                         '<input type="checkbox" onclick="showVerified(this, ' + i + ')" ' + v.verification + '/> <span class="verified_status">' + v.verified_status + '</span><p class="verified_value" style="display: none;">' + v.verified + '</p>',
+                        v.attachment_remarks,
                         v.links
                     ]);
+
+                    var oSettings = proof_of_delivery_attachments_table.fnSettings();
+
+                    $('td:eq(4)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
+                        var pos = proof_of_delivery_attachments_table.fnGetPosition(this);
+                        proof_of_delivery_attachments_table.fnUpdate(value, pos[0], pos[2]);
+                    }, {
+                        type: 'text',
+                        placeholder: '',
+                        indicator: '',
+                        tooltip: 'Click to edit',
+                        width: "100%",
+                        submit: 'Ok',
+                        height: "30px"
+                    });
                 });
 
                 var POD_row_attachment = proof_of_delivery_attachments_table.fnSettings().fnRecordsTotal();
@@ -659,8 +700,10 @@ $this->breadcrumbs = array(
                     $("#btn_save_pod_attachment").show();
                 }
             },
-            error: function(data) {
-                alert("Error occured: Please try again.");
+            error: function(status, exception) {
+                if (exception !== 'abort') {
+                    alert("Error occured: Please try again.");
+                }
             }
         });
 
@@ -691,6 +734,7 @@ $this->breadcrumbs = array(
                 "pod_detail_id": row_data[0],
                 "pod_id": row_data[1],
                 "verified": verified_value,
+                "attachment_remarks": row_data[6],
             });
         }
 

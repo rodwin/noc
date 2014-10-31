@@ -737,9 +737,9 @@ class InventoryController extends Controller {
         foreach ($outbound_outgoing as $key2 => $val2) {
             $sort['sort'][$key2] = $val2['created_date'];
         }
-
+        
         array_multisort($sort['sort'], SORT_DESC, $outbound_outgoing);
-        $output = array_slice($outbound_outgoing, 0, 3);
+        $output = $outbound_outgoing;
         
         echo json_encode($output);
         Yii::app()->end();

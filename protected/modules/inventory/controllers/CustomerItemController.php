@@ -86,6 +86,7 @@ class CustomerItemController extends Controller {
 //            $row['pr_no'] = $value->pr_no;
 //            $row['pr_date'] = $value->pr_date;
             $row['dr_no'] = $value->dr_no;
+            $row['dr_date'] = $value->dr_date;
 //            $row['source_zone_id'] = $value->source_zone_id;
 //            $row['source_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
             $row['poi_id'] = $value->poi_id;

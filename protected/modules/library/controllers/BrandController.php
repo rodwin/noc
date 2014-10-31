@@ -285,7 +285,7 @@ class BrandController extends Controller {
 
         $data = CHtml::listData(Brand::model()->findAll($c), 'brand_id', 'brand_name');
 
-        echo "<option value=''>Select Brand</option>";
+        echo "<option value=''>--</option>";
         foreach ($data as $value => $brand_name)
             echo CHtml::tag('option', array('value' => $value), CHtml::encode($brand_name), true);
     }

@@ -7,7 +7,7 @@
 
 <div>
     <?php
-    echo CHtml::image(CHtml::encode($data->url), "Image", array("style" => "", 'class' => 'img-thumbnail'));
+    echo CHtml::image(CHtml::encode($data->url), "Image", array("style" => "width: 100%;", 'class' => 'img-thumbnail'));
     ?>
 
     <div class="clearfix"></div>
