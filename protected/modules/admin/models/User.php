@@ -31,6 +31,7 @@ class User extends CActiveRecord {
 
     public $search_string;
     public $password2;
+    public $fullname;
 
     /**
      * @return string the associated database table name

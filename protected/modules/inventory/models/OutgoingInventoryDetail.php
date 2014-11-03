@@ -352,4 +352,17 @@ class OutgoingInventoryDetail extends CActiveRecord {
         return $outgoing_inventory_details;
     }
 
+    public function updateOutgoingTransactionDetails($outgoing_inventory_id, $outgoing_inventory_detail_id, $company_id) {
+
+        $outgoing_inv_detail = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => $company_id, "outgoing_inventory_id" => $outgoing_inventory_id, "outgoing_inventory_detail_id" => $outgoing_inventory_detail_id));
+
+        $outgoing_transaction_detail = $outgoing_inv_detail;
+
+        if ($outgoing_transaction_detail->save(false)) {
+            
+        } else {
+            return $outgoing_transaction_detail->getErrors();
+        }
+    }
+
 }
