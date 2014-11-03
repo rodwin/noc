@@ -54,7 +54,7 @@
 
 <!-- The table listing the files available for upload/download -->
 <div class="row-fluid">
-    <table class="table table-striped">
+    <table class="table table-striped" id="pod_upload_table">
         <tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody>
     </table>
 </div>
