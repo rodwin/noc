@@ -139,7 +139,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($outgoing, 'dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo $form->textFieldGroup($outgoing, 'rra_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, "value" => "")), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($outgoing, 'rra_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($outgoing, 'rra_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
@@ -460,7 +460,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
                         <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
                         <th><?php echo $outgoingDetailFields['amount']; ?></th>
-                        <th><?php // echo $outgoingDetailFields['inventory_on_hand'];           ?></th>
+                        <th><?php // echo $outgoingDetailFields['inventory_on_hand'];                                         ?></th>
                         <th class=""><?php echo $outgoingDetailFields['return_date']; ?></th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['remarks']; ?></th>
                         <th class="hide_row">Inventory</th>
@@ -486,8 +486,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th class="hide_row"><?php echo $outgoingDetailFields['remarks']; ?></th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['return_date']; ?></th>
                         <th class="hide_row">Inventory</th>
-                        <th class="hide_row><?php echo $outgoingDetailFields['source_zone_id']; ?></th>
-                            <th class="hide_row><?php echo $outgoingDetailFields['source_zone_id']; ?></th>
+                        <th class="hide_row"><?php echo $outgoingDetailFields['source_zone_id']; ?></th>
+                        <th class="hide_row"><?php echo $outgoingDetailFields['source_zone_id']; ?></th>
                     </tr>    
                 </thead>
             </table>                            
@@ -495,7 +495,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="pull-right col-md-4 no-padding" style='margin-top: 10px;'>
             <?php echo $form->labelEx($outgoing, 'total_amount', array("class" => "pull-left")); ?>
-            <?php echo $form->textFieldGroup($outgoing, 'total_amount', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5 pull-right', 'value' => 0, 'readonly' => true)), 'labelOptions' => array('label' => false))); ?>
+            <?php echo $form->textFieldGroup($outgoing, 'total_amount', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5 pull-right', 'value' => $outgoing->isNewRecord ? '0' : $outgoing->total_amount, 'readonly' => true)), 'labelOptions' => array('label' => false))); ?>
         </div>
 
     </div>
@@ -715,20 +715,22 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             if (data.form == headers) {
 
-                if (files != "") {
-                    file_upload_count = files.length;
+//                if (files != "") {
+//                    file_upload_count = files.length;
+//
+//                    $('#uploading').click();
+//                }
+//
+//                document.forms["outgoing-inventory-form"].reset();
+//                $("#outgoing-inventory-form .select2-container").select2("val", "");
+//
+//                var oSettings = transaction_table.fnSettings();
+//                var iTotalRecords = oSettings.fnRecordsTotal();
+//                for (var i = 0; i <= iTotalRecords; i++) {
+//                    transaction_table.fnDeleteRow(0, null, true);
+//                }
 
-                    $('#uploading').click();
-                }
-
-                document.forms["outgoing-inventory-form"].reset();
-                $("#outgoing-inventory-form .select2-container").select2("val", "");
-
-                var oSettings = transaction_table.fnSettings();
-                var iTotalRecords = oSettings.fnRecordsTotal();
-                for (var i = 0; i <= iTotalRecords; i++) {
-                    transaction_table.fnDeleteRow(0, null, true);
-                }
+                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/OutgoingInventory') . '"' ?> + "/view&id=" + data.outgoing_inv_id;
 
                 growlAlert(data.type, data.message);
 
@@ -854,7 +856,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
     }
 
+    var outgoing_inv_ids = "";
     function deleteTransactionRow() {
+        if (!confirm('Are you sure you want to delete selected item?'))
+            return false;
 
         var aTrs = transaction_table.fnGetNodes();
 
@@ -865,6 +870,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $("#OutgoingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
 
                 transaction_table.fnDeleteRow(aTrs[i]);
+
+                if (row_data[13].trim() != "") {
+                    outgoing_inv_ids += row_data[13] + ",";
+                }
 
                 $.ajax({
                     type: 'POST',
@@ -904,6 +913,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 "return_date": row_data[16],
                 "inventory_id": row_data[17],
                 "source_zone_id": row_data[18],
+                "outgoing_inv_detail_id": row_data[13],
             });
         }
 
@@ -913,7 +923,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     $('#btn_save').click(function() {
         if (!confirm('Are you sure you want to submit?'))
             return false;
-        send(headers);
+
+<?php if (!$outgoing->isNewRecord) { ?>
+            sendUpdate(headers);
+<?php } else { ?>
+            send(headers);
+<?php } ?>
+
     });
 
     $('#btn_add_item').click(function() {
@@ -1146,7 +1162,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         });
 
     }
-    
+
     $('#OutgoingInventory_destination_zone_id').change(function() {
         $.ajax({
             type: 'POST',
@@ -1162,5 +1178,88 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             }
         });
     });
+
+
+    $(function() {
+
+<?php if (!$outgoing->isNewRecord) { ?>
+            total_amount = parseFloat(<?php echo $outgoing->total_amount ?>);
+            loadItemDetails(<?php echo $outgoing->outgoing_inventory_id; ?>);
+<?php } ?>
+
+    });
+
+    function loadItemDetails(outgoing_inv_id) {
+
+        $.ajax({
+            dataType: "json",
+            url: "<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/loadItemDetails') ?>" + "&outgoing_inv_id=" + outgoing_inv_id,
+            success: function(data) {
+
+                $.each(data, function(i, v) {
+                    transaction_table.fnAddData([
+                        '<input type="checkbox" name="transaction_row[]" onclick="showDeleteRowBtn()"/>',
+                        v.sku_id,
+                        v.sku_code,
+                        v.sku_description,
+                        v.brand_name,
+                        v.unit_price,
+                        v.batch_no,
+                        v.expiration_date,
+                        v.planned_quantity,
+                        v.quantity_issued,
+                        v.uom_id,
+                        "",
+                        v.sku_status_id,
+                        v.outgoing_inv_detail_id,
+                        v.amount,
+                        v.remarks,
+                        v.return_date,
+                        v.inventory_id,
+                        v.source_zone_id,
+                        v.source_zone_name,
+                    ]);
+                });
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+
+    }
+
+    function sendUpdate(form) {
+
+        var data = $("#outgoing-inventory-form").serialize() + "&form=" + form + "&outgoing_inv_ids=" + outgoing_inv_ids.slice(0, -1) + '&' + $.param({"transaction_details": serializeTransactionTable()});
+
+        if ($("#btn_save, #btn_add_item, #btn_print").is("[disabled=disabled]")) {
+            return false;
+        } else {
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/update', array("id" => $outgoing->outgoing_inventory_id)); ?>',
+                data: data,
+                dataType: "json",
+                beforeSend: function(data) {
+                    $("#btn_save, #btn_add_item, #btn_print").attr("disabled", "disabled");
+                    if (form == headers) {
+                        $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
+                    } else if (form == print) {
+                        $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Loading...');
+                    }
+                },
+                success: function(data) {
+                    validateForm(data);
+                },
+                error: function(data) {
+                    alert("Error occured: Please try again.");
+                    $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
+                    $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
+                    $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
+                }
+            });
+        }
+
+    }
 
 </script>

@@ -43,12 +43,12 @@ $this->breadcrumbs = array(
                 <th><?php echo $fields['rra_no']; ?></th>
                 <th><?php echo $fields['rra_date']; ?></th>
                 <th><?php echo $fields['destination_zone_id']; ?></th>
-                <!--<th><?php // echo $fields['pr_no'];       ?></th>-->
+                <!--<th><?php // echo $fields['pr_no'];        ?></th>-->
                 <th><?php echo $fields['status']; ?></th>
                 <th><?php echo $fields['contact_person']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
                 <th><?php echo $fields['created_date']; ?></th>
-                <th>Actions</th>
+                <th style="width: 110px;">Actions</th>
             </tr>
         </thead>
         <thead>
@@ -165,7 +165,7 @@ $this->breadcrumbs = array(
                     "visible": false
                 }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(8)', nRow).addClass("text-center");
+                $('td:eq(8)', nRow).addClass("text-center ignore_col");
                 $('td:eq(7)', nRow).addClass("text-right");
             }
         });
@@ -293,7 +293,7 @@ $this->breadcrumbs = array(
             return false;
         });
 
-        jQuery(document).on('click', '#outgoing-inventory-attachment_table a.delete', function() {
+        jQuery(document).on('click', '#outgoing-inventory_table a.delete', function() {
             if (!confirm('Are you sure you want to delete this item?'))
                 return false;
             $.ajax({
@@ -301,11 +301,23 @@ $this->breadcrumbs = array(
                 'type': 'POST',
                 'dataType': 'text',
                 'success': function(data) {
-                    $.growl(data, {
-                        icon: 'glyphicon glyphicon-info-sign',
-                        type: 'success'
-                    });
+                    if (data == "1451") {
+                        $.growl("Unable to delete", {
+                            icon: 'glyphicon glyphicon-warning-sign',
+                            type: 'danger'
+                        });
 
+                        outgoing_inventory_id = "";
+                    } else {
+                        $.growl(data, {
+                            icon: 'glyphicon glyphicon-info-sign',
+                            type: 'success'
+                        });
+
+                        outgoing_inventory_table.fnMultiFilter();
+                    }
+
+                    loadOutgoingInvDetails(outgoing_inventory_id);
                     loadAttachmentPreview(outgoing_inventory_id);
                 },
                 error: function(jqXHR, exception) {
@@ -313,6 +325,18 @@ $this->breadcrumbs = array(
                 }
             });
             return false;
+        });
+
+        jQuery(document).on('click', 'a.view, a.update', function() {
+
+            if (typeof outgoing_details_table != "undefined") {
+                outgoing_details_table.abort();
+            }
+
+            if (typeof outgoing_attachments_table != "undefined") {
+                outgoing_attachments_table.abort();
+            }
+
         });
     });
 
