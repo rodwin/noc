@@ -580,7 +580,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         var i = 0;
         $('#inventory_table thead tr#filter_row td.filter').each(function() {
-            $(this).html('<input type="text" class="form-control input-sm" placeholder="" colPos="' + i + '" />');
+            $(this).html('<input type="text" class="form-control input-sm ignore" placeholder="" colPos="' + i + '" />');
             i++;
         });
 
@@ -739,7 +739,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 ]);
 
                 total_amount = (parseFloat(total_amount) + parseFloat(data.details.amount));
-                $("#CustomerItem_total_amount").val(total_amount);
+                $("#CustomerItem_total_amount").val(parseFloat(total_amount).toFixed(2));
 
                 growlAlert(data.type, data.message);
 
@@ -872,7 +872,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         var amount = ($("#CustomerItemDetail_quantity_issued").val() * unit_price);
-        $("#CustomerItemDetail_amount").val(amount);
+        $("#CustomerItemDetail_amount").val(parseFloat(amount).toFixed(2));
     });
 
     $("#CustomerItemDetail_unit_price").keyup(function(e) {
@@ -882,7 +882,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         var amount = (qty * $("#CustomerItemDetail_unit_price").val());
-        $("#CustomerItemDetail_amount").val(amount);
+        $("#CustomerItemDetail_amount").val(parseFloat(amount).toFixed(2));
     });
 
     function referenceDRNoChange(reference_dr_no, reset) {
@@ -1014,7 +1014,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             $(aTrs[i]).find('input:checkbox:checked').each(function() {
                 var row_data = transaction_table.fnGetData(aTrs[i]);
                 total_amount = (parseFloat(total_amount) - parseFloat(row_data[14]));
-                $("#CustomerItem_total_amount").val(total_amount);
+                $("#CustomerItem_total_amount").val(parseFloat(total_amount).toFixed(2));
 
                 transaction_table.fnDeleteRow(aTrs[i]);
             });

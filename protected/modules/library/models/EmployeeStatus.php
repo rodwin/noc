@@ -25,12 +25,6 @@ class EmployeeStatus extends CActiveRecord {
     */
    public $employee_status_code;
    
-   /**
-    * @var string description
-    * @soap
-    */
-   public $description;
-   
    public $search_string;
 
    /**

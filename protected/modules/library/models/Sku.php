@@ -429,13 +429,13 @@ class Sku extends CActiveRecord {
                 $sort_column = 'defaultUom.uom_name';
                 break;
 
-            case 8:
-                $sort_column = 't.supplier';
-                break;
-
-            case 9:
-                $sort_column = 'defaultZone.zone_name';
-                break;
+//            case 8:
+//                $sort_column = 't.supplier';
+//                break;
+//
+//            case 9:
+//                $sort_column = 'defaultZone.zone_name';
+//                break;
         }
 
 
@@ -449,7 +449,7 @@ class Sku extends CActiveRecord {
         $criteria->compare('t.sub_type', $columns[6]['search']['value'], true);
         $criteria->compare('defaultUom.uom_name', $columns[7]['search']['value'], true);
         $criteria->compare('t.supplier', $columns[8]['search']['value'], true);
-        $criteria->compare('defaultZone.zone_name', $columns[9]['search']['value'], true);
+//        $criteria->compare('defaultZone.zone_name', $columns[9]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;

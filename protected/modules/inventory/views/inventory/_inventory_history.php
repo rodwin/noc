@@ -18,7 +18,7 @@
                 <td><?php echo $value->sku->sku_code;?></td>
                 <td><?php echo $value->qty;?></td>
                 <td><?php echo $value->uom->uom_name;?></td>
-                <td><?php echo isset($value->zone->zone_name) ? $value->zone->zone_name: null;?></td>
+                <td><?php echo $value->zone->zone_name;?></td>
                 <td><?php echo isset($value->skuStatus->status_name) ? $value->skuStatus->status_name:'';?></td>
                 <td><?php echo $value->reference_no;?></td>
             </tr>
