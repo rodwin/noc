@@ -170,6 +170,7 @@ class ReceivingInventoryController extends Controller {
             $row['planned_quantity'] = $value->planned_quantity;
             $row['quantity_received'] = $value->quantity_received;
             $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
+            ;
             $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['remarks'] = $value->remarks;
 
@@ -762,7 +763,6 @@ class ReceivingInventoryController extends Controller {
 
         unset(Yii::app()->session["post_pdf_data_id"]);
 
-
         Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
         Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = Yii::app()->request->getParam('post_data');
 
@@ -782,33 +782,9 @@ class ReceivingInventoryController extends Controller {
     public function actionLoadPDF($id) {
 
         $data = Yii::app()->session[$id];
-        
+
         ob_start();
 
-        Yii::app()->session["post_pdf_data_id"] = 'post_pdf_data_' . Globals::generateV4UUID();
-        Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = Yii::app()->request->getParam('post_data');
-
-        $return = array();
-        if (Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] == "") {
-            $return["success"] = false;
-            return false;
-        }
-
-        $return["success"] = true;
-        $return["id"] = Yii::app()->session["post_pdf_data_id"];
-
-        echo json_encode($return);
-        Yii::app()->end();
-    }
-
-    public function actionLoadPDF($id) {
-
-//        parse_str(Yii::app()->session[$id], $data);
-
-        $data = Yii::app()->session[$id];
-        
-        ob_start();
-        
         $headers = $data['ReceivingInventory'];
         $details = $data['transaction_details'];
 
@@ -867,9 +843,7 @@ class ReceivingInventoryController extends Controller {
             .sub-title { font-size: 10px; }
             .title-report { font-size: 15px; font-weight: bold; } 
             .table_main { font-size: 8px; }
-
             .table_details { font-size: 8px; }
-
             .table_footer { font-size: 8px; width: 100%; }
             .border-bottom { border-bottom: 1px solid #333; font-size: 8px; }
             .row_label { width: 120px; }
@@ -935,7 +909,6 @@ class ReceivingInventoryController extends Controller {
         
         <table class="table_details" border="1">
             <tr>
-
                 <td style="font-weight: bold;">MM CODE</td>
                 <td style="font-weight: bold; width: 100px;">MM DESCRIPTION</td>
                 <td style="font-weight: bold;">MM BRAND</td>
@@ -947,7 +920,6 @@ class ReceivingInventoryController extends Controller {
                 <td style="font-weight: bold;">AMOUNT</td>
                 <td style="font-weight: bold;">MM STATUS</td>
                 <td style="font-weight: bold;">MM REMARKS</td>
-
             </tr>';
 
         $planned_qty = 0;
@@ -967,10 +939,8 @@ class ReceivingInventoryController extends Controller {
                         <td>' . $val['planned_quantity'] . '</td>
                         <td>' . $val['qty_received'] . '</td>
                         <td>' . $uom->uom_name . '</td>
-
                         <td class="align-right">&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
                         <td class="align-right">&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
-
                         <td>' . $status . '</td>
                         <td>' . $val['remarks'] . '</td>
                     </tr>';
@@ -988,10 +958,8 @@ class ReceivingInventoryController extends Controller {
                     <td>' . $planned_qty . '</td>
                     <td>' . $actual_qty . '</td>
                     <td></td>
-
                     <td class="align-right">&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
                     <td class="align-right">&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
-
                     <td colspan="2"></td>
                 </tr>';
 
@@ -999,7 +967,6 @@ class ReceivingInventoryController extends Controller {
             
         <table class="table_footer">
             <tr>
-
                 <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000; font-weight: bold;">DELIVERY REMARKS:</td>
                 <td style="width: 100px;"></td>
                 <td style="width: 150px; font-weight: bold;">DELIVERED BY:</td>

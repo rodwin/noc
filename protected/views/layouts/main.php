@@ -395,7 +395,8 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
         <script src="<?php echo Yii::app()->baseUrl;?>/js/global.js" type="text/javascript"></script>
         <!-- date-picker -->
         <script src="<?php echo Yii::app()->baseUrl;?>/js/datepicker/datepicker.js" type="text/javascript"></script>
-        
+        <!-- iCheck -->
+        <script src="<?php echo Yii::app()->baseUrl;?>/js/plugins/iCheck/icheck.min.js" type="text/javascript"></script>
         <script type="text/javascript">
         $(function() {
         <?php
