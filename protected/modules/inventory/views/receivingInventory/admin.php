@@ -3,20 +3,6 @@ $this->breadcrumbs = array(
     ReceivingInventory::RECEIVING_LABEL . ' Inventories' => array('admin'),
     'Manage',
 );
-
-
-Yii::app()->clientScript->registerScript('search', "
-$('.search-button').click(function(){
-$('.search-form').toggle();
-return false;
-});
-$('.search-form form').submit(function(){
-$.fn.yiiGridView.update('receiving-inventory-grid', {
-data: $(this).serialize()
-});
-return false;
-});
-");
 ?>
 
 <style type="text/css">
@@ -62,7 +48,7 @@ return false;
                 <th><?php echo $fields['zone_id']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
                 <th><?php echo $fields['created_date']; ?></th>
-                <th>Actions</th>
+                <th style="width: 110px;">Actions</th>
             </tr>
         </thead>
         <thead>
@@ -324,6 +310,18 @@ return false;
                 }
             });
             return false;
+        });
+
+        jQuery(document).on('click', '#receiving-inventory_table a.view, a.update', function() {
+
+            if (typeof receiving_details_table != "undefined") {
+                receiving_details_table.abort();
+            }
+
+            if (typeof receiving_attachments_table != "undefined") {
+                receiving_attachments_table.abort();
+            }
+
         });
     });
 
