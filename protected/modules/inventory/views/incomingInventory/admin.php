@@ -48,7 +48,7 @@ $this->breadcrumbs = array(
                 <th><?php echo $fields['status']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
                 <th><?php echo $fields['created_date']; ?></th>
-                <th>Actions</th>                
+                <th style="width: 110px;">Actions</th>            
             </tr>
         </thead>     
         <thead>
@@ -316,6 +316,18 @@ $this->breadcrumbs = array(
                 }
             });
             return false;
+        });
+
+        jQuery(document).on('click', '#incoming-inventory_table a.view, a.update', function() {
+
+            if (typeof incoming_details_table != "undefined") {
+                incoming_details_table.abort();
+            }
+
+            if (typeof incoming_attachments_table != "undefined") {
+                incoming_attachments_table.abort();
+            }
+
         });
     });
 

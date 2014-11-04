@@ -1377,7 +1377,6 @@ class OutgoingInventoryController extends Controller {
             $row['planned_quantity'] = $value->planned_quantity;
             $row['quantity_issued'] = $value->quantity_issued;
             $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
-            $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['return_date'] = $value->return_date;
             $row['status'] = $status;
             $row['remarks'] = $value->remarks;

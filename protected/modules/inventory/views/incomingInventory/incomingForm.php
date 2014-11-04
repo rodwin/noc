@@ -461,9 +461,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 'done' => new CJavaScriptExpression(
                         'function(e, data) { 
                          file_upload_count--;
-                         console.log(file_upload_count);
                          
-                         if(file_upload_count == 0) {$("#tbl tr").remove();}
+                         if(file_upload_count == 0) {$("#tbl tr").remove(); loadToView(); }
                      }'
                 ),
                 'fail' => new CJavaScriptExpression(
@@ -604,6 +603,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     var file_upload_count = 0;
+    var success_incoming_inv_id, success_type, success_message;
     function validateForm(data) {
 
         var e = $(".error");
@@ -619,20 +619,18 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             if (data.form == headers) {
 
+                success_incoming_inv_id = data.incoming_inv_id;
+                success_type = data.type;
+                success_message = data.message;
+
                 if (files != "") {
                     file_upload_count = files.length;
 
                     $('#uploading').click();
-                }
-                document.forms["incoming-inventory-form"].reset();
+                } else {
 
-                var oSettings = transaction_table.fnSettings();
-                var iTotalRecords = oSettings.fnRecordsTotal();
-                for (var i = 0; i <= iTotalRecords; i++) {
-                    transaction_table.fnDeleteRow(0, null, true);
+                    loadToView();
                 }
-
-                growlAlert(data.type, data.message);
 
             } else if (data.form == details) {
 
@@ -767,7 +765,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         var aTrs = transaction_table.fnGetNodes();
         for (var i = 0; i < aTrs.length; i++) {
             var row_data = transaction_table.fnGetData(aTrs[i]);
-            
+
             var status = aTrs[i].getElementsByTagName('span')[0].innerHTML;
 
             row_datas.push({
@@ -1043,7 +1041,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     function printPDF(data) {
 
         $.ajax({
-            url: '<?php echo Yii::app()->createUrl($this->module->id . '/ReceivingInventory/print'); ?> ',
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/IncomingInventory/print'); ?> ',
             type: 'POST',
             dataType: "json",
             data: {"post_data": data},
@@ -1111,6 +1109,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 alert("Error occured: Please try again.");
             }
         });
+    }
+
+    function loadToView() {
+
+        window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/incomingInventory') . '"' ?> + "/view&id=" + success_incoming_inv_id;
+
+        growlAlert(success_type, success_message);
     }
 
 </script>
