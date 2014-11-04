@@ -120,7 +120,7 @@ class Inventory extends CActiveRecord {
         return array(
             'inventory_id' => 'Inventory',
             'company_id' => 'Company',
-            'sku_id' => 'Sku',
+            'sku_id' => Sku::SKU_LABEL,
             'sku_code' => 'Code',
             'sku_name' => 'Name',
             'cost_per_unit' => 'Cost Per Unit',

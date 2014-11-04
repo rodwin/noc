@@ -31,9 +31,7 @@ class OutgoingInventoryController extends Controller {
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('create', 'update', 'data', 'loadInventoryDetails', 'outgoingInvDetailData', 'afterDeleteTransactionRow', 'invData', 'uploadAttachment', 'preview', 'download', 'searchCampaignNo', 'loadPRNos', 'loadInvByPRNo',
-
-                    'deleteOutgoingDetail', 'deleteAttachment', 'print', 'loadPDF', 'sendDR'),
-
+                    'deleteOutgoingDetail', 'deleteAttachment', 'print', 'loadPDF'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -101,18 +99,13 @@ class OutgoingInventoryController extends Controller {
 //            $row['plan_arrival_date'] = $value->plan_arrival_date;
             $row['transaction_date'] = $value->transaction_date;
             $row['status'] = $status;
-
             $row['total_amount'] = "&#x20B1;" . number_format($value->total_amount, 2, '.', ',');
-
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
             $row['updated_by'] = $value->updated_by;
 
-            $row['links'] = '<a class="btn btn-sm btn-default" title="Send DR No" href="' . $this->createUrl('/inventory/outgoinginventory/sendDR', array('dr_no' => $value->dr_no, 'zone_id' => $value->destination_zone_id)) . '">
-                                <i class="glyphicon glyphicon-send"></i>
-                            </a>'
-                           .'<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/outgoingInventory/delete', array('id' => $value->outgoing_inventory_id)) . '">
+            $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/outgoingInventory/delete', array('id' => $value->outgoing_inventory_id)) . '">
                                 <i class="glyphicon glyphicon-trash"></i>
                             </a>';
 
@@ -301,14 +294,14 @@ class OutgoingInventoryController extends Controller {
                                 "sku_code" => isset($inventory->sku->sku_code) ? $inventory->sku->sku_code : null,
                                 "sku_description" => isset($inventory->sku->description) ? $inventory->sku->description : null,
                                 'brand_name' => isset($inventory->sku->brand->brand_name) ? $inventory->sku->brand->brand_name : null,
-                                'unit_price' => isset($transaction_detail->unit_price) && $transaction_detail->unit_price != "" ? $transaction_detail->unit_price : 0,
+                                'unit_price' => isset($transaction_detail->unit_price) && $transaction_detail->unit_price != "" ? number_format($transaction_detail->unit_price, 2, '.', '') : number_format(0, 2, '.', ''),
                                 'batch_no' => isset($transaction_detail->batch_no) ? $transaction_detail->batch_no : null,
                                 'source_zone_id' => isset($transaction_detail->source_zone_id) ? $transaction_detail->source_zone_id : null,
                                 'source_zone_name' => isset($transaction_detail->zone->zone_name) ? $transaction_detail->zone->zone_name : null,
                                 'expiration_date' => isset($transaction_detail->expiration_date) ? $transaction_detail->expiration_date : null,
                                 'planned_quantity' => $transaction_detail->planned_quantity != "" ? $transaction_detail->planned_quantity : 0,
                                 'quantity_issued' => $transaction_detail->quantity_issued != "" ? $transaction_detail->quantity_issued : 0,
-                                'amount' => $transaction_detail->amount != "" ? $transaction_detail->amount : 0,
+                                'amount' => $transaction_detail->amount != "" ? number_format($transaction_detail->amount, 2, '.', '') : number_format(0, 2, '.', ''),
                                 'inventory_on_hand' => $transaction_detail->inventory_on_hand != "" ? $transaction_detail->inventory_on_hand : 0,
                                 'reference_no' => isset($transaction_detail->pr_no) ? $transaction_detail->pr_no : null,
                                 'return_date' => isset($transaction_detail->return_date) ? $transaction_detail->return_date : null,
@@ -420,11 +413,12 @@ class OutgoingInventoryController extends Controller {
             $row['planned_quantity'] = $value->planned_quantity;
             $row['quantity_issued'] = $value->quantity_issued;
             $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
-
             $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['return_date'] = $value->return_date;
             $row['status'] = $status;
             $row['remarks'] = $value->remarks;
+            $row['campaign_no'] = $value->campaign_no;
+            $row['pr_no'] = $value->pr_no;
 
             $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/outgoingInventory/deleteOutgoingDetail', array('outgoing_inv_detail_id' => $value->outgoing_inventory_detail_id)) . '">
                                 <i class="glyphicon glyphicon-trash"></i>
@@ -965,7 +959,6 @@ class OutgoingInventoryController extends Controller {
         unset(Yii::app()->session["post_pdf_data_id"]);
 
         Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
-
         Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = Yii::app()->request->getParam('post_data');
 
         $return = array();
@@ -1004,7 +997,6 @@ class OutgoingInventoryController extends Controller {
         $c2->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
         $salesoffice = Salesoffice::model()->find($c2);
 
-
         $c5 = new CDbCriteria;
         $c5->select = "t.*, zone.*";
         $c5->condition = 't.company_id = "' . Yii::app()->user->company_id . '"';
@@ -1023,10 +1015,14 @@ class OutgoingInventoryController extends Controller {
         $plan_delivery_date = $headers['plan_delivery_date'];
 
         $pr_nos = "";
+        $pr_no_arr = array();
         foreach ($details as $key => $val) {
             $inv = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $val['inventory_id']));
 
-            $pr_nos .= $inv->pr_no . ",";
+            if (!in_array($inv->pr_no, $pr_no_arr)) {
+                array_push($pr_no_arr, $inv->pr_no);
+                $pr_nos .= $inv->pr_no . ",";
+            }
         }
 
         $pr_no = substr($pr_nos, 0, -1);
@@ -1053,7 +1049,6 @@ class OutgoingInventoryController extends Controller {
         $source_sales_office_address = isset($source_salesoffice->full_address) ? $source_salesoffice->full_address : "";
 
 
-
         $pdf = Globals::pdf();
 
         $pdf->setPrintHeader(false);
@@ -1077,9 +1072,7 @@ class OutgoingInventoryController extends Controller {
                 .row_content_sm { width: 100px; }
                 .row_content_lg { width: 300px; }
                 .noted { font-size: 8px; }
-
                 .align-right { text-align: right; }
-
             </style>
 
             <div id="header" class="text-center">
@@ -1101,7 +1094,6 @@ class OutgoingInventoryController extends Controller {
                     <td class="border-bottom">' . $sales_office_address . '</td>
                     <td></td>
                     <td style="font-weight: bold;">PLAN DATE</td>
-
                     <td class="border-bottom">' . $plan_delivery_date . '</td>
                 </tr>
             </table><br/><br/>
@@ -1130,7 +1122,6 @@ class OutgoingInventoryController extends Controller {
                 </tr>
                 <tr>
                     <td style="font-weight: bold;">DR NUMBER</td>
-
                     <td class="border-bottom">' . $dr_no . '</td>
                     <td></td>
                     <td></td>
@@ -1151,7 +1142,6 @@ class OutgoingInventoryController extends Controller {
                     <td style="font-weight: bold;">AMOUNT</td>
                     <td style="font-weight: bold;">EXPIRY DATE</td>
                     <td style="font-weight: bold;">REMARKS</td>
-
                 </tr>';
 
         $planned_qty = 0;
@@ -1169,10 +1159,8 @@ class OutgoingInventoryController extends Controller {
                             <td>' . $val['planned_quantity'] . '</td>
                             <td>' . $val['quantity_issued'] . '</td>
                             <td>' . $uom->uom_name . '</td>
-
                             <td class="align-right">&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
                             <td class="align-right">&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
-
                             <td>' . $val['expiration_date'] . '</td>
                             <td>' . $val['remarks'] . '</td>
                         </tr>';
@@ -1184,7 +1172,6 @@ class OutgoingInventoryController extends Controller {
 
         $html .= '<tr>
                     <td colspan="11"></td>
-
                 </tr>
                 <tr>
                     <td colspan="4" style="text-align: right; font-weight: bold;">GRAND TOTAL</td>
@@ -1193,7 +1180,6 @@ class OutgoingInventoryController extends Controller {
                     <td></td>
                     <td class="align-right">&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
                     <td class="align-right">&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
-
                     <td colspan="2"></td>
                 </tr>';
 
@@ -1211,7 +1197,6 @@ class OutgoingInventoryController extends Controller {
                 </tr>
                 <tr>
                     <td rowspan="5" style="border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000;"><br/><br/>' . $headers['remarks'] . '</td>
-
                     <td colspan="2"></td>
                 </tr>
                 <tr>
@@ -1219,9 +1204,7 @@ class OutgoingInventoryController extends Controller {
                     <td style="font-weight: bold;">CHECKED BY:</td>
                     <td class="border-bottom"></td>
                     <td></td>
-
                     <td style="font-weight: bold;">DRIVER' . "'" . 'S NAME:</td>
-
                     <td class="border-bottom"></td>
                 </tr>
                 <tr>
@@ -1253,54 +1236,11 @@ class OutgoingInventoryController extends Controller {
                     <td colspan="5"></td>
                     <td colspan="2" style="text-align: center;">NAME & SIGNATURE OF RECEIPIENT</td>
                 </tr>
-
             </table>';
 
         $pdf->writeHTML($html, true, false, true, false, '');
 
         $pdf->Output('outbound.pdf', 'I');
     }
-    
-    public function actionSendDR($id, $dr_no, $zone_id, $date_created, $date_pushed) {
-//      pre($id .";". $dr_no.";".$zone_id.";".$date_created.";".$date_pushed);
-       $sql = "SELECT gcm_regid FROM noc.gcm_users a INNER JOIN noc.employee b ON a.employee_id = b.employee_id
-              WHERE b.company_id = '" . Yii::app()->user->company_id . "' AND b.default_zone_id = '" . $zone_id . "'";
-      //pre($sql);
-      $command = Yii::app()->db->createCommand($sql);
-      $gcm_reg_id = $command->queryAll();
-     
-      try {
-         
-         if (isset($gcm_reg_id[0]['gcm_regid'])) {
-             
-            $data = array();
-               $data['ID'] = $id;
-               $data['dr_no'] = $dr_no;
-               $data['date_created'] = $date_created;
-               $data['date_sent'] = $date_pushed;
-               
-               $message = json_encode($data);
-              // pre($message);
-//            $message = 'You have a new inventory. The DR number is: ' . $dr_no;
-            GcmUsers::model()->send_notification($gcm_reg_id[0]['gcm_regid'], $message);
-            if (!isset($_GET['ajax'])) {
-               Yii::app()->user->setFlash('success', "DR no successfully sent");
-               $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-            } else {
-
-               echo "Successfully sent";
-               exit;
-            }
-         } else {
-            Yii::app()->user->setFlash('danger', "Unable to send DR no");
-            //  $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-         }
-      } catch (CDbException $e) {
-         if ($e->errorInfo[1] == 1451) {
-            echo "1451";
-            exit;
-         }
-      }
-   }
 
 }

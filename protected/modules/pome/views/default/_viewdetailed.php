@@ -91,7 +91,20 @@
                             )
                     );
                     ?>
-                    
+                    <?php
+                    echo $form->dropDownListGroup(
+                            $model, 'year', array(
+                        'wrapperHtmlOptions' => array(
+                            'class' => 'col-sm-5',
+                        ),
+                        'widgetOptions' => array(
+                            'data' => $year,
+                            'htmlOptions' => array('multiple' => false, 'id' => 'year_detail')
+                                
+                        )
+                            )
+                    );
+                    ?> 
      <?php $this->endWidget(); ?>
                 </div>
 
@@ -175,26 +188,30 @@
       var province =  document.getElementById('province_detail');
       var ph =  document.getElementById('ph_detail');
       var brand =  document.getElementById('brand_detail');
+      var year_detail =  document.getElementById('year_detail');
          $.ajax({
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/DetailedReach'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'agency='+agency.value+'&region='+region.value+'&month='+month.value+'&province='+province.value+'&ph='+ph.value+'&brand='+brand.value,
+            'data':'agency='+agency.value+'&region='+region.value+'&month='+month.value+'&province='+province.value+'&ph='+ph.value+'&brand='+brand.value+'&year='+year_detail.value,
             beforeSend: function(){
-               $("#detail_table_loader_dtl").show();  
-               $("#detailed_reach").hide();           
+//               $("#detail_table_loader_dtl").show();  
+//               $("#detailed_reach").hide();  
+                 charts.showLoading();
              },
             'success':function(data) {
-             
+            
                for(var i = 0; i < data.length; i++){
                     labels_detail.push(data[i].name);
                     
                     var target = data[i].target_reach - data[i].actual_reach;
                     var percentage = data[i].actual_reach / data[i].target_reach * 100;
-                    if(percentage >= 95)
+                    var par = data[i].par / data[i].target_attendance * 100;
+                    var test = percentage / par *100;
+                    if(test >= 95)
                     {
                         color = 'green';
-                    }else if(percentage >= 90 && percentage <=94)
+                    }else if(test >= 90 && test <95)
                     {
                         color = 'yellow';
                     }else{
@@ -204,19 +221,21 @@
                     target_actual.push({y: data[i].actual_reach, color: color,mydata:target});
    
                }
-               console.log(target_reach);
+//               console.log(target_reach);
                charts.xAxis[0].setCategories(labels_detail)
                charts.series[0].setData(target_reach)
                charts.series[1].setData(target_actual)
-               $("#detail_table_loader_dtl").hide();  
-               $("#detailed_reach").show();
+               charts.hideLoading();
+//               $("#detail_table_loader_dtl").hide();  
+//               $("#detailed_reach").show();
                
               
                
             },
             error: function(jqXHR, exception) {
-                $("#detail_table_loader_dtl").hide();  
-                $("#detailed_reach").show();
+//                $("#detail_table_loader_dtl").hide();  
+//                $("#detailed_reach").show();
+                  charts.hideLoading();
                 
                alert('An error occured: '+ exception);
             }
@@ -250,6 +269,11 @@ $('#ph_detail').change(function() {
     
 });
 $('#brand_detail').change(function() {
+    
+    redrawdetail(); 
+    
+});
+$('#year_detail').change(function() {
     
     redrawdetail(); 
     

@@ -64,8 +64,8 @@ return false;
                 <th><?php echo $fields['type']; ?></th>
                 <th><?php echo $fields['sub_type']; ?></th>
                 <th><?php echo $fields['default_uom_id']; ?></th>
-                <th><?php echo $fields['supplier']; ?></th>
-                <th><?php echo $fields['default_zone_id']; ?></th>
+                <!--<th><?php echo $fields['supplier']; ?></th>-->
+                <!--<th><?php echo $fields['default_zone_id']; ?></th>-->
                 <th>Actions</th>
 
             </tr>
@@ -92,8 +92,8 @@ return false;
                 {"name": "type", "data": "type"},
                 {"name": "sub_type", "data": "sub_type"},
                 {"name": "default_uom_name", "data": "default_uom_name"},
-                {"name": "supplier", "data": "supplier"},
-                {"name": "default_zone_name", "data": "default_zone_name"},
+//                {"name": "supplier", "data": "supplier"},
+//                {"name": "default_zone_name", "data": "default_zone_name"},
                 {"name": "links", "data": "links", 'sortable': false}
             ]
         });

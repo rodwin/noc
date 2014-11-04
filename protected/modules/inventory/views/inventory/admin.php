@@ -90,7 +90,7 @@ return false;
                 <th><?php echo $skuFields['description']; ?></th>
                 <th><?php echo $invFields['qty']; ?></th>
                 <th><?php echo $invFields['uom_id']; ?></th>
-                <th class="hide_row">Action Qty <i class="fa fa-fw fa-info-circle" data-toggle="popover" content="And here's some amazing content. It's very engaging. right?"></i></th>
+                <th class="hide_row">Action Qty <span title="Type a numeric value into a row's field below to see a list of Transaction options." data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
                 <th><?php echo $invFields['zone_id']; ?></th>
                 <th><?php echo $invFields['sku_status_id']; ?></th>
                 <th><?php echo $invFields['campaign_no']; ?></th>
@@ -236,42 +236,44 @@ return false;
             searchTable();
         });
 
+
+
         // Triggers the Click Event and Shows the Overlay Menu if the Input receives a digital or decimal value.
-        $('table#inventory_table tbody').on('keypress', 'td.action_qty input', function(e) {
-
-            if (fnIsQtyKeyOkay(e)) {
-                if ((e.which >= 48 && e.which <= 57) || e.which == 46) {
-
-                    /*
-                     * TODO:
-                     * show context menu to increase, decrease,move, convert, apply
-                     */
-                    if (loaded === false) {
-
-                        inventory_id = $(this).attr("data-id");
-                        popModal_id =
-                                $(this).popModal({
-                            html: $('#content'),
-                            placement: 'bottomLeft',
-                            showCloseBut: false,
-                            onDocumentClickClose: true,
-                            onOkBut: function() {
-                            },
-                            onCancelBut: function() {
-                            },
-                            onLoad: function() {
-                                loaded = true;
-                            },
-                            onClose: function() {
-                                loaded = false;
-                            }
-                        });
-                    }
-                }
-            } else {
-                e.preventDefault();
-            }
-        });
+//        $('table#inventory_table tbody').on('keypress', 'td.action_qty input', function(e) {
+//
+//            if (fnIsQtyKeyOkay(e)) {
+//                if ((e.which >= 48 && e.which <= 57) || e.which == 46) {
+//
+//                    /*
+//                     * TODO:
+//                     * show context menu to increase, decrease,move, convert, apply
+//                     */
+//                    if (loaded === false) {
+//
+//                        inventory_id = $(this).attr("data-id");
+//                        popModal_id =
+//                                $(this).popModal({
+//                            html: $('#content'),
+//                            placement: 'bottomLeft',
+//                            showCloseBut: false,
+//                            onDocumentClickClose: true,
+//                            onOkBut: function() {
+//                            },
+//                            onCancelBut: function() {
+//                            },
+//                            onLoad: function() {
+//                                loaded = true;
+//                            },
+//                            onClose: function() {
+//                                loaded = false;
+//                            }
+//                        });
+//                    }
+//                }
+//            } else {
+//                e.preventDefault();
+//            }
+//        });
 
         jQuery(document).on('click', '#inventory_table a.delete', function() {
             if (!confirm('Are you sure you want to delete this item?'))
@@ -303,6 +305,38 @@ return false;
         });
 
     });
+
+    function openTransactionOptions(txt) {
+        inventory_id = $(txt).attr("data-id");
+
+        popModal_id = $(txt).popModal({
+            html: $('#content'),
+            placement: 'bottomLeft',
+            showCloseBut: false,
+            onDocumentClickClose: true,
+            onOkBut: function() {
+            },
+            onCancelBut: function() {
+            },
+            onLoad: function() {
+                loaded = true;
+            },
+            onClose: function() {
+                loaded = false;
+            }
+        });
+    }
+
+    function onlyNumbers(txt, event, point) {
+
+        var charCode = (event.which) ? event.which : event.keyCode;
+
+        if ((charCode >= 48 && charCode <= 57) || (point === true && charCode == 46)) {
+            return true;
+        }
+
+        return false;
+    }
 
     function LoadModal(val) {
 
