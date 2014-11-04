@@ -128,6 +128,30 @@ class Employee extends CActiveRecord {
     * @soap
     */
    public $supervisor_id;
+
+   /**
+    * @var SalesOffice sales_office_obj
+    * @soap
+    */
+   public $sales_office_obj;
+
+   /**
+    * @var string default_zone_id
+    * @soap
+    */
+   public $default_zone_id;
+
+   /**
+    * @var Company company_obj
+    * @soap
+    */
+   public $company_obj;
+
+   /**
+    * @var Zone zone_obj
+    * @soap
+    */
+   public $zone_obj;
    public $search_string;
    public $fullname;
    public $employee_status_code;
@@ -356,13 +380,131 @@ class Employee extends CActiveRecord {
 
    public function retriveEmployeeByCriteria(EmployeeCriteria $employee_criteria) {
       $cdbcriteria = new CDbCriteria();
-      $cdbcriteria->with = array('salesOffice', 'employeeType', 'employeeStatus');
-      $cdbcriteria->compare('t.company_id', $employee_criteria->company_id);
+      //$cdbcriteria->select = "t.*, employee_status.employee_status_code AS employee_status_code";
+      $cdbcriteria->with = array('salesOffice', 'employeeType', 'employeeStatus', 'company', 'zone');
+      $cdbcriteria->compare('company.code', $employee_criteria->company_code);
       $cdbcriteria->compare('t.employee_code', $employee_criteria->employee_code);
       $cdbcriteria->compare('salesOffice.sales_office_code', $employee_criteria->sales_office_code);
       $cdbcriteria->compare('t.password', $employee_criteria->password);
-
+//       pr($cdbcriteria);
+//       pr('____________________________________________________________________________________');
+//      pre(Employee::model()->find($cdbcriteria));
       return Employee::model()->find($cdbcriteria);
+   }
+
+   public function create($assigned_poi, $remove_poi, $validate = true) {
+
+      if ($validate) {
+         if (!$this->validate()) {
+            return false;
+         }
+      }
+
+      $employee = new Employee;
+
+      try {
+         $employee_data = array(
+             'company_id' => $this->company_id,
+             'employee_id' => $this->employee_id,
+             'employee_code' => $this->employee_code,
+             'employee_status' => $this->employee_status,
+             'employee_type' => $this->employee_type,
+             'default_zone_id' => $this->default_zone_id,
+             'sales_office_id' => $this->sales_office_id,
+             'first_name' => $this->first_name,
+             'last_name' => $this->last_name,
+             'middle_name' => $this->middle_name,
+             'address1' => $this->address1,
+             'address2' => $this->address2,
+             'barangay_id' => $this->barangay_id,
+             'home_phone_number' => $this->home_phone_number,
+             'work_phone_number' => $this->work_phone_number,
+             '$birth_date' => $this->birth_date,
+             'date_start' => $this->date_start,
+             'date_termination' => $this->date_termination,
+             'password' => $this->password,
+             'supervisor_id' => $this->supervisor_id,
+         );
+
+         $employee->attributes = $employee_data;
+         if (count($remove_poi) > 0) {
+            for ($i = 0; $i < count($remove_poi); $i++) {
+               EmployeePoi::model()->removeEmployeePOI($remove_poi[$i]['poi_id'], $employee->employee_id);
+            }
+         }
+         if (count($assigned_poi) > 0) {
+            if ($employee->save(false)) {
+               for ($i = 0; $i < count($assigned_poi); $i++) {
+                  EmployeePoi::model()->createEmployeePOI($assigned_poi[$i]['poi_id'], $employee->company_id, $employee->employee_id, 'create');
+               }
+            }
+
+//                return true;
+         } else {
+            return false;
+         }
+         return true;
+      } catch (Exception $exc) {
+         Yii::log($exc->getTraceAsString(), 'error');
+         return false;
+      }
+   }
+
+   public function updateEmployee($assigned_poi, $remove_poi, $model, $validate = true) {
+      if ($validate) {
+         if (!$this->validate()) {
+            return false;
+         }
+      }
+
+      $employee = $model;
+
+      try {
+         $employee_data = array(
+             'company_id' => $this->company_id,
+             'employee_id' => $this->employee_id,
+             'employee_code' => $this->employee_code,
+             'employee_status' => $this->employee_status,
+             'employee_type' => $this->employee_type,
+             'default_zone_id' => $this->default_zone_id,
+             'sales_office_id' => $this->sales_office_id,
+             'first_name' => $this->first_name,
+             'last_name' => $this->last_name,
+             'middle_name' => $this->middle_name,
+             'address1' => $this->address1,
+             'address2' => $this->address2,
+             'barangay_id' => $this->barangay_id,
+             'home_phone_number' => $this->home_phone_number,
+             'work_phone_number' => $this->work_phone_number,
+             '$birth_date' => $this->birth_date,
+             'date_start' => $this->date_start,
+             'date_termination' => $this->date_termination,
+             'password' => $this->password,
+             'supervisor_id' => $this->supervisor_id,
+         );
+
+         $employee->attributes = $employee_data; 
+         if (count($remove_poi) > 0) {
+            for ($i = 0; $i < count($remove_poi); $i++) {
+               EmployeePoi::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND employee_id = '" . $this->employee_id . "' AND poi_id = '" . $remove_poi[$i]['poi_id'] . "'");
+            }
+         }
+         if ($employee->save(false)) { 
+            if (count($assigned_poi) > 0) {
+               for ($i = 0; $i < count($assigned_poi); $i++) {
+                  EmployeePoi::model()->createEmployeePOI($assigned_poi[$i]['poi_id'], $employee->company_id, $employee->employee_id, 'update');
+               }
+            }
+         }
+//                return true;
+          else {
+            return false;
+         }
+         return true;
+      } catch (Exception $exc) {
+         Yii::log($exc->getTraceAsString(), 'error');
+         return false;
+      }
    }
 
 }

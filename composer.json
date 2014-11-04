@@ -14,8 +14,7 @@
     "require": {
         "rhumsaa/uuid": "~2.7",
         "swiftmailer/swiftmailer": "@stable",
-        "videlalvaro/php-amqplib": "2.2.*",
-        "tecnick.com/tcpdf": "~6.0.89"
+        "videlalvaro/php-amqplib": "2.2.*"
     },
     "require-dev": {
         "phpunit/phpunit": "4.1.*",

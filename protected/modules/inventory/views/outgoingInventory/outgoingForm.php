@@ -185,7 +185,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($outgoing, 'address', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 200)), 'labelOptions' => array('label' => false))); ?>
 
-
                 <?php echo $form->textFieldGroup($outgoing, 'plan_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php
@@ -212,6 +211,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <!--<button class="btn btn-default btn-sm pull-right" onclick="inventory_table.fnMultiFilter();">Reload Table</button>-->
 
                 <?php $skuFields = Sku::model()->attributeLabels(); ?>
+
                 <?php $invFields = Inventory::model()->attributeLabels(); ?>
 
                 <div class="table-responsive">
@@ -221,6 +221,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 <th><?php echo $skuFields['sku_code']; ?></th>
                                 <th><?php echo $skuFields['description']; ?></th>
                                 <th><?php echo $invFields['qty']; ?></th>
+
                                 <th class="hide_row"><?php echo $invFields['uom_id']; ?></th>
                                 <th class="hide_row">Action Qty <i class="fa fa-fw fa-info-circle" data-toggle="popover" content="And here's some amazing content. It's very engaging. right?"></i></th>
                                 <th><?php echo $invFields['zone_id']; ?></th>
@@ -231,13 +232,16 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 <th><?php echo $invFields['plan_arrival_date']; ?></th>
                                 <th><?php echo $invFields['reference_no']; ?></th>
                                 <th><?php echo $invFields['expiration_date']; ?></th>
+
                                 <th><?php echo $invFields['brand_name']; ?></th>
                                 <th><?php echo $invFields['sales_office_name']; ?></th>
                             </tr>
                         </thead>
                         <thead>
                             <tr id="filter_row">
+
                                 <td class="filter"></td>
+
                                 <td class="filter"></td>
                                 <td class="filter"></td>
                                 <td class="filter hide_row"></td>
@@ -245,11 +249,14 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 <td class="filter"></td>
                                 <td class="filter hide_row"></td>
                                 <td class="filter"></td>
+                                <td class="filter hide_row"></td>
                                 <td class="filter"></td>
                                 <td class="filter"></td>
                                 <td class="filter"></td>
                                 <td class="filter"></td>
+
                                 <td class="filter"></td>
+
                                 <td class="filter" id="hide_textbox"></td>
                                 <td class="filter" id="hide_textbox"></td>
                             </tr>
@@ -327,7 +334,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                     <div id="input_label" class="pull-left col-md-5">
                         <?php echo $form->labelEx($transaction_detail, 'source_zone_id'); ?><br/>
-                        <?php echo $form->label($transaction_detail, 'Inventory On Hand'); ?>
+                        <?php echo $form->label($transaction_detail,'Inventory On Hand'); ?>
                     </div>
                     <div class="pull-right col-md-7">
 
@@ -345,7 +352,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             ));
                             ?>
                         </div>
-
+                        
                     </div>
                 </div>
 
@@ -379,7 +386,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             ));
                             ?>
                         </div>
-
+                        
                         <div class="span5">
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'quantity_issued', array(
@@ -400,7 +407,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 ),
                                 'labelOptions' => array('label' => false),
                                 'prepend' => '&#8369',
-//                                'append' => '<b class="inventory_uom_selected"></b>'
+                                'append' => '<b class="inventory_uom_selected"></b>'
                             ));
                             ?>
                         </div>
@@ -461,6 +468,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
                         <th><?php echo $outgoingDetailFields['amount']; ?></th>
                         <th><?php // echo $outgoingDetailFields['inventory_on_hand'];           ?></th>
+
                         <th class=""><?php echo $outgoingDetailFields['return_date']; ?></th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['remarks']; ?></th>
                         <th class="hide_row">Inventory</th>
@@ -487,7 +495,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th class="hide_row"><?php echo $outgoingDetailFields['return_date']; ?></th>
                         <th class="hide_row">Inventory</th>
                         <th class="hide_row><?php echo $outgoingDetailFields['source_zone_id']; ?></th>
-                            <th class="hide_row><?php echo $outgoingDetailFields['source_zone_id']; ?></th>
+                        <th class="hide_row><?php echo $outgoingDetailFields['source_zone_id']; ?></th>
                     </tr>    
                 </thead>
             </table>                            
@@ -520,8 +528,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             'attribute' => 'file',
             'multiple' => true,
             'options' => array(
-                'maxFileSize' => 5000000,
-                'acceptFileTypes' => 'js:/(\.|\/)(gif|jpe?g|png|pdf|doc|docx|xls|xlsx)$/i',
+                'maxFileSize' => 2000000,
+                'acceptFileTypes' => 'js:/(\.|\/)(gif|jpe?g|png|pdf|doc|docx)$/i',
             ),
             'formView' => 'application.modules.inventory.views.outgoingInventory._form',
             'uploadView' => 'application.modules.inventory.views.outgoingInventory._upload',
@@ -547,7 +555,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
     var inventory_table;
     var transaction_table;
-    var item_details_table;
     var headers = "transaction";
     var details = "details";
     var print = "print";
@@ -583,7 +590,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 {"name": "links", "data": "links", 'sortable': false}
             ],
             "columnDefs": [{
-                    "targets": [3, 4, 6, 15],
+                    "targets": [3,4,6,15],
                     "visible": false
                 }]
         });
@@ -603,49 +610,12 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         var i = 0;
         $('#inventory_table thead tr#filter_row td.filter').each(function() {
-            $(this).html('<input type="text" class="form-control input-sm ignore" placeholder="" colPos="' + i + '" />');
+            $(this).html('<input type="text" class="form-control input-sm" placeholder="" colPos="' + i + '" />');
             i++;
         });
 
         $("#inventory_table thead input").keyup(function() {
             inventory_table.fnFilter(this.value, $(this).attr("colPos"));
-        });
-
-        item_details_table = $('#item_details_table').dataTable({
-            "filter": true,
-            "dom": '<"text-center"r>t',
-            "bSort": true,
-            "processing": false,
-            "serverSide": false,
-            "bAutoWidth": false,
-            'iDisplayLength': 5,
-            "columnDefs": [{
-                    "targets": [0, 1],
-                    "visible": false
-                }]
-        });
-
-        var i = 0;
-        $('#item_details_table thead tr#filter_row td.filter').each(function() {
-            $(this).html('<input type="text" class="form-control input-sm" placeholder="" colPos="' + i + '" />');
-            i++;
-        });
-
-        $("#item_details_table thead input").keyup(function() {
-            item_details_table.fnFilter(this.value, $(this).attr("colPos"));
-        });
-
-        $('#item_details_table tbody').on('click', 'tr', function() {
-            if ($(this).hasClass('success')) {
-                $(this).removeClass('success');
-                loadInventoryDetails("");
-            }
-            else {
-                item_details_table.$('tr.success').removeClass('success');
-                $(this).addClass('success');
-                var row_data = item_details_table.fnGetData(this);
-                loadInventoryDetails(parseInt(row_data[0]));
-            }
         });
 
         transaction_table = $('#transaction_table').dataTable({
@@ -759,7 +729,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 ]);
 
                 total_amount = (parseFloat(total_amount) + parseFloat(data.details.amount));
-                $("#OutgoingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
+                $("#OutgoingInventory_total_amount").val(total_amount);
 
                 growlAlert(data.type, data.message);
 
@@ -774,6 +744,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
 //            $("#item_details_table tbody tr").removeClass('success');
 //            PRNoChange(selected_pr_no);
+
             inventory_table.fnMultiFilter();
         } else {
 
@@ -862,7 +833,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             $(aTrs[i]).find('input:checkbox:checked').each(function() {
                 var row_data = transaction_table.fnGetData(aTrs[i]);
                 total_amount = (parseFloat(total_amount) - parseFloat(row_data[14]));
-                $("#OutgoingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
+                $("#OutgoingInventory_total_amount").val(total_amount);
 
                 transaction_table.fnDeleteRow(aTrs[i]);
 
@@ -888,7 +859,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         var aTrs = transaction_table.fnGetNodes();
         for (var i = 0; i < aTrs.length; i++) {
             var row_data = transaction_table.fnGetData(aTrs[i]);
-
+            
             row_datas.push({
                 "sku_id": row_data[1],
                 "unit_price": row_data[5],
@@ -935,7 +906,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         var amount = ($("#OutgoingInventoryDetail_quantity_issued").val() * unit_price);
-        $("#OutgoingInventoryDetail_amount").val(parseFloat(amount).toFixed(2));
+        $("#OutgoingInventoryDetail_amount").val(amount);
     });
 
     $("#OutgoingInventoryDetail_unit_price").keyup(function(e) {
@@ -945,10 +916,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         var amount = (qty * $("#OutgoingInventoryDetail_unit_price").val());
-        $("#OutgoingInventoryDetail_amount").val(parseFloat(amount).toFixed(2));
+        $("#OutgoingInventoryDetail_amount").val(amount);
     });
 
     $(function() {
+
 //        var campaign_no = new Bloodhound({
 //            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('campaign_nos'),
 //            queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -981,6 +953,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 //            $('#OutgoingInventory_source_zone_id').val("");
 //        });
 
+
         var zone = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('zone'),
             queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -1003,40 +976,12 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         }).on('typeahead:selected', function(obj, datum) {
             $("#OutgoingInventory_destination_zone").val(datum.zone_id);
-            loadEmployeeByDefaultZone(datum.zone_id);
         });
 
         jQuery('#OutgoingInventory_destination_zone_id').on('input', function() {
-            $("#OutgoingInventory_destination_zone, #OutgoingInventory_contact_person, #OutgoingInventory_contact_no, #OutgoingInventory_address").val("");
+            $("#OutgoingInventory_destination_zone").val("");
         });
     });
-
-    var selected_campaign_no, selected_transaction, selected_pr_no;
-    function loadPRNos(campaign_no, transaction) {
-        selected_campaign_no = campaign_no;
-        selected_transaction = transaction;
-
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo Yii::app()->createUrl('/inventory/outgoingInventory/loadPRNos'); ?>' + '&campaign_no=' + campaign_no + '&transaction=' + transaction,
-            dataType: "json",
-            success: function(data) {
-
-                var pr_nos = "<option value=''>Select PR No</option>"
-                $('#OutgoingInventory_pr_no').empty();
-                $.each(data.pr_no, function(i, v) {
-                    pr_nos += "<option value='" + i + "'>" + v + "</option>";
-                });
-
-                $('#OutgoingInventory_pr_no').append(pr_nos);
-
-            },
-            error: function(data) {
-                alert("Error occured: Please try again.");
-            }
-        });
-
-    }
 
     function onlyNumbers(txt, event, point) {
 
@@ -1047,46 +992,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         return false;
-    }
-
-    function PRNoChange(pr_no) {
-        selected_pr_no = pr_no;
-
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo Yii::app()->createUrl('/inventory/outgoingInventory/loadInvByPRNo'); ?>' + '&campaign_no=' + selected_campaign_no + '&pr_no=' + selected_pr_no + '&transaction=' + selected_transaction,
-            dataType: "json",
-            success: function(data) {
-
-                var oSettings = item_details_table.fnSettings();
-                var iTotalRecords = oSettings.fnRecordsTotal();
-                for (var i = 0; i <= iTotalRecords; i++) {
-                    item_details_table.fnDeleteRow(0, null, true);
-                }
-
-                $('#OutgoingInventory_pr_date').val(data.headers.pr_date);
-
-                $.each(data.inv, function(i, v) {
-                    item_details_table.fnAddData([
-                        v.inventory_id,
-                        v.sku_id,
-                        v.sku_code,
-                        v.sku_description,
-                        v.brand_name,
-                        v.cost_per_unit,
-                        v.inventory_on_hand,
-                        v.uom_name,
-                        v.sku_status_name,
-                        v.expiration_date,
-                        v.reference_no
-                    ]);
-                });
-
-            },
-            error: function(data) {
-                alert("Error occured: Please try again.");
-            }
-        });
     }
 
     $(function() {

@@ -22,6 +22,18 @@
  * @property Sku[] $skus
  */
 class Zone extends CActiveRecord {
+   
+   /**
+    * @var string zone_id
+    * @soap
+    */
+   public $zone_id;
+   
+   /**
+    * @var string zone_name
+    * @soap
+    */
+   public $zone_name;
 
     public $search_string;
     public $default_zone;

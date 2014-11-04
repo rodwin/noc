@@ -1,6 +1,6 @@
 <?php
 $this->breadcrumbs = array(
-    ReceivingInventory::RECEIVING_LABEL . ' Inventories' => array('admin'),
+    'Receiving Inventories' => array('admin'),
     'Create',
 );
 ?>
@@ -231,7 +231,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         'htmlOptions' => array('class' => 'ignore span5', 'prompt' => '--')),
                     'labelOptions' => array('label' => false)));
                 ?>
-                
                 <?php
                 echo $form->dropDownListGroup($receiving, 'delivery_remarks', array(
                     'wrapperHtmlOptions' => array(
@@ -292,7 +291,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <?php echo $form->labelEx($transaction_detail, 'planned_quantity'); ?><br/>
                         <?php echo $form->labelEx($transaction_detail, 'quantity_received'); ?><br/>
                         <?php // echo $form->labelEx($transaction_detail, 'sku_status_id'); ?>
-                        <?php echo $form->label($transaction_detail, 'Inventory On Hand'); ?>
+                        <?php echo $form->label($transaction_detail,'Inventory On Hand'); ?>
 
                     </div>
                     <div class="pull-right col-md-7">
@@ -362,7 +361,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <?php echo $form->textFieldGroup($transaction_detail, 'sku_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 50, 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
                     </div>
                 </div>
-
+                
                 <div class="col-md-6 clearfix">
                     <div id="input_label" class="pull-left col-md-5">
 
@@ -388,7 +387,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             ));
                             ?>
                         </div>
-
+                        
                         <div class="span5">
                             <?php
                             echo $form->textFieldGroup($transaction_detail, 'amount', array(
@@ -445,7 +444,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th><?php echo $receivingDetailFields['amount']; ?></th>
+
                         <!--<th class=""><?php // echo $receivingDetailFields['inventory_on_hand'];                  ?></th>-->
+
                         <th class="hide_row"><?php echo $receivingDetailFields['remarks']; ?></th>
                     </tr>                                    
                 </thead>
@@ -463,7 +464,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="row no-print">
             <div class="col-xs-12">
-                <button id="btn_print" class="btn btn-default"><i class="fa fa-print"></i> Print</button>
+                <button class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
                 <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload PR / DR</button>
                 <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>  
             </div>
@@ -480,8 +481,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             'attribute' => 'file',
             'multiple' => true,
             'options' => array(
-                'maxFileSize' => 5000000,
-                'acceptFileTypes' => 'js:/(\.|\/)(gif|jpe?g|png|pdf|doc|docx|xls|xlsx)$/i',
+                'maxFileSize' => 2000000,
+                'acceptFileTypes' => 'js:/(\.|\/)(gif|jpe?g|png|pdf|doc|docx)$/i',
             ),
             'formView' => 'application.modules.inventory.views.receivingInventory._form',
             'uploadView' => 'application.modules.inventory.views.receivingInventory._upload',
@@ -511,9 +512,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     var transaction_table;
     var headers = "transaction";
     var details = "details";
-    var print = "print";
     var total_amount = 0;
-    var validatedForm = false;
     $(function() {
         $("[data-mask]").inputmask();
 
@@ -537,7 +536,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 {"name": "default_unit_price", "data": "default_unit_price"}
             ]
         });
-
+        
         $('#sku_table tbody').on('click', 'tr', function() {
             if ($(this).hasClass('success')) {
                 $(this).removeClass('success');
@@ -553,7 +552,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         var i = 0;
         $('#sku_table thead tr#filter_row td.filter').each(function() {
-            $(this).html('<input type="text" class="form-control input-sm ignore" onclick="stopPropagation(event);" placeholder="" colPos="' + i + '" />');
+            $(this).html('<input type="text" class="form-control input-sm" onclick="stopPropagation(event);" placeholder="" colPos="' + i + '" />');
             i++;
         });
 
@@ -569,7 +568,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             "serverSide": false,
             "bAutoWidth": false,
             "columnDefs": [{
-                    "targets": [1, 10, 11, 12, 13, 15],
+                    "targets": [1,10, 11, 12, 13, 15],
                     "visible": false
                 }]
         });
@@ -594,12 +593,14 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 data: data,
                 dataType: "json",
                 beforeSend: function(data) {
+
                     $("#btn_save, #btn_add_item, #btn_print").attr("disabled", "disabled");
                     if (form == headers) {
                         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
                     } else if (form == print) {
                         $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Loading...');
                     }
+
                 },
                 success: function(data) {
                     validateForm(data);
@@ -672,7 +673,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 ]);
 
                 total_amount = (parseFloat(total_amount) + parseFloat(data.details.amount));
-                $("#ReceivingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
+                $("#ReceivingInventory_total_amount").val(total_amount);
 
                 growlAlert(data.type, data.message);
 
@@ -681,8 +682,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
 //                $("#ReceivingInventoryDetail_planned_quantity, #ReceivingInventoryDetail_quantity_received, #ReceivingInventoryDetail_unit_price, #ReceivingInventoryDetail_amount").val(0);
 
-            } else if (data.form == print && serializeTransactionTable().length > 0) {
-                printPDF(data.print);
             }
 
             sku_table.fnMultiFilter();
@@ -774,7 +773,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             $(aTrs[i]).find('input:checkbox:checked').each(function() {
                 var row_data = transaction_table.fnGetData(aTrs[i]);
                 total_amount = (parseFloat(total_amount) - parseFloat(row_data[14]));
-                $("#ReceivingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
+                $("#ReceivingInventory_total_amount").val(total_amount);
 
                 transaction_table.fnDeleteRow(aTrs[i]);
             });
@@ -805,10 +804,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
     $('#btn-upload').click(function() {
         $('#file_uploads').click();
-    });
-
-    $('#btn_print').click(function() {
-        send(print);
     });
 
     function loadSkuDetails(sku_id) {
@@ -857,7 +852,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         var amount = ($("#ReceivingInventoryDetail_quantity_received").val() * unit_price);
-        $("#ReceivingInventoryDetail_amount").val(parseFloat(amount).toFixed(2));
+        $("#ReceivingInventoryDetail_amount").val(amount);
     });
 
     $("#ReceivingInventoryDetail_unit_price").keyup(function(e) {
@@ -867,7 +862,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         var amount = (qty * $("#ReceivingInventoryDetail_unit_price").val());
-        $("#ReceivingInventoryDetail_amount").val(parseFloat(amount).toFixed(2));
+        $("#ReceivingInventoryDetail_amount").val(amount);
     });
 
     $(function() {
@@ -899,7 +894,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         jQuery('#ReceivingInventory_zone_id').on('input', function() {
             $("#receivingInventory_zone_id, #ReceivingInventory_sales_office_id").val("");
         });
-
+        
         var supplier = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('supplier'),
             queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -948,6 +943,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             applyClass: 'btn-primary'
         });
     });
+
 
     function printPDF(data) {
 
