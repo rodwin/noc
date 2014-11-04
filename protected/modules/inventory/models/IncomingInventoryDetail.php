@@ -348,14 +348,14 @@ class IncomingInventoryDetail extends CActiveRecord {
 
     public function createIncomingTransactionDetails($incoming_inventory_id, $company_id, $inventory_id, $batch_no, $sku_id, $source_zone_id, $unit_price, $expiration_date, $planned_quantity, $quantity_received, $amount, $return_date, $remarks, $created_by = null, $status, $outgoing_inventory_detail_id, $uom_id, $status_id, $zone_id, $transaction_date) {
 
-        if ($inventory_id != "") {
-
-            unset(Yii::app()->session['outgoing_inv_id']);
-            $inventory = Inventory::model()->findByAttributes(array("inventory_id" => $inventory_id, "company_id" => $company_id));
-            Yii::app()->session['outgoing_inv_id'] = $inventory->inventory_id;
+        if ($outgoing_inventory_detail_id != "") {
+            
+            unset(Yii::app()->session['outgoing_inv_detail_id_session_reference_nos']);
+            $outgoing_inventory_detail = OutgoingInventoryDetail::model()->findByAttributes(array("outgoing_inventory_detail_id" => $outgoing_inventory_detail_id, "company_id" => $company_id));
+            Yii::app()->session['outgoing_inv_detail_id_session_reference_nos'] = $outgoing_inventory_detail->outgoing_inventory_detail_id;
         } else {
 
-            $inventory = Inventory::model()->findByAttributes(array("inventory_id" => Yii::app()->session['outgoing_inv_id'], "company_id" => $company_id));
+            $outgoing_inventory_detail = OutgoingInventoryDetail::model()->findByAttributes(array("outgoing_inventory_detail_id" => Yii::app()->session['outgoing_inv_detail_id_session_reference_nos'], "company_id" => $company_id));
         }
 
         $exp_date = ($expiration_date != "" ? $expiration_date : null);
@@ -380,11 +380,11 @@ class IncomingInventoryDetail extends CActiveRecord {
         $incoming_transaction_detail->status = $status;
         $incoming_transaction_detail->remarks = $remarks;
         $incoming_transaction_detail->created_by = $created_by;
-        $incoming_transaction_detail->campaign_no = isset($inventory) ? $inventory->campaign_no : "";
-        $incoming_transaction_detail->pr_no = isset($inventory) ? $inventory->pr_no : "";
-        $incoming_transaction_detail->pr_date = isset($inventory) ? $inventory->pr_date : null;
-        $incoming_transaction_detail->plan_arrival_date = isset($inventory) ? $inventory->plan_arrival_date : null;
-        $incoming_transaction_detail->revised_delivery_date = isset($inventory) ? $inventory->revised_delivery_date : null;
+        $incoming_transaction_detail->campaign_no = isset($outgoing_inventory_detail) ? $outgoing_inventory_detail->campaign_no : "";
+        $incoming_transaction_detail->pr_no = isset($outgoing_inventory_detail) ? $outgoing_inventory_detail->pr_no : "";
+        $incoming_transaction_detail->pr_date = isset($outgoing_inventory_detail) ? $outgoing_inventory_detail->pr_date : null;
+        $incoming_transaction_detail->plan_arrival_date = isset($outgoing_inventory_detail) ? $outgoing_inventory_detail->plan_arrival_date : null;
+        $incoming_transaction_detail->revised_delivery_date = isset($outgoing_inventory_detail) ? $outgoing_inventory_detail->revised_delivery_date : null;
 
         if ($incoming_transaction_detail->save(false)) {
             if ($outgoing_inventory_detail_id != "") {

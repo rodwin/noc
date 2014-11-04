@@ -354,15 +354,16 @@ class ZoneController extends Controller {
         $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.zone_id = '" . $zone_id . "'";
         $c->with = array("salesOffice");
         $zone = Zone::model()->find($c);
-        
+
+        $selected_zone_id = isset($zone->zone_id) ? $zone->zone_id : "";
         $c1 = new CDbCriteria;
         $c1->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
-        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $zone->zone_id . "'";
+        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $selected_zone_id . "'";
         $employee = Employee::model()->find($c1);
-        
+
         $return = array();
-        $return['zone_id'] = $zone->zone_id;
-        $return['zone_name'] = $zone->zone_name;
+        $return['zone_id'] = isset($zone->zone_id) ? $zone->zone_id : "";
+        $return['zone_name'] = isset($zone->zone_name) ? $zone->zone_name : "";
         $return['so_address1'] = isset($zone->salesOffice->address1) ? $zone->salesOffice->address1 : '';
         $return['contact_person'] = isset($employee) ? $employee->fullname : '';
         $return['employee_work_contact_no'] = isset($employee) ? $employee->work_phone_number : '';

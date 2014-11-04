@@ -46,7 +46,7 @@ $this->breadcrumbs = array(
                 <th><?php echo $fields['status']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
                 <th><?php echo $fields['created_date']; ?></th>
-                <th>Actions</th>
+                <th style="width: 110px;">Actions</th>
             </tr>
         </thead>
         <thead>

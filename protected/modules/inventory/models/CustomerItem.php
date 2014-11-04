@@ -307,9 +307,10 @@ class CustomerItem extends CActiveRecord {
 
             if (count($transaction_details) > 0) {
                 if ($customer_item->save(false)) {
-                    unset(Yii::app()->session['tid']);
-                    Yii::app()->session['tid'] = $customer_item->customer_item_id;
+                    Yii::app()->session['customer_item_id_create_session'] = $customer_item->customer_item_id;
 
+                    unset(Yii::app()->session['customer_item_id_attachment_session']);
+                    Yii::app()->session['customer_item_id_attachment_session'] = $customer_item->customer_item_id;
                     $customer_item_detail_id_arr = array();
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         unset(Yii::app()->session['customer_item_detail_ids']);

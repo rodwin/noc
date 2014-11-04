@@ -490,9 +490,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 'done' => new CJavaScriptExpression(
                         'function(e, data) { 
                          file_upload_count--;
-                         console.log(file_upload_count);
                          
-                         if(file_upload_count == 0) { $("#tbl tbody tr").remove(); }
+                         if(file_upload_count == 0) { $("#tbl tbody tr").remove(); loadToView(); }
                      }'
                 ),
                 'fail' => new CJavaScriptExpression(
@@ -615,6 +614,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     var file_upload_count = 0;
+    var success_receiving_inv_id, success_type, success_message;
     function validateForm(data) {
 
         var e = $(".error");
@@ -631,23 +631,19 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         if (data.success === true) {
 
             if (data.form == headers) {
+                
+                success_receiving_inv_id = data.receiving_inv_id;
+                success_type = data.type;
+                success_message = data.message;
 
                 if (files != "") {
                     file_upload_count = files.length;
 
                     $('#uploading').click();
+                } else {
+
+                    loadToView();
                 }
-
-                document.forms["receiving-inventory-form"].reset();
-                $("#receiving-inventory-form .select2-container").select2("val", "");
-
-                var oSettings = transaction_table.fnSettings();
-                var iTotalRecords = oSettings.fnRecordsTotal();
-                for (var i = 0; i <= iTotalRecords; i++) {
-                    transaction_table.fnDeleteRow(0, null, true);
-                }
-
-                growlAlert(data.type, data.message);
 
             } else if (data.form == details) {
 
@@ -980,6 +976,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 alert("Error occured: Please try again.");
             }
         });
+    }
+
+    function loadToView() {
+
+        window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/receivingInventory') . '"' ?> + "/view&id=" + success_receiving_inv_id;
+
+        growlAlert(success_type, success_message);
     }
 
 </script>

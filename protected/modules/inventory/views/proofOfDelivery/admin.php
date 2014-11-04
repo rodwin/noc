@@ -795,7 +795,7 @@ $this->breadcrumbs = array(
                 "pod_detail_id": pod_detail_id
             },
             beforeSend: function(data) {
-
+                $("#pod_upload_table tr").remove();
             },
             success: function(data) {
                 $('#uploadModal').modal('show');

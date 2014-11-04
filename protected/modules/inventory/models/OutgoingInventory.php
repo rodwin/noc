@@ -249,7 +249,7 @@ class OutgoingInventory extends CActiveRecord {
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
         $criteria->compare('t.dr_no', $columns[0]['search']['value']);
-        $criteria->compare('t.dr_date', $columns[1]['search']['value']); 
+        $criteria->compare('t.dr_date', $columns[1]['search']['value']);
         $criteria->compare('t.rra_no', $columns[2]['search']['value'], true);
         $criteria->compare('t.rra_date', $columns[3]['search']['value'], true);
         $criteria->compare('zone.zone_name', $columns[4]['search']['value'], true);
@@ -316,10 +316,76 @@ class OutgoingInventory extends CActiveRecord {
 
             if (count($transaction_details) > 0) {
                 if ($outgoing_inventory->save(false)) {
-                    unset(Yii::app()->session['tid']);
-                    Yii::app()->session['tid'] = $outgoing_inventory->outgoing_inventory_id;
+                    Yii::app()->session['outgoing_inv_id_create_session'] = $outgoing_inventory->outgoing_inventory_id;
+
+                    unset(Yii::app()->session['outgoing_inv_id_attachment_session']);
+                    Yii::app()->session['outgoing_inv_id_attachment_session'] = $outgoing_inventory->outgoing_inventory_id;
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         OutgoingInventoryDetail::model()->createOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $outgoing_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $outgoing_inventory->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $outgoing_inventory->transaction_date);
+                    }
+                }
+
+//                return true;
+            } else {
+                return false;
+            }
+
+            return true;
+        } catch (Exception $exc) {
+            Yii::log($exc->getTraceAsString(), 'error');
+            return false;
+        }
+    }
+
+    public function updateTransaction($model, $outgoing_inv_ids_to_be_delete, $transaction_details, $validate = true) {
+
+        if ($validate) {
+            if (!$this->validate()) {
+                return false;
+            }
+        }
+
+        $outgoing_inventory = $model;
+
+        try {
+
+            $outgoing_inventory_data = array(
+                'company_id' => $this->company_id,
+                'dr_no' => $this->dr_no,
+                'dr_date' => $this->transaction_date,
+                'rra_no' => $this->rra_no,
+                'rra_date' => $this->rra_date,
+                'source_zone_id' => $this->source_zone_id,
+                'destination_zone_id' => $this->destination_zone_id,
+                'contact_person' => $this->contact_person,
+                'contact_no' => $this->contact_no,
+                'address' => $this->address,
+                'plan_delivery_date' => $this->plan_delivery_date,
+                'transaction_date' => $this->transaction_date,
+                'status' => OutgoingInventory::OUTGOING_PENDING_STATUS,
+                'remarks' => $this->remarks,
+                'total_amount' => $this->total_amount,
+                'created_by' => $this->created_by,
+            );
+
+            $outgoing_inventory->attributes = $outgoing_inventory_data;
+
+            if (count($transaction_details) > 0) {
+                if ($outgoing_inventory->save(false)) {
+                    Yii::app()->session['outgoing_inv_id_update_session'] = $outgoing_inventory->outgoing_inventory_id;
+
+                    unset(Yii::app()->session['outgoing_inv_id_attachment_session']);
+                    Yii::app()->session['outgoing_inv_id_attachment_session'] = $outgoing_inventory->outgoing_inventory_id;
+                    for ($i = 0; $i < count($transaction_details); $i++) {
+                        if (trim($transaction_details[$i]['outgoing_inv_detail_id']) != "") {
+                            OutgoingInventoryDetail::model()->updateOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $transaction_details[$i]['outgoing_inv_detail_id'], $outgoing_inventory->company_id);
+                        } else {
+                            OutgoingInventoryDetail::model()->createOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $outgoing_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $outgoing_inventory->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $outgoing_inventory->transaction_date);
+                        }
+                    }
+
+                    if ($outgoing_inv_ids_to_be_delete != "") {
+                        OutgoingInventoryDetail::model()->deleteAll("company_id = '" . $outgoing_inventory->company_id . "' AND outgoing_inventory_detail_id = (" . $outgoing_inv_ids_to_be_delete . ")");
                     }
                 }
 
