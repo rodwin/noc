@@ -213,7 +213,7 @@ class ReceivingInventoryController extends Controller {
         $destination['destination_sales_office_name'] = isset($destination_sales_office->sales_office_name) ? $destination_sales_office->sales_office_name : "";
         $destination['contact_person'] = "";
         $destination['contact_no'] = "";
-        $destination['address'] = "";
+        $destination['address'] = isset($destination_sales_office->address1) ? $destination_sales_office->address1 : "";
 
         $this->render('view', array(
             'model' => $model,
