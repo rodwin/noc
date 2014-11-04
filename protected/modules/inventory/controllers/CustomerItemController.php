@@ -932,6 +932,7 @@ class CustomerItemController extends Controller {
                     <td style="font-weight: bold;">ADDRESS</td>
                     <td class="border-bottom">' . $poi_address . '</td>
                 </tr>
+
             </table><br/><br/><br/>  
         
             <table class="table_details" border="1">

@@ -19,6 +19,60 @@
  * @property string $updated_by
  */
 class IncomingInventory extends CActiveRecord {
+   
+   /**
+    * @var string incoming_inventory_id
+    * @soap
+    */
+   public $incoming_inventory_id;
+   
+   /**
+    * @var string campaign_no
+    * @soap
+    */
+   public $campaign_no;
+   
+   /**
+    * @var string pr_no
+    * @soap
+    */
+   public $pr_no;
+   
+   /**
+    * @var string pr_date
+    * @soap
+    */
+   public $pr_date;
+   
+   /**
+    * @var string dr_no
+    * @soap
+    */
+   public $dr_no;
+   
+   /**
+    * @var string $zone_id
+    * @soap
+    */
+   public $zone_id;
+   
+   /**
+    * @var string transaction_date
+    * @soap
+    */
+   public $transaction_date;
+   
+   /**
+    * @var string $total_amount
+    * @soap
+    */
+   public $total_amount;
+   
+   /**
+    * @var IncomingInventoryDetail[] incoming_inventory_detail_obj
+    * @soap
+    */
+   public $incoming_inventory_detail_obj;
 
     public $search_string;
     public $outgoing_inventory_id;
@@ -44,9 +98,11 @@ class IncomingInventory extends CActiveRecord {
             array('company_id, dr_no, source_zone_id, destination_zone_id, status, created_by, updated_by, rra_no', 'length', 'max' => 50),
             array('total_amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
+
             array('destination_zone_id', 'isValidZone'),
             array('transaction_date, plan_delivery_date, rra_date, dr_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('dr_date, transaction_date, updated_date', 'safe'),
+
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('incoming_inventory_id, company_id, dr_no, dr_date, rra_date, source_zone_id, destination_zone_id, transaction_date, plan_delivery_date, status, total_amount, created_date, created_by, updated_date, updated_by, rra_no', 'safe', 'on' => 'search'),
@@ -326,5 +382,15 @@ class IncomingInventory extends CActiveRecord {
             return false;
         }
     }
+    
+    public function retrieveIncoming($company_id, $dr_no, $zone_id) {
+      $cdbcriteria = new CDbCriteria();
+      $cdbcriteria->with = array('incomingInventoryDetails');
+      $cdbcriteria->compare('t.company_id', $company_id);
+      $cdbcriteria->compare('t.dr_no', $dr_no);
+      $cdbcriteria->compare('t.zone_id', $zone_id);
+      $val = IncomingInventory::model()->find($cdbcriteria);
+      return $val;
+   }
 
 }

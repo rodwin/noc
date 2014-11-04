@@ -26,66 +26,67 @@
  * @property OutgoingInventory $outgoingInventory
  */
 class OutgoingInventoryDetail extends CActiveRecord {
+   
+   /**
+    * @var string batch_no
+    * @soap
+    */
+   public $batch_no;
 
-    /**
-     * @var string batch_no
-     * @soap
-     */
-    public $batch_no;
+   /**
+    * @var string source_zone_id
+    * @soap
+    */
+   public $source_zone_id;
 
-    /**
-     * @var string source_zone_id
-     * @soap
-     */
-    public $source_zone_id;
+   /**
+    * @var string unit_price
+    * @soap
+    */
+   public $unit_price;
 
-    /**
-     * @var string unit_price
-     * @soap
-     */
-    public $unit_price;
+   /**
+    * @var string expiration_date
+    * @soap
+    */
+   public $expiration_date;
 
-    /**
-     * @var string expiration_date
-     * @soap
-     */
-    public $expiration_date;
+   /**
+    * @var string quantity_issued
+    * @soap
+    */
+   public $quantity_issued;
 
-    /**
-     * @var string quantity_issued
-     * @soap
-     */
-    public $quantity_issued;
+   /**
+    * @var string amount
+    * @soap
+    */
+   public $amount;
 
-    /**
-     * @var string amount
-     * @soap
-     */
-    public $amount;
+   /**
+    * @var string inventory_on_hand
+    * @soap
+    */
+   public $inventory_on_hand;
 
-    /**
-     * @var string inventory_on_hand
-     * @soap
-     */
-    public $inventory_on_hand;
+   /**
+    * @var string return_date
+    * @soap
+    */
+   public $return_date;
 
-    /**
-     * @var string return_date
-     * @soap
-     */
-    public $return_date;
+   /**
+    * @var string remarks
+    * @soap
+    */
+   public $remarks;
 
-    /**
-     * @var string remarks
-     * @soap
-     */
-    public $remarks;
+   /**
+    * @var Sku[] sku_obj
+    * @soap
+    */
+   public $sku_obj;
 
-    /**
-     * @var Sku[] sku_obj
-     * @soap
-     */
-    public $sku_obj;
     public $search_string;
     public $inventory_id;
 
@@ -159,7 +160,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
             'batch_no' => 'Batch No',
             'sku_id' => 'Sku',
             'uom_id' => 'UOM',
-            'sku_status_id' => Sku::SKU_LABEL . ' Status',
+            'sku_status_id' => 'Status',
             'source_zone_id' => 'Source Zone',
             'unit_price' => 'Unit Price',
             'expiration_date' => 'Expiration Date',
@@ -174,11 +175,6 @@ class OutgoingInventoryDetail extends CActiveRecord {
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
             'updated_by' => 'Updated By',
-            'campaign_no' => 'Campaign No',
-            'pr_no' => 'PR No',
-            'pr_date' => 'PR Date',
-            'plan_arrival_date' => 'Plan Arrival Date',
-            'revised_delivery_date' => 'Revised Delivery Date',
         );
     }
 
@@ -292,11 +288,11 @@ class OutgoingInventoryDetail extends CActiveRecord {
     public function createOutgoingTransactionDetails($outgoing_inventory_id, $company_id, $inventory_id, $batch_no, $sku_id, $source_zone_id, $unit_price, $expiration_date, $planned_quantity, $quantity_issued, $amount, $return_date, $remarks, $created_by = null, $uom_id, $sku_status_id, $transaction_date) {
 
         $inventory = Inventory::model()->findByAttributes(array("inventory_id" => $inventory_id, "company_id" => $company_id));
-
+        
         $ret_date = ($return_date != "" ? $return_date : null);
         $exp_date = ($expiration_date != "" ? $expiration_date : null);
         $cost_per_unit = (isset($unit_price) ? $unit_price : 0);
-
+        
         $outgoing_transaction_detail = new OutgoingInventoryDetail;
         $outgoing_transaction_detail->outgoing_inventory_id = $outgoing_inventory_id;
         $outgoing_transaction_detail->company_id = $company_id;
@@ -321,7 +317,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
         $outgoing_transaction_detail->pr_date = $inventory->pr_date;
         $outgoing_transaction_detail->plan_arrival_date = $inventory->plan_arrival_date;
         $outgoing_transaction_detail->revised_delivery_date = $inventory->revised_delivery_date;
-
+        
         if ($outgoing_transaction_detail->save(false)) {
             $this->decreaseInventory($inventory_id, $outgoing_transaction_detail->quantity_issued, $transaction_date, $outgoing_transaction_detail->unit_price, $outgoing_transaction_detail->created_by, $outgoing_transaction_detail->campaign_no, $outgoing_transaction_detail->pr_no, $outgoing_transaction_detail->pr_date, $outgoing_transaction_detail->plan_arrival_date, $outgoing_transaction_detail->revised_delivery_date);
         } else {
@@ -346,10 +342,11 @@ class OutgoingInventoryDetail extends CActiveRecord {
             return $decrease_inventory->getErrors();
         }
     }
-
-    public function getByOutgoingInventoryID($outgoing_inventory_id) {
-        $outgoing_inventory_details = OutgoingInventoryDetail::model()->findallByAttributes(array('outgoing_inventory_id' => $outgoing_inventory_id));
-        return $outgoing_inventory_details;
+    
+    public function getByOutgoingInventoryID($outgoing_inventory_id)
+    {
+       $outgoing_inventory_details = OutgoingInventoryDetail::model()->findallByAttributes(array('outgoing_inventory_id' => $outgoing_inventory_id)) ;
+       return $outgoing_inventory_details;
     }
 
 }

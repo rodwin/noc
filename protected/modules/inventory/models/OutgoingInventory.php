@@ -31,6 +31,108 @@
  */
 class OutgoingInventory extends CActiveRecord {
 
+    /**
+    * @var integer outgoing_inventory_id
+    * @soap
+    */
+   public $outgoing_inventory_id;
+
+   /**
+    * @var string rra_no
+    * @soap
+    */
+   public $rra_no;
+
+   /**
+    * @var string rra_name
+    * @soap
+    */
+   public $rra_name;
+
+   /**
+    * @var string destination_zone_id
+    * @soap
+    */
+   public $destination_zone_id;
+
+   /**
+    * @var string contact_person
+    * @soap
+    */
+   public $contact_person;
+
+   /**
+    * @var string contact_no
+    * @soap
+    */
+   public $contact_no;
+
+   /**
+    * @var string address
+    * @soap
+    */
+   public $address;
+
+   /**
+    * @var string campaign_no
+    * @soap
+    */
+   public $campaign_no;
+
+   /**
+    * @var string pr_no
+    * @soap
+    */
+   public $pr_no;
+
+   /**
+    * @var string $pr_date
+    * @soap
+    */
+   public $pr_date;
+
+   /**
+    * @var string plan_delivery_date
+    * @soap
+    */
+   public $plan_delivery_date;
+
+   /**
+    * @var string revised_delivery_date
+    * @soap
+    */
+   public $revised_delivery_date;
+
+   /**
+    * @var string actual_delivery_date
+    * @soap
+    */
+   public $actual_delivery_date;
+
+   /**
+    * @var string plan_arrival_date
+    * @soap
+    */
+   public $plan_arrival_date;
+
+   /**
+    * @var string transaction_date
+    * @soap
+    */
+   public $transaction_date;
+
+   /**
+    * @var string total_amount
+    * @soap
+    */
+   public $total_amount;
+
+   /**
+    * @var OutgoingInventoryDetail[] outgoing_inventory_detail_obj
+    * @soap
+    */
+   public $outgoing_inventory_detail_obj;
+   
     public $search_string;
     public $total_quantity;
 
@@ -61,8 +163,10 @@ class OutgoingInventory extends CActiveRecord {
             array('remarks', 'length', 'max' => 150),
             array('closed', 'length', 'max' => 1),
             array('destination_zone_id', 'isValidZone'),
+
             array('rra_date, transaction_date, plan_delivery_date, dr_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('plan_delivery_date, transaction_date, created_date, updated_date, dr_date', 'safe'),
+
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('outgoing_inventory_id, company_id, rra_no, dr_no, dr_date, source_zone_id, destination_zone_id, contact_person, contact_no, address, plan_delivery_date, transaction_date, status, remarks, total_amount, closed, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
@@ -326,13 +430,24 @@ class OutgoingInventory extends CActiveRecord {
 //                return true;
             } else {
                 return false;
-            }
 
+            }
             return true;
-        } catch (Exception $exc) {
-            Yii::log($exc->getTraceAsString(), 'error');
-            return false;
-        }
-    }
+          
+      } catch (Exception $exc) {
+         Yii::log($exc->getTraceAsString(), 'error');
+         return false;
+      }
+   }
+
+   public function retrieveOutgoing($company_id, $dr_no, $destination_zone_id) {
+      $cdbcriteria = new CDbCriteria();
+      $cdbcriteria->with = array('outgoingInventoryDetails', 'outgoingInventoryDetails.sku', 'outgoingInventoryDetails.sku.brand');
+      $cdbcriteria->compare('t.company_id', $company_id);
+      $cdbcriteria->compare('t.dr_no', $dr_no);
+      $cdbcriteria->compare('t.destination_zone_id', $destination_zone_id);
+      $val = OutgoingInventory::model()->find($cdbcriteria);
+      return $val;
+   }
 
 }

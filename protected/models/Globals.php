@@ -13,33 +13,35 @@
 use Rhumsaa\Uuid\Uuid;
 use Rhumsaa\Uuid\Exception\UnsatisfiedDependencyException;
 
-require_once('vendor/tecnick.com/tcpdf/tcpdf.php');
-
 class Globals {
-
-    static function generateV4UUID() {
-
+    
+    static function generateV4UUID(){
+        
         try {
             // Generate a version 1 (time-based) UUID
             //$uuid1 = Uuid::uuid1();
             //echo $uuid1 . "\n"; // e4eaaaf2-d142-11e1-b3e4-080027620cdd
+
             // Generate a version 3 (name-based and hashed with MD5) UUID
             //$uuid3 = Uuid::uuid3(Uuid::NAMESPACE_DNS, 'php.net');
             //echo $uuid3 . "\n"; // 11a38b9a-b3da-360f-9353-a5a725514269
+            
             // Generate a version 4 (random) UUID
             return Uuid::uuid4()->tostring();
-
+            
             // Generate a version 5 (name-based and hashed with SHA1) UUID
             //$uuid5 = Uuid::uuid5(Uuid::NAMESPACE_DNS, 'php.net');
             //echo $uuid5 . "\n"; // c4a760a8-dbcf-5254-a0d9-6a4474bd1b62
+
         } catch (UnsatisfiedDependencyException $e) {
             // Some dependency was not met. Either the method cannot be called on a
             // 32-bit system, or it can, but it relies on Moontoast\Math to be present.
             echo 'Caught exception: ' . $e->getMessage() . "\n";
             exit;
         }
+        
     }
-
+    
     static function generateRandomString($length = 10) {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $randomString = '';
@@ -48,34 +50,34 @@ class Globals {
         }
         return $randomString;
     }
-
+    
     /**
-     * Get either a Gravatar URL or complete image tag for a specified email address.
-     *
-     * @param string $email The email address
-     * @param string $s Size in pixels, defaults to 80px [ 1 - 2048 ]
-     * @param string $d Default imageset to use [ 404 | mm | identicon | monsterid | wavatar ]
-     * @param string $r Maximum rating (inclusive) [ g | pg | r | x ]
-     * @param boole $img True to return a complete IMG tag False for just the URL
-     * @param array $atts Optional, additional key/value attributes to include in the IMG tag
-     * @return String containing either just a URL or a complete image tag
-     * @source http://gravatar.com/site/implement/images/php/
-     */
-    static function get_gravatar($email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = array()) {
-        $url = 'http://www.gravatar.com/avatar/';
-        $url .= md5(strtolower(trim($email)));
-        $url .= "?s=$s&d=$d&r=$r";
-        if ($img) {
-            $url = '<img src="' . $url . '"';
-            foreach ($atts as $key => $val)
-                $url .= ' ' . $key . '="' . $val . '"';
-            $url .= ' />';
-        }
-        return $url;
-    }
+    * Get either a Gravatar URL or complete image tag for a specified email address.
+    *
+    * @param string $email The email address
+    * @param string $s Size in pixels, defaults to 80px [ 1 - 2048 ]
+    * @param string $d Default imageset to use [ 404 | mm | identicon | monsterid | wavatar ]
+    * @param string $r Maximum rating (inclusive) [ g | pg | r | x ]
+    * @param boole $img True to return a complete IMG tag False for just the URL
+    * @param array $atts Optional, additional key/value attributes to include in the IMG tag
+    * @return String containing either just a URL or a complete image tag
+    * @source http://gravatar.com/site/implement/images/php/
+    */
+   static function get_gravatar( $email, $s = 80, $d = 'mm', $r = 'g', $img = false, $atts = array() ) {
+       $url = 'http://www.gravatar.com/avatar/';
+       $url .= md5( strtolower( trim( $email ) ) );
+       $url .= "?s=$s&d=$d&r=$r";
+       if ( $img ) {
+           $url = '<img src="' . $url . '"';
+           foreach ( $atts as $key => $val )
+               $url .= ' ' . $key . '="' . $val . '"';
+           $url .= ' />';
+       }
+       return $url;
+   }
 
     //put your code here
-    static function getWeek($date, $rollover = 'sunday') {
+    static function getWeek($date, $rollover='sunday') {
         $cut = substr($date, 0, 8);
         $daylen = 86400;
 
@@ -151,7 +153,7 @@ class Globals {
         return number_format($n);
     }
 
-    public static function parseCSV($file, $head = FALSE, $first_column = FALSE, $delim = ",", $len = 9216, $max_lines = NULL) {
+    public static function parseCSV($file, $head = FALSE, $first_column = FALSE, $delim=",", $len = 9216, $max_lines = NULL) {
         if (!file_exists($file)) {
             //Debug::text('Files does not exist: ' . $file, __FILE__, __LINE__, __METHOD__, 10);
             return FALSE;
@@ -199,38 +201,32 @@ class Globals {
 
         return $return;
     }
-
-    public static function getSingleLineErrorMessage($errors = array()) {
-
+    
+    public static function getSingleLineErrorMessage($errors = array()){
+        
         $err = "";
         foreach ($errors as $key => $value) {
-            $err .= $value[0] . ',';
+            $err .= $value[0].',';
         }
-
-        return substr($err, 0, -1);
+        
+        return substr($err, 0, -1) ;
     }
-
-    public static function queue($data) {
-
+    
+    public static function queue($data){
+    
         $connection = new PhpAmqpLib\Connection\AMQPConnection(Yii::app()->params['rabbitmq']['host'], Yii::app()->params['rabbitmq']['port'], Yii::app()->params['rabbitmq']['username'], Yii::app()->params['rabbitmq']['password']);
         $channel = $connection->channel();
 
         $channel->queue_declare('noc_queue', false, true, false, false);
 
-        $msg = new PhpAmqpLib\Message\AMQPMessage($data, array('delivery_mode' => 2) # make message persistent
+        $msg = new PhpAmqpLib\Message\AMQPMessage($data,
+            array('delivery_mode' => 2) # make message persistent
         );
 
         $channel->basic_publish($msg, '', 'noc_queue');
 
         $channel->close();
         $connection->close();
-    }
-
-    public static function pdf() {
-
-        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-
-        return $pdf;
     }
 
 }
