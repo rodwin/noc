@@ -85,6 +85,7 @@ class OutgoingInventoryController extends Controller {
             $row['outgoing_inventory_id'] = $value->outgoing_inventory_id;
             $row['rra_no'] = $value->rra_no;
             $row['dr_no'] = $value->dr_no;
+            $row['dr_date'] = $value->dr_date;
             $row['rra_date'] = $value->rra_date;
             $row['destination_zone_id'] = $value->destination_zone_id;
             $row['destination_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
@@ -100,7 +101,9 @@ class OutgoingInventoryController extends Controller {
 //            $row['plan_arrival_date'] = $value->plan_arrival_date;
             $row['transaction_date'] = $value->transaction_date;
             $row['status'] = $status;
-            $row['total_amount'] = $value->total_amount;
+
+            $row['total_amount'] = "&#x20B1;" . number_format($value->total_amount, 2, '.', ',');
+
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
@@ -217,7 +220,8 @@ class OutgoingInventoryController extends Controller {
         $attachment = new Attachment;
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
-
+        $zone_list = CHtml::listData(Zone::model()->findAll(array("condition" => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');        
+        
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
             $data = array();
@@ -333,6 +337,7 @@ class OutgoingInventoryController extends Controller {
             'attachment' => $attachment,
             'uom' => $uom,
             'sku_status' => $sku_status,
+            'zone_list' => $zone_list,
         ));
     }
 
@@ -414,7 +419,8 @@ class OutgoingInventoryController extends Controller {
             $row['expiration_date'] = $value->expiration_date;
             $row['planned_quantity'] = $value->planned_quantity;
             $row['quantity_issued'] = $value->quantity_issued;
-            $row['amount'] = $value->amount;
+            $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
+
             $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['return_date'] = $value->return_date;
             $row['status'] = $status;
@@ -1213,12 +1219,9 @@ class OutgoingInventoryController extends Controller {
                     <td style="font-weight: bold;">CHECKED BY:</td>
                     <td class="border-bottom"></td>
                     <td></td>
-<<<<<<< HEAD
-                    <td style="font-weight: bold;">DRIVER"S NAME:</td>
 
-=======
                     <td style="font-weight: bold;">DRIVER' . "'" . 'S NAME:</td>
->>>>>>> upstream/master
+
                     <td class="border-bottom"></td>
                 </tr>
                 <tr>
@@ -1229,12 +1232,7 @@ class OutgoingInventoryController extends Controller {
                     <td style="font-weight: bold;">AUTHORIZED BY:</td>
                     <td class="border-bottom"></td>
                     <td></td>
-<<<<<<< HEAD
-                    <td style="font-weight: bold;">DRIVER"S SIGNATURE:</td>
-
-=======
                     <td style="font-weight: bold;">DRIVER' . "'" . 'S SIGNATURE:</td>
->>>>>>> upstream/master
                     <td class="border-bottom"></td>
                 </tr>
                 <tr><td colspan="6"></td></tr>
@@ -1263,14 +1261,27 @@ class OutgoingInventoryController extends Controller {
         $pdf->Output('outbound.pdf', 'I');
     }
     
-    public function actionSendDR($dr_no, $zone_id) {
-      $sql = "SELECT gcm_regid FROM noc.gcm_users a INNER JOIN noc.employee b ON a.employee_id = b.employee_id
+    public function actionSendDR($id, $dr_no, $zone_id, $date_created, $date_pushed) {
+//      pre($id .";". $dr_no.";".$zone_id.";".$date_created.";".$date_pushed);
+       $sql = "SELECT gcm_regid FROM noc.gcm_users a INNER JOIN noc.employee b ON a.employee_id = b.employee_id
               WHERE b.company_id = '" . Yii::app()->user->company_id . "' AND b.default_zone_id = '" . $zone_id . "'";
+      //pre($sql);
       $command = Yii::app()->db->createCommand($sql);
       $gcm_reg_id = $command->queryAll();
+     
       try {
+         
          if (isset($gcm_reg_id[0]['gcm_regid'])) {
-            $message = 'You have a new inventory. The DR number is: ' . $dr_no;
+             
+            $data = array();
+               $data['ID'] = $id;
+               $data['dr_no'] = $dr_no;
+               $data['date_created'] = $date_created;
+               $data['date_sent'] = $date_pushed;
+               
+               $message = json_encode($data);
+              // pre($message);
+//            $message = 'You have a new inventory. The DR number is: ' . $dr_no;
             GcmUsers::model()->send_notification($gcm_reg_id[0]['gcm_regid'], $message);
             if (!isset($_GET['ajax'])) {
                Yii::app()->user->setFlash('success', "DR no successfully sent");

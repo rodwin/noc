@@ -110,7 +110,7 @@ return false;
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
-                <td class="filter"></td>
+                <td class="filter" id="hide_textbox"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>

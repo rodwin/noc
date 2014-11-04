@@ -89,7 +89,7 @@ class IncomingInventoryController extends Controller {
             $row['destination_zone_name'] = $value->zone->zone_name;
             $row['transaction_date'] = $value->transaction_date;
             $row['status'] = $status;
-            $row['total_amount'] = $value->total_amount;
+            $row['total_amount'] = "&#x20B1;" . number_format($value->total_amount, 2, '.', ',');
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
@@ -415,7 +415,7 @@ class IncomingInventoryController extends Controller {
             $row['expiration_date'] = $value->expiration_date;
             $row['planned_quantity'] = $value->planned_quantity;
             $row['quantity_received'] = $value->quantity_received;
-            $row['amount'] = $value->amount;
+            $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
             $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['return_date'] = $value->return_date;
             $row['status'] = $status;

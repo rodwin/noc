@@ -82,7 +82,7 @@ class ReceivingInventoryController extends Controller {
             $row['plan_arrival_date'] = $value->plan_arrival_date;
             $row['transaction_date'] = $value->transaction_date;
             $row['delivery_remarks'] = $value->delivery_remarks;
-            $row['total_amount'] = $value->total_amount;
+            $row['total_amount'] = "&#x20B1;" . number_format($value->total_amount, 2, '.', ',');
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
@@ -169,7 +169,7 @@ class ReceivingInventoryController extends Controller {
             $row['sku_status_name'] = isset($value->skuStatus->status_name) ? $value->skuStatus->status_name : null;
             $row['planned_quantity'] = $value->planned_quantity;
             $row['quantity_received'] = $value->quantity_received;
-            $row['amount'] = $value->amount;
+            $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
             $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['remarks'] = $value->remarks;
 
@@ -264,7 +264,13 @@ class ReceivingInventoryController extends Controller {
         $supplier_list = CHtml::listData(Supplier::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'supplier_name ASC')), 'supplier_id', 'supplier_name');
         $delivery_remarks = CHtml::listData(ReceivingInventory::model()->getDeliveryRemarks(), 'id', 'title');
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
-
+        
+        $c1 = new CDbCriteria();
+        $c1->condition = 't.company_id = "'.Yii::app()->user->company_id.'" AND salesOffice.distributor_id = ""';
+        $c1->with = array('salesOffice');
+        $c1->order = "t.zone_name ASC";
+        $warehouse_zone_list = CHtml::listData(Zone::model()->findAll($c1), 'zone_id', 'zone_name');
+        
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
             $data = array();
@@ -370,6 +376,7 @@ class ReceivingInventoryController extends Controller {
             'employee' => $employee,
             'sku_status' => $sku_status,
             'attachment' => $attachment,
+            'warehouse_zone_list' => $warehouse_zone_list,
         ));
     }
 
@@ -717,7 +724,7 @@ class ReceivingInventoryController extends Controller {
             $row = array();
             $row['file_name'] = $icon . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . $value->file_name;
 
-            $row['links'] = '<a class="btn btn-sm btn-default" title="Delete" href="' . $this->createUrl('/inventory/receivinginventory/download', array('id' => $value->attachment_id)) . '">
+            $row['links'] = '<a class="btn btn-sm btn-default" title="Download" href="' . $this->createUrl('/inventory/receivinginventory/download', array('id' => $value->attachment_id)) . '">
                                 <i class="glyphicon glyphicon-download"></i>
                             </a>'
                     . '&nbsp;<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/receivinginventory/deleteAttachment', array('attachment_id' => $value->attachment_id)) . '">

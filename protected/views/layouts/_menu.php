@@ -10,6 +10,7 @@ $main_menu = array(
             array('label' => IncomingInventory::INCOMING_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('inventory/incomingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
             array('label' => OutgoingInventory::OUTGOING_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('inventory/outgoingInventory/admin'), 'visible' => !Yii::app()->user->isGuest),
             array('label' => CustomerItem::CUSTOMER_ITEM_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('inventory/customerItem/admin'), 'visible' => !Yii::app()->user->isGuest),
+            array('label' => ProofOfDelivery::PROOF_OF_DELIVERY_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('inventory/proofOfDelivery/admin'), 'visible' => !Yii::app()->user->isGuest),
         )),
     array('label' => 'Library', 'url' => '#', 'icon' => 'fa fa-book', 'visible' => isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['library']), 'items' => array(
             array('label' => 'Supplier', 'icon' => 'fa fa-angle-double-right', 'url' => array('library/supplier/admin'), 'visible' => !Yii::app()->user->isGuest),
@@ -36,6 +37,7 @@ $main_menu = array(
     array('label' => 'Admin', 'url' => '#', 'icon' => 'fa fa-users', 'visible' => isset(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['admin']), 'items' => array(
             array('label' => 'Users', 'icon' => 'fa fa-angle-double-right', 'url' => array('admin/user/admin'), 'visible' => !Yii::app()->user->isGuest),
             array('label' => 'Company', 'icon' => 'fa fa-angle-double-right', 'url' => array('admin/company/update', array('id' => Yii::app()->user->company_id)), 'visible' => !Yii::app()->user->isGuest),
+//            array('label' => 'Role', 'icon' => 'fa fa-angle-double-right', 'url' => array('admin/authitem/admin'), 'visible' => !Yii::app()->user->isGuest),
         )),
 );
 ?>

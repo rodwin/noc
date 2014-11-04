@@ -88,9 +88,10 @@ return false;
     </ul>
     <div class="tab-content" id ="info">
         <div class="tab-pane active" id="tab_1">
+            <div id="ajax_loader_details"></div>
             <?php $skuFields = Sku::model()->attributeLabels(); ?>
             <?php $receivingInvFields = ReceivingInventoryDetail::model()->attributeLabels(); ?>
-            <div class="box-body table-responsive">
+            <div id="receiving_details" class="box-body table-responsive">
                 <table id="receiving-inventory-details_table" class="table table-bordered">
                     <thead>
                         <tr>
@@ -124,8 +125,9 @@ return false;
             </div>
         </div>
         <div class="tab-pane" id="tab_2">
+            <div id="ajax_loader_attachments"></div>
             <?php $attachment = Attachment::model()->attributeLabels(); ?>
-            <div class="box-body table-responsive">
+            <div id="receiving_attachments" class="box-body table-responsive">
                 <table id="receiving-inventory-attachment_table" class="table table-bordered">
                     <thead>
                         <tr>
@@ -214,6 +216,7 @@ return false;
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(9)', nRow).addClass("text-center");
+                $('td:eq(4),td:eq(8)', nRow).addClass("text-right");
 
             }
         });
@@ -328,13 +331,22 @@ return false;
         });
     });
 
+    var receiving_details_table, receiving_attachments_table;
     function loadReceivingInvDetails(receiving_inv_id) {
         receiving_id = receiving_inv_id;
 
-        $.ajax({
+        if (typeof receiving_details_table != "undefined") {
+            receiving_details_table.abort();
+        }
+
+        receiving_details_table = $.ajax({
             type: 'POST',
             url: '<?php echo Yii::app()->createUrl('/inventory/ReceivingInventory/receivingInvDetailData'); ?>' + '&receiving_inv_id=' + receiving_inv_id,
             dataType: "json",
+            beforeSend: function() {
+                $("#receiving_details").hide();
+                $("#ajax_loader_details").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
+            },
             success: function(data) {
 
                 var oSettings = receiving_inv_detail_table.fnSettings();
@@ -342,6 +354,9 @@ return false;
                 for (var i = 0; i <= iTotalRecords; i++) {
                     receiving_inv_detail_table.fnDeleteRow(0, null, true);
                 }
+
+                $("#ajax_loader_details").html("");
+                $("#receiving_details").show();
 
                 $.each(data.data, function(i, v) {
                     receiving_inv_detail_table.fnAddData([
@@ -358,17 +373,28 @@ return false;
                     ]);
                 });
             },
-            error: function(data) {
-                alert("Error occured: Please try again.");
+            error: function(status, exception) {
+                if (exception !== "abort") {
+                    alert("Error occured: Please try again.");
+                }
             }
         });
     }
     /// julius code
     function loadAttachmentPreview(receiving_inv_id) {
-        $.ajax({
+
+        if (typeof receiving_attachments_table != "undefined") {
+            receiving_attachments_table.abort();
+        }
+
+        receiving_attachments_table = $.ajax({
             type: 'POST',
             url: '<?php echo Yii::app()->createUrl('/inventory/ReceivingInventory/preview'); ?>' + '&id=' + receiving_inv_id,
             dataType: "json",
+            beforeSend: function() {
+                $("#receiving_attachments").hide();
+                $("#ajax_loader_attachments").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
+            },
             success: function(data) {
                 var oSettings = receiving_inv_attachment_table.fnSettings();
                 var iTotalRecords = oSettings.fnRecordsTotal();
@@ -376,6 +402,9 @@ return false;
                 for (var i = 0; i <= iTotalRecords; i++) {
                     receiving_inv_attachment_table.fnDeleteRow(0, null, true);
                 }
+
+                $("#ajax_loader_attachments").html("");
+                $("#receiving_attachments").show();
 
                 $.each(data.data, function(i, v) {
                     rows++;
@@ -386,8 +415,10 @@ return false;
                     ]);
                 });
             },
-            error: function(data) {
-                alert("Error occured: Please try again.");
+            error: function(status, exception) {
+                if (exception !== "abort") {
+                    alert("Error occured: Please try again.");
+                }
             }
         });
     }

@@ -207,22 +207,32 @@ class CustomerItem extends CActiveRecord {
                 break;
 
             case 1:
-                $sort_column = 't.rra_no';
+                $sort_column = 't.dr_date';
                 break;
 
             case 2:
-                $sort_column = 't.rra_date';
+                $sort_column = 't.rra_no';
                 break;
 
             case 3:
-                $sort_column = 't.poi_id';
+                $sort_column = 't.rra_date';
                 break;
 
             case 4:
-                $sort_column = 't.total_amount';
+
+                $sort_column = 't.poi_id';
                 break;
 
             case 5:
+                $sort_column = 't.status';
+                break;
+
+            case 6:
+                $sort_column = 't.total_amount';
+                break;
+
+            case 7:
+
                 $sort_column = 't.created_date';
                 break;
         }
@@ -231,11 +241,15 @@ class CustomerItem extends CActiveRecord {
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
         $criteria->compare('t.dr_no', $columns[0]['search']['value'], true);
-        $criteria->compare('t.rra_no', $columns[1]['search']['value'], true);
-        $criteria->compare('t.rra_date', $columns[2]['search']['value'], true);
-        $criteria->compare('poi.short_name', $columns[3]['search']['value'], true);
-        $criteria->compare('t.total_amount', $columns[4]['search']['value'], true);
-        $criteria->compare('t.created_date', $columns[5]['search']['value'], true);
+
+        $criteria->compare('t.dr_date', $columns[1]['search']['value'], true);
+        $criteria->compare('t.rra_no', $columns[2]['search']['value'], true);
+        $criteria->compare('t.rra_date', $columns[3]['search']['value'], true);
+        $criteria->compare('poi.short_name', $columns[4]['search']['value'], true);
+        $criteria->compare('t.status', $columns[5]['search']['value'], true);
+        $criteria->compare('t.total_amount', $columns[6]['search']['value'], true);
+        $criteria->compare('t.created_date', $columns[7]['search']['value'], true);
+
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
@@ -294,9 +308,16 @@ class CustomerItem extends CActiveRecord {
                 if ($customer_item->save(false)) {
                     unset(Yii::app()->session['tid']);
                     Yii::app()->session['tid'] = $customer_item->customer_item_id;
+
+                    $customer_item_detail_id_arr = array();
                     for ($i = 0; $i < count($transaction_details); $i++) {
+                        unset(Yii::app()->session['customer_item_detail_ids']);
                         CustomerItemDetail::model()->createCustomerItemTransactionDetails($customer_item->customer_item_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $customer_item->transaction_date);
+
+                        $customer_item_detail_id_arr[]['customer_item_detail_id'] = Yii::app()->session['customer_item_detail_ids'];
                     }
+                    
+                    ProofOfDelivery::model()->customerData($customer_item, $transaction_details, $customer_item_detail_id_arr);
                 }
                 return true;
             } else {
@@ -305,7 +326,6 @@ class CustomerItem extends CActiveRecord {
 
             return true;
         } catch (Exception $exc) {
-            pr($exc);
             Yii::log($exc->getTraceAsString(), 'error');
             return false;
         }

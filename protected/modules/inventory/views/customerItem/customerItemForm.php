@@ -141,8 +141,22 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($customer_item, 'rra_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo CHtml::textField('poi_id', '', array('id' => 'CustomerItem_poi_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Outlet")); ?>
-                <?php echo $form->textFieldGroup($customer_item, 'poi_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'CustomerItem_poi', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
+                <?php
+                echo $form->select2Group(
+                        $customer_item, 'poi_id', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => '', 'id' => 'CustomerItem_poi_id',
+                    ),
+                    'widgetOptions' => array(
+                        'data' => $poi_list,
+                        'options' => array(
+                        ),
+                        'htmlOptions' => array('class' => 'ignore span5', 'prompt' => '--')),
+                    'labelOptions' => array('label' => false)));
+                ?>
+
+                <?php // echo CHtml::textField('poi_id', '', array('id' => 'CustomerItem_poi_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Outlet")); ?>
+                <?php // echo $form->textFieldGroup($customer_item, 'poi_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'CustomerItem_poi', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
 
                 <div id="CustomerItem_poi_primary_code" class="autofill_text"></div>
                 <div id="CustomerItem_poi_address1" class="autofill_text" style="height: auto;"></div>
@@ -179,7 +193,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     ),
                     'labelOptions' => array('label' => false)));
                 ?> 
-                
+
                 <?php echo $form->textFieldGroup($customer_item, 'source_zone_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
 
             </div>
@@ -688,7 +702,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 document.forms["customer-item-form"].reset();
                 $('#customer-item-form .autofill_text').html('');
-                referenceDRNoChange(reference_DRNo, true);
+//                referenceDRNoChange(reference_DRNo, true);
+                $("#customer-item-form .select2-container").select2("val", "");
 
                 var oSettings = transaction_table.fnSettings();
                 var iTotalRecords = oSettings.fnRecordsTotal();
@@ -746,10 +761,16 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
+                var element2 = document.getElementById("s2id_" + i);
 
                 var $element = $(element);
                 $element.data("title", v)
                         .addClass("error")
+                        .tooltip();
+
+                var $element2 = $(element2);
+                $element2.data("title", v)
+                        .addClass("error_border")
                         .tooltip();
             });
         }
@@ -1052,5 +1073,20 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             }
         });
     }
+
+    $('#CustomerItem_poi_id').change(function() {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl('/library/poi/getPOIDetails'); ?>' + '&poi_id=' + this.value,
+            dataType: "json",
+            success: function(data) {
+                $("#CustomerItem_poi_primary_code").html(data.primary_code);
+                $("#CustomerItem_poi_address1").html(data.address1);
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+    });
 
 </script>

@@ -141,14 +141,34 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->textFieldGroup($receiving, 'pr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php
-                echo $form->dropDownListGroup($receiving, 'requestor', array(
+//                echo $form->dropDownListGroup($receiving, 'requestor', array(
+//                    'wrapperHtmlOptions' => array(
+//                        'class' => '',
+//                    ),
+//                    'widgetOptions' => array(
+//                        'data' => $employee,
+//                        'htmlOptions' => array('class' => 'ignore span5', 'multiple' => false, 'prompt' => 'Select Requestor'),
+//                    ),
+//                    'labelOptions' => array('label' => false)));
+                ?>
+
+                <?php
+                echo $form->select2Group(
+                        $receiving, 'requestor', array(
                     'wrapperHtmlOptions' => array(
-                        'class' => '',
+                        'class' => '', 'id' => 'ReceivingInventory_requestor',
                     ),
                     'widgetOptions' => array(
+//                        'asDropDownList' => false,
                         'data' => $employee,
-                        'htmlOptions' => array('class' => 'ignore span5', 'multiple' => false, 'prompt' => 'Select Requestor'),
-                    ),
+                        'options' => array(
+//                            'placeholder' => 'Select Requestor',
+//                            'tags' => array('clever', 'is', 'better', 'clevertech'),
+//                            'placeholder' => 'type clever, or is, or just type!',
+//                            'width' => '40%',
+//                            'tokenSeparators' => array(',', ' ')
+                        ),
+                        'htmlOptions' => array('class' => 'ignore span5', 'id' => 'ReceivingInventory_requestor', 'prompt' => '--')),
                     'labelOptions' => array('label' => false)));
                 ?>
 
@@ -157,7 +177,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->textFieldGroup($receiving, 'revised_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
             </div>
-        </div>
+        </div> 
 
         <div class="col-md-6">
             <div id="input_label" class="pull-left col-md-5">
@@ -176,14 +196,41 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($receiving, 'dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo CHtml::textField('zone_name', '', array('id' => 'ReceivingInventory_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone")); ?>
-                <?php echo $form->textFieldGroup($receiving, 'zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'receivingInventory_zone_id', 'class' => 'ignore span5', 'maxlength' => 50, 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
+                <?php // echo CHtml::textField('zone_name', '', array('id' => 'ReceivingInventory_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone")); ?>
+                <?php // echo $form->textFieldGroup($receiving, 'zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'receivingInventory_zone_id', 'class' => 'ignore span5', 'maxlength' => 50, 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo $form->textFieldGroup($receiving, 'plan_arrival_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+                <?php
+                echo $form->select2Group(
+                        $receiving, 'zone_id', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => '', 'id' => 'ReceivingInventory_zone_id',
+                    ),
+                    'widgetOptions' => array(
+                        'data' => $warehouse_zone_list,
+                        'options' => array(
+                        ),
+                        'htmlOptions' => array('class' => 'ignore span5', 'prompt' => '--')),
+                    'labelOptions' => array('label' => false)));
+                ?>
                 
-                <?php echo CHtml::textField('supplier_name', '', array('id' => 'ReceivingInventory_supplier_id', 'class' => 'ignore typeahead form-control span5', 'maxlength' => 50, 'placeholder' => "Supplier")); ?>
-                <?php echo $form->textFieldGroup($receiving, 'supplier_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'ReceivingInventory_supplier', 'class' => 'ignore span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($receiving, 'plan_arrival_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
+                <?php // echo CHtml::textField('supplier_name', '', array('id' => 'ReceivingInventory_supplier_id', 'class' => 'ignore typeahead form-control span5', 'maxlength' => 50, 'placeholder' => "Supplier")); ?>
+                <?php // echo $form->textFieldGroup($receiving, 'supplier_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'ReceivingInventory_supplier', 'class' => 'ignore span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
+                
+                <?php
+                echo $form->select2Group(
+                        $receiving, 'supplier_id', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => '', 'id' => 'ReceivingInventory_supplier_id',
+                    ),
+                    'widgetOptions' => array(
+                        'data' => $supplier_list,
+                        'options' => array(
+                        ),
+                        'htmlOptions' => array('class' => 'ignore span5', 'prompt' => '--')),
+                    'labelOptions' => array('label' => false)));
+                ?>
                 <?php
                 echo $form->dropDownListGroup($receiving, 'delivery_remarks', array(
                     'wrapperHtmlOptions' => array(
@@ -397,7 +444,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th><?php echo $receivingDetailFields['amount']; ?></th>
-                        <!--<th class=""><?php // echo $receivingDetailFields['inventory_on_hand']; ?></th>-->
+
+                        <!--<th class=""><?php // echo $receivingDetailFields['inventory_on_hand'];                  ?></th>-->
+
                         <th class="hide_row"><?php echo $receivingDetailFields['remarks']; ?></th>
                     </tr>                                    
                 </thead>
@@ -591,6 +640,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 }
 
                 document.forms["receiving-inventory-form"].reset();
+                $("#receiving-inventory-form .select2-container").select2("val", "");
 
                 var oSettings = transaction_table.fnSettings();
                 var iTotalRecords = oSettings.fnRecordsTotal();
@@ -648,10 +698,16 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             var error_count = 0;
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
+                var element2 = document.getElementById("s2id_" + i);
 
                 var $element = $(element);
                 $element.data("title", v)
                         .addClass("error")
+                        .tooltip();
+
+                var $element2 = $(element2);
+                $element2.data("title", v)
+                        .addClass("error_border")
                         .tooltip();
 
 //                element.classList.add("error");

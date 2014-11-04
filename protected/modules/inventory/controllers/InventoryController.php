@@ -694,7 +694,7 @@ class InventoryController extends Controller {
     public function actionLoadNotifications() {
 
         $c = new CDbCriteria;
-        $c->condition = "t.closed = 0";
+        $c->condition = "t.status = '" . OutgoingInventory::OUTGOING_PENDING_STATUS . "'";
         $outbound = OutgoingInventory::model()->findAll($c);
 
         $outbound_arr = array();
@@ -706,12 +706,40 @@ class InventoryController extends Controller {
             $row['transaction_type'] = '<a href="#" title="Click to view" data-toggle="tooltip"><b>' . strtoupper(OutgoingInventory::OUTGOING_LABEL) . '</b></a>';
             $row['plan_date'] = date("d-M", strtotime($val->plan_arrival_date));
             $row['status'] = $status;
+            $row['created_date'] = $val->created_date;
 
-            $outbound_arr['data'][] = $row;
+            $outbound_arr[] = $row;
         }
 
-        $output = array_merge($outbound_arr);
+        $c1 = new CDbCriteria;
+        $c1->condition = "t.status = '" . OutgoingInventory::OUTGOING_PENDING_STATUS . "'";
+        $outgoing = CustomerItem::model()->findAll($c1);
 
+        $outgoing_arr = array();
+        foreach ($outgoing as $key1 => $val1) {
+            $row = array();
+
+            $status = Inventory::model()->status($val1->status);
+
+            $row['transaction_type'] = '<a href="#" title="Click to view" data-toggle="tooltip"><b>' . strtoupper(CustomerItem::CUSTOMER_ITEM_LABEL) . '</b></a>';
+            $row['dr_no'] = $val1->dr_no;
+            $row['dr_date'] = date("d-M", strtotime($val1->dr_date));
+            $row['status'] = $status;
+            $row['created_date'] = $val->created_date;
+
+            $outgoing_arr[] = $row;
+        }
+
+        $outbound_outgoing = array_merge($outbound_arr, $outgoing_arr);
+        
+        $sort['sort'] = array();
+        foreach ($outbound_outgoing as $key2 => $val2) {
+            $sort['sort'][$key2] = $val2['created_date'];
+        }
+        
+        array_multisort($sort['sort'], SORT_DESC, $outbound_outgoing);
+        $output = $outbound_outgoing;
+        
         echo json_encode($output);
         Yii::app()->end();
     }

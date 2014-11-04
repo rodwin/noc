@@ -309,14 +309,18 @@ class OutgoingInventory extends CActiveRecord {
                 break;
 
             case 1:
-                $sort_column = 't.rra_no';
+                $sort_column = 't.dr_date';
                 break;
 
             case 2:
-                $sort_column = 't.rra_date';
+                $sort_column = 't.rra_no';
                 break;
 
             case 3:
+                $sort_column = 't.rra_date';
+                break;
+
+            case 4:
                 $sort_column = 'zone.zone_name';
                 break;
 
@@ -328,19 +332,19 @@ class OutgoingInventory extends CActiveRecord {
 //                $sort_column = 't.pr_no';
 //                break;
 
-            case 4:
+            case 5:
                 $sort_column = 't.status';
                 break;
 
-            case 5:
+            case 6:
                 $sort_column = 't.contact_person';
                 break;
 
-            case 6:
+            case 7:
                 $sort_column = 't.total_amount';
                 break;
 
-            case 7:
+            case 8:
                 $sort_column = 't.created_date';
                 break;
         }
@@ -349,15 +353,16 @@ class OutgoingInventory extends CActiveRecord {
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
         $criteria->compare('t.dr_no', $columns[0]['search']['value']);
-        $criteria->compare('t.rra_no', $columns[1]['search']['value'], true);
-        $criteria->compare('t.rra_date', $columns[2]['search']['value'], true);
-        $criteria->compare('zone.zone_name', $columns[3]['search']['value'], true);
+        $criteria->compare('t.dr_date', $columns[1]['search']['value']); 
+        $criteria->compare('t.rra_no', $columns[2]['search']['value'], true);
+        $criteria->compare('t.rra_date', $columns[3]['search']['value'], true);
+        $criteria->compare('zone.zone_name', $columns[4]['search']['value'], true);
 //        $criteria->compare('t.campaign_no', $columns[4]['search']['value'], true);
 //        $criteria->compare('t.pr_no', $columns[5]['search']['value'], true);
-        $criteria->compare('t.status', $columns[4]['search']['value'], true);
-        $criteria->compare('t.contact_person', $columns[5]['search']['value'], true);
-        $criteria->compare('t.total_amount', $columns[6]['search']['value'], true);
-        $criteria->compare('t.created_date', $columns[7]['search']['value'], true);
+        $criteria->compare('t.status', $columns[5]['search']['value'], true);
+        $criteria->compare('t.contact_person', $columns[6]['search']['value'], true);
+        $criteria->compare('t.total_amount', $columns[7]['search']['value'], true);
+        $criteria->compare('t.created_date', $columns[8]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;

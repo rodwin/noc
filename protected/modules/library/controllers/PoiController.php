@@ -28,7 +28,7 @@ class PoiController extends Controller {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
                 'actions' => array('index', 'view', 'getAllSubCategoryByCategoryID', 'getAllCustomDataByCategoryID', 'getAllSubCategoryByCategoryName', 'getProvinceByRegionCode',
-                    'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode', 'upload', 'uploadDetails', 'search'),
+                    'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode', 'upload', 'uploadDetails', 'search', 'getPOIDetails'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -578,6 +578,31 @@ class PoiController extends Controller {
             $return[$key]['primary_code'] = $val->primary_code;
             $return[$key]['address1'] = $poi_address;
         }
+
+        echo json_encode($return);
+    }
+
+    public function actionGetPOIDetails($poi_id) {
+
+        $c = new CDbCriteria();
+        $c->select = new CDbExpression('t.*, TRIM(barangay.barangay_name) as barangay_name, TRIM(municipal.municipal_name) as municipal_name, TRIM(province.province_name) as province_name, TRIM(region.region_name) as region_name');
+        $c->condition = 't.company_id =  "' . Yii::app()->user->company_id . '" AND t.poi_id = "' . $poi_id . '"';
+        $c->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
+        $c->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
+        $c->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
+        $c->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
+        $poi = Poi::model()->find($c);
+
+        $return = array();
+        $poi_address = isset($poi->barangay_name) ? $poi->barangay_name . ", " : "";
+        $poi_address .= isset($poi->municipal_name) ? $poi->municipal_name . ", " : "";
+        $poi_address .= isset($poi->province_name) ? $poi->province_name . ", " : "";
+        $poi_address .= isset($poi->region_name) ? $poi->region_name : "";
+
+        $return['poi_id'] = $poi->poi_id;
+        $return['short_name'] = $poi->short_name;
+        $return['primary_code'] = $poi->primary_code;
+        $return['address1'] = $poi_address;
 
         echo json_encode($return);
     }
