@@ -507,7 +507,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                          file_upload_count--;
                          console.log(file_upload_count);
 
-                         if(file_upload_count == 0) { $("#tbl tbody tr").remove(); }
+                         if(file_upload_count == 0) { $("#tbl tbody tr").remove(); loadToView(); }
                      }'
                 ),
                 'fail' => new CJavaScriptExpression(
@@ -679,6 +679,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     var file_upload_count = 0;
+    var success_customer_item_id, success_type, success_message;
     function validateForm(data) {
 
         var e = $(".error");
@@ -694,24 +695,22 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             if (data.form == headers) {
 
+//                document.forms["customer-item-form"].reset();
+//                $('#customer-item-form .autofill_text').html('');
+//                $("#customer-item-form .select2-container").select2("val", "");
+
+                success_customer_item_id = data.customer_item_id;
+                success_type = data.type;
+                success_message = data.message;
+
                 if (files != "") {
                     file_upload_count = files.length;
 
                     $('#uploading').click();
+                } else {
+
+                    loadToView();
                 }
-
-                document.forms["customer-item-form"].reset();
-                $('#customer-item-form .autofill_text').html('');
-//                referenceDRNoChange(reference_DRNo, true);
-                $("#customer-item-form .select2-container").select2("val", "");
-
-                var oSettings = transaction_table.fnSettings();
-                var iTotalRecords = oSettings.fnRecordsTotal();
-                for (var i = 0; i <= iTotalRecords; i++) {
-                    transaction_table.fnDeleteRow(0, null, true);
-                }
-
-                growlAlert(data.type, data.message);
 
             } else if (data.form == details) {
 
@@ -1088,5 +1087,12 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             }
         });
     });
+
+    function loadToView() {
+
+        window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/customerItem') . '"' ?> + "/view&id=" + success_customer_item_id;
+
+        growlAlert(success_type, success_message);
+    }
 
 </script>
