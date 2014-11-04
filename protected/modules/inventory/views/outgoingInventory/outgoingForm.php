@@ -460,7 +460,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
                         <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
                         <th><?php echo $outgoingDetailFields['amount']; ?></th>
-                        <th><?php // echo $outgoingDetailFields['inventory_on_hand'];                                         ?></th>
+                        <th><?php // echo $outgoingDetailFields['inventory_on_hand'];                                                          ?></th>
                         <th class=""><?php echo $outgoingDetailFields['return_date']; ?></th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['remarks']; ?></th>
                         <th class="hide_row">Inventory</th>
@@ -530,9 +530,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 'done' => new CJavaScriptExpression(
                         'function(e, data) { 
                          file_upload_count--;
-                         console.log(file_upload_count);
                          
-                         if(file_upload_count == 0) {$("#tbl tr").remove();}
+                         if(file_upload_count == 0) {$("#tbl tr").remove(); loadToView(); }
                      }'
                 ),
                 'fail' => new CJavaScriptExpression(
@@ -700,6 +699,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
     }
 
+var file_upload_count = 0;
+    var success_outgoing_inv_id, success_type, success_message;
     function validateForm(data) {
 
         var e = $(".error");
@@ -715,24 +716,18 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             if (data.form == headers) {
 
-//                if (files != "") {
-//                    file_upload_count = files.length;
-//
-//                    $('#uploading').click();
-//                }
-//
-//                document.forms["outgoing-inventory-form"].reset();
-//                $("#outgoing-inventory-form .select2-container").select2("val", "");
-//
-//                var oSettings = transaction_table.fnSettings();
-//                var iTotalRecords = oSettings.fnRecordsTotal();
-//                for (var i = 0; i <= iTotalRecords; i++) {
-//                    transaction_table.fnDeleteRow(0, null, true);
-//                }
+                success_outgoing_inv_id = data.outgoing_inv_id;
+                success_type = data.type;
+                success_message = data.message;
 
-                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/OutgoingInventory') . '"' ?> + "/view&id=" + data.outgoing_inv_id;
+                if (files != "") {
+                    file_upload_count = files.length;
 
-                growlAlert(data.type, data.message);
+                    $('#uploading').click();
+                } else {
+
+                    loadToView();
+                }
 
             } else if (data.form == details) {
 
@@ -1115,7 +1110,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     function printPDF(data) {
 
         $.ajax({
-            url: '<?php echo Yii::app()->createUrl($this->module->id . '/ReceivingInventory/print'); ?> ',
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/print'); ?> ',
             type: 'POST',
             dataType: "json",
             data: {"post_data": data},
@@ -1260,6 +1255,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             });
         }
 
+    }
+
+    function loadToView() {
+
+        window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/outgoingInventory') . '"' ?> + "/view&id=" + success_outgoing_inv_id;
+
+        growlAlert(success_type, success_message);
     }
 
 </script>

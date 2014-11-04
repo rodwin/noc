@@ -43,7 +43,7 @@ $this->breadcrumbs = array(
                 <th><?php echo $fields['rra_no']; ?></th>
                 <th><?php echo $fields['rra_date']; ?></th>
                 <th><?php echo $fields['destination_zone_id']; ?></th>
-                <!--<th><?php // echo $fields['pr_no'];        ?></th>-->
+                <!--<th><?php // echo $fields['pr_no'];         ?></th>-->
                 <th><?php echo $fields['status']; ?></th>
                 <th><?php echo $fields['contact_person']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
@@ -293,7 +293,7 @@ $this->breadcrumbs = array(
             return false;
         });
 
-        jQuery(document).on('click', '#outgoing-inventory_table a.delete', function() {
+        jQuery(document).on('click', '#outgoing-inventory-attachment_table a.delete', function() {
             if (!confirm('Are you sure you want to delete this item?'))
                 return false;
             $.ajax({
@@ -301,23 +301,11 @@ $this->breadcrumbs = array(
                 'type': 'POST',
                 'dataType': 'text',
                 'success': function(data) {
-                    if (data == "1451") {
-                        $.growl("Unable to delete", {
-                            icon: 'glyphicon glyphicon-warning-sign',
-                            type: 'danger'
-                        });
+                    $.growl(data, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: 'success'
+                    });
 
-                        outgoing_inventory_id = "";
-                    } else {
-                        $.growl(data, {
-                            icon: 'glyphicon glyphicon-info-sign',
-                            type: 'success'
-                        });
-
-                        outgoing_inventory_table.fnMultiFilter();
-                    }
-
-                    loadOutgoingInvDetails(outgoing_inventory_id);
                     loadAttachmentPreview(outgoing_inventory_id);
                 },
                 error: function(jqXHR, exception) {

@@ -31,7 +31,7 @@ class OutgoingInventoryController extends Controller {
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('create', 'update', 'data', 'loadInventoryDetails', 'outgoingInvDetailData', 'afterDeleteTransactionRow', 'invData', 'uploadAttachment', 'preview', 'download', 'searchCampaignNo', 'loadPRNos', 'loadInvByPRNo',
-                    'deleteOutgoingDetail', 'deleteAttachment', 'print', 'loadPDF', 'getDetailsByOutgoingInvID', 'getTransactionDetailsByOutgoingInvID', 'loadItemDetails'),
+                    'deleteOutgoingDetail', 'deleteAttachment', 'print', 'loadPDF', 'getDetailsByOutgoingInvID', 'loadItemDetails', 'viewPrint'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -193,9 +193,62 @@ class OutgoingInventoryController extends Controller {
         $this->pageTitle = "View " . OutgoingInventory::OUTGOING_LABEL . ' Inventory';
         $this->layout = '//layouts/column1';
 
+        $c = new CDbCriteria;
+        $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.outgoing_inventory_id = '" . $model->outgoing_inventory_id . "'";
+        $c->with = array("zone");
+        $outgoing_inv = OutgoingInventory::model()->find($c);
+
+        $c1 = new CDbCriteria;
+        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND zones.zone_id = '" . $outgoing_inv->zone->zone_id . "'";
+        $c1->with = array("zones");
+        $destination_sales_office = SalesOffice::model()->find($c1);
+
+        $destination = array();
+        $destination['zone_name'] = $outgoing_inv->zone->zone_name;
+        $destination['destination_sales_office_name'] = isset($destination_sales_office->sales_office_name) ? $destination_sales_office->sales_office_name : "";
+        $destination['contact_person'] = $outgoing_inv->contact_person != "" ? $outgoing_inv->contact_person : "";
+        $destination['contact_no'] = $outgoing_inv->contact_no != "" ? $outgoing_inv->contact_no : "";
+        $destination['address'] = $outgoing_inv->address != "" ? $outgoing_inv->address : "";
+
+        $outgoing_detail = OutgoingInventoryDetail::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "outgoing_inventory_id" => $model->outgoing_inventory_id));
+
+        $zone_ids = "";
+        $pr_nos = "";
+        $pr_no_arr = array();
+        $campaign_nos = "";
+        $campaign_no_arr = array();
+        $pr_dates = "";
+        $pr_dates_arr = array();
+        foreach ($outgoing_detail as $key => $val) {
+            $zone_ids .= "'" . $val->source_zone_id . "',";
+
+            if (!in_array($val->pr_no, $pr_no_arr)) {
+                array_push($pr_no_arr, $val->pr_no);
+                $pr_nos .= $val->pr_no . ",";
+            }
+
+            if (!in_array($val->campaign_no, $campaign_no_arr)) {
+                array_push($campaign_no_arr, $val->campaign_no);
+                $campaign_nos .= $val->campaign_no . ",";
+            }
+
+            if (!in_array($val->pr_date, $pr_dates_arr)) {
+                array_push($pr_dates_arr, $val->pr_date);
+                $pr_dates .= $val->pr_date . ",";
+            }
+        }
+
+        $pr_nos = substr($pr_nos, 0, -1);
+        $pr_dates = substr($pr_dates, 0, -1);
+        $campaign_nos = substr($campaign_nos, 0, -1);
+
 
         $this->render('view', array(
             'model' => $model,
+            'destination' => $destination,
+            'pr_nos' => $pr_nos,
+            'pr_dates' => $pr_dates,
+            'campaign_nos' => $campaign_nos,
         ));
     }
 
@@ -727,24 +780,26 @@ class OutgoingInventoryController extends Controller {
         $data = array();
         $model = new Attachment;
 
+        $outgoing_inv_id_attachment_session = Yii::app()->session['outgoing_inv_id_attachment_session'];
+
         if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
 
             $file = CUploadedFile::getInstance($model, 'file');
-            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . Attachment::OUTGOING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . Yii::app()->session['tid'];
+            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . Attachment::OUTGOING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $outgoing_inv_id_attachment_session;
 
             if (!is_dir($dir)) {
                 mkdir($dir, 0777, true);
             }
 
             $file_name = str_replace(' ', '_', strtolower($file->name));
-            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::OUTGOING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . Yii::app()->session['tid'] . DIRECTORY_SEPARATOR . $file_name;
+            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::OUTGOING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $outgoing_inv_id_attachment_session . DIRECTORY_SEPARATOR . $file_name;
             $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
             $model->attachment_id = Globals::generateV4UUID();
             $model->company_id = Yii::app()->user->company_id;
             $model->file_name = $file_name;
             $model->url = $url;
-            $model->transaction_id = Yii::app()->session['tid'];
+            $model->transaction_id = $outgoing_inv_id_attachment_session;
             $model->transaction_type = Attachment::OUTGOING_TRANSACTION_TYPE;
             $model->created_by = Yii::app()->user->name;
 
@@ -1004,67 +1059,23 @@ class OutgoingInventoryController extends Controller {
 
     public function actionPrint() {
 
-        unset(Yii::app()->session["post_pdf_data_id"]);
+        $data = Yii::app()->request->getParam('post_data');
 
-        Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
-        Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = Yii::app()->request->getParam('post_data');
+        $outgoing_inv = $data['OutgoingInventory'];
+        $outgoing_inv_detail = $data['transaction_details'];
 
         $return = array();
-        if (Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] == "") {
-            $return["success"] = false;
-            return false;
-        }
 
-        $return["success"] = true;
-        $return["id"] = Yii::app()->session["post_pdf_data_id"];
-
-        echo json_encode($return);
-        Yii::app()->end();
-    }
-
-    public function actionLoadPDF($id) {
-
-        $data = Yii::app()->session[$id];
-
-        ob_start();
-
-        $headers = $data['OutgoingInventory'];
-        $details = $data['transaction_details'];
-
-        $c1 = new CDbCriteria();
-        $c1->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.zone_id = "' . $headers['destination_zone_id'] . '"';
-        $c1->with = array("salesOffice");
-        $zone = Zone::model()->find($c1);
-
-        $c2 = new CDbCriteria();
-        $c2->select = new CDbExpression('t.*, CONCAT(TRIM(barangay.barangay_name), ", ", TRIM(municipal.municipal_name), ", ", TRIM(province.province_name), ", ", TRIM(region.region_name)) AS full_address');
-        $c2->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = "' . $zone->salesOffice->sales_office_id . '"';
-        $c2->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
-        $c2->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
-        $c2->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
-        $c2->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
-        $salesoffice = Salesoffice::model()->find($c2);
-
-        $c5 = new CDbCriteria;
-        $c5->select = "t.*, zone.*";
-        $c5->condition = 't.company_id = "' . Yii::app()->user->company_id . '"';
-        $c5->with = array("zone");
-        $employee = Employee::model()->find($c5);
-
-        if ($employee && $employee->default_zone_id == $zone->zone_id) {
-            $sales_office_name = isset($employee->zone->zone_name) ? $employee->zone->zone_name : "";
-            $sales_office_address = isset($employee->address1) ? $employee->address1 : "";
-        } else {
-            $sales_office_name = isset($salesoffice->sales_office_name) ? $salesoffice->sales_office_name : "";
-            $sales_office_address = isset($salesoffice->full_address) ? $salesoffice->full_address : "";
-        }
-
-        $transaction_date = $headers['transaction_date'];
-        $plan_delivery_date = $headers['plan_delivery_date'];
+        $details = array();
+        $source = array();
+        $destination = array();
+        $headers = array();
 
         $pr_nos = "";
         $pr_no_arr = array();
-        foreach ($details as $key => $val) {
+        foreach ($outgoing_inv_detail as $key => $val) {
+            $row = array();
+
             if ($val['outgoing_inv_detail_id'] != "") {
                 $value = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "outgoing_inventory_detail_id" => $val['outgoing_inv_detail_id']));
             } else {
@@ -1077,31 +1088,71 @@ class OutgoingInventoryController extends Controller {
                     $pr_nos .= $value->pr_no . ",";
                 }
             }
+
+            $row['sku_id'] = $val['sku_id'];
+            $row['uom_id'] = $val['uom_id'];
+            $row['planned_quantity'] = $val['planned_quantity'];
+            $row['quantity_issued'] = $val['quantity_issued'];
+            $row['unit_price'] = $val['unit_price'];
+            $row['amount'] = $val['amount'];
+            $row['expiration_date'] = $val['expiration_date'];
+            $row['amount'] = $val['amount'];
+            $row['remarks'] = $val['remarks'];
+
+            $details[] = $row;
         }
 
-        $pr_no = substr($pr_nos, 0, -1);
-        $rra_no = $headers['rra_no'];
-        $rra_date = $headers['rra_date'];
-        $dr_no = $headers['dr_no'];
+        $c = new CDbCriteria;
+        $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.zone_id = '" . $outgoing_inv['destination_zone_id'] . "'";
+        $c->with = array("salesOffice");
+        $zone = Zone::model()->find($c);
 
-        $c3 = new CDbCriteria();
-        $c3->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.zone_id = "' . $headers['source_zone_id'] . '"';
-        $c3->with = array("salesOffice");
-        $souce_zone = Zone::model()->find($c3);
+        $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
+        $destination['address'] = $zone->salesOffice->address1;
 
-        $c4 = new CDbCriteria();
-        $c4->select = new CDbExpression('t.*, CONCAT(TRIM(barangay.barangay_name), ", ", TRIM(municipal.municipal_name), ", ", TRIM(province.province_name), ", ", TRIM(region.region_name)) AS full_address');
-        $c4->condition = 't.company_id = "' . Yii::app()->user->company_id . '"  AND t.sales_office_id = ""';
-        $c4->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
-        $c4->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
-        $c4->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
-        $c4->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
-        $source_salesoffice = Salesoffice::model()->find($c4);
+        $headers['transaction_date'] = $outgoing_inv['transaction_date'];
+        $headers['plan_delivery_date'] = $outgoing_inv['plan_delivery_date'];
 
-        $source_sales_office_name = isset($source_salesoffice->sales_office_name) ? $source_salesoffice->sales_office_name : "";
-        $source_sales_office_contact_person = "";
-        $source_sales_office_address = isset($source_salesoffice->full_address) ? $source_salesoffice->full_address : "";
+        $headers['pr_no'] = substr($pr_nos, 0, -1);
+        $headers['rra_no'] = $outgoing_inv['rra_no'];
+        $headers['rra_date'] = $outgoing_inv['rra_date'];
+        $headers['dr_no'] = $outgoing_inv['dr_no'];
+        $headers['total_amount'] = $outgoing_inv['total_amount'];
+        $headers['remarks'] = $outgoing_inv['remarks'];
 
+        $return['headers'] = $headers;
+        $return['source'] = $source;
+        $return['destination'] = $destination;
+        $return['details'] = $details;
+        
+        unset(Yii::app()->session["post_pdf_data_id"]);
+        
+        Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
+        Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = $return;
+
+        $output = array();
+        if (Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] == "") {
+            $output["success"] = false;
+            return false;
+        }
+
+        $output["success"] = true;
+        $output["id"] = Yii::app()->session["post_pdf_data_id"];
+        
+        echo json_encode($output);
+        Yii::app()->end();
+    }
+
+    public function actionLoadPDF($id) {
+
+        $data = Yii::app()->session[$id];
+        
+        $headers = $data['headers'];
+        $source = $data['source'];
+        $destination = $data['destination'];
+        $details = $data['details'];
+
+        ob_start();
 
         $pdf = Globals::pdf();
 
@@ -1138,45 +1189,45 @@ class OutgoingInventoryController extends Controller {
             <table class="table_main">
                 <tr>
                     <td clss="row_label" style="font-weight: bold;">SALES OFFICE / SALESMAN</td>
-                    <td class="border-bottom row_content_lg">' . $sales_office_name . '</td>
+                    <td class="border-bottom row_content_lg">' . $destination['sales_office_name'] . '</td>
                     <td style="width: 10px;"></td>
                     <td clss="row_label" style="font-weight: bold;">DELIVERY DATE</td>
-                    <td class="border-bottom row_content_sm">' . $transaction_date . '</td>
+                    <td class="border-bottom row_content_sm">' . $headers['transaction_date'] . '</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold;">ADDRESS</td>
-                    <td class="border-bottom">' . $sales_office_address . '</td>
+                    <td class="border-bottom">' . $destination['address'] . '</td>
                     <td></td>
                     <td style="font-weight: bold;">PLAN DATE</td>
-                    <td class="border-bottom">' . $plan_delivery_date . '</td>
+                    <td class="border-bottom">' . $headers['plan_delivery_date'] . '</td>
                 </tr>
             </table><br/><br/>
 
             <table class="table_main">
                 <tr>
                     <td clss="row_label" style="font-weight: bold;">PR NUMBER</td>
-                    <td class="border-bottom row_content_sm">' . $pr_no . '</td>
+                    <td class="border-bottom row_content_sm">' . $headers['pr_no'] . '</td>
                     <td style="width: 10px;"></td>
                     <td clss="row_label" style="font-weight: bold;">WAREHOUSE NAME</td>
-                    <td class="border-bottom row_content_lg">' . $source_sales_office_name . '</td>
+                    <td class="border-bottom row_content_lg">' . "" . '</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold;">RRA NUMBER</td>
-                    <td class="border-bottom">' . $rra_no . '</td>
+                    <td class="border-bottom">' . $headers['rra_no'] . '</td>
                     <td></td>
                     <td style="font-weight: bold;">CONTACT PERSON</td>
-                    <td class="border-bottom">' . $source_sales_office_contact_person . '</td>
+                    <td class="border-bottom">' . "" . '</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold;">RRA DATE</td>
-                    <td class="border-bottom">' . $rra_date . '</td>
+                    <td class="border-bottom">' . $headers['rra_date'] . '</td>
                     <td></td>
                     <td style="font-weight: bold;">ADDRESS</td>
-                    <td class="border-bottom">' . $source_sales_office_address . '</td>
+                    <td class="border-bottom">' . "" . '</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold;">DR NUMBER</td>
-                    <td class="border-bottom">' . $dr_no . '</td>
+                    <td class="border-bottom">' . $headers['dr_no'] . '</td>
                     <td></td>
                     <td></td>
                     <td class="border-bottom"></td>
@@ -1340,83 +1391,6 @@ class OutgoingInventoryController extends Controller {
         echo json_encode($output);
     }
 
-    public function actionGetTransactionDetailsByOutgoingInvID($outgoing_inv_id) {
-
-        $c = new CDbCriteria;
-        $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.outgoing_inventory_id = '" . $outgoing_inv_id . "'";
-        $c->with = array("zone");
-        $outgoing_inv = OutgoingInventory::model()->find($c);
-
-        $c1 = new CDbCriteria;
-        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND zones.zone_id = '" . $outgoing_inv->zone->zone_id . "'";
-        $c1->with = array("zones");
-        $destination_sales_office = SalesOffice::model()->find($c1);
-
-        $outgoing_detail = OutgoingInventoryDetail::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "outgoing_inventory_id" => $outgoing_inv->outgoing_inventory_id));
-
-        $zone_ids = "";
-        $pr_nos = "";
-        $pr_no_arr = array();
-        $campaign_nos = "";
-        $campaign_no_arr = array();
-        $pr_dates = "";
-        $pr_dates_arr = array();
-        foreach ($outgoing_detail as $key => $val) {
-            $zone_ids .= "'" . $val->source_zone_id . "',";
-
-            if (!in_array($val->pr_no, $pr_no_arr)) {
-                array_push($pr_no_arr, $val->pr_no);
-                $pr_nos .= $val->pr_no . ",";
-            }
-
-            if (!in_array($val->campaign_no, $campaign_no_arr)) {
-                array_push($campaign_no_arr, $val->campaign_no);
-                $campaign_nos .= $val->campaign_no . ",";
-            }
-
-            if (!in_array($val->pr_date, $pr_dates_arr)) {
-                array_push($pr_dates_arr, $val->pr_date);
-                $pr_dates .= $val->pr_date . ",";
-            }
-        }
-
-        $pr_nos = substr($pr_nos, 0, -1);
-        $pr_dates = substr($pr_dates, 0, -1);
-        $campaign_nos = substr($campaign_nos, 0, -1);
-
-        $c2 = new CDbCriteria;
-        $c2->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND zones.zone_id IN(" . substr($zone_ids, 0, -1) . ")";
-        $c2->with = array("zones");
-        $c2->order = "t.sales_office_name ASC";
-        $sales_office = SalesOffice::model()->findAll($c2);
-
-        $status = Inventory::model()->status($outgoing_inv->status);
-
-        $not_set = "<i class='text-muted'>Not Set</i>";
-
-        $output = array();
-        $output['dr_no'] = $outgoing_inv->dr_no;
-        $output['dr_date'] = $outgoing_inv->dr_date;
-        $output['rra_no'] = $outgoing_inv->rra_no != "" ? $outgoing_inv->rra_no : $not_set;
-        $output['rra_date'] = isset($outgoing_inv->rra_date) ? $outgoing_inv->rra_date : $not_set;
-        $output['destination_contact_person'] = $outgoing_inv->contact_person != "" ? $outgoing_inv->contact_person : $not_set;
-        $output['destination_contact_no'] = $outgoing_inv->contact_no != "" ? $outgoing_inv->contact_no : $not_set;
-        $output['address'] = $outgoing_inv->address != "" ? $outgoing_inv->address : $not_set;
-        $output['plan_delivery_date'] = isset($outgoing_inv->plan_delivery_date) ? $outgoing_inv->plan_delivery_date : $not_set;
-        $output['transaction_date'] = $outgoing_inv->transaction_date;
-        $output['status'] = $outgoing_inv->status;
-        $output['remarks'] = $outgoing_inv->remarks != "" ? $outgoing_inv->remarks : $not_set;
-        $output['total_amount'] = number_format($outgoing_inv->total_amount, 2, '.', ',');
-        $output['zone_name'] = $outgoing_inv->zone->zone_name;
-        $output['destination_sales_office_name'] = isset($destination_sales_office->sales_office_name) ? $destination_sales_office->sales_office_name : "";
-        $output['transaction_status'] = $status;
-        $output['pr_nos'] = $pr_nos;
-        $output['pr_date'] = $pr_dates;
-        $output['campaign_nos'] = $campaign_nos;
-
-        echo json_encode($output);
-    }
-
     public function actionLoadItemDetails($outgoing_inv_id) {
 
         $outgoing_inv_details = OutgoingInventoryDetail::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "outgoing_inventory_id" => $outgoing_inv_id));
@@ -1448,6 +1422,83 @@ class OutgoingInventoryController extends Controller {
         }
 
         echo json_encode($output);
+    }
+
+    public function actionViewPrint($outgoing_inventory_id) {
+
+        $outgoing_inv = $this->loadModel($outgoing_inventory_id);
+
+        $outgoing_inv_detail = OutgoingInventoryDetail::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "outgoing_inventory_id" => $outgoing_inventory_id));
+
+        $return = array();
+
+        $details = array();
+        $source = array();
+        $destination = array();
+        $headers = array();
+
+        $pr_nos = "";
+        $pr_no_arr = array();
+        foreach ($outgoing_inv_detail as $key => $val) {
+            $row = array();
+
+            if (!in_array($val->pr_no, $pr_no_arr)) {
+                array_push($pr_no_arr, $val->pr_no);
+                $pr_nos .= $val->pr_no . ",";
+            }
+
+            $row['sku_id'] = $val->sku_id;
+            $row['uom_id'] = $val->uom_id;
+            $row['planned_quantity'] = $val->planned_quantity;
+            $row['quantity_issued'] = $val->quantity_issued;
+            $row['unit_price'] = $val->unit_price;
+            $row['amount'] = $val->amount;
+            $row['expiration_date'] = $val->expiration_date;
+            $row['amount'] = $val->amount;
+            $row['remarks'] = $val->remarks;
+
+            $details[] = $row;
+        }
+
+        $c = new CDbCriteria;
+        $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.zone_id = '" . $outgoing_inv->destination_zone_id . "'";
+        $c->with = array("salesOffice");
+        $zone = Zone::model()->find($c);
+
+        $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
+        $destination['address'] = $zone->salesOffice->address1;
+
+        $headers['transaction_date'] = $outgoing_inv->transaction_date;
+        $headers['plan_delivery_date'] = $outgoing_inv->plan_delivery_date;
+
+        $headers['pr_no'] = substr($pr_nos, 0, -1);
+        $headers['rra_no'] = $outgoing_inv->rra_no;
+        $headers['rra_date'] = $outgoing_inv->rra_date;
+        $headers['dr_no'] = $outgoing_inv->dr_no;
+        $headers['total_amount'] = $outgoing_inv->total_amount;
+        $headers['remarks'] = $outgoing_inv->remarks;
+
+        $return['headers'] = $headers;
+        $return['source'] = $source;
+        $return['destination'] = $destination;
+        $return['details'] = $details;
+
+        unset(Yii::app()->session["post_pdf_data_id"]);
+
+        Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
+        Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = $return;
+
+        $output = array();
+        if (Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] == "") {
+            $output["success"] = false;
+            return false;
+        }
+
+        $output["success"] = true;
+        $output["id"] = Yii::app()->session["post_pdf_data_id"];
+
+        echo json_encode($output);
+        Yii::app()->end();
     }
 
 }

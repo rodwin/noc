@@ -24,137 +24,142 @@ $this->breadcrumbs = array(
 <?php $outgoingFields = OutgoingInventory::model()->attributeLabels(); ?>
 <?php $outgoingDetailFields = OutgoingInventoryDetail::model()->attributeLabels(); ?>
 
+<?php $not_set = "<i class='text-muted'>Not Set</i>"; ?>
 
-<div class="row">
+<div class="content invoice" style="width: 100%;">
+    <div class="row">
 
-    <div class="col-sm-6">
+        <div class="col-sm-6">
 
-        <h5 class="control-label text-primary text_bold">From</h5>
-        <table class="table table-bordered table-condensed">
-            <tr>
-                <td colspan="2"><strong class="source_name"><i class="text-muted">Not Set</i></strong></td>
-            </tr>
-            <tr>
-                <td class="first_col_left_table"><strong>Address:</strong></td><td><span class="source_address"></span></td>
-            </tr>
-            <tr>
-                <td><strong>Contact Person:</strong></td><td><span class="source_contact_person"></span></td>
-            </tr>
-            <tr>
-                <td><strong>Contact Number:</strong></td><td><span class="source_contact_no"></span></td>
-            </tr>
-        </table>
+            <h5 class="control-label text-primary text_bold">From</h5>
+            <table class="table table-bordered table-condensed">
+                <tr>
+                    <td colspan="2"><strong class="source_name"><i class="text-muted">Not Set</i></strong></td>
+                </tr>
+                <tr>
+                    <td class="first_col_left_table"><strong>Address:</strong></td><td><span class="source_address"></span></td>
+                </tr>
+                <tr>
+                    <td><strong>Contact Person:</strong></td><td><span class="source_contact_person"></span></td>
+                </tr>
+                <tr>
+                    <td><strong>Contact Number:</strong></td><td><span class="source_contact_no"></span></td>
+                </tr>
+            </table>
 
-        <h5 class="control-label text-primary text_bold">To</h5>
-        <table class="table table-bordered table-condensed">
-            <tr>
-                <td colspan="2"><strong class="destination_name"></strong> <i class="destination_sales_office_name text-muted"></i></td>
-            </tr>
-            <tr>
-                <td class="first_col_left_table"><strong>Address:</strong></td><td><span class="destination_address"></span></td>
-            </tr>
-            <tr>
-                <td><strong>Contact Person:</strong></td><td><span class="destination_contact_person"></span></td>
-            </tr>
-            <tr>
-                <td><strong>Contact Number:</strong></td><td><span class="destination_contact_no"></span></td>
-            </tr>
-        </table>
+            <h5 class="control-label text-primary text_bold">To</h5>
+            <table class="table table-bordered table-condensed">
+                <tr>
+                    <td colspan="2"><strong><?php echo $destination['zone_name']; ?></strong> <i class="text-muted">(<?php echo $destination['destination_sales_office_name']; ?>)</i></td>
+                </tr>
+                <tr>
+                    <td class="first_col_left_table"><strong>Address:</strong></td><td><?php echo $destination['address']; ?></td>
+                </tr>
+                <tr>
+                    <td><strong>Contact Person:</strong></td><td><?php echo $destination['contact_person']; ?></td>
+                </tr>
+                <tr>
+                    <td><strong>Contact Number:</strong></td><td><?php echo $destination['contact_no']; ?></td>
+                </tr>
+            </table>
 
-    </div>
-
-    <div class="col-sm-6">
-        <table class="table table-bordered table-condensed">
-            <tr>
-                <td class="first_col_right_table"><strong>Transaction Date:</strong></td>
-                <td><span class="transaction_date"></span></td>
-            </tr>
-        </table>
-
-        <table class="table table-bordered table-condensed">
-            <tr>
-                <td class="first_col_right_table"><strong>Plan Delivery Date:</strong></td>
-                <td><span class="plan_delivery_date"></span></td>
-            </tr>
-            <tr>
-                <td><strong>DR Number:</strong></td>
-                <td><span class="dr_no"></span></td>
-            </tr>
-            <tr>
-                <td><strong>DR Date:</strong></td>
-                <td><span class="dr_date"></span></td>
-            </tr>
-            <tr>
-                <td><strong>RRA Number:</strong></td>
-                <td><span class="rra_no"></span></td>
-            </tr>
-            <tr>
-                <td><strong>RRA Date:</strong></td>
-                <td><span class="rra_date"></span></td>
-            </tr>
-            <tr>
-                <td><strong>PR Number(s):</strong></td>
-                <td><span class="pr_nos"></span></td>
-            </tr>
-            <tr>
-                <td><strong>Campaign Number(s):</strong></td>
-                <td><span class="campaign_nos"></span></td>
-            </tr>
-            <tr>
-                <td><strong>Status:</strong></td>
-                <td><span class="transaction_status"></span></td>
-            </tr>
-        </table>
-
-        <table class="table table-bordered table-condensed">
-            <tr>
-                <td><strong>Remarks:</strong></td>
-            </tr>
-            <tr>
-                <td><span class="remarks"></span></td>
-            </tr>
-        </table>
-    </div>
-
-    <br/>
-
-    <div class="col-xs-12">
-        <div class="table-responsive">
-            <h5 class="control-label text-primary text_bold">Item Details</h5>
-
-            <table id="outgoing-inv-detail_table" class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th><?php echo $skuFields['sku_code']; ?></th>
-                        <th><?php echo $skuFields['description']; ?></th>
-                        <th><?php echo $skuFields['brand_id']; ?></th>
-                        <th><?php echo $skuFields['type']; ?></th>
-                        <th><?php echo $outgoingDetailFields['uom_id']; ?></th>
-                        <th><?php echo $outgoingDetailFields['unit_price']; ?></th>
-                        <th><?php echo $outgoingDetailFields['batch_no']; ?></th>
-                        <th><?php echo $outgoingDetailFields['expiration_date']; ?></th>
-                        <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
-                        <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
-                        <th><?php echo $outgoingDetailFields['amount']; ?></th>
-                        <th><?php echo $outgoingDetailFields['remarks']; ?></th>
-                        <th><?php echo $outgoingDetailFields['status']; ?></th>
-                    </tr>                                    
-                </thead>
-            </table>                            
         </div>
-    </div>
-    
-    <div class="clearfix"><br/><br/></div>
 
-    <div class="col-sm-6 pull-right">
-        <table class="table table-bordered table-condensed">
-            <tr>
-                <td class="first_col_right_table"><strong>Total Amount: <span class="pull-right"></span></strong></td>
-                <td>&#x20B1; <span class="total_amount"></span></td>
-            </tr>
-        </table>
-    </div>
+        <div class="col-sm-6">
+            <table class="table table-bordered table-condensed">
+                <tr>
+                    <td class="first_col_right_table"><strong>Transaction Date:</strong></td>
+                    <td><?php echo $model->transaction_date; ?></td>
+                </tr>
+            </table>
 
+            <table class="table table-bordered table-condensed">
+                <tr>
+                    <td class="first_col_right_table"><strong>Plan Delivery Date:</strong></td>
+                    <td><?php echo $model->plan_delivery_date; ?></td>
+                </tr>
+                <tr>
+                    <td><strong>DR Number:</strong></td>
+                    <td><?php echo $model->dr_no; ?></td>
+                </tr>
+                <tr>
+                    <td><strong>DR Date:</strong></td>
+                    <td><?php echo $model->dr_date; ?></td>
+                </tr>
+                <tr>
+                    <td><strong>RRA Number:</strong></td>
+                    <td><?php echo $model->rra_no; ?></td>
+                </tr>
+                <tr>
+                    <td><strong>RRA Date:</strong></td>
+                    <td><?php echo $model->rra_date; ?></td>
+                </tr>
+                <tr>
+                    <td><strong>PR Number(s):</strong></td>
+                    <td><?php echo $pr_nos; ?></td>
+                </tr>
+                <tr>
+                    <td><strong>Campaign Number(s):</strong></td>
+                    <td><?php echo $campaign_nos; ?></td>
+                </tr>
+                <tr>
+                    <td><strong>Status:</strong></td>
+                    <td><?php echo Inventory::model()->status($model->status); ?></td>
+                </tr>
+            </table>
+
+            <table class="table table-bordered table-condensed">
+                <tr>
+                    <td><strong>Remarks:</strong></td>
+                </tr>
+                <tr>
+                    <td><?php echo $model->remarks != "" ? $model->remarks : $not_set; ?></td>
+                </tr>
+            </table>
+        </div>
+
+        <br/>
+
+        <div class="col-xs-12">
+            <div class="table-responsive">
+                <h5 class="control-label text-primary text_bold">Item Details</h5>
+
+                <table id="outgoing-inv-detail_table" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th><?php echo $skuFields['sku_code']; ?></th>
+                            <th><?php echo $skuFields['description']; ?></th>
+                            <th><?php echo $skuFields['brand_id']; ?></th>
+                            <th><?php echo $skuFields['type']; ?></th>
+                            <th><?php echo $outgoingDetailFields['uom_id']; ?></th>
+                            <th><?php echo $outgoingDetailFields['unit_price']; ?></th>
+                            <th><?php echo $outgoingDetailFields['batch_no']; ?></th>
+                            <th><?php echo $outgoingDetailFields['expiration_date']; ?></th>
+                            <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
+                            <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
+                            <th><?php echo $outgoingDetailFields['amount']; ?></th>
+                            <th><?php echo $outgoingDetailFields['remarks']; ?></th>
+                            <th><?php echo $outgoingDetailFields['status']; ?></th>
+                        </tr>                                    
+                    </thead>
+                </table>                            
+            </div>
+        </div>
+
+        <div class="clearfix"><br/><br/></div>
+
+        <div class="col-md12">
+
+            <div class="col-md-6 pull-right">
+                <p class="lead big text-right">Total Amount: &nbsp;&nbsp; &#x20B1; <?php echo number_format($model->total_amount, 2, '.', ','); ?></p>
+            </div>
+
+            <div class="col-md-6 pull-left">
+                <button id="btn_print" class="btn btn-default"><i class="fa fa-print"></i> Print</button>
+            </div>
+        </div>
+
+    </div>
 </div>
 
 
@@ -191,35 +196,56 @@ $this->breadcrumbs = array(
             }
         });
 
-        $.ajax({
-            url: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/getTransactionDetailsByOutgoingInvID', array("outgoing_inv_id" => $model->outgoing_inventory_id)); ?>',
-            dataType: "json",
-            beforeSend: function(data) {
-
-            },
-            success: function(data) {
-                $(".transaction_date").html(data.transaction_date);
-                $(".dr_no").html(data.dr_no);
-                $(".dr_date").html(data.dr_date);
-                $(".rra_no").html(data.rra_no);
-                $(".rra_date").html(data.rra_date);
-                $(".plan_delivery_date").html(data.plan_delivery_date);
-                $(".remarks").html(data.remarks);
-                $(".destination_name").html(data.zone_name);
-                $(".destination_address").html(data.address);
-                $(".destination_contact_person").html(data.destination_contact_person);
-                $(".destination_contact_no").html(data.destination_contact_no);
-                $(".destination_sales_office_name").html("(" + data.destination_sales_office_name + ")");
-                $(".transaction_status").html(data.transaction_status);
-                $(".total_amount").html(data.total_amount);
-                $(".pr_nos").html(data.pr_nos);
-                $(".campaign_nos").html(data.campaign_nos);
-            },
-            error: function(data) {
-                alert("Error occured: Please try again.");
-            }
-        });
-
     });
+
+    $('#btn_print').click(function() {
+        print();
+    });
+
+    function print() {
+
+        if ($("#btn_print").is("[disabled=disabled]")) {
+            return false;
+        } else {
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/viewPrint', array("outgoing_inventory_id" => $model->outgoing_inventory_id)); ?>',
+                dataType: "json",
+                beforeSend: function(data) {
+                    $("#btn_print").attr('disabled', true);
+                    $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Loading...');
+                },
+                success: function(data) {
+                    if (data.success === true) {
+                        var params = [
+                            'height=' + screen.height,
+                            'width=' + screen.width,
+                            'fullscreen=yes'
+                        ].join(',');
+
+                        var tab = window.open(<?php echo "'" . Yii::app()->createUrl($this->module->id . '/OutgoingInventory/loadPDF') . "'" ?> + "&id=" + data.id, "_blank", params);
+
+                        $("#btn_print").attr('disabled', false);
+                        $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
+
+                        if (tab) {
+                            tab.focus();
+                            tab.moveTo(0, 0);
+                        } else {
+                            alert('Please allow popups for this site');
+                        }
+                    }
+
+                    return false;
+                },
+                error: function(data) {
+                    alert("Error occured: Please try again.");
+                    $("#btn_print").attr('disabled', false);
+                    $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
+                }
+            });
+        }
+
+    }
 
 </script>

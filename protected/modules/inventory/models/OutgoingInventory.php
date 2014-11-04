@@ -318,8 +318,8 @@ class OutgoingInventory extends CActiveRecord {
                 if ($outgoing_inventory->save(false)) {
                     Yii::app()->session['outgoing_inv_id_create_session'] = $outgoing_inventory->outgoing_inventory_id;
 
-                    unset(Yii::app()->session['tid']);
-                    Yii::app()->session['tid'] = $outgoing_inventory->outgoing_inventory_id;
+                    unset(Yii::app()->session['outgoing_inv_id_attachment_session']);
+                    Yii::app()->session['outgoing_inv_id_attachment_session'] = $outgoing_inventory->outgoing_inventory_id;
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         OutgoingInventoryDetail::model()->createOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $outgoing_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $outgoing_inventory->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $outgoing_inventory->transaction_date);
                     }
@@ -374,6 +374,8 @@ class OutgoingInventory extends CActiveRecord {
                 if ($outgoing_inventory->save(false)) {
                     Yii::app()->session['outgoing_inv_id_update_session'] = $outgoing_inventory->outgoing_inventory_id;
 
+                    unset(Yii::app()->session['outgoing_inv_id_attachment_session']);
+                    Yii::app()->session['outgoing_inv_id_attachment_session'] = $outgoing_inventory->outgoing_inventory_id;
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         if (trim($transaction_details[$i]['outgoing_inv_detail_id']) != "") {
                             OutgoingInventoryDetail::model()->updateOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $transaction_details[$i]['outgoing_inv_detail_id'], $outgoing_inventory->company_id);
