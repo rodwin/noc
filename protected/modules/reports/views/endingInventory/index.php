@@ -36,7 +36,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             <div style="max-height: 200px; overflow: scroll; padding: 10px; border: 1px solid #ccc;">
 
                 <?php
-                $sales_offices = SalesOffice::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id));
+                $sales_offices = SalesOffice::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id), array("order" => 'sales_office_name asc'));
 
                 foreach ($sales_offices as $v) {
                     ?>
@@ -96,7 +96,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     ));
                     ?><br/>
 
-                    <?php echo $form->textFieldGroup($model, 'cover_date', array('widgetOptions' => array('htmlOptions' => array('class' => ' span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+                    <?php echo $form->textFieldGroup($model, 'cover_date', array('widgetOptions' => array('htmlOptions' => array('class' => ' span5', 'value' => date("Y-m-d"), 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                     <div class="form-group"><br/>
                         <?php echo CHtml::htmlButton('Submit', array('class' => 'btn btn-primary btn-flat', 'id' => 'btn_submit')); ?>   

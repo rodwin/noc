@@ -64,11 +64,11 @@ class EndingReportForm extends CFormModel {
                     INNER JOIN brand e ON e.brand_id = d.brand_id
                     INNER JOIN brand_category f ON f.brand_category_id = e.brand_category_id
                     INNER JOIN uom g ON g.uom_id = a.uom_id
-                    WHERE (a.created_date BETWEEN (SELECT MIN(created_date) FROM inventory) AND '" . $last_date_time . " 23:59:59')
+                    WHERE (a.transaction_date BETWEEN '" . $last_date_time . " 00:00:00' AND '" . $last_date_time . " 23:59:59')
                     $criteria
                         
-                    GROUP BY a.sku_id ORDER BY c.sales_office_name, b.zone_name, f.category_name";
-
+                    GROUP BY b.zone_id ,a.sku_id ORDER BY c.sales_office_name, b.zone_name, f.category_name";
+        
         $command = Yii::app()->db->createCommand($sql);
         $data = $command->queryAll();
 
