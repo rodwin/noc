@@ -267,7 +267,7 @@ class OutgoingInventoryController extends Controller {
         $attachment = new Attachment;
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
-        $zone_list = CHtml::listData(Zone::model()->findAll(array("condition" => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
+        $zone_list = CHtml::listData(Zone::model()->findAll(array("condition" => 'company_id = "' . Yii::app()->user->company_id . '" AND zone_id IN (' . Yii::app()->user->zones . ')', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
 
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
@@ -1124,9 +1124,9 @@ class OutgoingInventoryController extends Controller {
         $return['source'] = $source;
         $return['destination'] = $destination;
         $return['details'] = $details;
-        
+
         unset(Yii::app()->session["post_pdf_data_id"]);
-        
+
         Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
         Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = $return;
 
@@ -1138,7 +1138,7 @@ class OutgoingInventoryController extends Controller {
 
         $output["success"] = true;
         $output["id"] = Yii::app()->session["post_pdf_data_id"];
-        
+
         echo json_encode($output);
         Yii::app()->end();
     }
@@ -1146,7 +1146,7 @@ class OutgoingInventoryController extends Controller {
     public function actionLoadPDF($id) {
 
         $data = Yii::app()->session[$id];
-        
+
         $headers = $data['headers'];
         $source = $data['source'];
         $destination = $data['destination'];

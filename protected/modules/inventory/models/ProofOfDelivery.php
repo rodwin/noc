@@ -214,6 +214,8 @@ class ProofOfDelivery extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
         $criteria->with = array("poi");
+        $criteria->join = "INNER JOIN proof_of_delivery_detail pod_detail ON pod_detail.pod_id = t.pod_id";
+        $criteria->condition = "pod_detail.source_zone_id IN (" . Yii::app()->user->zones . ")";
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,

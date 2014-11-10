@@ -248,6 +248,7 @@ class ReceivingInventory extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
         $criteria->with = array("supplier", "employee", "zone");
+        $criteria->condition = "t.zone_id IN (" . Yii::app()->user->zones . ")";
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -353,7 +354,7 @@ class ReceivingInventory extends CActiveRecord {
 
                     unset(Yii::app()->session['receiving_inv_id_attachment_session']);
                     Yii::app()->session['receiving_inv_id_attachment_session'] = $receiving_inventory->receiving_inventory_id;
-                    
+
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         ReceivingInventoryDetail::model()->createReceivingTransactionDetails($receiving_inventory->receiving_inventory_id, $receiving_inventory->company_id, $transaction_details[$i]['sku_id'], $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $receiving_inventory->zone_id, $transaction_details[$i]['batch_no'], $transaction_details[$i]['unit_price'], $receiving_inventory->transaction_date, $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['qty_received'], $transaction_details[$i]['amount'], $transaction_details[$i]['remarks'], $receiving_inventory->pr_no, $receiving_inventory->pr_date, $receiving_inventory->created_by, $receiving_inventory->campaign_no, $receiving_inventory->pr_no, $receiving_inventory->pr_date, $receiving_inventory->plan_arrival_date, $receiving_inventory->revised_delivery_date);
                     }
