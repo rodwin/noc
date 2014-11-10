@@ -512,7 +512,7 @@ class Pome extends CFormModel {
                 inner join [pg_mapping].[dbo].[pome_route_transaction_detail] c on c.pome_route_transaction_id = b.id
                 inner join [pg_mapping].[dbo].[pome_pps] e on e.id = a.pps_id
                 inner join [pg_mapping].[dbo].[outlets] f on f.outlet_id = c.pome_hospital_id 
-                where a.id in ($str)  and e.parent_leader = $teamlead  and e.team_leader =0  $brand $agency
+                where a.id in ($str)  and e.parent_leader = $teamlead  and e.team_leader =0  $brand $agency and f.class ='$ph'
                 group by e.id,e.code,b.reason_code,a.id
                 order by e.id";
 //      pr($sql);
