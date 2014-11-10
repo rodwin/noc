@@ -34,9 +34,8 @@ $main_menu = array(
         )),
     array('label' => 'Reports', 'url' => '#', 'icon' => 'fa fa-file-text-o', 'visible' => true, 'items' => array(
             array('label' => 'Ending Inventory', 'icon' => 'fa fa-angle-double-right', 'url' => array('reports/endingInventory/index'), 'visible' => Yii::app()->user->checkAccess('Ending Inventory Report', array('company_id' => Yii::app()->user->company_id))),
-//            array('label' => 'Infra Inventory', 'icon' => 'fa fa-angle-double-right', 'url' => array('reports/endingInventory/index'), 'visible' => !Yii::app()->user->isGuest),
-//            array('label' => 'Delivery Lead-Time', 'icon' => 'fa fa-angle-double-right', 'url' => array('reports/endingInventory/index'), 'visible' => !Yii::app()->user->isGuest),
-        )),
+            array('label' => 'Infra Inventory', 'icon' => 'fa fa-angle-double-right', 'url' => array('reports/infraInventory/index'), 'visible' => Yii::app()->user->checkAccess('Infra Inventory Report', array('company_id' => Yii::app()->user->company_id))),
+    )),
     array('label' => 'Admin', 'url' => '#', 'icon' => 'fa fa-users', 'visible' => true, 'items' => array(
             array('label' => 'Users', 'icon' => 'fa fa-angle-double-right', 'url' => array('admin/user/admin'), 'visible' => Yii::app()->user->checkAccess('Manage User', array('company_id' => Yii::app()->user->company_id))),
             array('label' => 'Company', 'icon' => 'fa fa-angle-double-right', 'url' => array('admin/company/update', array('id' => Yii::app()->user->company_id)), 'visible' => Yii::app()->user->checkAccess('Edit Company', array('company_id' => Yii::app()->user->company_id))),
