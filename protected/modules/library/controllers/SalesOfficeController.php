@@ -25,7 +25,7 @@ class SalesOfficeController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view'),
+                'actions' => array('index', 'view', 'getSODetailsByID'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -324,6 +324,36 @@ class SalesOfficeController extends Controller {
             echo CActiveForm::validate($model);
             Yii::app()->end();
         }
+    }
+
+    public function actionGetSODetailsByID($sales_office_id) {
+
+        $sales_office = $this->loadModel($sales_office_id);
+
+        $return = array();
+        $so_detail = array();
+        $zones = array();
+
+        $so_detail['sales_office_id'] = $sales_office->sales_office_id;
+        $so_detail['sales_office_code'] = $sales_office->sales_office_code;
+        $so_detail['sales_office_name'] = $sales_office->sales_office_name;
+
+        $zone = Zone::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "sales_office_id" => $sales_office->sales_office_id), array("order" => "zone_name ASC"));
+        
+        foreach ($zone as $key => $val) {
+            $row = array();
+            
+            $row['zone_id'] = $val->zone_id;
+            $row['zone_name'] = $val->zone_name;
+            $row['sales_office_code'] = $val->salesOffice->sales_office_code;
+            
+            $zones[] = $row;
+        }
+        
+        $return['so_detail'] = $so_detail;
+        $return['zones'] = $zones;
+
+        echo json_encode($return);
     }
 
 }
