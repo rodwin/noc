@@ -59,8 +59,8 @@ class UserIdentity extends CUserIdentity {
                         $final_data = $role->data;
                     }
                 }
-
-                $unserialize = CJSON::decode(isset($final_data->data) ? $final_data->data : "");
+                
+                $unserialize = CJSON::decode(isset($final_data) ? $final_data : "");
                 $so = CJSON::decode($unserialize['so']);
                 $zones = CJSON::decode($unserialize['zone']);
 
@@ -77,12 +77,8 @@ class UserIdentity extends CUserIdentity {
                     foreach ($zones as $k1 => $v1) {
                         $zone_id .= "'" . $k1 . "',";
                     }
-                }
+                }                
                 $this->setState('zones', substr($zone_id, 0, -1));
-
-//                $role = Authitem::model()->findByPk($user->role);
-//                $more_actions = unserialize($role->data);
-//                $this->setState('MoreActions', is_null($more_actions)? "":$more_actions);
 
                 $this->_id = $user->user_id;
                 $this->errorCode = self::ERROR_NONE;
