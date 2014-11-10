@@ -18,11 +18,15 @@ class SiteController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow readers only access to the view file
-                'actions' => array('index', 'logout', 'abi'),
+                'actions' => array('index', 'logout'),
                 'users' => array('@')),
             array('allow',
                 'actions' => array('login', 'error'),
                 'users' => array('*'),
+            ),
+            array('allow',
+                'actions' => array('abi'),
+                'expression' => "Yii::app()->user->checkAccess('ABI Dashboard', array('company_id' => Yii::app()->user->company_id))",
             ),
             array('deny', // deny all users
                 'users' => array('*'),
@@ -204,6 +208,15 @@ class SiteController extends Controller {
      * Logs out the current user and redirect to homepage.
      */
     public function actionLogout() {
+        $assigned_roles = Yii::app()->authManager->getRoles(Yii::app()->user->id); //obtains all assigned roles for this user id
+        if (!empty($assigned_roles)) { //checks that there are assigned roles
+            $auth = Yii::app()->authManager; //initializes the authManager
+            foreach ($assigned_roles as $n => $role) {
+                if ($auth->revoke($n, Yii::app()->user->id)) //remove each assigned role for this user
+                    Yii::app()->authManager->save(); //again always save the result
+            }
+        }
+        
         Yii::app()->user->logout();
         Yii::app()->session->clear();
         Yii::app()->session->destroy();

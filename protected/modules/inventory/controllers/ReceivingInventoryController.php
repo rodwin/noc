@@ -24,18 +24,30 @@ class ReceivingInventoryController extends Controller {
      */
     public function accessRules() {
         return array(
-            array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view'),
-                'users' => array('@'),
-            ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'oldCreate', 'loadSkuDetails', 'skuData', 'receivingInvDetailData', 'uploadAttachment', 'preview', 'download', 'deleteReceivingDetail', 'deleteAttachment', 'print', 'loadPDF',
+                'actions' => array('data', 'oldCreate', 'loadSkuDetails', 'skuData', 'receivingInvDetailData', 'uploadAttachment', 'preview', 'download', 'print', 'loadPDF',
                     'getDetailsByReceivingInvID', 'viewPrint'),
                 'users' => array('@'),
             ),
-            array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('admin', 'delete'),
-                'users' => array('@'),
+            array('allow',
+                'actions' => array('admin'),
+                'expression' => "Yii::app()->user->checkAccess('Manage Incoming', array('company_id' => Yii::app()->user->company_id))",
+            ),
+            array('allow',
+                'actions' => array('create'),
+                'expression' => "Yii::app()->user->checkAccess('Add Incoming', array('company_id' => Yii::app()->user->company_id))",
+            ),
+            array('allow',
+                'actions' => array('view'),
+                'expression' => "Yii::app()->user->checkAccess('View Incoming', array('company_id' => Yii::app()->user->company_id))",
+            ),
+            array('allow',
+                'actions' => array('edit'),
+                'expression' => "Yii::app()->user->checkAccess('Edit Incoming', array('company_id' => Yii::app()->user->company_id))",
+            ),
+            array('allow',
+                'actions' => array('delete', 'deleteReceivingDetail', 'deleteAttachment'),
+                'expression' => "Yii::app()->user->checkAccess('Delete Incoming', array('company_id' => Yii::app()->user->company_id))",
             ),
             array('deny', // deny all users
                 'users' => array('*'),

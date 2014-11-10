@@ -381,8 +381,8 @@ $this->breadcrumbs = array(
 
                     loadPODDetails(selected_pod_id);
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;
@@ -403,8 +403,8 @@ $this->breadcrumbs = array(
 
                     loadPODDetails(selected_pod_id);
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;
@@ -422,8 +422,8 @@ $this->breadcrumbs = array(
                     viewPODAttachment(selected_pod_id, selected_pod_detail_id, false);
 
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;
@@ -436,8 +436,8 @@ $this->breadcrumbs = array(
                 'dataType': 'text',
                 'success': function(data) {
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
         });
@@ -800,8 +800,8 @@ $this->breadcrumbs = array(
             success: function(data) {
                 $('#uploadModal').modal('show');
             },
-            error: function(data) {
-                alert("Error occured: Please try again.");
+            error: function(status, exception) {
+                alert(status.responseText);
             }
         });
 
@@ -826,8 +826,8 @@ $this->breadcrumbs = array(
 
                 $("#attached_thumbnails").html(data);
             },
-            error: function(data) {
-                alert("Error occured: Please try again.");
+            error: function(status, exception) {
+                alert(status.responseText);
             }
         });
 

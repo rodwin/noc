@@ -101,6 +101,7 @@ class User extends CActiveRecord {
         // class name for the relations automatically generated below.
         return array(
             'company' => array(self::BELONGS_TO, 'Company', 'company_id'),
+            'userType' => array(self::BELONGS_TO, 'Authitem', 'user_type_id'),
         );
     }
 

@@ -233,6 +233,26 @@ class Globals {
         return $pdf;
     }
 
+    public static function createExcel() {
+
+        /** Error reporting */
+        error_reporting(E_ALL);
+
+        /** Include path * */
+        ini_set('include_path', 'vendor/phpoffice/phpexcel/Classes/');
+
+        /** PHPExcel */
+        include 'PHPExcel.php';
+
+        /** PHPExcel_Writer_Excel2007 */
+        include 'PHPExcel/Writer/Excel2007.php';
+
+        spl_autoload_unregister(array('YiiBase', 'autoload'));
+        $objPHPExcel = new PHPExcel();
+
+        return $objPHPExcel;
+    }
+
 }
 
 ?>

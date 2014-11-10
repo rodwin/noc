@@ -24,17 +24,33 @@ class ProofOfDeliveryController extends Controller {
      */
     public function accessRules() {
         return array(
-            array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view'),
-                'users' => array('@'),
-            ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'PODDetails', 'savePODDetails', 'deletePODDetail', 'PODDAttachment', 'savePODAttachment', 'uploadPODAttachment', 'uploadAttachment', 'viewPODAttachment', 'deletePODAttachment', 'downloadPODAttachment'),
+                'actions' => array('data', 'PODDetails', 'savePODDetails', 'PODDAttachment', 'savePODAttachment', 'uploadAttachment', 'downloadPODAttachment'),
                 'users' => array('@'),
             ),
-            array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('admin', 'delete'),
-                'users' => array('@'),
+            array('allow',
+                'actions' => array('admin'),
+                'expression' => "Yii::app()->user->checkAccess('Manage Proof Of Delivery', array('company_id' => Yii::app()->user->company_id))",
+            ),
+            array('allow',
+                'actions' => array('create'),
+                'expression' => "Yii::app()->user->checkAccess('Add Proof Of Delivery', array('company_id' => Yii::app()->user->company_id))",
+            ),
+            array('allow',
+                'actions' => array('view', 'viewPODAttachment'),
+                'expression' => "Yii::app()->user->checkAccess('View Proof Of Delivery', array('company_id' => Yii::app()->user->company_id))",
+            ),
+            array('allow',
+                'actions' => array('edit'),
+                'expression' => "Yii::app()->user->checkAccess('Edit Proof Of Delivery', array('company_id' => Yii::app()->user->company_id))",
+            ),
+            array('allow',
+                'actions' => array('delete', 'deletePODDetail', 'deletePODAttachment'),
+                'expression' => "Yii::app()->user->checkAccess('Delete Proof Of Delivery', array('company_id' => Yii::app()->user->company_id))",
+            ),
+            array('allow',
+                'actions' => array('uploadPODAttachment'),
+                'expression' => "Yii::app()->user->checkAccess('Upload Proof Of Delivery', array('company_id' => Yii::app()->user->company_id))",
             ),
             array('deny', // deny all users
                 'users' => array('*'),

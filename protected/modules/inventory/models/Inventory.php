@@ -318,6 +318,7 @@ class Inventory extends CActiveRecord {
         $criteria->with = array('sku', 'sku.brand', 'skuStatus', 'uom', 'zone', 'zone.salesOffice');
         $criteria->limit = $limit;
         $criteria->offset = $offset;
+        $criteria->condition = "t.zone_id IN (" . Yii::app()->user->zones . ")";
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
