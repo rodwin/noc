@@ -261,8 +261,8 @@ $this->breadcrumbs = array(
                     loadReceivingInvDetails(receiving_id);
                     loadAttachmentPreview(receiving_id);
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;
@@ -283,8 +283,8 @@ $this->breadcrumbs = array(
 
                     loadReceivingInvDetails(receiving_id);
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;
@@ -305,8 +305,8 @@ $this->breadcrumbs = array(
 
                     loadAttachmentPreview(receiving_id);
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;

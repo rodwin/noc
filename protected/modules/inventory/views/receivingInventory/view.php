@@ -133,8 +133,6 @@ $this->breadcrumbs = array(
             </div>
         </div>
 
-        <div class="clearfix"><br/><br/></div>
-
         <div class="col-md12">
 
             <div class="col-md-6 pull-right">

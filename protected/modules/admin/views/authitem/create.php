@@ -1,9 +1,15 @@
 <?php
-$this->breadcrumbs=array(
-	'Authitems'=>array('admin'),
-	'Create',
-);
 
+$this->breadcrumbs = array(
+    Authitem::AUTHITEM_LABEL . 's' => array('admin'),
+    'Create',
+);
 ?>
 
-<?php echo $this->renderPartial('_form', array('model'=>$model)); ?>
+<?php
+
+echo $this->renderPartial('_form', array(
+    'model' => $model,
+    'operations' => $operations,
+));
+?>

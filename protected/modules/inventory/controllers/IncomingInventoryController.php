@@ -195,7 +195,7 @@ class IncomingInventoryController extends Controller {
 
         $c = new CDbCriteria;
         $c->compare("company_id", Yii::app()->user->company_id);
-        $c->condition = "closed = 0";
+        $c->condition = "closed = 0 AND destination_zone_id IN (" . Yii::app()->user->zones . ")";
         $c->order = "dr_no ASC";
         $outgoing_inv_dr_nos = CHtml::listData(OutgoingInventory::model()->findAll($c), "dr_no", "dr_no");
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
@@ -728,7 +728,7 @@ class IncomingInventoryController extends Controller {
 
         $data = array();
         $model = new Attachment;
-        
+
         $incoming_inv_id_attachment_session = Yii::app()->session['incoming_inv_id_attachment_session'];
 
         if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
@@ -842,14 +842,14 @@ class IncomingInventoryController extends Controller {
 
         $incoming_inv = $data['IncomingInventory'];
         $incoming_inv_detail = $data['transaction_details'];
-        
+
         $return = array();
 
         $details = array();
         $source = array();
         $destination = array();
         $headers = array();
-        
+
         $pr_nos = "";
         $pr_no_arr = array();
         foreach ($incoming_inv_detail as $key => $val) {
@@ -916,7 +916,7 @@ class IncomingInventoryController extends Controller {
             $output["success"] = false;
             return false;
         }
-        
+
         $output["success"] = true;
         $output["id"] = Yii::app()->session["post_pdf_data_id"];
 
@@ -927,14 +927,14 @@ class IncomingInventoryController extends Controller {
     public function actionLoadPDF($id) {
 
         $data = Yii::app()->session[$id];
-        
+
         ob_start();
 
         $headers = $data['headers'];
         $source = $data['source'];
         $destination = $data['destination'];
         $details = $data['details'];
-        
+
         $pdf = Globals::pdf();
 
         $pdf->setPrintHeader(false);
