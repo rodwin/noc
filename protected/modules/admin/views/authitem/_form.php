@@ -216,7 +216,7 @@
                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <?php } ?>
 
-                            <span style="<?php // echo $v2->description == "Dashboard" ? "display: none" : "";   ?>">
+                            <span style="<?php // echo $v2->description == "Dashboard" ? "display: none" : "";         ?>">
                                 <input type="checkbox" name="operations[]" <?php echo isset($childs[$v2->name]) ? 'checked' : '' ?> value="<?php echo $v2->name; ?>" id="op_list" class="<?php echo "operation_list_" . str_replace(" ", "_", strtoupper($v2->description)); ?>"/>&nbsp;
                                 <?php echo $v2->name; ?>
                             </span><br/>
@@ -340,12 +340,36 @@ if (!$model->isNewRecord) {
 
     });
 
-    var ajaxGetSODetails;
+    var ajaxQueue = $({});
+    (function($) {
+        $.ajaxQueue = function(ajaxOpts) {
+
+            var oldComplete = ajaxOpts.complete;
+
+            ajaxQueue.queue(function(next) {
+
+                ajaxOpts.complete = function() {
+                    if (ajaxQueue.queue().length == 1) {
+                        $("#ajax_zone_load").html("");
+                    }
+
+                    if (oldComplete)
+                        oldComplete.apply(this, arguments);
+
+                    next();
+                };
+
+                $.ajax(ajaxOpts);
+            });
+        };
+
+    })(jQuery);
+
     function getSalesofficeDetailsByID(sales_office_id) {
 
-//        $("#ajax_zone_load").html("<img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" />");
+        $("#ajax_zone_load").html("<img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" />");
 
-        ajaxGetSODetails = $.ajax({
+        $.ajaxQueue({
             type: 'POST',
             url: '<?php echo Yii::app()->createUrl('/library/salesOffice/getSODetailsByID'); ?>' + '&sales_office_id=' + sales_office_id,
             dataType: "json",
@@ -396,7 +420,6 @@ if (!$model->isNewRecord) {
                     });
                 });
 
-//                $("#ajax_zone_load").html("");
                 $('input[type="checkbox"][id="so_parent_node[]"], input[type="checkbox"][id="so_child_list[]"]').iCheck('enable');
 
             },

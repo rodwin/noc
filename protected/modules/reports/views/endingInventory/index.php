@@ -125,7 +125,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th>MM DESCRIPTION</th>
                         <th>MM CATEGORY</th>
                         <th>MM SUB CATEGORY</th>
-                        <th>MM SUB CATEGORY</th>
+                        <th>INVENTORY ON HAND</th>
                         <th>UNIT PRICE</th>
                         <th>UOM</th>
                         <th>TOTAL AMOUNT</th>
