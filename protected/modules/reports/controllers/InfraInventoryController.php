@@ -56,17 +56,17 @@ class InfraInventoryController extends Controller {
 
 
          foreach ($warehouse as $key => $value) {
-            $warehouse_arr[$value['default_zone_id']] = $value;
-         }
 
+            $warehouse_arr[$value['sales_office_id']] = $value;
+         }
 
          foreach ($content_data as $key => $value) {
-            $content_data_arr[$value['zone_id']][$value['sku_id']] = $value;
+            $content_data_arr[$value['sales_office_id']][$value['sku_id']] = $value;
          }
 
-//       pr($tbl_header_arr);
-//       pr($warehouse_arr);
-//       pre($content_data_arr);
+//         pr($tbl_header_arr);
+//         pr($warehouse_arr);
+//         pre($content_data_arr);
       }
 
 
@@ -231,14 +231,15 @@ class InfraInventoryController extends Controller {
       $objPHPExcel->getActiveSheet()->SetCellValue('B7', 'WAREHOUSE');
       $objPHPExcel->getActiveSheet()->getStyle("B7")->getFont()->setBold(true);
       $objPHPExcel->getActiveSheet()->getColumnDimension("B")->setAutoSize(true);
-      $col = 1; $row = 7;
+      $col = 1;
+      $row = 7;
 
       foreach ($tbl_header as $key => $val) {
          $col++;
          $letter = $this->getletter($col);
-        $objPHPExcel->getActiveSheet()->SetCellValue($letter.$row, $val['sku_name']);
-        $objPHPExcel->getActiveSheet()->getStyle($letter.$row)->getFont()->setBold(true);
-        $objPHPExcel->getActiveSheet()->getColumnDimension($letter)->setAutoSize(true);
+         $objPHPExcel->getActiveSheet()->SetCellValue($letter . $row, $val['sku_name']);
+         $objPHPExcel->getActiveSheet()->getStyle($letter . $row)->getFont()->setBold(true);
+         $objPHPExcel->getActiveSheet()->getColumnDimension($letter)->setAutoSize(true);
       }
       $objPHPExcel->getActiveSheet()->getStyle("B7:" . $letter . "7")->applyFromArray(array(
           'borders' => array(
@@ -247,24 +248,24 @@ class InfraInventoryController extends Controller {
               )
           )
       ));
-      $col = 1; $row = 7;
-      foreach ($warehouse_arr as $warehouse_header => $val){
+      $col = 1;
+      $row = 7;
+      foreach ($warehouse_arr as $warehouse_header => $val) {
          $row++;
-         $objPHPExcel->getActiveSheet()->SetCellValue("B".$row, $val['sales_office_name']);
-         foreach ($tbl_header_arr as $key_header => $v) { 
+         $objPHPExcel->getActiveSheet()->SetCellValue("B" . $row, $val['sales_office_name']);
+         foreach ($tbl_header_arr as $key_header => $v) {
             $col++;
-            if (isset($content_data_arr[$val['default_zone_id']][$v['sku_id']])) { 
-               
+            if (isset($content_data_arr[$val['default_zone_id']][$v['sku_id']])) {
+
                $letter = $this->getletter($col);
-              $objPHPExcel->getActiveSheet()->SetCellValue($letter.$row,  $content_data_arr[$warehouse_header][$key_header]['qty']); 
+               $objPHPExcel->getActiveSheet()->SetCellValue($letter . $row, $content_data_arr[$warehouse_header][$key_header]['qty']);
             }
          }
-          $col = 1;
-         
+         $col = 1;
       }
-      
+
       $letter = $this->getletter(count($tbl_header) + 1);
-       $objPHPExcel->getActiveSheet()->getStyle("B8:" . $letter.$row)->applyFromArray(array(
+      $objPHPExcel->getActiveSheet()->getStyle("B8:" . $letter . $row)->applyFromArray(array(
           'borders' => array(
               'allborders' => array(
                   'style' => PHPExcel_Style_Border::BORDER_THIN
@@ -280,10 +281,11 @@ class InfraInventoryController extends Controller {
       $objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);
       $objWriter->save('php://output');
    }
-   public function getletter ($id){
-         $alphas = range('A', 'Z');
-      return $alphas[$id];
-      }
-}
 
+   public function getletter($id) {
+      $alphas = range('A', 'Z');
+      return $alphas[$id];
+   }
+
+}
 

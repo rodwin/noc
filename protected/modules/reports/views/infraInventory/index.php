@@ -92,17 +92,15 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                      <?php } ?>
                   </tr>
                </thead>
-               <tbody>
+               <tbody> <?php $ctr = 0;?>  
                   <?php foreach ($warehouse as $warehouse_header => $val) { ?>
                      <tr>
                         <td><?php echo $val['sales_office_name'] ?></td>
 
                         <?php foreach ($tbl_header as $key_header => $v) { ?>
-
-
-                           <?php if (isset($content_data[$val['default_zone_id']][$v['sku_id']])) { ?>
+                           <?php if (isset($content_data[$val['sales_office_id']][$v['sku_id']])) { ?>
                               <?php echo '<td align = "center">' . $content_data[$warehouse_header][$key_header]['qty'] . '</td>' ?>
-                           <?php } else { ?>
+                           <?php } else { ?>  
                               <?php echo '<td></td>' ?>
                            <?php } ?>
 
@@ -171,156 +169,5 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
    });
 
-   $('#btn_submit').click(function() {
-      //generateHeader();
-      //        generatePreviewReport();
-   });
-    
-   function generateHeader(){
-      var data = $("#infra-inventory-form").serialize();
-      
-      $.ajax({
-         type: 'POST',
-         url: '<?php echo Yii::app()->createUrl($this->module->id . '/infraInventory/generateHeader'); ?>',
-         data: data,
-         dataType: "json",
-         success: function(data) {
-                
-            var e = $(".error");
-            for (var i = 0; i < e.length; i++) {
-               var $element = $(e[i]);
-
-               $element.data("title", "")
-               .removeClass("error")
-               .tooltip("destroy");
-            }
-
-            if (data.success === false) {
-               document.getElementById("covered_date_title").innerHTML = data['covered_date'];
-               $.each(JSON.parse(data.error), function(i, v) {
-                  var element = document.getElementById(i);
-
-                  var $element = $(element);
-                  $element.data("title", v)
-                  .addClass("error")
-                  .tooltip();
-               });
-            } else {
-               var str = "cobra";
-               $('#infra-inventory_table').dataTable().fnDestroy();
-               $('#infra-inventory_table').remove();
-               var content = "<table id='infra-inventory_table' class='table table-bordered' style='width:100%;'>";
-               //               content +='<tr colspan="10">';
-               //               content += '<td>' + str + '</td>';
-               //               content +=' </tr></thead>';
-               
-               content +='<thead><tr>';
-               content += '<td>WAREHOUSE</td>';
-               $.each(data.row_data, function(i, v) {
-                  content += '<td>' + v.col  + '</td>';
-               });
-               content +=' </tr></thead>';
-               content +='<tbody></tbody>'
-               content += "</table>";
-               
-               $('#div_tbl').append(content);
-               
-               var settings = {
-                  "filter": false,
-                  "processing": false,
-                  "serverSide": false,
-                  "bAutoWidth": false
-               };
-
-               $('#infra-inventory_table').dataTable().fnDestroy();
-               $('#infra-inventory_table').dataTable(settings);
-               //               $('#infra-inventory_table').dataTable().fnReloadAjax();
-            }
-
-            generatePreviewReport();
-
-         },
-         error: function(data) {
-            alert("Error occured: Please try again.");
-         }
-      });
-       
-   }
-
-   function generatePreviewReport() {
-
-      var data = $("#infra-inventory-form").serialize();
-       
-      $.ajax({
-         type: 'POST',
-         url: '<?php echo Yii::app()->createUrl($this->module->id . '/infraInventory/generateInfraReport'); ?>',
-         data: data,
-         dataType: "json",
-         success: function(data) {
-                
-            var e = $(".error");
-            for (var i = 0; i < e.length; i++) {
-               var $element = $(e[i]);
-
-               $element.data("title", "")
-               .removeClass("error")
-               .tooltip("destroy");
-            }
-
-            if (data.success === false) {
-
-               $.each(JSON.parse(data.error), function(i, v) {
-                  var element = document.getElementById(i);
-
-                  var $element = $(element);
-                  $element.data("title", v)
-                  .addClass("error")
-                  .tooltip();
-               });
-            } else {
-
-               $("#cover_date_title, #sales_office_ids_hidden").html("");
-               $("#cover_date_hidden, #brand_category_hidden, #brand_hidden").val("");
-
-               $("#cover_date_title").html(data.covered_date);
-               $("#cover_date_hidden").val(data.hidden_cover_date);
-               $("#brand_category_hidden").val(data.hidden_category);
-               $("#brand_hidden").val(data.hidden_brand);
-               $("#sales_office_ids_hidden").html(data.hidden_warehouse);
-                    
-               $("#btn_export").show();
-
-               ending_inventory_table.fnDeleteRow();
-               $.each(data.row_data, function(i, v) {
-                  ending_inventory_table.fnAddData([
-                     v.warehouse,
-                     v.zone,
-                     v.brand_category,
-                     v.brand,
-                     v.mm_code,
-                     v.mm_description,
-                     v.mm_category,
-                     v.mm_sub_category,
-                     v.qty,
-                     v.price,
-                     v.uom,
-                     v.total
-                  ]);
-               });
-            }
-
-
-
-            //                    document.getElementById("labels").innerHTML = data['covered_date'];
-            //                    document.getElementById("txtso").innerHTML = data['hidden_warehouse'];
-            //                    document.getElementById("txtcategory").innerHTML = data['hidden_category'];
-            //                    document.getElementById("txtbrand").innerHTML = data['hidden_brand'];
-            //                    document.getElementById("txtdate").innerHTML = data['date'];
-         },
-         error: function(data) {
-            alert("Error occured: Please try again.");
-         }
-      });
-   }
 
 </script>
