@@ -46,11 +46,14 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                        'placeholder' => '',
                        'width' => '100%',
                    ),
+                   'val' => array(
+                        isset($_POST['brand']) ? $_POST['brand'] : '',
+                    ),
                    'htmlOptions' => array('id' => 'brand', 'name' => 'brand', 'class' => 'form-control', 'prompt' => '--'),
                ));
                ?><br/>
 
-               <?php echo $form->textFieldGroup($model, 'cover_date', array('widgetOptions' => array('htmlOptions' => array('class' => ' span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+               <?php echo $form->textFieldGroup($model, 'cover_date', array('widgetOptions' => array('htmlOptions' => array('class' => ' span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask', 'value' => isset($_POST['InfraReportForm']['cover_date']) ? $_POST['InfraReportForm']['cover_date'] : date("Y-m-d"))), 'labelOptions' => array('label' => false))); ?>
 
                <div class="form-group">
                   <?php echo CHtml::submitButton('Submit', array('class' => 'btn btn-primary btn-flat')); ?>
