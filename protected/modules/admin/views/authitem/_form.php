@@ -216,7 +216,7 @@
                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <?php } ?>
 
-                            <span style="<?php // echo $v2->description == "Dashboard" ? "display: none" : "";         ?>">
+                            <span style="<?php // echo $v2->description == "Dashboard" ? "display: none" : "";          ?>">
                                 <input type="checkbox" name="operations[]" <?php echo isset($childs[$v2->name]) ? 'checked' : '' ?> value="<?php echo $v2->name; ?>" id="op_list" class="<?php echo "operation_list_" . str_replace(" ", "_", strtoupper($v2->description)); ?>"/>&nbsp;
                                 <?php echo $v2->name; ?>
                             </span><br/>
@@ -351,6 +351,7 @@ if (!$model->isNewRecord) {
                 ajaxOpts.complete = function() {
                     if (ajaxQueue.queue().length == 1) {
                         $("#ajax_zone_load").html("");
+                        $('input[type="checkbox"][id="so_parent_node[]"], input[type="checkbox"][id="so_child_list[]"]').iCheck('enable');
                     }
 
                     if (oldComplete)
@@ -419,8 +420,6 @@ if (!$model->isNewRecord) {
                         }
                     });
                 });
-
-                $('input[type="checkbox"][id="so_parent_node[]"], input[type="checkbox"][id="so_child_list[]"]').iCheck('enable');
 
             },
             error: function(status, exception) {
