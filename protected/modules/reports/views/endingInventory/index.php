@@ -171,7 +171,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             "filter": false,
             "processing": false,
             "serverSide": false,
-            "bAutoWidth": false
+            "bAutoWidth": false,
+            "bSort": false,
         });
 
         $('#all_warehouse').on('ifChecked', function(event) {
