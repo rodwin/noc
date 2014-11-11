@@ -263,6 +263,7 @@ class OutgoingInventory extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
         $criteria->with = array("zone");
+        $criteria->condition = "t.destination_zone_id IN (" . Yii::app()->user->zones . ")";
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,

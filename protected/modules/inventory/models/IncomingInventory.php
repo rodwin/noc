@@ -232,6 +232,7 @@ class IncomingInventory extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
         $criteria->with = array("zone");
+        $criteria->condition = "t.destination_zone_id IN (" . Yii::app()->user->zones . ")";
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -308,7 +309,7 @@ class IncomingInventory extends CActiveRecord {
 //                    } else {
 //                        OutgoingInventory::model()->updateAll(array('status' => $incoming_inventory->status, 'updated_by' => $this->created_by, 'updated_date' => date('Y-m-d H:i:s')), 'outgoing_inventory_id = ' . $this->outgoing_inventory_id . ' AND company_id = "' . $incoming_inventory->company_id . '"');
 //                    }
-                    
+
                     Yii::app()->session['incoming_inv_id_create_session'] = $incoming_inventory->incoming_inventory_id;
 
                     unset(Yii::app()->session['incoming_inv_id_attachment_session']);
