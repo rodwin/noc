@@ -16,5 +16,6 @@ echo $this->renderPartial('_form', array(
     'operations' => $operations,
     'childs' => $childs,
     'selected_zone' => $selected_zone,
+    'selected_brand' => $selected_brand,
 ));
 ?>

@@ -694,7 +694,8 @@ class InventoryController extends Controller {
     public function actionLoadNotifications() {
 
         $c = new CDbCriteria;
-        $c->condition = "t.status = '" . OutgoingInventory::OUTGOING_PENDING_STATUS . "'";
+        $c->condition = "t.status = '" . OutgoingInventory::OUTGOING_PENDING_STATUS . "' AND b.source_zone_id IN (" . Yii::app()->user->zones . ")";
+        $c->join = "INNER JOIN outgoing_inventory_detail b ON b.outgoing_inventory_id = t.outgoing_inventory_id";
         $outbound = OutgoingInventory::model()->findAll($c);
 
         $outbound_arr = array();
@@ -713,7 +714,8 @@ class InventoryController extends Controller {
         }
 
         $c1 = new CDbCriteria;
-        $c1->condition = "t.status = '" . OutgoingInventory::OUTGOING_PENDING_STATUS . "'";
+        $c1->condition = "t.status = '" . OutgoingInventory::OUTGOING_PENDING_STATUS . "' AND b.source_zone_id IN (" . Yii::app()->user->zones . ")";
+        $c1->join = "INNER JOIN customer_item_detail b ON b.customer_item_id = t.customer_item_id";
         $outgoing = CustomerItem::model()->findAll($c1);
 
         $outgoing_arr = array();
@@ -726,7 +728,7 @@ class InventoryController extends Controller {
             $row['dr_no'] = $val1->dr_no;
             $row['dr_date'] = date("d-M", strtotime($val1->dr_date));
             $row['status'] = $status;
-            $row['created_date'] = $val->created_date;
+            $row['created_date'] = $val1->created_date;
 
             $outgoing_arr[] = $row;
         }
@@ -750,6 +752,7 @@ class InventoryController extends Controller {
         $c1 = new CDbCriteria;
         $c1->select = "t.*, SUM(receiving_inventory_detail.quantity_received) as total_quantity";
         $c1->join = "INNER JOIN receiving_inventory_detail ON receiving_inventory_detail.receiving_inventory_id = t.receiving_inventory_id";
+        $c1->condition = "t.zone_id IN (" . Yii::app()->user->zones . ")";
         $c1->order = "t.created_date DESC";
         $c1->limit = 3;
         $c1->group = "t.receiving_inventory_id";
@@ -778,6 +781,7 @@ class InventoryController extends Controller {
         $c2 = new CDbCriteria;
         $c2->select = "t.*, SUM(incoming_inventory_detail.quantity_received) as total_quantity";
         $c2->join = "INNER JOIN incoming_inventory_detail ON incoming_inventory_detail.incoming_inventory_id = t.incoming_inventory_id";
+        $c2->condition = "incoming_inventory_detail.source_zone_id IN (" . Yii::app()->user->zones . ")";
         $c2->order = "t.created_date DESC";
         $c2->limit = 3;
         $c2->group = "t.incoming_inventory_id";
@@ -825,6 +829,7 @@ class InventoryController extends Controller {
         $c3 = new CDbCriteria;
         $c3->select = "t.*, SUM(outgoing_inventory_detail.quantity_issued) as total_quantity";
         $c3->join = "INNER JOIN outgoing_inventory_detail ON outgoing_inventory_detail.outgoing_inventory_id = t.outgoing_inventory_id";
+        $c3->condition = "outgoing_inventory_detail.source_zone_id IN (" . Yii::app()->user->zones . ")";
         $c3->order = "t.created_date DESC";
         $c3->limit = 3;
         $c3->group = "t.outgoing_inventory_id";
@@ -862,6 +867,7 @@ class InventoryController extends Controller {
         $c4 = new CDbCriteria;
         $c4->select = "t.*, SUM(customer_item_detail.quantity_issued) as total_quantity";
         $c4->join = "INNER JOIN customer_item_detail ON customer_item_detail.customer_item_id = t.customer_item_id";
+        $c4->condition = "customer_item_detail.source_zone_id IN (" . Yii::app()->user->zones . ")";
         $c4->order = "t.created_date DESC";
         $c4->limit = 3;
         $c4->group = "t.customer_item_id";

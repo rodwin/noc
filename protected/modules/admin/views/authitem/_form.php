@@ -178,12 +178,68 @@
                 }
                 ?>
 
-                <div class="well well-sm" style="">
-                    <label>Zones <span id="ajax_zone_load"></span></label>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="well well-sm">
+                            <label>Zones <span id="ajax_zone_load"></span></label>
 
-                    <div id="zone_tree" class="tree" style="max-height: 300px; overflow: scroll;">
-                        <span id="empty_selected_so" style="margin-left: 30px;"><i>No selected sales office</i></span>
-                        <ul id="selected_so" style="list-style-type: none;"></ul>
+                            <div id="zone_tree" class="tree" style="max-height: 300px; overflow: scroll;">
+                                <span id="empty_selected_so" style="margin-left: 30px;"><i>No selected sales office</i></span>
+                                <ul id="selected_so" style="list-style-type: none;"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="well well-sm">
+                            <label>Brand <span id="ajax_brand_load"></span></label>
+
+                            <?php $brand_category = BrandCategory::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id), array("order" => "category_name ASC")); ?>
+
+                            <div id="brand_tree" class="tree" style="max-height: 300px; overflow: scroll;">
+                                <?php if (count($brand_category) > 0) { ?>
+
+                                    <ul style="list-style-type: none;">
+                                        <?php foreach ($brand_category as $k2 => $v2) {
+                                            ?>
+
+                                            <li id="brand_category_li_<?php echo $k2; ?>" class="parent_li">
+                                                <input type="checkbox" id="brand_parent_node[]" class="brand_parent_<?php echo $k2; ?>" value="<?php echo $k2; ?>">&nbsp;
+                                                <span data-toggle="tooltip" style="cursor: pointer;"><i class="fa fa-fw fa-plus-square"></i>
+                                                    <?php echo $v2->category_name; ?>
+                                                </span>
+
+                                                <ul id="ul_brand" style="list-style-type: none;">
+                                                    <?php $brand = Brand::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "brand_category_id" => $v2->brand_category_id), array("order" => "brand_name ASC")); ?>
+
+                                                    <?php
+                                                    if (count($brand) > 0) {
+                                                        foreach ($brand as $v3) {
+                                                            ?>
+
+                                                            <li>
+                                                                <?php echo CHtml::checkBox('brand[' . $v3->brand_id . ']', isset($selected_brand[$v3->brand_id]) ? true : false, array('class' => 'brand_child_' . $k2, 'id' => 'brand_child_list[]')); ?>&nbsp;
+                                                                <span><?php echo $v3->brand_name; ?></span>
+                                                                <span class="text-muted">(<?php echo $v3->brand_code; ?>)</span>
+                                                            </li>
+
+                                                            <?php
+                                                        }
+                                                    }
+                                                    ?>
+                                                </ul>
+                                            </li>
+
+                                        <?php }
+                                        ?>                                            
+                                    </ul>
+
+                                <?php } else {
+                                    ?>
+                                    <span id="empty_brand" style="margin-left: 30px;"><i>No Brand</i></span>
+                                <?php } ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -202,7 +258,7 @@
                             <?php if ($ctr != $v2->description) {
                                 ?>
 
-                                <b><?php echo strtoupper($v2->description); ?></b>
+                                <b><?php echo $v2->description == "SKU" ? strtoupper(Sku::SKU_LABEL) : strtoupper($v2->description); ?></b>
                                 <input type="checkbox" name="operation_title[]" value="<?php echo str_replace(" ", "_", strtoupper($v2->description)); ?>"/>
                                 <br/>
 
@@ -216,9 +272,13 @@
                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <?php } ?>
 
-                            <span style="<?php // echo $v2->description == "Dashboard" ? "display: none" : "";          ?>">
+                            <span style="<?php // echo $v2->description == "Dashboard" ? "display: none" : "";                                ?>">
                                 <input type="checkbox" name="operations[]" <?php echo isset($childs[$v2->name]) ? 'checked' : '' ?> value="<?php echo $v2->name; ?>" id="op_list" class="<?php echo "operation_list_" . str_replace(" ", "_", strtoupper($v2->description)); ?>"/>&nbsp;
-                                <?php echo $v2->name; ?>
+                                <?php
+                                $sku_text = explode(' ', $v2->name);
+                                $last_word = array_pop($sku_text);
+                                echo $last_word == "SKU" ? str_replace("SKU", Sku::SKU_LABEL, $v2->name) : $v2->name;
+                                ?>                                
                             </span><br/>
 
                         <?php } ?>
@@ -262,6 +322,23 @@
             e.stopPropagation();
         });
 
+        $('#brand_tree .tree li:has(ul)').addClass('parent_li').find(' > span').attr('data-original-title', 'Expand');
+        $('#brand_tree .tree li > ul > li').hide('fast');
+
+        $('#brand_tree .tree li.parent_li > span').on('click', function(e) {
+            var children = $(this).parent('li.parent_li').find(' > ul > li');
+
+            if (children.is(":visible")) {
+
+                children.hide('fast');
+                $(this).attr('data-original-title', 'Expand').find(' > i').removeClass('fa-minus-square').addClass('fa-plus-square');
+            } else {
+
+                children.show('fast');
+                $(this).attr('data-original-title', 'Collapse').find(' > i').removeClass('fa-plus-square').addClass('fa-minus-square');
+            }
+            e.stopPropagation();
+        });
     });
 
     var zones = new Array();
@@ -281,16 +358,16 @@ if (!$model->isNewRecord) {
 }
 ?>
 
-//        var so_parent_checked = false;
+        //        var so_parent_checked = false;
 
         $('input[type="checkbox"][id="so_parent_node[]"]').on('ifChecked', function(event) {
             $("input.so_child_" + this.value).iCheck('check');
         });
 
         $('input[type="checkbox"][id="so_parent_node[]"]').on('ifUnchecked', function(event) {
-//            if (so_parent_checked === false) {
+            //            if (so_parent_checked === false) {
             $("input.so_child_" + this.value).iCheck('uncheck');
-//            }
+            //            }
         });
 
         $('input[type="checkbox"][name="operation_title[]"]').on('ifChecked', function(event) {
@@ -305,13 +382,11 @@ if (!$model->isNewRecord) {
             var sales_office_id = $(this).attr("data-id");
             var so_parent_key = $(this).attr("data-key");
 
-            $('input[type="checkbox"][id="so_parent_node[]"], input[type="checkbox"][id="so_child_list[]"]').iCheck('disable');
-
             var parent = $(this).closest("#distributor_ul_" + so_parent_key);
             var status = parent.find("input.so_child_" + so_parent_key).not(':checked').length === 0;
 
 //            if (status === true) {
-//                $(".so_parent_" + so_parent_key).iCheck('check');
+            //                $(".so_parent_" + so_parent_key).iCheck('check');
 //            }
 
             getSalesofficeDetailsByID(sales_office_id);
@@ -328,7 +403,7 @@ if (!$model->isNewRecord) {
 
 //            if (status === true) {
 //                so_parent_checked = true;
-//                $(".so_parent_" + so_parent_key).iCheck('uncheck');
+            //                $(".so_parent_" + so_parent_key).iCheck('uncheck');
 //            }
 
             update = false;
@@ -337,18 +412,26 @@ if (!$model->isNewRecord) {
             }
         });
 
+        $('input[type="checkbox"][id="brand_parent_node[]"]').on('ifChecked', function(event) {
+            $("input.brand_child_" + this.value).iCheck('check');
+        });
 
+        $('input[type="checkbox"][id="brand_parent_node[]"]').on('ifUnchecked', function(event) {
+            $("input.brand_child_" + this.value).iCheck('uncheck');
+        });
     });
 
     var ajaxQueue = $({});
     (function($) {
         $.ajaxQueue = function(ajaxOpts) {
-
             var oldComplete = ajaxOpts.complete;
-
+            
             ajaxQueue.queue(function(next) {
 
                 ajaxOpts.complete = function() {
+                    
+                    $('input[type="checkbox"][id="so_parent_node[]"], input[type="checkbox"][id="so_child_list[]"]').iCheck('disable');
+
                     if (ajaxQueue.queue().length == 1) {
                         $("#ajax_zone_load").html("");
                         $('input[type="checkbox"][id="so_parent_node[]"], input[type="checkbox"][id="so_child_list[]"]').iCheck('enable');
@@ -375,7 +458,6 @@ if (!$model->isNewRecord) {
             url: '<?php echo Yii::app()->createUrl('/library/salesOffice/getSODetailsByID'); ?>' + '&sales_office_id=' + sales_office_id,
             dataType: "json",
             success: function(data) {
-
                 var so_id = data.so_detail.sales_office_id;
                 var so_code = data.so_detail.sales_office_code;
                 var so_name = data.so_detail.sales_office_name;
@@ -414,8 +496,7 @@ if (!$model->isNewRecord) {
                     el.slideToggle('fast', function() {
                         if (el.is(':hidden')) {
                             span.attr('title', 'Expand').prev('i').removeClass('fa-minus-square').addClass('fa-plus-square');
-                        }
-                        else {
+                        } else {
                             span.attr('title', 'Collapse').prev('i').removeClass('fa-plus-square').addClass('fa-minus-square');
                         }
                     });
