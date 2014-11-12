@@ -61,8 +61,9 @@ class UserIdentity extends CUserIdentity {
                 }
                 
                 $unserialize = CJSON::decode(isset($final_data) ? $final_data : "");
-                $so = CJSON::decode($unserialize['so']);
-                $zones = CJSON::decode($unserialize['zone']);
+                $so = CJSON::decode(isset($unserialize['so']) ? $unserialize['so'] : "");
+                $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
+                $brands = CJSON::decode(isset($unserialize['brand']) ? $unserialize['brand'] : "");
 
                 $so_id = "'',";
                 if ($so != "") {
@@ -80,6 +81,14 @@ class UserIdentity extends CUserIdentity {
                 }                
                 $this->setState('zones', substr($zone_id, 0, -1));
 
+                $brand_ids = "'',";
+                if ($brands != "") {
+                    foreach ($brands as $k2 => $v2) {
+                        $brand_ids .= "'" . $k2 . "',";
+                    }
+                }
+                $this->setState('brands', substr($brand_ids, 0, -1));
+                
                 $this->_id = $user->user_id;
                 $this->errorCode = self::ERROR_NONE;
 

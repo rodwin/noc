@@ -137,6 +137,7 @@ class AuthitemController extends Controller {
 
                 $data['so'] = CJSON::encode(isset($_POST['so']) ? $_POST['so'] : "");
                 $data['zone'] = CJSON::encode(isset($_POST['zone']) ? $_POST['zone'] : "");
+                $data['brand'] = CJSON::encode(isset($_POST['brand']) ? $_POST['brand'] : "");
 
                 $model->data = CJSON::encode($data);
                 $auth = Yii::app()->authManager;
@@ -200,6 +201,7 @@ class AuthitemController extends Controller {
 
             $data['so'] = CJSON::encode(isset($_POST['so']) ? $_POST['so'] : "");
             $data['zone'] = CJSON::encode(isset($_POST['zone']) ? $_POST['zone'] : "");
+            $data['brand'] = CJSON::encode(isset($_POST['brand']) ? $_POST['brand'] : "");
             $model->data = CJSON::encode($data);
             $model->name = $_POST['Authitem']['name'];
             $model->description = $_POST['Authitem']['description'];
@@ -228,10 +230,11 @@ class AuthitemController extends Controller {
 
         $this->render('update', array(
             'model' => $model,
-            'selected_so' => CJSON::decode($unserialize['so']),
+            'selected_so' => CJSON::decode(isset($unserialize['so']) ? $unserialize['so'] : ""),
             'operations' => $operations,
             'childs' => $childs,
-            'selected_zone' => CJSON::decode($unserialize['zone']),
+            'selected_zone' => CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : ""),
+            'selected_brand' => CJSON::decode(isset($unserialize['brand']) ? $unserialize['brand'] : ""),
         ));
     }
 
