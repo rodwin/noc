@@ -47,13 +47,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                        'width' => '100%',
                    ),
                    'val' => array(
-                        isset($_POST['brand']) ? $_POST['brand'] : '',
-                    ),
+                       isset($_POST['brand']) ? $_POST['brand'] : '',
+                   ),
                    'htmlOptions' => array('id' => 'brand', 'name' => 'brand', 'class' => 'form-control', 'prompt' => '--'),
                ));
                ?><br/>
 
-               <?php echo $form->textFieldGroup($model, 'cover_date', array('widgetOptions' => array('htmlOptions' => array('class' => ' span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask', 'value' => isset($_POST['InfraReportForm']['cover_date']) ? $_POST['InfraReportForm']['cover_date'] : date("Y-m-d"))), 'labelOptions' => array('label' => false))); ?>
+               <?php echo $form->textFieldGroup($model, 'cover_date', array('widgetOptions' => array('htmlOptions' => array('class' => ' span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask','value' => isset($_POST['InfraReportForm']['cover_date']) ? $_POST['InfraReportForm']['cover_date'] : date("Y-m-d"))), 'labelOptions' => array('label' => false))); ?>
 
                <div class="form-group">
                   <?php echo CHtml::submitButton('Submit', array('class' => 'btn btn-primary btn-flat')); ?>
@@ -78,6 +78,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
          <?php if (count($tbl_header) > 0 && !empty($date_covered)) { ?>
 
             <table id='infra-inventory_table' class='table table-bordered' style='width:100%;'>
+
                <thead>
                   <tr >
                      <td align = "center" colspan =<?php echo count($tbl_header) + 1 ?>>
@@ -95,7 +96,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                      <?php } ?>
                   </tr>
                </thead>
-               <tbody> <?php $ctr = 0;?>  
+               <tbody> <?php $ctr = 0; ?>  
                   <?php foreach ($warehouse as $warehouse_header => $val) { ?>
                      <tr>
                         <td><?php echo $val['sales_office_name'] ?></td>
