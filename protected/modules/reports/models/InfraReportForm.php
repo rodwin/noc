@@ -60,17 +60,37 @@ class InfraReportForm extends CFormModel {
 
       $qry = array();
 
-      $sql = "SELECT a.zone_id, b.sku_id, b.sku_name, SUM(a.qty) AS qty, e.sales_office_id
+      $sql = "SELECT a.zone_id, b.sku_id, b.sku_name, 
+               (
+                  SELECT running_total
+                  FROM inventory_history
+                  WHERE inventory_id = a.inventory_id
+                   AND created_date  BETWEEN 'min(created_date)' AND '2014-11-11 23:59:59'
+                  ORDER BY created_date DESC 
+                  LIMIT 1
+               ) AS qty,
+               e.sales_office_id
                FROM inventory a
                INNER JOIN sku b ON b.sku_id = a.sku_id
                INNER JOIN brand c ON c.brand_id = b.brand_id
                INNER JOIN zone d ON d.zone_id = a.zone_id
                INNER JOIN sales_office e ON e.sales_office_id = d.sales_office_id
+               INNER JOIN inventory_history f ON f.inventory_id = a.inventory_id
                WHERE c.brand_id = '" . $brand . "' 
-               AND a.transaction_date BETWEEN '" . $dates . "  00:00:00' AND  '" . $dates . " 23:59:59'
+               AND f.created_date BETWEEN 'min(created_date)' AND  '" . $dates . " 23:59:59'
                AND b.type = 'INFRA'
                GROUP BY e.sales_office_id, b.sku_id";
-      $command = Yii::app()->db->createCommand($sql);
+//      $sql = "SELECT a.zone_id, b.sku_id, b.sku_name, SUM(a.qty) AS qty, e.sales_office_id
+//               FROM inventory a
+//               INNER JOIN sku b ON b.sku_id = a.sku_id
+//               INNER JOIN brand c ON c.brand_id = b.brand_id
+//               INNER JOIN zone d ON d.zone_id = a.zone_id
+//               INNER JOIN sales_office e ON e.sales_office_id = d.sales_office_id
+//               WHERE c.brand_id = '" . $brand . "' 
+//               AND a.transaction_date BETWEEN '" . $dates . "  00:00:00' AND  '" . $dates . " 23:59:59'
+//               AND b.type = 'INFRA'
+//               GROUP BY e.sales_office_id, b.sku_id";
+      $command = Yii::app()->db->createCommand($sql); 
       $data = $command->queryAll();
       return $data;
    }
