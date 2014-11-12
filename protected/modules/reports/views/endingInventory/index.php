@@ -36,7 +36,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             <div style="max-height: 200px; overflow: scroll; padding: 10px; border: 1px solid #ccc;">
 
                 <?php
-                $sales_offices = SalesOffice::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id), array("order" => 'sales_office_name asc'));
+                $c = new CDbCriteria;
+                $c->condition = "company_id = '". Yii::app()->user->company_id ."' AND t.sales_office_id IN (" . Yii::app()->user->salesoffices . ")";
+                $c->order = "sales_office_name asc";
+                $sales_offices = SalesOffice::model()->findAll($c);
 
                 foreach ($sales_offices as $v) {
                     ?>
@@ -113,6 +116,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="box-body table-responsive">
             <h4 class="control-label text-primary"><b>ENDING INVENTORY REPORT as of: <span id="covered_date_title"></span></b></h4>
+           <div id="ajax_loader_table"></div>
 
             <table id="ending-inventory_table" class="table table-bordered">
                 <thead>
@@ -171,8 +175,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             "filter": false,
             "processing": false,
             "serverSide": false,
-            "bAutoWidth": false,
-            "bSort": false,
+            "bAutoWidth": false
         });
 
         $('#all_warehouse').on('ifChecked', function(event) {
@@ -199,7 +202,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             url: '<?php echo Yii::app()->createUrl($this->module->id . '/endingInventory/generateEndingReport'); ?>',
             data: data,
             dataType: "json",
-            success: function(data) {
+            beforeSend: function(){
+               $("#ajax_loader_table").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>"); 
+            },
+            success: function(data) { 
+                $("#ajax_loader_table").html(""); 
                 
                 var e = $(".error");
                 for (var i = 0; i < e.length; i++) {
