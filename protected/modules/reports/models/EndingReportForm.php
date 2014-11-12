@@ -58,7 +58,7 @@ class EndingReportForm extends CFormModel {
                   SELECT running_total
                   FROM inventory_history
                   WHERE inventory_id = a.inventory_id
-                  AND created_date  BETWEEN 'min(created_date)' AND '2014-11-11 23:59:59'
+                  AND created_date  BETWEEN 'min(created_date)' AND '" . $last_date_time . " 23:59:59'
                   ORDER BY created_date DESC 
                   LIMIT 1
                   ) AS qty ,
@@ -66,7 +66,7 @@ class EndingReportForm extends CFormModel {
                   SELECT ave_cost_per_unit
                   FROM inventory_history
                   WHERE inventory_id = a.inventory_id
-                  AND created_date  BETWEEN 'min(created_date)' AND '2014-11-11 23:59:59'
+                  AND created_date  BETWEEN 'min(created_date)' AND '" . $last_date_time . " 23:59:59'
                   ORDER BY created_date DESC 
                   LIMIT 1
                   ) AS price, g.uom_name
