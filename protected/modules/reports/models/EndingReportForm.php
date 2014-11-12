@@ -85,7 +85,7 @@ class EndingReportForm extends CFormModel {
                     GROUP BY b.zone_id ,a.sku_id ORDER BY c.sales_office_name, b.zone_name, f.category_name";
         
         $command = Yii::app()->db->createCommand($sql);
-        $data = $command->queryAll(); pre($data);
+        $data = $command->queryAll();
         return $data;
     }
 
