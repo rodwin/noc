@@ -58,7 +58,7 @@ class EndingReportForm extends CFormModel {
                   SELECT running_total
                   FROM inventory_history
                   WHERE inventory_id = a.inventory_id
-                  AND created_date  BETWEEN 'min(created_date)' AND '2014-11-11 23:59:59'
+                  AND created_date  BETWEEN 'min(created_date)' AND '" . $last_date_time . " 23:59:59'
                   ORDER BY created_date DESC 
                   LIMIT 1
                   ) AS qty ,
@@ -66,7 +66,7 @@ class EndingReportForm extends CFormModel {
                   SELECT ave_cost_per_unit
                   FROM inventory_history
                   WHERE inventory_id = a.inventory_id
-                  AND created_date  BETWEEN 'min(created_date)' AND '2014-11-11 23:59:59'
+                  AND created_date  BETWEEN 'min(created_date)' AND '" . $last_date_time . " 23:59:59'
                   ORDER BY created_date DESC 
                   LIMIT 1
                   ) AS price, g.uom_name
@@ -85,7 +85,7 @@ class EndingReportForm extends CFormModel {
                     GROUP BY b.zone_id ,a.sku_id ORDER BY c.sales_office_name, b.zone_name, f.category_name";
         
         $command = Yii::app()->db->createCommand($sql);
-        $data = $command->queryAll();
+        $data = $command->queryAll(); pre($data);
         return $data;
     }
 
