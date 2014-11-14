@@ -104,7 +104,7 @@ class InfraInventoryController extends Controller {
       $last_date_time = $cover_date . " 23:59:59";
 
       $ret_data = $model->getData($brand, $last_date_time);
-      pre($ret_data);
+
       foreach ($ret_data as $key => $value) {
          $row = array();
          $row['warehouse'] = $value['sales_office_name'];
@@ -190,12 +190,12 @@ class InfraInventoryController extends Controller {
 
 
          foreach ($warehouse as $key => $value) {
-            $warehouse_arr[$value['default_zone_id']] = $value;
+            $warehouse_arr[$value['sales_office_id']] = $value;
          }
 
 
          foreach ($content_data as $key => $value) {
-            $content_data_arr[$value['zone_id']][$value['sku_id']] = $value;
+            $content_data_arr[$value['sales_office_id']][$value['sku_id']] = $value;
          }
       } else {
          return false;
@@ -250,15 +250,18 @@ class InfraInventoryController extends Controller {
       ));
       $col = 1;
       $row = 7;
+//      pr($tbl_header_arr);
+//      pr($warehouse_arr);
+//      pre($content_data_arr);
       foreach ($warehouse_arr as $warehouse_header => $val) {
          $row++;
          $objPHPExcel->getActiveSheet()->SetCellValue("B" . $row, $val['sales_office_name']);
          foreach ($tbl_header_arr as $key_header => $v) {
             $col++;
-            if (isset($content_data_arr[$val['default_zone_id']][$v['sku_id']])) {
-
+            if (isset($content_data_arr[$val['sales_office_id']][$v['sku_id']])) {
                $letter = $this->getletter($col);
                $objPHPExcel->getActiveSheet()->SetCellValue($letter . $row, $content_data_arr[$warehouse_header][$key_header]['qty']);
+               $objPHPExcel->getActiveSheet()->getStyle($letter . $row)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
             }
          }
          $col = 1;
@@ -272,6 +275,7 @@ class InfraInventoryController extends Controller {
               )
           )
       ));
+       
 
 
       $objPHPExcel->getActiveSheet()->setTitle('Infra Report');

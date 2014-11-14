@@ -232,7 +232,8 @@ class IncomingInventory extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
         $criteria->with = array("zone");
-        $criteria->condition = "t.destination_zone_id IN (" . Yii::app()->user->zones . ")";
+        $criteria->join = "INNER JOIN incoming_inventory_detail ON incoming_inventory_detail.incoming_inventory_id = t.incoming_inventory_id";
+        $criteria->condition = "incoming_inventory_detail.source_zone_id IN (" . Yii::app()->user->zones . ")";
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,

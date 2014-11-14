@@ -193,6 +193,7 @@ class Brand extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
         $criteria->with = array('brandCategory', 'company', 'skus');
+        $criteria->condition = "t.brand_id IN (" . Yii::app()->user->brands . ")";
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,

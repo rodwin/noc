@@ -87,7 +87,7 @@ class EndingInventoryController extends Controller {
          $row['qty'] = $value['qty'];
          $row['price'] = $value['price'];
          $row['uom'] = $value['uom_name'];
-         $row['total'] = $value['total'];
+         $row['total'] = $value['qty'] * $value['price'];
 
          $output['row_data'][] = $row;
       }
@@ -176,7 +176,7 @@ class EndingInventoryController extends Controller {
          $objPHPExcel->getActiveSheet()->SetCellValue('J' . $ctr . '', $val['qty']);
          $objPHPExcel->getActiveSheet()->SetCellValue('K' . $ctr . '', $val['price']);
          $objPHPExcel->getActiveSheet()->SetCellValue('L' . $ctr . '', $val['uom_name']);
-         $objPHPExcel->getActiveSheet()->SetCellValue('M' . $ctr . '', $val['total']);
+         $objPHPExcel->getActiveSheet()->SetCellValue('M' . $ctr . '', '=J'. $ctr .'*K' .$ctr);
          
          $objPHPExcel->getActiveSheet()->getStyle('B'. $ctr . ':M'. $ctr)->applyFromArray(array(
           'borders' => array(
