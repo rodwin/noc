@@ -72,6 +72,7 @@ $this->breadcrumbs = array(
     <ul class="nav nav-tabs">
         <li class="active"><a href="#tab_1" data-toggle="tab">Item Details Table</a></li>
         <li><a href="#tab_2" data-toggle="tab">Documents</a></li>
+        <span id="lower_table_loader" class="pull-right margin"></span>
     </ul>
     <div class="tab-content" id ="info">
         <div class="tab-pane active" id="tab_1">
@@ -341,8 +342,7 @@ $this->breadcrumbs = array(
             url: '<?php echo Yii::app()->createUrl('/inventory/OutgoingInventory/outgoingInvDetailData'); ?>' + '&outgoing_inv_id=' + outgoing_inv_id,
             dataType: "json",
             beforeSend: function() {
-                $("#outgoing_details").hide();
-                $("#ajax_loader_details").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
+                $("#lower_table_loader").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
             },
             success: function(data) {
 
@@ -352,8 +352,7 @@ $this->breadcrumbs = array(
                     outgoing_inventory_table_detail.fnDeleteRow(0, null, true);
                 }
 
-                $("#ajax_loader_details").html("");
-                $("#outgoing_details").show();
+                $("#lower_table_loader").html("");
 
                 $.each(data.data, function(i, v) {
                     outgoing_inventory_table_detail.fnAddData([
@@ -391,8 +390,7 @@ $this->breadcrumbs = array(
             url: '<?php echo Yii::app()->createUrl('/inventory/OutgoingInventory/preview'); ?>' + '&id=' + outgoing_inv_id,
             dataType: "json",
             beforeSend: function() {
-                $("#outgoing_attachments").hide();
-                $("#ajax_loader_attachment").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
+                $("#lower_table_loader").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
             },
             success: function(data) {
                 var oSettings = outgoing_inventory_attachment_table.fnSettings();
@@ -402,8 +400,7 @@ $this->breadcrumbs = array(
                     outgoing_inventory_attachment_table.fnDeleteRow(0, null, true);
                 }
 
-                $("#ajax_loader_attachment").html("");
-                $("#outgoing_attachments").show();
+                $("#lower_table_loader").html("");
 
                 $.each(data.data, function(i, v) {
                     rows++;
