@@ -264,8 +264,17 @@ class OutgoingInventory extends CActiveRecord {
         $criteria->offset = $offset;
         $criteria->with = array("zone");
         $criteria->join = "INNER JOIN outgoing_inventory_detail ON outgoing_inventory_detail.outgoing_inventory_id = t.outgoing_inventory_id";
-        $criteria->condition = "outgoing_inventory_detail.source_zone_id IN (" . Yii::app()->user->zones . ")";
-
+        
+        $arr = array();        
+        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
+        $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
+        
+        foreach ($zones as $key => $val) {
+            $arr[] = $key;
+        }
+        
+        $criteria->addInCondition('outgoing_inventory_detail.source_zone_id', $arr);
+        
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
             'pagination' => false,

@@ -255,7 +255,16 @@ class CustomerItem extends CActiveRecord {
         $criteria->offset = $offset;
         $criteria->with = array("zone", "poi");
         $criteria->join = "INNER JOIN customer_item_detail ON customer_item_detail.customer_item_id = t.customer_item_id";
-        $criteria->condition = "customer_item_detail.source_zone_id IN (" . Yii::app()->user->zones . ")";
+        
+        $arr = array();        
+        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
+        $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
+        
+        foreach ($zones as $key => $val) {
+            $arr[] = $key;
+        }
+        
+        $criteria->addInCondition('customer_item_detail.source_zone_id', $arr);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
