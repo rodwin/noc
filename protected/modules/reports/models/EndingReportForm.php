@@ -82,7 +82,7 @@ class EndingReportForm extends CFormModel {
                     WHERE (h.created_date BETWEEN 'min(created_date)' AND '" . $last_date_time . " 23:59:59')
                     $criteria
                         
-                    GROUP BY b.zone_id ,a.sku_id ORDER BY c.sales_office_name, b.zone_name, f.category_name";
+                    GROUP BY b.zone_id ,a.sku_id, h.inventory_id ORDER BY c.sales_office_name, b.zone_name, f.category_name";
         
         $command = Yii::app()->db->createCommand($sql);
         $data = $command->queryAll();
