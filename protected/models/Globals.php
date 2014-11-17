@@ -13,7 +13,6 @@
 use Rhumsaa\Uuid\Uuid;
 use Rhumsaa\Uuid\Exception\UnsatisfiedDependencyException;
 
-require_once('vendor/tecnick.com/tcpdf/tcpdf.php');
 
 class Globals {
 
