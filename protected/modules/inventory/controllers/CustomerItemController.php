@@ -1014,7 +1014,7 @@ class CustomerItemController extends Controller {
                     <td class="border-bottom row_content_lg">' . $destination['poi_name'] . '</td>
                 </tr>
                 <tr>
-                    <td clss="row_label" style="font-weight: bold;">RRA NUMBER</td>
+                    <td clss="row_label" style="font-weight: bold;">RA NUMBER</td>
                     <td class="border-bottom row_content_sm">' . $headers['rra_no'] . '</td>
                     <td style="width: 10px;"></td>
                     <td clss="row_label" style="font-weight: bold;">CONTACT PERSON</td>

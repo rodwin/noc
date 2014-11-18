@@ -940,7 +940,7 @@ class ReceivingInventoryController extends Controller {
                 
         <table class="table_main">
             <tr>
-                <td clss="row_label" style="font-weight: bold;">CAMPAIGN NUMBER</td>
+                <td clss="row_label" style="font-weight: bold;">PO NUMBER</td>
                 <td class="border-bottom row_content_sm">' . $headers['campaign_no'] . '</td>
                 <td style="width: 10px;"></td>
                 <td clss="row_label" style="font-weight: bold;">DESTINATION ZONE</td>

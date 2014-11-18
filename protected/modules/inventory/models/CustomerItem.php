@@ -143,8 +143,8 @@ class CustomerItem extends CActiveRecord {
         return array(
             'customer_item_id' => 'Customer Item',
             'company_id' => 'Company',
-            'rra_no' => 'RRA No',
-            'rra_date' => 'RRA Date',
+            'rra_no' => 'RA No',
+            'rra_date' => 'RA Date',
 //            'campaign_no' => 'Campaign No',
 //            'pr_no' => 'PR No',
 //            'pr_date' => 'PR Date',

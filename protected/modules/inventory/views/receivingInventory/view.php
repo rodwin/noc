@@ -68,37 +68,37 @@ $this->breadcrumbs = array(
         <div class="col-sm-6">
             <table class="table table-bordered table-condensed">
                 <tr>
-                    <td class="first_col_right_table"><strong>Transaction Date:</strong></td>
+                    <td class="first_col_right_table"><strong><?php echo $receivingFields['transaction_date']; ?>:</strong></td>
                     <td><?php echo $model->transaction_date; ?></td>
                 </tr>
             </table>
 
             <table class="table table-bordered table-condensed">
                 <tr>
-                    <td class="first_col_right_table"><strong>Plan Delivery Date:</strong></td>
+                    <td class="first_col_right_table"><strong><?php echo $receivingFields['plan_delivery_date']; ?>:</strong></td>
                     <td><?php echo $model->plan_delivery_date; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>DR Number:</strong></td>
+                    <td><strong><?php echo $receivingFields['dr_no']; ?>:</strong></td>
                     <td><?php echo $model->dr_no != "" ? $model->dr_no : $not_set; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>RRA Date:</strong></td>
-                    <td><?php echo $model->pr_date != "" ? $model->pr_date : $not_set; ?></td>
-                </tr>
-                <tr>
-                    <td><strong>PR Number(s):</strong></td>
+                    <td><strong><?php echo $receivingFields['pr_no']; ?>:</strong></td>
                     <td><?php echo $model->pr_no != "" ? $model->pr_no : $not_set; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>Campaign Number(s):</strong></td>
+                    <td><strong><?php echo $receivingFields['pr_date']; ?>:</strong></td>
+                    <td><?php echo $model->pr_date != "" ? $model->pr_date : $not_set; ?></td>
+                </tr>
+                <tr>
+                    <td><strong><?php echo $receivingFields['campaign_no']; ?>:</strong></td>
                     <td><?php echo $model->campaign_no != "" ? $model->campaign_no : $not_set; ?></td>
                 </tr>
             </table>
 
             <table class="table table-bordered table-condensed">
                 <tr>
-                    <td><strong>Remarks:</strong></td>
+                    <td><strong><?php echo $receivingFields['delivery_remarks']; ?>:</strong></td>
                 </tr>
                 <tr>
                     <td><?php echo $model->delivery_remarks != "" ? $model->delivery_remarks : $not_set; ?></td>

@@ -999,7 +999,7 @@ class IncomingInventoryController extends Controller {
                 <td class="border-bottom row_content_lg">' . "" . '</td>
             </tr>
             <tr>
-                <td style="font-weight: bold;">RRA NUMBER</td>
+                <td style="font-weight: bold;">RA NUMBER</td>
                 <td class="border-bottom">' . $headers['rra_no'] . '</td>
                 <td></td>
                 <td style="font-weight: bold;">CONTACT PERSON</td>

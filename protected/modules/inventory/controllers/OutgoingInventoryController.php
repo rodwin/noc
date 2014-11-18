@@ -1219,14 +1219,14 @@ class OutgoingInventoryController extends Controller {
                     <td class="border-bottom row_content_lg">' . "" . '</td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold;">RRA NUMBER</td>
+                    <td style="font-weight: bold;">RA NUMBER</td>
                     <td class="border-bottom">' . $headers['rra_no'] . '</td>
                     <td></td>
                     <td style="font-weight: bold;">CONTACT PERSON</td>
                     <td class="border-bottom">' . "" . '</td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold;">RRA DATE</td>
+                    <td style="font-weight: bold;">RA DATE</td>
                     <td class="border-bottom">' . $headers['rra_date'] . '</td>
                     <td></td>
                     <td style="font-weight: bold;">ADDRESS</td>

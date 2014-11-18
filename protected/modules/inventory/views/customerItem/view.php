@@ -21,8 +21,8 @@ $this->breadcrumbs = array(
 </style>
 
 <?php $skuFields = Sku::model()->attributeLabels(); ?>
-<?php $outgoingFields = OutgoingInventory::model()->attributeLabels(); ?>
-<?php $outgoingDetailFields = OutgoingInventoryDetail::model()->attributeLabels(); ?>
+<?php $customerItemFields = CustomerItem::model()->attributeLabels(); ?>
+<?php $customerItemDetailFields = CustomerItemDetail::model()->attributeLabels(); ?>
 
 <?php $not_set = "<i class='text-muted'>Not Set</i>"; ?>
 
@@ -68,49 +68,49 @@ $this->breadcrumbs = array(
         <div class="col-sm-6">
             <table class="table table-bordered table-condensed">
                 <tr>
-                    <td class="first_col_right_table"><strong>Transaction Date:</strong></td>
+                    <td class="first_col_right_table"><strong><?php echo $customerItemFields['transaction_date']; ?>:</strong></td>
                     <td><?php echo $model->transaction_date; ?></td>
                 </tr>
             </table>
 
             <table class="table table-bordered table-condensed">
                 <tr>
-                    <td class="first_col_right_table"><strong>Plan Delivery Date:</strong></td>
+                    <td class="first_col_right_table"><strong><?php echo $customerItemFields['plan_delivery_date']; ?>:</strong></td>
                     <td><?php echo $model->plan_delivery_date; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>DR Number:</strong></td>
+                    <td><strong><?php echo $customerItemFields['dr_no']; ?>:</strong></td>
                     <td><?php echo $model->dr_no; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>DR Date:</strong></td>
+                    <td><strong><?php echo $customerItemFields['dr_date']; ?>:</strong></td>
                     <td><?php echo $model->dr_date; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>RRA Number:</strong></td>
+                    <td><strong><?php echo $customerItemFields['rra_no']; ?>:</strong></td>
                     <td><?php echo $model->rra_no; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>RRA Date:</strong></td>
+                    <td><strong><?php echo $customerItemFields['rra_date']; ?>:</strong></td>
                     <td><?php echo $model->rra_date; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>PR Number(s):</strong></td>
+                    <td><strong><?php echo $customerItemDetailFields['pr_no']; ?>:</strong></td>
                     <td><?php echo $pr_nos; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>Campaign Number(s):</strong></td>
+                    <td><strong><?php echo $customerItemDetailFields['campaign_no']; ?>:</strong></td>
                     <td><?php echo $campaign_nos; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>Status:</strong></td>
+                    <td><strong><?php echo $customerItemDetailFields['status']; ?>:</strong></td>
                     <td><?php echo Inventory::model()->status($model->status); ?></td>
                 </tr>
             </table>
 
             <table class="table table-bordered table-condensed">
                 <tr>
-                    <td><strong>Remarks:</strong></td>
+                    <td><strong><?php echo $customerItemFields['remarks']; ?>:</strong></td>
                 </tr>
                 <tr>
                     <td><?php echo $model->remarks != "" ? $model->remarks : $not_set; ?></td>
@@ -131,15 +131,15 @@ $this->breadcrumbs = array(
                             <th><?php echo $skuFields['description']; ?></th>
                             <th><?php echo $skuFields['brand_id']; ?></th>
                             <th><?php echo $skuFields['type']; ?></th>
-                            <th><?php echo $outgoingDetailFields['uom_id']; ?></th>
-                            <th><?php echo $outgoingDetailFields['unit_price']; ?></th>
-                            <th><?php echo $outgoingDetailFields['batch_no']; ?></th>
-                            <th><?php echo $outgoingDetailFields['expiration_date']; ?></th>
-                            <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
-                            <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
-                            <th><?php echo $outgoingDetailFields['amount']; ?></th>
-                            <th><?php echo $outgoingDetailFields['remarks']; ?></th>
-                            <th><?php echo $outgoingDetailFields['status']; ?></th>
+                            <th><?php echo $customerItemDetailFields['uom_id']; ?></th>
+                            <th><?php echo $customerItemDetailFields['unit_price']; ?></th>
+                            <th><?php echo $customerItemDetailFields['batch_no']; ?></th>
+                            <th><?php echo $customerItemDetailFields['expiration_date']; ?></th>
+                            <th><?php echo $customerItemDetailFields['planned_quantity']; ?></th>
+                            <th><?php echo $customerItemDetailFields['quantity_issued']; ?></th>
+                            <th><?php echo $customerItemDetailFields['amount']; ?></th>
+                            <th><?php echo $customerItemDetailFields['remarks']; ?></th>
+                            <th><?php echo $customerItemDetailFields['status']; ?></th>
                         </tr>                                    
                     </thead>
                 </table>                            

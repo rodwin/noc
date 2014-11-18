@@ -129,10 +129,10 @@ class OutgoingInventory extends CActiveRecord {
         return array(
             'outgoing_inventory_id' => 'Outgoing Inventory',
             'company_id' => 'Company',
-            'rra_no' => 'RRA No',
+            'rra_no' => 'RA No',
             'dr_no' => 'DR No',
             'dr_date' => 'DR Date',
-            'rra_date' => 'RRA Date',
+            'rra_date' => 'RA Date',
             'source_zone_id' => 'Source Zone',
             'destination_zone_id' => 'Destination Zone',
             'contact_person' => 'Contact Person',
