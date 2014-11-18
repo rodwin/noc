@@ -921,6 +921,8 @@ class CustomerItemController extends Controller {
         $return['details'] = $details;
 
         unset(Yii::app()->session["post_pdf_data_id"]);
+        
+        sleep(1);
 
         Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
         Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = $return;
@@ -941,6 +943,11 @@ class CustomerItemController extends Controller {
     public function actionLoadPDF($id) {
 
         $data = Yii::app()->session[$id];
+        
+        if ($data == "") {
+            echo "Error: Please close and try again.";
+            return false;
+        }
 
         $headers = $data['headers'];
         $source = $data['source'];

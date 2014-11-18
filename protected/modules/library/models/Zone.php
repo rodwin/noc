@@ -175,6 +175,16 @@ class Zone extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
         $criteria->with = array('salesOffice');
+        
+        $arr = array();        
+        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
+        $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
+        
+        foreach ($zones as $key => $val) {
+            $arr[] = $key;
+        }
+        
+        $criteria->addInCondition('t.zone_id', $arr);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
