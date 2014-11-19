@@ -76,7 +76,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
 
          <?php if (count($tbl_header) > 0 && !empty($date_covered)) { ?>
-
+            <div style="overflow:scroll; max-width: 100%">
             <table id='infra-inventory_table' class='table table-bordered' style='width:100%;'>
 
                <thead>
@@ -85,12 +85,12 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <?php
                         $brand = Brand::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "brand_id" => $selected_brand));
                         $brand = $brand['brand_name'];
-                        echo $brand
+                        echo "<b>".$brand."</b>"
                         ?>
                      </td>
                   </tr>
                   <tr>
-                     <td>WAREHOUSE</td>
+                     <td><b>WAREHOUSE</b></td>
                      <?php foreach ($tbl_header as $key_header => $v) { ?>
                         <td><?php echo $v['sku_name'] ?></td>
                      <?php } ?>
@@ -113,7 +113,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                      </tr>
                   <?php } ?>
                </tbody>
-            </table>
+            </table></div>
             <?php
             $form = $this->beginWidget(
                     'booster.widgets.TbActiveForm', array(

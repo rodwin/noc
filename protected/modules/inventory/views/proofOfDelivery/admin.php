@@ -63,6 +63,7 @@ $this->breadcrumbs = array(
     <ul class="nav nav-tabs">
         <li class="active"><a href="#tab_1" data-toggle="tab">Item Details Table</a></li>
         <li><a href="#tab_2" data-toggle="tab">Proof of Delivery</a></li>
+        <span id="lower_table_loader" class="pull-right margin"></span>
     </ul>
     <div class="tab-content" id ="info">
         <div class="tab-pane active" id="tab_1">
@@ -456,8 +457,7 @@ $this->breadcrumbs = array(
             url: '<?php echo Yii::app()->createUrl('/inventory/ProofOfDelivery/PODDetails'); ?>' + '&pod_id=' + pod_id,
             dataType: "json",
             beforeSend: function() {
-                $("#pod_details").hide();
-                $("#ajax_loader_details").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
+                $("#lower_table_loader").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
             },
             success: function(data) {
 
@@ -468,8 +468,7 @@ $this->breadcrumbs = array(
                 }
 
                 $("#btn_save_pod_details").hide();
-                $("#ajax_loader_details").html("");
-                $("#pod_details").show();
+                $("#lower_table_loader").html("");
 
                 $.each(data.data, function(i, v) {
                     var addedRow = proof_of_delivery_details_table.fnAddData([
@@ -651,8 +650,7 @@ $this->breadcrumbs = array(
             url: '<?php echo Yii::app()->createUrl('/inventory/ProofOfDelivery/PODDAttachment'); ?>' + '&pod_id=' + pod_id,
             dataType: "json",
             beforeSend: function() {
-                $("#pod_attachment").hide();
-                $("#ajax_loader_attachment").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
+                $("#lower_table_loader").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
             },
             success: function(data) {
 
@@ -663,8 +661,7 @@ $this->breadcrumbs = array(
                 }
 
                 $("#btn_save_pod_attachment").hide();
-                $("#ajax_loader_attachment").html("");
-                $("#pod_attachment").show();
+                $("#lower_table_loader").html("");
 
                 $.each(data.data, function(i, v) {
                     var addedRow = proof_of_delivery_attachments_table.fnAddData([

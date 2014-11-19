@@ -225,7 +225,16 @@ class SalesOffice extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
         $criteria->with = array('company', 'zones');
-        $criteria->condition = "t.sales_office_id IN (" . Yii::app()->user->salesoffices . ")";
+        
+        $arr = array();        
+        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
+        $sales_offices = CJSON::decode(isset($unserialize['so']) ? $unserialize['so'] : "");
+        
+        foreach ($sales_offices as $key => $val) {
+            $arr[] = $key;
+        }
+        
+        $criteria->addInCondition('t.sales_office_id', $arr);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,

@@ -289,7 +289,7 @@
 
             <div class="form-group col-md-12">
                 <div class="clearfix"><br/></div>
-                <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save', array('class' => 'btn btn-primary btn-flat')); ?>&nbsp;
+                <?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save', array('class' => 'btn btn-primary btn-flat', 'id' => 'btn_submit')); ?>&nbsp;
                 <?php echo CHtml::resetButton('Reset', array('class' => 'btn btn-primary btn-flat')); ?>
             </div>
 
@@ -431,10 +431,12 @@ if (!$model->isNewRecord) {
                 ajaxOpts.complete = function() {
                     
                     $('input[type="checkbox"][id="so_parent_node[]"], input[type="checkbox"][id="so_child_list[]"]').iCheck('disable');
-
+                    $("#btn_submit").attr('disabled', true);
+                    
                     if (ajaxQueue.queue().length == 1) {
                         $("#ajax_zone_load").html("");
                         $('input[type="checkbox"][id="so_parent_node[]"], input[type="checkbox"][id="so_child_list[]"]').iCheck('enable');
+                        $("#btn_submit").attr('disabled', false);
                     }
 
                     if (oldComplete)
