@@ -344,7 +344,7 @@ class Pome extends CFormModel {
       return $data;
    }
    
-   public function GetActualReachQTR($from,$to,$brand)
+   public function GetActualReachQTR($from,$to,$brand,$agency)
    {
 
        if($brand != 0){
@@ -353,12 +353,14 @@ class Pome extends CFormModel {
            $brand= '';
        }
  
-       $sql = " SELECT a.id,c.reach
+       $sql = " SELECT a.id,sum(c.reach) reach
                 FROM [pg_mapping].[dbo].[pome_route] a
                 inner join [pg_mapping].[dbo].[pome_route_transaction] b on b.route_id = a.id
                 inner join [pg_mapping].[dbo].[pome_route_transaction_detail] c on c.pome_route_transaction_id = b.id
-                inner join [pg_mapping].[dbo].[outlets] d on d.outlet_id = c.pome_hospital_id
-                where a.date between '$from' and '$to' $brand
+                --inner join [pg_mapping].[dbo].[outlets] d on d.outlet_id = c.pome_hospital_id
+                inner join [pg_mapping].[dbo].pome_pps d on d.id = a.pps_id
+                where a.date between '$from' and '$to' $brand and c.execution_type is null  and d.agency_id = $agency
+                group by a.id,c.reach
                 order by a.id";
 //       pr($sql);
       $command = Yii::app()->db3->createCommand($sql);
