@@ -413,14 +413,19 @@ class DefaultController extends Controller
                 $agency = 6;
             }
 
-            $from = date($_GET['year'].'-07-01');
+            if($_GET['year'] == 2014){
+                 $from = date($_GET['year'].'-07-16');
+            }else{
+                 $from = date($_GET['year'].'-07-01');
+            }
+           
             $to = date($_GET['year'].'-09-30'); 
 
             $total = new Pome;
             $reach = $total->getTargetReachQTR($from,$to,$_GET['brand']);
             $bws = $total->getBwsByAgencyQTR($agency,$from,$to,$_GET['brand']);
 
-            $actual = $total->GetActualReachQTR($from,$to,$_GET['brand']);   
+            $actual = $total->GetActualReachQTR($from,$to,$_GET['brand'],$_GET['agency']);   
             
             $data_actual_par = $total->getParTotalNational($_GET['agency'],$from,$to,$_GET['brand'],$_GET['year']);
 
@@ -453,11 +458,14 @@ class DefaultController extends Controller
                 
             }
             
+            
+            $total = 0;
             foreach($reach as $keya => $vala){
-                
+                $total+=$vala['reach'];
                 $bws_reach[$vala['id']] =$vala['reach'];  
             }
-            
+//            pr($total);
+//            exit;
             $actual_array = array();
             $value_actual = 0;
             $key_count_actual = 0;
@@ -484,7 +492,7 @@ class DefaultController extends Controller
                         $actual_array[$valb['id']] =$value_actual;
                 } 
             }
-            
+           
             $total_array = array();
             $key_count = 0;
             $value = 0;
@@ -794,7 +802,7 @@ class DefaultController extends Controller
             $reach = $total->getTargetReachQTR($from,$to,$_GET['brand']);
             $bws = $total->getBwsByAgencyQTR($agency,$from,$to,$_GET['brand']);
 
-            $actual = $total->GetActualReachQTR($from,$to,$_GET['brand']);   
+            $actual = $total->GetActualReachQTR($from,$to,$_GET['brand'],$_GET['agency']);   
             
             $data_actual_par = $total->getParTotalNational($_GET['agency'],$from,$to,$_GET['brand'],$_GET['year']);
 
@@ -950,7 +958,7 @@ class DefaultController extends Controller
             $reach = $total->getTargetReachQTR($from,$to,$_GET['brand']);
             $bws = $total->getBwsByAgencyQTR($agency,$from,$to,$_GET['brand']);
 
-            $actual = $total->GetActualReachQTR($from,$to,$_GET['brand']);   
+            $actual = $total->GetActualReachQTR($from,$to,$_GET['brand'],$_GET['agency']);   
             
             $data_actual_par = $total->getParTotalNational($_GET['agency'],$from,$to,$_GET['brand'],$_GET['year']);
 
@@ -1106,7 +1114,7 @@ class DefaultController extends Controller
             $reach = $total->getTargetReachQTR($from,$to,$_GET['brand']);
             $bws = $total->getBwsByAgencyQTR($agency,$from,$to,$_GET['brand']);
 
-            $actual = $total->GetActualReachQTR($from,$to,$_GET['brand']);   
+            $actual = $total->GetActualReachQTR($from,$to,$_GET['brand'],$_GET['agency']);   
             
             $data_actual_par = $total->getParTotalNational($_GET['agency'],$from,$to,$_GET['brand'],$_GET['year']);
 
