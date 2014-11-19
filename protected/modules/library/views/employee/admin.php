@@ -108,7 +108,7 @@ return false;
             "first_name": $("#Employee_first_name").val(),
             "last_name": $("#Employee_last_name").val(),
             "middle_name": $("#Employee_middle_name").val()//,
-           // "supervisor_id": $("#Employee_supervisor_id").val()
+            // "supervisor_id": $("#Employee_supervisor_id").val()
          } );
       });
         
@@ -128,8 +128,8 @@ return false;
                     
                table.fnMultiFilter();
             },
-            error: function(jqXHR, exception) {
-               alert('An error occured: '+ exception);
+            error: function(status, exception) {
+               alert(status.responseText);
             }
          });  
          return false;
