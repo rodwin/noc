@@ -92,7 +92,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                            <td align = "center" rowspan ="2">PR DATE</td>
                            <td align = "center" rowspan ="2">PLAN DATE</td>
                            <td align = "center" rowspan ="2">DR NO.</td>
-                           <td align = "center" rowspan ="2">DR DATE</td>
+<!--                           <td align = "center" rowspan ="2">DR DATE</td>-->
                            <td align = "center" rowspan ="2">DR RECEIVED</td>
                            <td align = "center" colspan ="2">DELIVERY LEAD TIME</td>                     
                         </tr>
@@ -111,7 +111,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                               <td><?php echo $val['pr_date'] ?></td>
                               <td><?php echo $val['plan_delivery_date'] ?></td>
                               <td><?php echo $val['dr_no'] ?></td>
-                              <td><?php echo $val['dr_date'] ?></td>
+<!--                              <td><?php echo $val['dr_date'] ?></td>-->
                               <td><?php echo $val['transaction_date'] ?></td>
                               <td><?php echo round((strtotime($val['transaction_date']) - strtotime($val['pr_date'])) / (60 * 60 * 24)) ?></td>
                               <td><?php
@@ -143,7 +143,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                            <td align = "center" rowspan ="2">PR DATE</td>
                            <td align = "center" rowspan ="2">DATE PR RECEIVED</td>
                            <td align = "center" rowspan ="2">DR NO.</td>
-                           <td align = "center" rowspan ="2">DR DATE</td>
+<!--                           <td align = "center" rowspan ="2">DR DATE</td>-->
                            <td align = "center" rowspan ="2">DR RECEIVED</td>
                            <td align = "center" colspan ="2">DELIVERY LEAD TIME</td>                     
                         </tr>
@@ -162,7 +162,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                               <td><?php echo $val['pr_date'] ?></td>
                               <td><?php echo $val['plan_delivery_date'] ?></td>
                               <td><?php echo $val['dr_no'] ?></td>
-                              <td><?php echo $val['dr_date'] ?></td>
+<!--                              <td><?php echo $val['dr_date'] ?></td>-->
                               <td><?php echo $val['transaction_date'] ?></td>
                               <td><?php
                                     if (!empty($val['pr_date'])) {
@@ -199,7 +199,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                            <td align = "center" rowspan ="2">RRA NO.</td>
                            <td align = "center" rowspan ="2">RRA DATE</td>
                            <td align = "center" rowspan ="2">DR NO.</td>
-                           <td align = "center" rowspan ="2">DR DATE</td>
+<!--                           <td align = "center" rowspan ="2">DR DATE</td>-->
                            <td align = "center" rowspan ="2">DR RECEIVED</td>
                            <td align = "center" colspan ="2">DELIVERY LEAD TIME</td>                     
                         </tr>
@@ -218,7 +218,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                               <td><?php echo $val['rra_no'] ?></td>
                               <td><?php echo $val['rra_date'] ?></td>
                               <td><?php echo $val['dr_no'] ?></td>
-                              <td><?php echo $val['dr_date'] ?></td>
+<!--                              <td><?php echo $val['dr_date'] ?></td>-->
                               <td><?php echo $val['transaction_date'] ?></td>
                               <td><?php 
                                     if (!empty($val['rra_date'])) {
