@@ -51,6 +51,7 @@ class CustomerItem extends CActiveRecord {
             array('source_zone_id', 'isValidZone'),
             array('salesman_id', 'isValidEmployee'),
             array('poi_id', 'isValidPoi'),
+            array('dr_no', 'uniqueDRNo'),
             array('transaction_date, plan_delivery_date, rra_date, dr_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('plan_delivery_date, rra_date, created_date, updated_date, dr_date', 'safe'),
             // The following rule is used by search().
@@ -98,6 +99,15 @@ class CustomerItem extends CActiveRecord {
         return;
     }
 
+    public function uniqueDRNo($attribute, $params) {
+
+        $model = CustomerItem::model()->findByAttributes(array('company_id' => $this->company_id, 'dr_no' => $this->$attribute));
+        if ($model && $model->customer_item_id != $this->customer_item_id) {
+            $this->addError($attribute, 'DR Number selected already taken');
+        }
+        return;
+    }
+
     public function beforeValidate() {
 
         if ($this->plan_delivery_date == "") {
@@ -133,8 +143,8 @@ class CustomerItem extends CActiveRecord {
         return array(
             'customer_item_id' => 'Customer Item',
             'company_id' => 'Company',
-            'rra_no' => 'RRA No',
-            'rra_date' => 'RRA Date',
+            'rra_no' => 'RA No',
+            'rra_date' => 'RA Date',
 //            'campaign_no' => 'Campaign No',
 //            'pr_no' => 'PR No',
 //            'pr_date' => 'PR Date',

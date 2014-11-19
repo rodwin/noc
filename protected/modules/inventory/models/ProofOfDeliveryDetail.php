@@ -109,7 +109,7 @@ class ProofOfDeliveryDetail extends CActiveRecord {
             'return_date' => 'Return Date',
             'status' => 'Status',
             'remarks' => 'Remarks',
-            'campaign_no' => 'Campaign No',
+            'campaign_no' => 'PO No',
             'pr_no' => 'Pr No',
             'pr_date' => 'Pr Date',
             'plan_arrival_date' => 'Plan Arrival Date',

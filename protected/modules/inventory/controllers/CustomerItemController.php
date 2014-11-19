@@ -315,6 +315,8 @@ class CustomerItemController extends Controller {
             echo json_encode($data);
             Yii::app()->end();
         }
+        
+        $customer_item->dr_no = "AS" . date("YmdHis");
 
         $this->render('customerItemForm', array(
             'customer_item' => $customer_item,
@@ -921,6 +923,8 @@ class CustomerItemController extends Controller {
         $return['details'] = $details;
 
         unset(Yii::app()->session["post_pdf_data_id"]);
+        
+        sleep(1);
 
         Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
         Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = $return;
@@ -941,6 +945,11 @@ class CustomerItemController extends Controller {
     public function actionLoadPDF($id) {
 
         $data = Yii::app()->session[$id];
+        
+        if ($data == "") {
+            echo "Error: Please close and try again.";
+            return false;
+        }
 
         $headers = $data['headers'];
         $source = $data['source'];
@@ -976,45 +985,43 @@ class CustomerItemController extends Controller {
             </style>
 
             <div id="header" class="text-center">
-                <span class="title">ASIA BREWERY INCORPORATED</span><br/>
-                <span class="sub-title">6th FLOOR ALLIED BANK CENTER, AYALA AVENUE, MAKATI CITY</span><br/>
-                <span class="title-report">DELIVERY RECEIPT</span>
+                <span class="title-report">ACKNOWLEDGEMENT SLIP</span>
             </div><br/><br/>
         
             <table class="table_main">
                 <tr>
-                    <td clss="row_label" style="font-weight: bold;">SALES OFFICE NAME</td>
-                    <td class="border-bottom row_content_lg">' . "" . '</td>
+                    <td style="font-weight: bold; width: 100px;">SALES OFFICE NAME</td>
+                    <td class="border-bottom" style="width: 400px;">' . "" . '</td>
                     <td style="width: 10px;"></td>
-                    <td clss="row_label" style="font-weight: bold;">DELIVERY DATE</td>
-                    <td class="border-bottom row_content_sm">' . $headers['transaction_date'] . '</td>
+                    <td style="font-weight: bold; width: 110px;">DELIVERY DATE</td>
+                    <td class="border-bottom" style="width: 60px;">' . $headers['transaction_date'] . '</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold;">ADDRESS</td>
                     <td class="border-bottom">' . "" . '</td>
                     <td></td>
-                    <td style="font-weight: bold;">PLAN DATE</td>
+                    <td style="font-weight: bold;">PLAN DELIVERY DATE</td>
                     <td class="border-bottom">' . $headers['plan_delivery_date'] . '</td>
                 </tr>
             </table><br/><br/>
             
             <table class="table_main">
                 <tr>
-                    <td clss="row_label" style="font-weight: bold;">PR NUMBER</td>
-                    <td class="border-bottom row_content_sm">' . $headers['pr_no'] . '</td>
+                    <td style="font-weight: bold; width: 50px;">PR no.</td>
+                    <td class="border-bottom" style="width: 130px;">' . $headers['pr_no'] . '</td>
                     <td style="width: 10px;"></td>
-                    <td clss="row_label" style="font-weight: bold;">CUSTOMER NAME</td>
-                    <td class="border-bottom row_content_lg">' . $destination['poi_name'] . '</td>
+                    <td style="font-weight: bold; width: 100px;">CUSTOMER NAME</td>
+                    <td class="border-bottom" style="width: 390px;">' . $destination['poi_name'] . '</td>
                 </tr>
                 <tr>
-                    <td clss="row_label" style="font-weight: bold;">RRA NUMBER</td>
-                    <td class="border-bottom row_content_sm">' . $headers['rra_no'] . '</td>
+                    <td clss="row_label" style="font-weight: bold;">RA no.</td>
+                    <td class="border-bottom">' . $headers['rra_no'] . '</td>
                     <td style="width: 10px;"></td>
                     <td clss="row_label" style="font-weight: bold;">CONTACT PERSON</td>
-                    <td class="border-bottom row_content_lg">' . $destination['contact_person'] . '</td>
+                    <td class="border-bottom">' . $destination['contact_person'] . '</td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold;">DR NUMBER</td>
+                    <td style="font-weight: bold;">DR no.</td>
                     <td class="border-bottom">' . $headers['dr_no'] . '</td>
                     <td></td>
                     <td style="font-weight: bold;">ADDRESS</td>
@@ -1025,14 +1032,12 @@ class CustomerItemController extends Controller {
             <table class="table_details" border="1">
                 <tr>
                     <td style="font-weight: bold;">MM CODE</td>
-                    <td style="font-weight: bold; width: 100px;">MM DESCRIPTION</td>
+                    <td style="font-weight: bold; width: 150px;">MM DESCRIPTION</td>
                     <td style="font-weight: bold;">MM BRAND</td>
-                    <td style="font-weight: bold;">MM CATEGORY</td>
+                    <td style="font-weight: bold; width: 80px;">MM CATEGORY</td>
                     <td style="font-weight: bold; width: 65px;">ALLOCATION</td>
                     <td style="font-weight: bold; width: 55px;">QUANTITY ISSUED</td>
                     <td style="font-weight: bold; width: 40px;">UOM</td>
-                    <td style="font-weight: bold;">UNIT PRICE</td>
-                    <td style="font-weight: bold;">AMOUNT</td>
                     <td style="font-weight: bold;">EXPIRY DATE</td>
                     <td style="font-weight: bold;">REMARKS</td>
                 </tr>';
@@ -1053,8 +1058,6 @@ class CustomerItemController extends Controller {
                             <td>' . $val['planned_quantity'] . '</td>
                             <td>' . $val['quantity_issued'] . '</td>
                             <td>' . $uom_name . '</td>
-                            <td class="align-right">&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
-                            <td class="align-right">&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
                             <td>' . $val['expiration_date'] . '</td>
                             <td>' . $val['remarks'] . '</td>
                         </tr>';
@@ -1065,16 +1068,13 @@ class CustomerItemController extends Controller {
         }
 
         $html .= '<tr>
-                    <td colspan="11"></td>
+                    <td colspan="9"></td>
                 </tr>
                 <tr>
                     <td colspan="4" style="text-align: right; font-weight: bold;">GRAND TOTAL</td>
                     <td>' . $planned_qty . '</td>
                     <td>' . $actual_qty . '</td>
-                    <td></td>
-                    <td class="align-right">&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
-                    <td class="align-right">&#x20B1; ' . number_format($headers['total_amount'], 2, '.', ',') . '</td>
-                    <td colspan="2"></td>
+                    <td colspan="3"></td>
                 </tr>';
 
         $html .= '</table><br/><br/><br/>

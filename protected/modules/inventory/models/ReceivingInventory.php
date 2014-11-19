@@ -124,7 +124,7 @@ class ReceivingInventory extends CActiveRecord {
         return array(
             'receiving_inventory_id' => 'Receiving Inventory',
             'company_id' => 'Company',
-            'campaign_no' => 'Campaign No',
+            'campaign_no' => 'PO No',
             'pr_no' => 'PR No',
             'pr_date' => 'PR Date',
             'dr_no' => 'DR No',

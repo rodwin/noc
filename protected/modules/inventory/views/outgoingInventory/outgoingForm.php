@@ -120,7 +120,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             'onsubmit' => "return false;",
             'onkeypress' => " if(event.keyCode == 13) {} "
         ),
-    ));
+            ));
     ?>
 
     <div class="box-body clearfix">
@@ -137,7 +137,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             <div class="pull-right col-md-7">
 
-                <?php echo $form->textFieldGroup($outgoing, 'dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($outgoing, 'dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'readonly' => true)), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($outgoing, 'rra_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
@@ -444,7 +444,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         <h4 class="control-label text-primary"><b>Transaction Table</b></h4>
 
         <div class="table-responsive">            
-            <table id="transaction_table" class="table table-bordered table-hover table-striped">
+            <table id="transaction_table" class="table table-bordered">
                 <thead>
 <!--                    <tr>
                         <th><button id="delete_row_btn" class="btn btn-danger btn-sm" onclick="deleteTransactionRow()" style="display: none;"><i class="fa fa-trash-o"></i></button></th>
@@ -460,7 +460,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
                         <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
                         <th><?php echo $outgoingDetailFields['amount']; ?></th>
-                        <th><?php // echo $outgoingDetailFields['inventory_on_hand'];                                                           ?></th>
+                        <th><?php // echo $outgoingDetailFields['inventory_on_hand'];                                                                           ?></th>
                         <th class=""><?php echo $outgoingDetailFields['return_date']; ?></th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['remarks']; ?></th>
                         <th class="hide_row">Inventory</th>
@@ -477,7 +477,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><?php echo $outgoingDetailFields['batch_no']; ?></th>
                         <th><?php echo $outgoingDetailFields['expiration_date']; ?></th>
                         <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
-                        <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
+                        <th><?php echo $outgoingDetailFields['quantity_issued']; ?> <?php if (!$outgoing->isNewRecord) { ?> <span title="Click row to edit" data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span> <?php } ?> </th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['uom_id']; ?></th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['uom_id']; ?></th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['sku_status_id']; ?></th>
@@ -537,7 +537,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 'fail' => new CJavaScriptExpression(
                         'function(e, data) { console.log("fail"); }'
                 ),
-        )));
+                )));
         ?>
     </div>
 </div>
@@ -657,7 +657,16 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             "columnDefs": [{
                     "targets": [1, 10, 11, 12, 13, 15, 16, 17, 18, 19],
                     "visible": false
-                }]
+                }],
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                
+<?php if (!$outgoing->isNewRecord) { ?>
+                    $('td:eq(8)', nRow).addClass("success");
+<?php } else { ?>
+                                                                        
+<?php } ?>
+                return nRow; 
+            }
         });
 
     });
@@ -708,8 +717,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             var $element = $(e[i]);
 
             $element.data("title", "")
-                    .removeClass("error")
-                    .tooltip("destroy");
+            .removeClass("error")
+            .tooltip("destroy");
         }
 
         if (data.success === true) {
@@ -752,7 +761,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     data.details.inventory_id,
                     data.details.source_zone_id,
                     data.details.source_zone_name,
-//                    data.details.inventory_on_hand,
+                    //                    data.details.inventory_on_hand,
                 ]);
 
                 total_amount = (parseFloat(total_amount) + parseFloat(data.details.amount));
@@ -763,14 +772,14 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $('#outgoing-inventory-form select:not(.ignore), input:not(.ignore), textarea:not(.ignore)').val('');
                 $('.inventory_uom_selected').html('');
 
-//                $("#OutgoingInventoryDetail_quantity_issued, #OutgoingInventoryDetail_unit_price, #OutgoingInventoryDetail_amount").val(0);
+                //                $("#OutgoingInventoryDetail_quantity_issued, #OutgoingInventoryDetail_unit_price, #OutgoingInventoryDetail_amount").val(0);
 
             } else if (data.form == print && serializeTransactionTable().length > 0) {
                 printPDF(data.print);
             }
 
-//            $("#item_details_table tbody tr").removeClass('success');
-//            PRNoChange(selected_pr_no);
+            //            $("#item_details_table tbody tr").removeClass('success');
+            //            PRNoChange(selected_pr_no);
             inventory_table.fnMultiFilter();
         } else {
 
@@ -786,13 +795,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 var $element = $(element);
                 $element.data("title", v)
-                        .addClass("error")
-                        .tooltip();
+                .addClass("error")
+                .tooltip();
 
                 var $element2 = $(element2);
                 $element2.data("title", v)
-                        .addClass("error_border")
-                        .tooltip();
+                .addClass("error_border")
+                .tooltip();
             });
         }
 
@@ -866,9 +875,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 transaction_table.fnDeleteRow(aTrs[i]);
 
-                if (row_data[13].trim() != "") {
-                    outgoing_inv_ids += row_data[13] + ",";
-                }
+<?php if (!$outgoing->isNewRecord) { ?>
+                    if (row_data[13].trim() != "") {
+                        outgoing_inv_ids += row_data[13] + ",";
+                    }
+<?php } ?>
 
                 $.ajax({
                     type: 'POST',
@@ -904,11 +915,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 "sku_status_id": row_data[12],
                 "amount": row_data[14],
                 "remarks": row_data[15],
-//                "inventory_on_hand": row_data[13],
+                //                "inventory_on_hand": row_data[13],
                 "return_date": row_data[16],
                 "inventory_id": row_data[17],
                 "source_zone_id": row_data[18],
-                "outgoing_inv_detail_id": row_data[13],
+                "outgoing_inv_detail_id": row_data[13]
             });
         }
 
@@ -936,7 +947,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     });
 
     $('#btn_print').click(function() {
-        send(print);
+        
+<?php if (!$outgoing->isNewRecord) { ?>
+            sendUpdate(print);
+<?php } else { ?>
+            send(print);
+<?php } ?>
+    
     });
 
     $("#OutgoingInventoryDetail_quantity_issued").keyup(function(e) {
@@ -960,37 +977,37 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     });
 
     $(function() {
-//        var campaign_no = new Bloodhound({
-//            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('campaign_nos'),
-//            queryTokenizer: Bloodhound.tokenizers.whitespace,
-//            prefetch: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo', array('value' => '')) ?>',
-//            remote: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo'); ?>&value=%QUERY'
-//        });
-//
-//        campaign_no.initialize();
-//
-//        $('#OutgoingInventory_campaign_no').typeahead(null, {
-//            name: 'campaign_nos',
-//            displayKey: 'campaign_no',
-//            source: campaign_no.ttAdapter(),
-//            templates: {
-//                suggestion: Handlebars.compile([
-////                    '<p class="repo-name">{{campaign_no}}</p>',
-//                    '<p class="repo-description">{{campaign_no}}</p>'
-//                ].join(''))
-//            }
-//
-//        }).on('typeahead:selected', function(obj, datum) {
-//            $("#OutgoingInventory_campaign_no").val(datum.campaign_no);
-//            $("#OutgoingInventory_source_zone_id").val(datum.source_zone_id);
-//
-//            loadPRNos(datum.campaign_no, datum.transaction);
-//        });
-//
-//        jQuery('#OutgoingInventory_campaign_no').on('input', function() {
-//            $('#OutgoingInventory_pr_no').empty();
-//            $('#OutgoingInventory_source_zone_id').val("");
-//        });
+        //        var campaign_no = new Bloodhound({
+        //            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('campaign_nos'),
+        //            queryTokenizer: Bloodhound.tokenizers.whitespace,
+        //            prefetch: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo', array('value' => '')) ?>',
+        //            remote: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/searchCampaignNo'); ?>&value=%QUERY'
+        //        });
+        //
+        //        campaign_no.initialize();
+        //
+        //        $('#OutgoingInventory_campaign_no').typeahead(null, {
+        //            name: 'campaign_nos',
+        //            displayKey: 'campaign_no',
+        //            source: campaign_no.ttAdapter(),
+        //            templates: {
+        //                suggestion: Handlebars.compile([
+        ////                    '<p class="repo-name">{{campaign_no}}</p>',
+        //                    '<p class="repo-description">{{campaign_no}}</p>'
+        //                ].join(''))
+        //            }
+        //
+        //        }).on('typeahead:selected', function(obj, datum) {
+        //            $("#OutgoingInventory_campaign_no").val(datum.campaign_no);
+        //            $("#OutgoingInventory_source_zone_id").val(datum.source_zone_id);
+        //
+        //            loadPRNos(datum.campaign_no, datum.transaction);
+        //        });
+        //
+        //        jQuery('#OutgoingInventory_campaign_no').on('input', function() {
+        //            $('#OutgoingInventory_pr_no').empty();
+        //            $('#OutgoingInventory_source_zone_id').val("");
+        //        });
 
         var zone = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('zone'),
@@ -1185,6 +1202,12 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     });
 
     function loadItemDetails(outgoing_inv_id) {
+        
+        var oSettings = transaction_table.fnSettings();
+        var iTotalRecords = oSettings.fnRecordsTotal();
+        for (var i = 0; i <= iTotalRecords; i++) {
+            transaction_table.fnDeleteRow(0, null, true);
+        }
 
         $.ajax({
             dataType: "json",
@@ -1192,7 +1215,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             success: function(data) {
 
                 $.each(data, function(i, v) {
-                    transaction_table.fnAddData([
+                    var addedRow = transaction_table.fnAddData([
                         '<input type="checkbox" name="transaction_row[]" onclick="showDeleteRowBtn()"/>',
                         v.sku_id,
                         v.sku_code,
@@ -1214,6 +1237,38 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         v.source_zone_id,
                         v.source_zone_name,
                     ]);
+                    
+                    
+                    $.editable.addInputType('numberOnly', {
+                        element: $.editable.types.text.element,
+                        plugin: function(settings, original) {
+                            $('input', this).bind('keypress', function(event) {
+                                return onlyNumbers(this, event, false);
+                            });
+                        }
+                    });
+
+                    var oSettings = transaction_table.fnSettings();
+                    $('td:eq(8)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
+                        var pos = transaction_table.fnGetPosition(this);
+                        
+                        var rowData = transaction_table.fnGetData(pos);
+                        var inventory_id = parseInt(rowData[17]);
+                        var outgoing_inv_detail_id = parseInt(rowData[13]);
+                        var actual_qty = parseInt(rowData[9]);
+                        var new_actual_qty = value;
+                        
+                        checkInvIfUpdatedActualQtyValid(inventory_id, actual_qty, new_actual_qty, <?php echo isset($outgoing->outgoing_inventory_id) ? $outgoing->outgoing_inventory_id : 0; ?>, outgoing_inv_detail_id, pos);
+                    }, {
+                        type: 'numberOnly',
+                        placeholder: '',
+                        indicator: '',
+                        tooltip: 'Click to edit',
+                        submit: 'Ok',
+                        width: "100%",
+                        height: "30px"
+                    });
+
                 });
             },
             error: function(data) {
@@ -1262,6 +1317,36 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/outgoingInventory') . '"' ?> + "/view&id=" + success_outgoing_inv_id;
 
         growlAlert(success_type, success_message);
+    }
+    
+    function checkInvIfUpdatedActualQtyValid(inventory_id, actual_qty, new_actual_qty, outgoing_inv_id, outgoing_inv_detail_id, tr_position) {
+        
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/checkInvIfUpdatedActualQtyValid'); ?>'+'&inventory_id='+inventory_id+'&actual_qty='+actual_qty+'&new_actual_qty='+new_actual_qty+'&outgoing_inv_detail_id='+outgoing_inv_detail_id,
+            dataType: "json",
+            beforeSend: function(data) {},
+            success: function(data) {
+                if (data.success === false) {
+                    
+                    growlAlert(data.type, data.message);
+                    
+                    if (data.new_inventory_id === true) {
+                        loadItemDetails(outgoing_inv_id);   
+                    }
+                } else {
+                    
+                    growlAlert(data.type, data.message);
+                    inventory_table.fnMultiFilter();
+                }
+                
+                transaction_table.fnUpdate(data.actual_qty, tr_position[0], tr_position[2]);
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+        
     }
 
 </script>

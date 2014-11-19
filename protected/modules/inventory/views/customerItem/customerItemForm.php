@@ -135,7 +135,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             <div class="pull-right col-md-7">
 
-                <?php echo $form->textFieldGroup($customer_item, 'dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($customer_item, 'dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, "disabled" => true)), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($customer_item, 'rra_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 

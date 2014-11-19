@@ -293,7 +293,7 @@ class ReceivingInventoryController extends Controller {
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
 
         $c1 = new CDbCriteria();
-        $c1->condition = 't.company_id = "' . Yii::app()->user->company_id . '" AND salesOffice.distributor_id = "" AND t.zone_id IN (' . Yii::app()->user->zones . ')';
+        $c1->condition = 't.company_id = "' . Yii::app()->user->company_id . '" AND salesOffice.distributor_id = ""';
         $c1->with = array('salesOffice');
         $c1->order = "t.zone_name ASC";
         $warehouse_zone_list = CHtml::listData(Zone::model()->findAll($c1), 'zone_id', 'zone_name');
@@ -854,6 +854,8 @@ class ReceivingInventoryController extends Controller {
         $return['details'] = $details;
 
         unset(Yii::app()->session["post_pdf_data_id"]);
+        
+        sleep(1);
 
         Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
         Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = $return;
@@ -874,6 +876,11 @@ class ReceivingInventoryController extends Controller {
     public function actionLoadPDF($id) {
 
         $data = Yii::app()->session[$id];
+        
+        if ($data == "") {
+            echo "Error: Please close and try again.";
+            return false;
+        }
 
         ob_start();
 
@@ -903,24 +910,22 @@ class ReceivingInventoryController extends Controller {
             .border-bottom { border-bottom: 1px solid #333; font-size: 8px; }
             .row_label { width: 120px; }
             .row_content_sm { width: 100px; }
-            .row_content_lg { width: 300px; }
+            .row_content_lg { width: 320px; }
             .align-right { text-align: right; }
         </style>
                 
         <div id="header" class="text-center">
-            <span class="title">ASIA BREWERY INCORPORATED</span><br/>
-            <span class="sub-title">6th FLOOR ALLIED BANK CENTER, AYALA AVENUE, MAKATI CITY</span><br/>
             <span class="title-report">WAREHOUSE RECEIVING REPORT</span>
         </div>   
         
         <br/><br/>
         <table class="table_main">
             <tr>
-                <td clss="row_label" style="font-weight: bold;">WAREHOUSE NAME</td>
-                <td class="border-bottom row_content_lg">' . $destination['sales_office_name'] . '</td>
+                <td clss="row_label" style="font-weight: bold; width: 100px;">WAREHOUSE NAME</td>
+                <td class="border-bottom" style="width: 400px;">' . $destination['sales_office_name'] . '</td>
                 <td style="width: 10px;"></td>
-                <td clss="row_label" style="font-weight: bold;">DELIVERY DATE</td>
-                <td class="border-bottom row_content_sm">' . $headers['transaction_date'] . '</td>
+                <td clss="row_label" style="font-weight: bold; width: 110px;">DELIVERY DATE</td>
+                <td class="border-bottom" style="width: 60px;">' . $headers['transaction_date'] . '</td>
             </tr>
             <tr>
                 <td style="font-weight: bold;">ADDRESS</td>
@@ -933,14 +938,14 @@ class ReceivingInventoryController extends Controller {
                 
         <table class="table_main">
             <tr>
-                <td clss="row_label" style="font-weight: bold;">CAMPAIGN NUMBER</td>
-                <td class="border-bottom row_content_sm">' . $headers['campaign_no'] . '</td>
+                <td clss="row_label" style="font-weight: bold; width: 50px;">PO no.</td>
+                <td class="border-bottom" style="width: 130px;">' . $headers['campaign_no'] . '</td>
                 <td style="width: 10px;"></td>
-                <td clss="row_label" style="font-weight: bold;">DESTINATION ZONE</td>
-                <td class="border-bottom row_content_lg">' . $destination['zone_name'] . '</td>
+                <td clss="row_label" style="font-weight: bold; width: 100px;">DESTINATION ZONE</td>
+                <td class="border-bottom" style="width: 390px;">' . $destination['zone_name'] . '</td>
             </tr>
             <tr>
-                <td style="font-weight: bold;">PR NUMBER</td>
+                <td style="font-weight: bold;">PR no.</td>
                 <td class="border-bottom">' . $headers['pr_no'] . '</td>
                 <td></td>
                 <td style="font-weight: bold;">SUPPLIER NAME</td>
@@ -954,7 +959,7 @@ class ReceivingInventoryController extends Controller {
                 <td class="border-bottom">' . $source['contact_person'] . '</td>
             </tr>
             <tr>
-                <td style="font-weight: bold;">DR NUMBER</td>
+                <td style="font-weight: bold;">DR no.</td>
                 <td class="border-bottom">' . $headers['dr_no'] . '</td>
                 <td></td>
                 <td style="font-weight: bold;">ADDRESS</td>
@@ -967,7 +972,7 @@ class ReceivingInventoryController extends Controller {
                 <td style="font-weight: bold;">MM CODE</td>
                 <td style="font-weight: bold; width: 100px;">MM DESCRIPTION</td>
                 <td style="font-weight: bold;">MM BRAND</td>
-                <td style="font-weight: bold;">MM CATEGORY</td>
+                <td style="font-weight: bold; width: 80px;">MM CATEGORY</td>
                 <td style="font-weight: bold; width: 55px;">PLAN QUANTITY</td>
                 <td style="font-weight: bold; width: 55px;">QUANTITY RECEIVED</td>
                 <td style="font-weight: bold; width: 40px;">UOM</td>

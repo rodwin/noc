@@ -139,7 +139,7 @@ class Inventory extends CActiveRecord {
             'updated_by' => 'Updated By',
             'expiration_date' => 'Expiration Date',
             'reference_no' => 'Batch No',
-            'campaign_no' => 'Campaign No',
+            'campaign_no' => 'PO No',
             'pr_no' => 'PR No',
             'pr_date' => 'PR Date',
             'plan_arrival_date' => 'Plan Arrival Date',

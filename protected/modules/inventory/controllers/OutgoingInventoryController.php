@@ -31,7 +31,7 @@ class OutgoingInventoryController extends Controller {
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('create', 'update', 'data', 'loadInventoryDetails', 'outgoingInvDetailData', 'afterDeleteTransactionRow', 'invData', 'uploadAttachment', 'preview', 'download', 'searchCampaignNo', 'loadPRNos', 'loadInvByPRNo',
-                    'deleteOutgoingDetail', 'deleteAttachment', 'print', 'loadPDF', 'getDetailsByOutgoingInvID', 'loadItemDetails', 'viewPrint'),
+                    'deleteOutgoingDetail', 'deleteAttachment', 'print', 'loadPDF', 'getDetailsByOutgoingInvID', 'loadItemDetails', 'viewPrint', 'checkInvIfUpdatedActualQtyValid'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -267,7 +267,7 @@ class OutgoingInventoryController extends Controller {
         $attachment = new Attachment;
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
-        $zone_list = CHtml::listData(Zone::model()->findAll(array("condition" => 'company_id = "' . Yii::app()->user->company_id . '" AND zone_id IN (' . Yii::app()->user->zones . ')', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
+        $zone_list = CHtml::listData(Zone::model()->findAll(array("condition" => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
 
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
@@ -378,6 +378,8 @@ class OutgoingInventoryController extends Controller {
             echo json_encode($data);
             Yii::app()->end();
         }
+
+        $outgoing->dr_no = "TS" . date("YmdHis");
 
         $this->render('outgoingForm', array(
             'outgoing' => $outgoing,
@@ -1127,6 +1129,8 @@ class OutgoingInventoryController extends Controller {
 
         unset(Yii::app()->session["post_pdf_data_id"]);
 
+        sleep(1);
+
         Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
         Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = $return;
 
@@ -1146,6 +1150,11 @@ class OutgoingInventoryController extends Controller {
     public function actionLoadPDF($id) {
 
         $data = Yii::app()->session[$id];
+
+        if ($data == "") {
+            echo "Error: Please close and try again.";
+            return false;
+        }
 
         $headers = $data['headers'];
         $source = $data['source'];
@@ -1181,56 +1190,53 @@ class OutgoingInventoryController extends Controller {
             </style>
 
             <div id="header" class="text-center">
-                <span class="title">ASIA BREWERY INCORPORATED</span><br/>
-                <span class="sub-title">6th FLOOR ALLIED BANK CENTER, AYALA AVENUE, MAKATI CITY</span><br/>
-                <span class="title-report">DELIVERY RECEIPT</span>
+                <span class="title-report">TRANSFER SLIP</span>
             </div><br/><br/>
 
             <table class="table_main">
                 <tr>
-                    <td clss="row_label" style="font-weight: bold;">SALES OFFICE / SALESMAN</td>
-                    <td class="border-bottom row_content_lg">' . $destination['sales_office_name'] . '</td>
+                    <td style="font-weight: bold; width: 130px;">SALES OFFICE / SALESMAN</td>
+                    <td class="border-bottom" style="width: 370px;">' . $destination['sales_office_name'] . '</td>
                     <td style="width: 10px;"></td>
-                    <td clss="row_label" style="font-weight: bold;">DELIVERY DATE</td>
-                    <td class="border-bottom row_content_sm">' . $headers['transaction_date'] . '</td>
+                    <td style="font-weight: bold; width: 110px;">DELIVERY DATE</td>
+                    <td class="border-bottom" style="width: 60px;">' . $headers['transaction_date'] . '</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold;">ADDRESS</td>
                     <td class="border-bottom">' . $destination['address'] . '</td>
                     <td></td>
-                    <td style="font-weight: bold;">PLAN DATE</td>
+                    <td style="font-weight: bold;">PLAN DELIVERY DATE</td>
                     <td class="border-bottom">' . $headers['plan_delivery_date'] . '</td>
                 </tr>
             </table><br/><br/>
 
             <table class="table_main">
                 <tr>
-                    <td clss="row_label" style="font-weight: bold;">PR NUMBER</td>
-                    <td class="border-bottom row_content_sm">' . $headers['pr_no'] . '</td>
+                    <td style="font-weight: bold; width: 50px;">PR no.</td>
+                    <td class="border-bottom" style="130px;">' . $headers['pr_no'] . '</td>
                     <td style="width: 10px;"></td>
-                    <td clss="row_label" style="font-weight: bold;">WAREHOUSE NAME</td>
-                    <td class="border-bottom row_content_lg">' . "" . '</td>
+                    <td style="font-weight: bold; width: 100px;">WAREHOUSE NAME</td>
+                    <td class="border-bottom" style="width: 390px;">' . "" . '</td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold;">RRA NUMBER</td>
+                    <td style="font-weight: bold;">RA no.</td>
                     <td class="border-bottom">' . $headers['rra_no'] . '</td>
                     <td></td>
                     <td style="font-weight: bold;">CONTACT PERSON</td>
                     <td class="border-bottom">' . "" . '</td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold;">RRA DATE</td>
+                    <td style="font-weight: bold;">RA DATE</td>
                     <td class="border-bottom">' . $headers['rra_date'] . '</td>
                     <td></td>
                     <td style="font-weight: bold;">ADDRESS</td>
                     <td class="border-bottom">' . "" . '</td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold;">DR NUMBER</td>
+                    <td style="font-weight: bold;">DR no.</td>
                     <td class="border-bottom">' . $headers['dr_no'] . '</td>
-                    <td></td>
-                    <td></td>
-                    <td class="border-bottom"></td>
+                    <td rowspan="2"></td>
+                    <td class=""></td>
                 </tr>
             </table><br/><br/><br/>  
         
@@ -1239,7 +1245,7 @@ class OutgoingInventoryController extends Controller {
                     <td style="font-weight: bold;">MM CODE</td>
                     <td style="font-weight: bold; width: 100px;">MM DESCRIPTION</td>
                     <td style="font-weight: bold;">MM BRAND</td>
-                    <td style="font-weight: bold;">MM CATEGORY</td>
+                    <td style="font-weight: bold">MM CATEGORY</td>
                     <td style="font-weight: bold; width: 65px;">ALLOCATION</td>
                     <td style="font-weight: bold; width: 55px;">QUANTITY ISSUED</td>
                     <td style="font-weight: bold; width: 40px;">UOM</td>
@@ -1264,8 +1270,8 @@ class OutgoingInventoryController extends Controller {
                             <td>' . $val['planned_quantity'] . '</td>
                             <td>' . $val['quantity_issued'] . '</td>
                             <td>' . $uom->uom_name . '</td>
-                            <td class="align-right">&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
-                            <td class="align-right">&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
+                        <td class="align-right">&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
+                        <td class="align-right">&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
                             <td>' . $val['expiration_date'] . '</td>
                             <td>' . $val['remarks'] . '</td>
                         </tr>';
@@ -1497,6 +1503,133 @@ class OutgoingInventoryController extends Controller {
         $output["id"] = Yii::app()->session["post_pdf_data_id"];
 
         echo json_encode($output);
+        Yii::app()->end();
+    }
+
+    public function actionCheckInvIfUpdatedActualQtyValid($inventory_id, $actual_qty, $new_actual_qty, $outgoing_inv_detail_id) {
+
+        $new_qty = 0;
+        $new_inv_qty = 0;
+
+        $data['success'] = false;
+        $data["type"] = "success";
+        $data['actual_qty'] = $actual_qty;
+        $data['new_inventory_id'] = false;
+
+        $inventory = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $inventory_id));
+        $outgoing_inv_detail = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "outgoing_inventory_detail_id" => $outgoing_inv_detail_id));
+
+        $uom = Uom::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $outgoing_inv_detail->uom_id));
+
+        $qty_issued = $outgoing_inv_detail->quantity_issued;
+
+        if ($outgoing_inv_detail) {
+
+            if ($new_actual_qty == $qty_issued) {
+
+                $data['message'] = 'Successfully updated';
+                $data['success'] = true;
+            } else if ($new_actual_qty > $qty_issued) {
+
+                $new_qty = $new_actual_qty - $qty_issued;
+
+                if ($inventory) {
+
+                    if ($inventory->qty > $new_qty || $inventory->qty == $new_qty) {
+
+                        $outgoing_inv_detail->quantity_issued = $outgoing_inv_detail->quantity_issued + $new_qty;
+                        $outgoing_inv_detail->updated_by = Yii::app()->user->name;
+                        $outgoing_inv_detail->updated_date = date("Y-m-d H:i:s");
+
+                        $decrease_inv = new DecreaseInventoryForm();
+                        $decrease_inv->inventoryObj = $inventory;
+                        $decrease_inv->qty = $new_qty;
+                        $decrease_inv->transaction_date = date("Y-m-d");
+                        $decrease_inv->created_by = Yii::app()->user->name;
+
+                        if ($decrease_inv->decrease(false) && $outgoing_inv_detail->save()) {
+
+                            $data['message'] = 'Successfully updated';
+                            $data['success'] = true;
+                            $data['actual_qty'] = $outgoing_inv_detail->quantity_issued;
+                        } else {
+
+                            $data['message'] = 'An error occured!';
+                            $data["type"] = "danger";
+                        }
+                    } else {
+
+                        $data['message'] = 'Source inventory quantity issued has only <b>' . $inventory->qty . " " . strtolower($uom->uom_name) . '</b> inventory on hand';
+                        $data["type"] = "danger";
+                    }
+                } else {
+
+                    $data['message'] = 'Source inventory not exist already';
+                    $data["type"] = "danger";
+                }
+            } else {
+
+                $new_qty = $new_actual_qty;
+                $new_inv_qty = $qty_issued - $new_actual_qty;
+
+                $outgoing_inv_detail->quantity_issued = $outgoing_inv_detail->quantity_issued - $new_inv_qty;
+                $outgoing_inv_detail->updated_by = Yii::app()->user->name;
+                $outgoing_inv_detail->updated_date = date("Y-m-d H:i:s");
+
+                if ($inventory) {
+
+                    $increase_inv = new IncreaseInventoryForm();
+                    $increase_inv->inventoryObj = $inventory;
+                    $increase_inv->qty = $new_inv_qty;
+                    $increase_inv->transaction_date = date("Y-m-d");
+                    $increase_inv->created_by = Yii::app()->user->name;
+
+                    $increase_inv->increase(false);
+                } else {
+
+                    $sku_status_id = ($outgoing_inv_detail->sku_status_id != "" ? $outgoing_inv_detail->sku_status_id : null);
+                    $saved_inv = ReceivingInventoryDetail::model()->createInventory($outgoing_inv_detail->company_id, $outgoing_inv_detail->sku_id, $outgoing_inv_detail->uom_id, $outgoing_inv_detail->unit_price, $new_inv_qty, $outgoing_inv_detail->source_zone_id, date("Y-m-d"), Yii::app()->user->name, $outgoing_inv_detail->expiration_date, $outgoing_inv_detail->batch_no, $sku_status_id, $outgoing_inv_detail->campaign_no, $outgoing_inv_detail->pr_no, $outgoing_inv_detail->pr_date, $outgoing_inv_detail->plan_arrival_date, $outgoing_inv_detail->revised_delivery_date);
+
+                    if ($saved_inv) {
+
+                        $inv = Inventory::model()->findByAttributes(array(
+                            'sku_id' => $outgoing_inv_detail->sku_id,
+                            'company_id' => $outgoing_inv_detail->company_id,
+                            'uom_id' => $outgoing_inv_detail->uom_id,
+                            'zone_id' => $outgoing_inv_detail->source_zone_id,
+                            'sku_status_id' => $sku_status_id,
+                            'expiration_date' => $outgoing_inv_detail->expiration_date,
+                            'reference_no' => $outgoing_inv_detail->batch_no,
+                            'campaign_no' => $outgoing_inv_detail->campaign_no,
+                            'pr_no' => $outgoing_inv_detail->pr_no,
+                            'pr_date' => $outgoing_inv_detail->pr_date,
+                            'plan_arrival_date' => $outgoing_inv_detail->plan_arrival_date,
+                            'revised_delivery_date' => $outgoing_inv_detail->revised_delivery_date,
+                                ));
+
+                        $outgoing_inv_detail->inventory_id = $inv->inventory_id;
+                        $data['new_inventory_id'] = true;
+                    }
+                }
+
+                if ($outgoing_inv_detail->save()) {
+
+                    $data['message'] = 'Successfully updated';
+                    $data['success'] = true;
+                    $data['actual_qty'] = $outgoing_inv_detail->quantity_issued;
+                } else {
+
+                    $data['message'] = 'An error occured!';
+                    $data["type"] = "danger";
+                }
+            }
+        } else {
+
+            $data['message'] = 'Unable to process';
+            $data["type"] = "danger";
+        }
+
+        echo json_encode($data);
         Yii::app()->end();
     }
 

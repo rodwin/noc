@@ -68,49 +68,49 @@ $this->breadcrumbs = array(
         <div class="col-sm-6">
             <table class="table table-bordered table-condensed">
                 <tr>
-                    <td class="first_col_right_table"><strong>Transaction Date:</strong></td>
+                    <td class="first_col_right_table"><strong><?php echo $incomingFields['transaction_date'] ?>:</strong></td>
                     <td><?php echo $model->transaction_date; ?></td>
                 </tr>
             </table>
 
             <table class="table table-bordered table-condensed">
                 <tr>
-                    <td class="first_col_right_table"><strong>Plan Delivery Date:</strong></td>
+                    <td class="first_col_right_table"><strong><?php echo $incomingFields['plan_delivery_date'] ?>:</strong></td>
                     <td><?php echo $model->plan_delivery_date; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>DR Number:</strong></td>
+                    <td><strong><?php echo $incomingFields['dr_no'] ?>:</strong></td>
                     <td><?php echo $model->dr_no; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>DR Date:</strong></td>
+                    <td><strong><?php echo $incomingFields['dr_date'] ?>:</strong></td>
                     <td><?php echo $model->dr_date; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>RRA Number:</strong></td>
+                    <td><strong><?php echo $incomingFields['rra_no'] ?>:</strong></td>
                     <td><?php echo $model->rra_no; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>RRA Date:</strong></td>
+                    <td><strong><?php echo $incomingFields['rra_date'] ?>:</strong></td>
                     <td><?php echo $model->rra_date; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>PR Number(s):</strong></td>
+                    <td><strong><?php echo $incomingDetailFields['pr_no'] ?>:</strong></td>
                     <td><?php echo $pr_nos; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>Campaign Number(s):</strong></td>
+                    <td><strong><?php echo $incomingDetailFields['campaign_no'] ?>:</strong></td>
                     <td><?php echo $campaign_nos; ?></td>
                 </tr>
                 <tr>
-                    <td><strong>Status:</strong></td>
+                    <td><strong><?php echo $incomingDetailFields['status'] ?>:</strong></td>
                     <td><?php echo Inventory::model()->status($model->status); ?></td>
                 </tr>
             </table>
 
             <table class="table table-bordered table-condensed">
                 <tr>
-                    <td><strong>Remarks:</strong></td>
+                    <td><strong><?php echo $incomingFields['remarks'] ?>:</strong></td>
                 </tr>
                 <tr>
                     <td><?php echo $model->remarks != "" ? $model->remarks : $not_set; ?></td>

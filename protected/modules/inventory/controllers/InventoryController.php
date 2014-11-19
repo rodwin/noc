@@ -705,7 +705,7 @@ class InventoryController extends Controller {
             $status = Inventory::model()->status($val->status);
 
             $row['transaction_type'] = '<a href="#" title="Click to view" data-toggle="tooltip"><b>' . strtoupper(OutgoingInventory::OUTGOING_LABEL) . '</b></a>';
-            $row['dr_no'] = $val->dr_no;
+            $row['ra_date'] = date("d-M", strtotime($val->rra_date));
             $row['dr_date'] = date("d-M", strtotime($val->dr_date));
             $row['status'] = $status;
             $row['created_date'] = $val->created_date;
@@ -725,7 +725,7 @@ class InventoryController extends Controller {
             $status = Inventory::model()->status($val1->status);
 
             $row['transaction_type'] = '<a href="#" title="Click to view" data-toggle="tooltip"><b>' . strtoupper(CustomerItem::CUSTOMER_ITEM_LABEL) . '</b></a>';
-            $row['dr_no'] = $val1->dr_no;
+            $row['ra_date'] = date("d-M", strtotime($val1->rra_date));
             $row['dr_date'] = date("d-M", strtotime($val1->dr_date));
             $row['status'] = $status;
             $row['created_date'] = $val1->created_date;
@@ -767,6 +767,7 @@ class InventoryController extends Controller {
             $row['transaction_date'] = date("d-M", strtotime($v1->transaction_date));
             $row['transaction_type'] = strtoupper(ReceivingInventory::RECEIVING_LABEL);
             $row['pr_no'] = $v1->pr_no;
+            $row['ra_no'] = "";
             $row['dr_no'] = $v1->dr_no;
             $row['source'] = "";
             $row['plan_delivery_date'] = isset($v1->plan_delivery_date) ? date("d-M", strtotime($v1->plan_delivery_date)) : "";
@@ -805,6 +806,7 @@ class InventoryController extends Controller {
             $row['transaction_date'] = date("d-M", strtotime($v2->transaction_date));
             $row['transaction_type'] = strtoupper(IncomingInventory::INCOMING_LABEL);
             $row['pr_no'] = substr(trim($incoming_pr_nos), 0, -1);
+            $row['ra_no'] = $v2->rra_no;
             $row['dr_no'] = $v2->dr_no;
             $row['source'] = "";
             $row['plan_delivery_date'] = isset($v2->plan_delivery_date) ? date("d-M", strtotime($v2->plan_delivery_date)) : "";
@@ -853,6 +855,7 @@ class InventoryController extends Controller {
             $row['transaction_date'] = date("d-M", strtotime($v3->transaction_date));
             $row['transaction_type'] = strtoupper(OutgoingInventory::OUTGOING_LABEL);
             $row['pr_no'] = substr(trim($outbound_pr_nos), 0, -1);
+            $row['ra_no'] = $v3->rra_no;
             $row['dr_no'] = $v3->dr_no;
             $row['source'] = "";
             $row['plan_delivery_date'] = isset($v3->plan_delivery_date) ? date("d-M", strtotime($v3->plan_delivery_date)) : "";
@@ -891,6 +894,7 @@ class InventoryController extends Controller {
             $row['transaction_date'] = date("d-M", strtotime($v4->transaction_date));
             $row['transaction_type'] = strtoupper(CustomerItem::CUSTOMER_ITEM_LABEL);
             $row['pr_no'] = substr(trim($outgoing_pr_nos), 0, -1);
+            $row['ra_no'] = $v4->rra_no;
             $row['dr_no'] = $v4->dr_no;
             $row['source'] = "";
             $row['plan_delivery_date'] = isset($v4->plan_delivery_date) ? date("d-M", strtotime($v4->plan_delivery_date)) : "";

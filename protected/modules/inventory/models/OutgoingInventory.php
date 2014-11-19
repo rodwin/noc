@@ -61,6 +61,7 @@ class OutgoingInventory extends CActiveRecord {
             array('remarks', 'length', 'max' => 150),
             array('closed', 'length', 'max' => 1),
             array('destination_zone_id', 'isValidZone'),
+            array('dr_no', 'uniqueDRNo'),
             array('rra_date, transaction_date, plan_delivery_date, dr_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('plan_delivery_date, transaction_date, created_date, updated_date, dr_date', 'safe'),
             // The following rule is used by search().
@@ -76,6 +77,15 @@ class OutgoingInventory extends CActiveRecord {
             $this->addError($attribute, 'Please select a Zone from the auto-complete.');
         }
 
+        return;
+    }
+
+    public function uniqueDRNo($attribute, $params) {
+
+        $model = OutgoingInventory::model()->findByAttributes(array('company_id' => $this->company_id, 'dr_no' => $this->$attribute));
+        if ($model && $model->outgoing_inventory_id != $this->outgoing_inventory_id) {
+            $this->addError($attribute, 'DR Number selected already taken');
+        }
         return;
     }
 
@@ -119,10 +129,10 @@ class OutgoingInventory extends CActiveRecord {
         return array(
             'outgoing_inventory_id' => 'Outgoing Inventory',
             'company_id' => 'Company',
-            'rra_no' => 'RRA No',
+            'rra_no' => 'RA No',
             'dr_no' => 'DR No',
             'dr_date' => 'DR Date',
-            'rra_date' => 'RRA Date',
+            'rra_date' => 'RA Date',
             'source_zone_id' => 'Source Zone',
             'destination_zone_id' => 'Destination Zone',
             'contact_person' => 'Contact Person',
