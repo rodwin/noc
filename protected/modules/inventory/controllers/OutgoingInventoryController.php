@@ -379,6 +379,8 @@ class OutgoingInventoryController extends Controller {
             Yii::app()->end();
         }
 
+        $outgoing->dr_no = "TS" . date("YmdHis");
+
         $this->render('outgoingForm', array(
             'outgoing' => $outgoing,
             'transaction_detail' => $transaction_detail,
@@ -1126,7 +1128,7 @@ class OutgoingInventoryController extends Controller {
         $return['details'] = $details;
 
         unset(Yii::app()->session["post_pdf_data_id"]);
-        
+
         sleep(1);
 
         Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
@@ -1148,17 +1150,17 @@ class OutgoingInventoryController extends Controller {
     public function actionLoadPDF($id) {
 
         $data = Yii::app()->session[$id];
-        
+
         if ($data == "") {
             echo "Error: Please close and try again.";
             return false;
         }
-        
+
         $headers = $data['headers'];
         $source = $data['source'];
         $destination = $data['destination'];
         $details = $data['details'];
-        
+
         ob_start();
 
         $pdf = Globals::pdf();
@@ -1188,38 +1190,36 @@ class OutgoingInventoryController extends Controller {
             </style>
 
             <div id="header" class="text-center">
-                <span class="title">ASIA BREWERY INCORPORATED</span><br/>
-                <span class="sub-title">6th FLOOR ALLIED BANK CENTER, AYALA AVENUE, MAKATI CITY</span><br/>
-                <span class="title-report">DELIVERY RECEIPT</span>
+                <span class="title-report">TRANSFER SLIP</span>
             </div><br/><br/>
 
             <table class="table_main">
                 <tr>
-                    <td clss="row_label" style="font-weight: bold;">SALES OFFICE / SALESMAN</td>
-                    <td class="border-bottom row_content_lg">' . $destination['sales_office_name'] . '</td>
+                    <td style="font-weight: bold; width: 130px;">SALES OFFICE / SALESMAN</td>
+                    <td class="border-bottom" style="width: 370px;">' . $destination['sales_office_name'] . '</td>
                     <td style="width: 10px;"></td>
-                    <td clss="row_label" style="font-weight: bold;">DELIVERY DATE</td>
-                    <td class="border-bottom row_content_sm">' . $headers['transaction_date'] . '</td>
+                    <td style="font-weight: bold; width: 110px;">DELIVERY DATE</td>
+                    <td class="border-bottom" style="width: 60px;">' . $headers['transaction_date'] . '</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold;">ADDRESS</td>
                     <td class="border-bottom">' . $destination['address'] . '</td>
                     <td></td>
-                    <td style="font-weight: bold;">PLAN DATE</td>
+                    <td style="font-weight: bold;">PLAN DELIVERY DATE</td>
                     <td class="border-bottom">' . $headers['plan_delivery_date'] . '</td>
                 </tr>
             </table><br/><br/>
 
             <table class="table_main">
                 <tr>
-                    <td clss="row_label" style="font-weight: bold;">PR NUMBER</td>
-                    <td class="border-bottom row_content_sm">' . $headers['pr_no'] . '</td>
+                    <td style="font-weight: bold; width: 50px;">PR no.</td>
+                    <td class="border-bottom" style="130px;">' . $headers['pr_no'] . '</td>
                     <td style="width: 10px;"></td>
-                    <td clss="row_label" style="font-weight: bold;">WAREHOUSE NAME</td>
-                    <td class="border-bottom row_content_lg">' . "" . '</td>
+                    <td style="font-weight: bold; width: 100px;">WAREHOUSE NAME</td>
+                    <td class="border-bottom" style="width: 390px;">' . "" . '</td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold;">RA NUMBER</td>
+                    <td style="font-weight: bold;">RA no.</td>
                     <td class="border-bottom">' . $headers['rra_no'] . '</td>
                     <td></td>
                     <td style="font-weight: bold;">CONTACT PERSON</td>
@@ -1233,11 +1233,10 @@ class OutgoingInventoryController extends Controller {
                     <td class="border-bottom">' . "" . '</td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold;">DR NUMBER</td>
+                    <td style="font-weight: bold;">DR no.</td>
                     <td class="border-bottom">' . $headers['dr_no'] . '</td>
-                    <td></td>
-                    <td></td>
-                    <td class="border-bottom"></td>
+                    <td rowspan="2"></td>
+                    <td class=""></td>
                 </tr>
             </table><br/><br/><br/>  
         
@@ -1246,7 +1245,7 @@ class OutgoingInventoryController extends Controller {
                     <td style="font-weight: bold;">MM CODE</td>
                     <td style="font-weight: bold; width: 100px;">MM DESCRIPTION</td>
                     <td style="font-weight: bold;">MM BRAND</td>
-                    <td style="font-weight: bold;">MM CATEGORY</td>
+                    <td style="font-weight: bold">MM CATEGORY</td>
                     <td style="font-weight: bold; width: 65px;">ALLOCATION</td>
                     <td style="font-weight: bold; width: 55px;">QUANTITY ISSUED</td>
                     <td style="font-weight: bold; width: 40px;">UOM</td>
@@ -1271,8 +1270,8 @@ class OutgoingInventoryController extends Controller {
                             <td>' . $val['planned_quantity'] . '</td>
                             <td>' . $val['quantity_issued'] . '</td>
                             <td>' . $uom->uom_name . '</td>
-                            <td class="align-right">&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
-                            <td class="align-right">&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
+                        <td class="align-right">&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
+                        <td class="align-right">&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
                             <td>' . $val['expiration_date'] . '</td>
                             <td>' . $val['remarks'] . '</td>
                         </tr>';
@@ -1521,7 +1520,7 @@ class OutgoingInventoryController extends Controller {
         $outgoing_inv_detail = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "outgoing_inventory_detail_id" => $outgoing_inv_detail_id));
 
         $uom = Uom::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $outgoing_inv_detail->uom_id));
-        
+
         $qty_issued = $outgoing_inv_detail->quantity_issued;
 
         if ($outgoing_inv_detail) {

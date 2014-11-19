@@ -968,18 +968,16 @@ class IncomingInventoryController extends Controller {
         </style>
 
         <div id="header" class="text-center">
-            <span class="title">ASIA BREWERY INCORPORATED</span><br/>
-            <span class="sub-title">6th FLOOR ALLIED BANK CENTER, AYALA AVENUE, MAKATI CITY</span><br/>
             <span class="title-report"> RECEIVING REPORT</span>
         </div><br/><br/>
 
         <table class="table_main">
             <tr>
-                <td clss="row_label" style="font-weight: bold;">SALES OFFICE / SALESMAN</td>
-                <td class="border-bottom row_content_lg">' . $destination['sales_office_name'] . '</td>
+                <td style="font-weight: bold; width: 130px;">SALES OFFICE / SALESMAN</td>
+                <td class="border-bottom" style="width: 370px;">' . $destination['sales_office_name'] . '</td>
                 <td style="width: 10px;"></td>
-                <td clss="row_label" style="font-weight: bold;">DELIVERY DATE</td>
-                <td class="border-bottom row_content_sm">' . $headers['transaction_date'] . '</td>
+                <td style="font-weight: bold; width: 110px;">DELIVERY DATE</td>
+                <td class="border-bottom" style="width: 60px;">' . $headers['transaction_date'] . '</td>
             </tr>
             <tr>
                 <td style="font-weight: bold;">ADDRESS</td>
@@ -992,21 +990,21 @@ class IncomingInventoryController extends Controller {
 
         <table class="table_main">
             <tr>
-                <td clss="row_label" style="font-weight: bold;">PR NUMBER</td>
-                <td class="border-bottom row_content_sm">' . $headers['pr_no'] . '</td>
+                <td style="font-weight: bold; width: 50px;">PR no.</td>
+                <td class="border-bottom" style="130px;">' . $headers['pr_no'] . '</td>
                 <td style="width: 10px;"></td>
-                <td clss="row_label" style="font-weight: bold;">WAREHOUSE NAME</td>
-                <td class="border-bottom row_content_lg">' . "" . '</td>
+                <td style="font-weight: bold; width: 100px;">WAREHOUSE NAME</td>
+                <td class="border-bottom" style="width: 390px;">' . "" . '</td>
             </tr>
             <tr>
-                <td style="font-weight: bold;">RA NUMBER</td>
+                <td style="font-weight: bold;">RA no.</td>
                 <td class="border-bottom">' . $headers['rra_no'] . '</td>
                 <td></td>
                 <td style="font-weight: bold;">CONTACT PERSON</td>
                 <td class="border-bottom">' . "" . '</td>
             </tr>
             <tr>
-                <td style="font-weight: bold;">DR NUMBER</td>
+                <td style="font-weight: bold;">DR no.</td>
                 <td class="border-bottom">' . $headers['dr_no'] . '</td>
                 <td></td>
                 <td style="font-weight: bold;">ADDRESS</td>

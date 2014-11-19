@@ -26,7 +26,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                         <thead>
                             <tr>
                                 <th>Transaction Type</th>
-                                <th>DR No</th>
+                                <th>RA Date</th>
                                 <th>DR Date</th>
                                 <th>Status</th>
                             </tr>
@@ -35,7 +35,9 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                 </div>
             </div>
             <div class="loading-img" style="display: none;"></div>
-        </div>        
+        </div>
+        
+        <div class="clearfix"></div>
     </div>
 
     <div class="col-md-6">
@@ -115,6 +117,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                         <th>Transaction Date</th>
                         <th>Transaction Type</th>
                         <th>PR No.</th>
+                        <th>RA No.</th>
                         <th>DR No.</th>
                         <th>Supplier / Source Zone</th>
                         <th>Plan Delivery Date</th>
@@ -140,6 +143,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                     <th>Transaction Date</th>
                     <th>Transaction Type</th>
                     <th>PR No.</th>
+                    <th>RA No.</th>
                     <th>DR No.</th>
                     <th>Destination Zone</th>
                     <th>Plan Delivery Date</th>
@@ -242,7 +246,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                 $.each(data, function(i, v) {
                     notification_table.fnAddData([
                         v.transaction_type,
-                        v.dr_no,
+                        v.ra_date,
                         v.dr_date,
                         v.status
                     ]);
@@ -362,6 +366,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                 v.transaction_date,
                 v.transaction_type,
                 v.pr_no,
+                v.ra_no,
                 v.dr_no,
                 v.source,
                 v.plan_delivery_date,
@@ -380,6 +385,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                 v.transaction_date,
                 v.transaction_type,
                 v.pr_no,
+                v.ra_no,
                 v.dr_no,
                 v.source,
                 v.plan_delivery_date,
