@@ -25,7 +25,7 @@ class ImagesController extends Controller {
    public function accessRules() {
       return array(
           array('allow', // allow all users to perform 'index' and 'view' actions
-              'actions' => array('index', 'view', 'upload', 'uploadImage', 'ajaxLoadImages', 'deleteMultiple'),
+              'actions' => array('index', 'view', 'data', 'upload', 'uploadImage', 'ajaxLoadImages', 'deleteMultiple'),
               'users' => array('@'),
           ),
           array('allow',

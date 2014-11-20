@@ -27,7 +27,7 @@ class PoiController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view', 'getAllSubCategoryByCategoryID', 'getAllCustomDataByCategoryID', 'getAllSubCategoryByCategoryName', 'getProvinceByRegionCode',
+                'actions' => array('index', 'view', 'data', 'getAllSubCategoryByCategoryID', 'getAllCustomDataByCategoryID', 'getAllSubCategoryByCategoryName', 'getProvinceByRegionCode',
                     'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode', 'upload', 'uploadDetails', 'search', 'getPOIDetails', 'getAllPoiData'),
                 'users' => array('@'),
             ),

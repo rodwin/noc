@@ -25,7 +25,7 @@ class SupplierController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view', 'getProvinceByRegionCode', 'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode', 'searchSupplier'),
+                'actions' => array('index', 'view', 'data', 'getProvinceByRegionCode', 'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode', 'searchSupplier'),
                 'users' => array('@'),
             ),
             array('allow',

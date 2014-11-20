@@ -25,7 +25,7 @@ class ZoneController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view', 'search', 'searchByWarehouse', 'getZoneDetails'),
+                'actions' => array('index', 'view', 'data', 'search', 'searchByWarehouse', 'getZoneDetails'),
                 'users' => array('@'),
             ),
             array('allow',

@@ -25,7 +25,7 @@ class SalesOfficeController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view', 'getSODetailsByID'),
+                'actions' => array('index', 'view', 'data', 'getSODetailsByID'),
                 'users' => array('@'),
             ),
             array('allow',
