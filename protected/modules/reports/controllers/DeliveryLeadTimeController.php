@@ -128,7 +128,7 @@ class DeliveryLeadTimeController extends Controller {
             return false;
             break;
       }
-      $objPHPExcel->getActiveSheet()->SetCellValue('D5', 'CAMPAIGN NO.');
+      $objPHPExcel->getActiveSheet()->SetCellValue('D5', 'PO NO.');
       $objPHPExcel->getActiveSheet()->mergeCells('D5:D6');
       $objPHPExcel->getActiveSheet()->getStyle('D5')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
       $objPHPExcel->getActiveSheet()->getStyle("D5")->getFont()->setBold(true);
@@ -145,7 +145,7 @@ class DeliveryLeadTimeController extends Controller {
          $objPHPExcel->getActiveSheet()->mergeCells('G5:G6');
          $objPHPExcel->getActiveSheet()->getStyle('G5')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
          $objPHPExcel->getActiveSheet()->getStyle("G5")->getFont()->setBold(true);
-         $objPHPExcel->getActiveSheet()->SetCellValue('H5', 'PLAN ARRIVAL DATE');
+         $objPHPExcel->getActiveSheet()->SetCellValue('H5', 'PLAN DELIVERY DATE');
          $objPHPExcel->getActiveSheet()->mergeCells('H5:H6');
          $objPHPExcel->getActiveSheet()->getStyle('H5')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
          $objPHPExcel->getActiveSheet()->getStyle("H5")->getFont()->setBold(true);
@@ -160,7 +160,7 @@ class DeliveryLeadTimeController extends Controller {
          $objPHPExcel->getActiveSheet()->SetCellValue('J6', 'RA DATE');
          $objPHPExcel->getActiveSheet()->getStyle('J6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
          $objPHPExcel->getActiveSheet()->getStyle("J6")->getFont()->setBold(true);
-         $objPHPExcel->getActiveSheet()->SetCellValue('K6', 'PLAN');
+         $objPHPExcel->getActiveSheet()->SetCellValue('K6', 'PLAN DELIVERY DATE');
          $objPHPExcel->getActiveSheet()->getStyle('K6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
          $objPHPExcel->getActiveSheet()->getStyle("K6")->getFont()->setBold(true);
       } else {
@@ -187,7 +187,7 @@ class DeliveryLeadTimeController extends Controller {
          $objPHPExcel->getActiveSheet()->SetCellValue('J6', 'PR DATE');
          $objPHPExcel->getActiveSheet()->getStyle('J6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
          $objPHPExcel->getActiveSheet()->getStyle("J6")->getFont()->setBold(true);
-         $objPHPExcel->getActiveSheet()->SetCellValue('K6', 'PLAN');
+         $objPHPExcel->getActiveSheet()->SetCellValue('K6', 'PLAN DELIVERY DATE');
          $objPHPExcel->getActiveSheet()->getStyle('K6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
          $objPHPExcel->getActiveSheet()->getStyle("K6")->getFont()->setBold(true);
       }
@@ -218,9 +218,14 @@ class DeliveryLeadTimeController extends Controller {
                $objPHPExcel->getActiveSheet()->SetCellValue("G" . $row, $val['plan_delivery_date']);
                $objPHPExcel->getActiveSheet()->SetCellValue("H" . $row, $val['dr_no']);
                $objPHPExcel->getActiveSheet()->SetCellValue("I" . $row, $val['transaction_date']);
-               $objPHPExcel->getActiveSheet()->SetCellValue("J" . $row, round((strtotime($val['transaction_date']) - strtotime($val['pr_date'])) / (60 * 60 * 24)));
-               if (!empty($val['plan_delivery_date'])) {
-                  $objPHPExcel->getActiveSheet()->SetCellValue("K" . $row, round((strtotime($val['transaction_date']) - strtotime($val['plan_delivery_date'])) / (60 * 60 * 24)));
+               if (!empty($val['pr_date'])) {
+                   $objPHPExcel->getActiveSheet()->SetCellValue("J" . $row, "=I" . $row . "-F" . $row);
+                }
+                else{
+                    $objPHPExcel->getActiveSheet()->SetCellValue("J" . $row, '--');
+                }
+                if (!empty($val['plan_delivery_date'])) {
+                  $objPHPExcel->getActiveSheet()->SetCellValue("K" . $row, "=G" . $row . "-I" . $row);
                }
                else{
                   $objPHPExcel->getActiveSheet()->SetCellValue("K" . $row, '--');

@@ -1,266 +1,278 @@
 <?php
 
 class SkuStatusController extends Controller {
-    /**
-     * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
-     * using two-column layout. See 'protected/views/layouts/column2.php'.
-     */
-    //public $layout='//layouts/column2';
+   /**
+    * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
+    * using two-column layout. See 'protected/views/layouts/column2.php'.
+    */
+   //public $layout='//layouts/column2';
 
-    /**
-     * @return array action filters
-     */
-    public function filters() {
-        return array(
-            'accessControl', // perform access control for CRUD operations
-            'postOnly + delete', // we only allow deletion via POST request
-        );
-    }
+   /**
+    * @return array action filters
+    */
+   public function filters() {
+      return array(
+          'accessControl', // perform access control for CRUD operations
+          'postOnly + delete', // we only allow deletion via POST request
+      );
+   }
 
-    /**
-     * Specifies the access control rules.
-     * This method is used by the 'accessControl' filter.
-     * @return array access control rules
-     */
-    public function accessRules() {
-        return array(
-            array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view'),
-                'users' => array('@'),
-            ),
-            array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data'),
-                'users' => array('@'),
-            ),
-            array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('admin', 'delete'),
-                'users' => array('@'),
-            ),
-            array('deny', // deny all users
-                'users' => array('*'),
-            ),
-        );
-    }
+   /**
+    * Specifies the access control rules.
+    * This method is used by the 'accessControl' filter.
+    * @return array access control rules
+    */
+   public function accessRules() {
+      return array(
+          array('allow', // allow all users to perform 'index' and 'view' actions
+              'actions' => array('index', 'view'),
+              'users' => array('@'),
+          ),
+          array('allow',
+              'actions' => array('admin'),
+              'expression' => "Yii::app()->user->checkAccess('Manage SKU Status', array('company_id' => Yii::app()->user->company_id))",
+          ),
+          array('allow',
+              'actions' => array('create'),
+              'expression' => "Yii::app()->user->checkAccess('Add SKU Status', array('company_id' => Yii::app()->user->company_id))",
+          ),
+          array('allow',
+              'actions' => array('view'),
+              'expression' => "Yii::app()->user->checkAccess('View SKU Status', array('company_id' => Yii::app()->user->company_id))",
+          ),
+          array('allow',
+              'actions' => array('edit'),
+              'expression' => "Yii::app()->user->checkAccess('Edit SKU Status', array('company_id' => Yii::app()->user->company_id))",
+          ),
+          array('allow',
+              'actions' => array('delete'),
+              'expression' => "Yii::app()->user->checkAccess('Delete SKU Status', array('company_id' => Yii::app()->user->company_id))",
+          ),
+          array('deny', // deny all users
+              'users' => array('*'),
+          ),
+      );
+   }
 
-    public function actionData() {
+   public function actionData() {
 
-        SkuStatus::model()->search_string = $_GET['search']['value'] != "" ? $_GET['search']['value'] : null;
+      SkuStatus::model()->search_string = $_GET['search']['value'] != "" ? $_GET['search']['value'] : null;
 
-        $dataProvider = SkuStatus::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'], $_GET['columns']);
+      $dataProvider = SkuStatus::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'], $_GET['columns']);
 
-        $count = SkuStatus::model()->countByAttributes(array('company_id' => Yii::app()->user->company_id));
+      $count = SkuStatus::model()->countByAttributes(array('company_id' => Yii::app()->user->company_id));
 
-        $output = array(
-            "draw" => intval($_GET['draw']),
-            "recordsTotal" => $count,
-            "recordsFiltered" => $dataProvider->totalItemCount,
-            "data" => array()
-        );
-
-
-
-        foreach ($dataProvider->getData() as $key => $value) {
-            $row = array();
-            $row['sku_status_id'] = $value->sku_status_id;
-            $row['status_name'] = $value->status_name;
-            $row['created_date'] = $value->created_date;
-            $row['created_by'] = $value->created_by;
-            $row['updated_date'] = $value->updated_date;
-            $row['updated_by'] = $value->updated_by;
+      $output = array(
+          "draw" => intval($_GET['draw']),
+          "recordsTotal" => $count,
+          "recordsFiltered" => $dataProvider->totalItemCount,
+          "data" => array()
+      );
 
 
-            $row['links'] = '<a class="view" title="View" data-toggle="tooltip" href="' . $this->createUrl('/library/skustatus/view', array('id' => $value->sku_status_id)) . '" data-original-title="View"><i class="fa fa-eye"></i></a>'
-                    . '&nbsp;<a class="update" title="Update" data-toggle="tooltip" href="' . $this->createUrl('/library/skustatus/update', array('id' => $value->sku_status_id)) . '" data-original-title="View"><i class="fa fa-pencil"></i></a>'
-                    . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="' . $this->createUrl('/library/skustatus/delete', array('id' => $value->sku_status_id)) . '" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
 
-            $output['data'][] = $row;
-        }
+      foreach ($dataProvider->getData() as $key => $value) {
+         $row = array();
+         $row['sku_status_id'] = $value->sku_status_id;
+         $row['status_name'] = $value->status_name;
+         $row['created_date'] = $value->created_date;
+         $row['created_by'] = $value->created_by;
+         $row['updated_date'] = $value->updated_date;
+         $row['updated_by'] = $value->updated_by;
 
-        echo json_encode($output);
-    }
 
-    /**
-     * Displays a particular model.
-     * @param integer $id the ID of the model to be displayed
-     */
-    public function actionView($id) {
-        $model = $this->loadModel($id);
+         $row['links'] = '<a class="view" title="View" data-toggle="tooltip" href="' . $this->createUrl('/library/skustatus/view', array('id' => $value->sku_status_id)) . '" data-original-title="View"><i class="fa fa-eye"></i></a>'
+                 . '&nbsp;<a class="update" title="Update" data-toggle="tooltip" href="' . $this->createUrl('/library/skustatus/update', array('id' => $value->sku_status_id)) . '" data-original-title="View"><i class="fa fa-pencil"></i></a>'
+                 . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="' . $this->createUrl('/library/skustatus/delete', array('id' => $value->sku_status_id)) . '" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
 
-        $this->pageTitle = 'View ' . Sku::SKU_LABEL . ' Status ' . $model->status_name;
+         $output['data'][] = $row;
+      }
 
-        $this->menu = array(
-            array('label' => 'Create ' . Sku::SKU_LABEL . ' Status', 'url' => array('create')),
-            array('label' => 'Update ' . Sku::SKU_LABEL . ' Status', 'url' => array('update', 'id' => $model->sku_status_id)),
-            array('label' => 'Delete ' . Sku::SKU_LABEL . ' Status', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->sku_status_id), 'confirm' => 'Are you sure you want to delete this item?')),
-            array('label' => 'Manage ' . Sku::SKU_LABEL . ' Status', 'url' => array('admin')),
-            '',
-            array('label' => 'Help', 'url' => '#'),
-        );
+      echo json_encode($output);
+   }
 
-        $this->render('view', array(
-            'model' => $model,
-        ));
-    }
+   /**
+    * Displays a particular model.
+    * @param integer $id the ID of the model to be displayed
+    */
+   public function actionView($id) {
+      $model = $this->loadModel($id);
 
-    /**
-     * Creates a new model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     */
-    public function actionCreate() {
+      $this->pageTitle = 'View ' . Sku::SKU_LABEL . ' Status ' . $model->status_name;
 
-        $this->pageTitle = 'Create ' . Sku::SKU_LABEL . ' Status';
+      $this->menu = array(
+          array('label' => 'Create ' . Sku::SKU_LABEL . ' Status', 'url' => array('create')),
+          array('label' => 'Update ' . Sku::SKU_LABEL . ' Status', 'url' => array('update', 'id' => $model->sku_status_id)),
+          array('label' => 'Delete ' . Sku::SKU_LABEL . ' Status', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->sku_status_id), 'confirm' => 'Are you sure you want to delete this item?')),
+          array('label' => 'Manage ' . Sku::SKU_LABEL . ' Status', 'url' => array('admin')),
+          '',
+          array('label' => 'Help', 'url' => '#'),
+      );
 
-        $this->menu = array(
-            array('label' => 'Manage ' . Sku::SKU_LABEL . ' Status', 'url' => array('admin')),
-            '',
-            array('label' => 'Help', 'url' => '#'),
-        );
+      $this->render('view', array(
+          'model' => $model,
+      ));
+   }
 
-        $model = new SkuStatus('create');
+   /**
+    * Creates a new model.
+    * If creation is successful, the browser will be redirected to the 'view' page.
+    */
+   public function actionCreate() {
 
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
+      $this->pageTitle = 'Create ' . Sku::SKU_LABEL . ' Status';
 
-        if (isset($_POST['SkuStatus'])) {
-            $model->attributes = $_POST['SkuStatus'];
-            $model->company_id = Yii::app()->user->company_id;
-            $model->created_by = Yii::app()->user->name;
-            unset($model->created_date);
-            $model->sku_status_id = Globals::generateV4UUID();
+      $this->menu = array(
+          array('label' => 'Manage ' . Sku::SKU_LABEL . ' Status', 'url' => array('admin')),
+          '',
+          array('label' => 'Help', 'url' => '#'),
+      );
 
-            if ($model->save()) {
-                Yii::app()->user->setFlash('success', "Successfully created");
-                $this->redirect(array('view', 'id' => $model->sku_status_id));
+      $model = new SkuStatus('create');
+
+      // Uncomment the following line if AJAX validation is needed
+      // $this->performAjaxValidation($model);
+
+      if (isset($_POST['SkuStatus'])) {
+         $model->attributes = $_POST['SkuStatus'];
+         $model->company_id = Yii::app()->user->company_id;
+         $model->created_by = Yii::app()->user->name;
+         unset($model->created_date);
+         $model->sku_status_id = Globals::generateV4UUID();
+
+         if ($model->save()) {
+            Yii::app()->user->setFlash('success', "Successfully created");
+            $this->redirect(array('view', 'id' => $model->sku_status_id));
+         }
+      }
+
+      $this->render('create', array(
+          'model' => $model,
+      ));
+   }
+
+   /**
+    * Updates a particular model.
+    * If update is successful, the browser will be redirected to the 'view' page.
+    * @param integer $id the ID of the model to be updated
+    */
+   public function actionUpdate($id) {
+      $model = $this->loadModel($id);
+
+      $this->menu = array(
+          array('label' => 'Create ' . Sku::SKU_LABEL . ' Status', 'url' => array('create')),
+          array('label' => 'View ' . Sku::SKU_LABEL . ' Status', 'url' => array('view', 'id' => $model->sku_status_id)),
+          array('label' => 'Manage ' . Sku::SKU_LABEL . ' Status', 'url' => array('admin')),
+          '',
+          array('label' => 'Help', 'url' => '#'),
+      );
+
+      $this->pageTitle = 'Update ' . Sku::SKU_LABEL . ' Status ' . $model->status_name;
+
+      // Uncomment the following line if AJAX validation is needed
+      // $this->performAjaxValidation($model);
+
+      if (isset($_POST['SkuStatus'])) {
+         $model->attributes = $_POST['SkuStatus'];
+         $model->updated_by = Yii::app()->user->name;
+         $model->updated_date = date('Y-m-d H:i:s');
+
+         if ($model->save()) {
+            Yii::app()->user->setFlash('success', "Successfully updated");
+            $this->redirect(array('view', 'id' => $model->sku_status_id));
+         }
+      }
+
+      $this->render('update', array(
+          'model' => $model,
+      ));
+   }
+
+   /**
+    * Deletes a particular model.
+    * If deletion is successful, the browser will be redirected to the 'admin' page.
+    * @param integer $id the ID of the model to be deleted
+    */
+   public function actionDelete($id) {
+      if (Yii::app()->request->isPostRequest) {
+         try {
+            // we only allow deletion via POST request
+            $this->loadModel($id)->delete();
+
+            // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+            if (!isset($_GET['ajax'])) {
+               Yii::app()->user->setFlash('success', "Successfully deleted");
+               $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+            } else {
+
+               echo "Successfully deleted";
+               exit;
             }
-        }
-
-        $this->render('create', array(
-            'model' => $model,
-        ));
-    }
-
-    /**
-     * Updates a particular model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id the ID of the model to be updated
-     */
-    public function actionUpdate($id) {
-        $model = $this->loadModel($id);
-
-        $this->menu = array(
-            array('label' => 'Create ' . Sku::SKU_LABEL . ' Status', 'url' => array('create')),
-            array('label' => 'View ' . Sku::SKU_LABEL . ' Status', 'url' => array('view', 'id' => $model->sku_status_id)),
-            array('label' => 'Manage ' . Sku::SKU_LABEL . ' Status', 'url' => array('admin')),
-            '',
-            array('label' => 'Help', 'url' => '#'),
-        );
-
-        $this->pageTitle = 'Update ' . Sku::SKU_LABEL . ' Status ' . $model->status_name;
-
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
-
-        if (isset($_POST['SkuStatus'])) {
-            $model->attributes = $_POST['SkuStatus'];
-            $model->updated_by = Yii::app()->user->name;
-            $model->updated_date = date('Y-m-d H:i:s');
-
-            if ($model->save()) {
-                Yii::app()->user->setFlash('success', "Successfully updated");
-                $this->redirect(array('view', 'id' => $model->sku_status_id));
+         } catch (CDbException $e) {
+            if ($e->errorInfo[1] == 1451) {
+               if (!isset($_GET['ajax'])) {
+                  Yii::app()->user->setFlash('danger', "Unable to deleted");
+                  $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('view', 'id' => $id));
+               } else {
+                  echo "1451";
+                  exit;
+               }
             }
-        }
+         }
+      } else
+         throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+   }
 
-        $this->render('update', array(
-            'model' => $model,
-        ));
-    }
+   /**
+    * Lists all models.
+    */
+   public function actionIndex() {
+      $dataProvider = new CActiveDataProvider('SkuStatus');
 
-    /**
-     * Deletes a particular model.
-     * If deletion is successful, the browser will be redirected to the 'admin' page.
-     * @param integer $id the ID of the model to be deleted
-     */
-    public function actionDelete($id) {
-        if (Yii::app()->request->isPostRequest) {
-            try {
-                // we only allow deletion via POST request
-                $this->loadModel($id)->delete();
+      $this->render('index', array(
+          'dataProvider' => $dataProvider,
+      ));
+   }
 
-                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-                if (!isset($_GET['ajax'])) {
-                    Yii::app()->user->setFlash('success', "Successfully deleted");
-                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-                } else {
+   /**
+    * Manages all models.
+    */
+   public function actionAdmin() {
+      $this->layout = '//layouts/column1';
+      $this->pageTitle = 'Manage ' . Sku::SKU_LABEL . ' Status';
 
-                    echo "Successfully deleted";
-                    exit;
-                }
-            } catch (CDbException $e) {
-                if ($e->errorInfo[1] == 1451) {
-                    if (!isset($_GET['ajax'])) {
-                        Yii::app()->user->setFlash('danger', "Unable to deleted");
-                        $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('view', 'id' => $id));
-                    } else {
-                        echo "1451";
-                        exit;
-                    }
-                }
-            }
-        } else
-            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
-    }
+      $model = new SkuStatus('search');
+      $model->unsetAttributes();  // clear any default values
+      if (isset($_GET['SkuStatus']))
+         $model->attributes = $_GET['SkuStatus'];
 
-    /**
-     * Lists all models.
-     */
-    public function actionIndex() {
-        $dataProvider = new CActiveDataProvider('SkuStatus');
+      $this->render('admin', array(
+          'model' => $model,
+      ));
+   }
 
-        $this->render('index', array(
-            'dataProvider' => $dataProvider,
-        ));
-    }
+   /**
+    * Returns the data model based on the primary key given in the GET variable.
+    * If the data model is not found, an HTTP exception will be raised.
+    * @param integer the ID of the model to be loaded
+    */
+   public function loadModel($id) {
+      $model = SkuStatus::model()->findByAttributes(array('sku_status_id' => $id, 'company_id' => Yii::app()->user->company_id));
+      if ($model === null)
+         throw new CHttpException(404, 'The requested page does not exist.');
 
-    /**
-     * Manages all models.
-     */
-    public function actionAdmin() {
-        $this->layout = '//layouts/column1';
-        $this->pageTitle = 'Manage ' . Sku::SKU_LABEL . ' Status';
+      return $model;
+   }
 
-        $model = new SkuStatus('search');
-        $model->unsetAttributes();  // clear any default values
-        if (isset($_GET['SkuStatus']))
-            $model->attributes = $_GET['SkuStatus'];
-
-        $this->render('admin', array(
-            'model' => $model,
-        ));
-    }
-
-    /**
-     * Returns the data model based on the primary key given in the GET variable.
-     * If the data model is not found, an HTTP exception will be raised.
-     * @param integer the ID of the model to be loaded
-     */
-    public function loadModel($id) {
-        $model = SkuStatus::model()->findByAttributes(array('sku_status_id' => $id, 'company_id' => Yii::app()->user->company_id));
-        if ($model === null)
-            throw new CHttpException(404, 'The requested page does not exist.');
-
-        return $model;
-    }
-
-    /**
-     * Performs the AJAX validation.
-     * @param CModel the model to be validated
-     */
-    protected function performAjaxValidation($model) {
-        if (isset($_POST['ajax']) && $_POST['ajax'] === 'sku-status-form') {
-            echo CActiveForm::validate($model);
-            Yii::app()->end();
-        }
-    }
+   /**
+    * Performs the AJAX validation.
+    * @param CModel the model to be validated
+    */
+   protected function performAjaxValidation($model) {
+      if (isset($_POST['ajax']) && $_POST['ajax'] === 'sku-status-form') {
+         echo CActiveForm::validate($model);
+         Yii::app()->end();
+      }
+   }
 
 }
