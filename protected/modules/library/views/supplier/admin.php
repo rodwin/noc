@@ -120,8 +120,8 @@ return false;
                     
                table.fnMultiFilter();
             },
-            error: function(jqXHR, exception) {
-               alert('An error occured: '+ exception);
+            error: function(status, exception) {
+               alert(status.responseText);
             }
          });  
          return false;

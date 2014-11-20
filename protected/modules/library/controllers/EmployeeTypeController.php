@@ -28,16 +28,28 @@ class EmployeeTypeController extends Controller
     {
         return array(
             array('allow',  // allow all users to perform 'index' and 'view' actions
-                'actions'=>array('index','view'),
+                'actions'=>array('index','view', 'data'),
                 'users'=>array('@'),
             ),
-            array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions'=>array('create','update','data'),
-                'users'=>array('@'),
+            array('allow',
+                'actions' => array('admin'),
+                'expression' => "Yii::app()->user->checkAccess('Manage Employee Type', array('company_id' => Yii::app()->user->company_id))",
             ),
-            array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions'=>array('admin','delete'),
-                'users'=>array('@'),
+            array('allow',
+                'actions' => array('create'),
+                'expression' => "Yii::app()->user->checkAccess('Add Employee Type', array('company_id' => Yii::app()->user->company_id))",
+            ),
+            array('allow',
+                'actions' => array('view'),
+                'expression' => "Yii::app()->user->checkAccess('View Employee Type', array('company_id' => Yii::app()->user->company_id))",
+            ),
+            array('allow',
+                'actions' => array('edit'),
+                'expression' => "Yii::app()->user->checkAccess('Edit Employee Type', array('company_id' => Yii::app()->user->company_id))",
+            ),
+            array('allow',
+                'actions' => array('delete'),
+                'expression' => "Yii::app()->user->checkAccess('Delete Employee Type', array('company_id' => Yii::app()->user->company_id))",
             ),
             array('deny',  // deny all users
                 'users'=>array('*'),

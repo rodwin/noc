@@ -81,7 +81,7 @@ class DeliveryLeadTimeReportForm extends CFormModel {
                ";
             break;
          case "SO":
-            $sql = "SELECT d.sales_office_name, e.short_name, b.campaign_no, b.pr_no, a.rra_no, a.rra_date, a.dr_no, a.dr_date, b.plan_arrival_date, a.transaction_date
+            $sql = "SELECT d.sales_office_name, e.short_name, b.campaign_no, b.pr_no, a.rra_no, a.rra_date, a.dr_no, a.plan_delivery_date, b.plan_arrival_date, a.transaction_date
                FROM  customer_item a
                INNER JOIN customer_item_detail b ON b.customer_item_id = a.customer_item_id 
                INNER JOIN zone c ON c.zone_id = b.source_zone_id

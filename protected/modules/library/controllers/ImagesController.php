@@ -25,16 +25,28 @@ class ImagesController extends Controller {
    public function accessRules() {
       return array(
           array('allow', // allow all users to perform 'index' and 'view' actions
-              'actions' => array('index', 'view', 'upload', 'uploadImage', 'ajaxLoadImages', 'deleteMultiple'),
+              'actions' => array('index', 'view', 'data', 'upload', 'uploadImage', 'ajaxLoadImages', 'deleteMultiple'),
               'users' => array('@'),
           ),
-          array('allow', // allow authenticated user to perform 'create' and 'update' actions
-              'actions' => array('create', 'update', 'data'),
-              'users' => array('@'),
+          array('allow',
+              'actions' => array('admin'),
+              'expression' => "Yii::app()->user->checkAccess('Manage Images', array('company_id' => Yii::app()->user->company_id))",
           ),
-          array('allow', // allow admin user to perform 'admin' and 'delete' actions
-              'actions' => array('admin', 'delete'),
-              'users' => array('@'),
+          array('allow',
+              'actions' => array('create'),
+              'expression' => "Yii::app()->user->checkAccess('Add Images', array('company_id' => Yii::app()->user->company_id))",
+          ),
+          array('allow',
+              'actions' => array('view'),
+              'expression' => "Yii::app()->user->checkAccess('View Images', array('company_id' => Yii::app()->user->company_id))",
+          ),
+          array('allow',
+              'actions' => array('edit'),
+              'expression' => "Yii::app()->user->checkAccess('Edit Images', array('company_id' => Yii::app()->user->company_id))",
+          ),
+          array('allow',
+              'actions' => array('delete'),
+              'expression' => "Yii::app()->user->checkAccess('Delete Images', array('company_id' => Yii::app()->user->company_id))",
           ),
           array('deny', // deny all users
               'users' => array('*'),
@@ -157,12 +169,11 @@ class ImagesController extends Controller {
          $file_name = str_replace(' ', '_', strtolower($file->name));
          $url = Yii::app()->getBaseUrl(true) . '/images/' . Yii::app()->user->company_id . '/' . $file_name;
          if (@fopen($url, "r")) {
-             //existing
+            //existing
             throw new CHttpException(409, "Could not upload file. File already exist " . CHtml::errorSummary($model));
-            
          } else {
             //not existing
-            
+
             $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
             $model->image_id = Globals::generateV4UUID();
@@ -343,7 +354,7 @@ class ImagesController extends Controller {
             // we only allow deletion via POST request
             $this->deletebyurl($id);
             $this->loadModel($id)->delete();
-            
+
 
 //                SkuImage::model()->findByAttributes(array('image_id' => $id, 'company_id' => Yii::app()->user->company_id))->delete();
 
@@ -410,26 +421,24 @@ class ImagesController extends Controller {
          Yii::app()->end();
       }
    }
-   
-   function deletebyurl($id)
-   {
-    
+
+   function deletebyurl($id) {
+
       $sql = "SELECT url FROM noc.images WHERE image_id = :image_id";
 
       $command = Yii::app()->db->createCommand($sql);
       $command->bindParam(':image_id', $id, PDO::PARAM_STR);
       $data = $command->queryAll();
       foreach ($data as $key => $value) {
-            $url = $value['url'];
-         }
-         //$url = substr($url, 16);
-         $base = Yii::app()->getBaseUrl(true);
-         $arr = explode("/", $base); 
-         $base = $arr[count($arr) - 1];
-         $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
-         //pre('../' .$base . $url);
-      unlink('../' .$base . $url);
-     
+         $url = $value['url'];
+      }
+      //$url = substr($url, 16);
+      $base = Yii::app()->getBaseUrl(true);
+      $arr = explode("/", $base);
+      $base = $arr[count($arr) - 1];
+      $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
+      //pre('../' .$base . $url);
+      unlink('../' . $base . $url);
    }
 
 }
