@@ -87,10 +87,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <tr >
                            <td align = "center" rowspan ="2">SUPPLIER</td>
                            <td align = "center" rowspan ="2">WAREHOUSE</td>
-                           <td align = "center" rowspan ="2">CAMPAIGN NO.</td>
+                           <td align = "center" rowspan ="2">PO NO.</td>
                            <td align = "center" rowspan ="2">PR NO.</td>
                            <td align = "center" rowspan ="2">PR DATE</td>
-                           <td align = "center" rowspan ="2">PLAN DATE</td>
+                           <td align = "center" rowspan ="2">PLAN DELIVERY DATE</td>
                            <td align = "center" rowspan ="2">DR NO.</td>
 <!--                           <td align = "center" rowspan ="2">DR DATE</td>-->
                            <td align = "center" rowspan ="2">DR RECEIVED</td>
@@ -98,7 +98,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         </tr>
                         <tr>
                            <td>PR DATE</td>
-                           <td>DR DATE</td>
+                           <td>PLAN DELIVERY DATE</td>
                         </tr>
                      </thead>
                      <tbody> <?php $ctr = 0; ?>  
@@ -116,7 +116,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                               <td><?php echo round((strtotime($val['transaction_date']) - strtotime($val['pr_date'])) / (60 * 60 * 24)) ?></td>
                               <td><?php
                                  if (!empty($val['plan_delivery_date'])) {
-                                    echo round((strtotime($val['transaction_date']) - strtotime($val['plan_delivery_date'])) / (60 * 60 * 24));
+                                    echo round((strtotime($val['plan_delivery_date']) - strtotime($val['transaction_date'])) / (60 * 60 * 24));
                                  } else {
                                     echo '--';
                                  }
@@ -141,7 +141,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                            <td align = "center" rowspan ="2">CAMPAIGN NO.</td>
                            <td align = "center" rowspan ="2">PR NO.</td>
                            <td align = "center" rowspan ="2">PR DATE</td>
-                           <td align = "center" rowspan ="2">DATE PR RECEIVED</td>
+                           <td align = "center" rowspan ="2">PLAN DELIVERY DATE</td>
                            <td align = "center" rowspan ="2">DR NO.</td>
 <!--                           <td align = "center" rowspan ="2">DR DATE</td>-->
                            <td align = "center" rowspan ="2">DR RECEIVED</td>
@@ -149,7 +149,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         </tr>
                         <tr>
                            <td>PR DATE</td>
-                           <td>DR DATE</td>
+                           <td>PLAN DELIVERY DATE</td>
                         </tr>
                      </thead>
                      <tbody> <?php $ctr = 0; ?>  
@@ -194,18 +194,18 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <tr >
                            <td align = "center" rowspan ="2">SALES OFFICE</td>
                            <td align = "center" rowspan ="2">OUTLET</td>
-                           <td align = "center" rowspan ="2">CAMPAIGN NO.</td>
+                           <td align = "center" rowspan ="2">PO NO.</td>
                            <td align = "center" rowspan ="2">PR NO.</td>
-                           <td align = "center" rowspan ="2">RRA NO.</td>
-                           <td align = "center" rowspan ="2">RRA DATE</td>
+                           <td align = "center" rowspan ="2">RA NO.</td>
+                           <td align = "center" rowspan ="2">RA DATE</td>
                            <td align = "center" rowspan ="2">DR NO.</td>
-<!--                           <td align = "center" rowspan ="2">DR DATE</td>-->
+                           <td align = "center" rowspan ="2">PLAN DELIVERY DATE</td>
                            <td align = "center" rowspan ="2">DR RECEIVED</td>
                            <td align = "center" colspan ="2">DELIVERY LEAD TIME</td>                     
                         </tr>
                         <tr>
-                           <td>RRA DATE</td>
-                           <td>DR DATE</td>
+                           <td>RA DATE</td>
+                           <td>PLAN DELIVERY DATE</td>
                         </tr>
                      </thead>
                      <tbody> <?php $ctr = 0; ?>  
@@ -218,7 +218,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                               <td><?php echo $val['rra_no'] ?></td>
                               <td><?php echo $val['rra_date'] ?></td>
                               <td><?php echo $val['dr_no'] ?></td>
-<!--                              <td><?php echo $val['dr_date'] ?></td>-->
+                              <td><?php echo $val['plan_delivery_date'] ?></td>
                               <td><?php echo $val['transaction_date'] ?></td>
                               <td><?php 
                                     if (!empty($val['rra_date'])) {
@@ -228,8 +228,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                     }
                               ?></td>
                               <td><?php
-                                    if (!empty($val['dr_date'])) {
-                                       echo round((strtotime($val['dr_date']) - strtotime($val['transaction_date'])) / (60 * 60 * 24));
+                                    if (!empty($val['plan_delivery_date'])) {
+                                       echo round((strtotime($val['plan_delivery_date']) - strtotime($val['transaction_date'])) / (60 * 60 * 24));
                                     } else {
                                        echo '--';
                                     }
