@@ -79,7 +79,7 @@ $this->breadcrumbs = array(
                 <table id="customer-item-details_table" class="table table-bordered">
                     <thead>
                         <tr>
-                            <th><?php echo $customerItemFields['campaign_no']; ?></th>
+                            <th><?php echo $customerItemFields['po_no']; ?></th>
                             <th><?php echo $customerItemFields['pr_no']; ?></th>
                             <th><?php echo $skuFields['sku_code']; ?></th>
                             <th><?php echo $skuFields['description']; ?></th>
@@ -330,7 +330,7 @@ $this->breadcrumbs = array(
 
                 $.each(data.data, function(i, v) {
                     customer_item_detail_table.fnAddData([
-                        v.campaign_no,
+                        v.po_no,
                         v.pr_no,
                         v.sku_code,
                         v.sku_description,

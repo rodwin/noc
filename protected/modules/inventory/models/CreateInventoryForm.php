@@ -78,6 +78,7 @@ class CreateInventoryForm extends CFormModel {
     public $pr_date;
     public $plan_arrival_date;
     public $revised_delivery_date;
+    public $po_no;
 
     /**
      * Declares the validation rules.
@@ -224,11 +225,11 @@ class CreateInventoryForm extends CFormModel {
                     'zone_id' => $this->default_zone_id,
                     'sku_status_id' => $this->sku_status_id,
                     'expiration_date' => $this->unique_date,
-                    'campaign_no' => $this->campaign_no,
+                    'po_no' => $this->po_no,
                     'pr_no' => $this->pr_no,
                     'pr_date' => $this->pr_date,
                     'plan_arrival_date' => $this->plan_arrival_date,
-                    'revised_delivery_date' => $this->revised_delivery_date,
+//                    'revised_delivery_date' => $this->revised_delivery_date,
                 )
         );
 
@@ -254,11 +255,11 @@ class CreateInventoryForm extends CFormModel {
                 'transaction_date' => $this->transaction_date,
                 'expiration_date' => $this->unique_date,
                 'reference_no' => $this->unique_tag,
-                'campaign_no' => $this->campaign_no,
+                'po_no' => $this->po_no,
                 'pr_no' => $this->pr_no,
                 'pr_date' => $this->pr_date,
                 'plan_arrival_date' => $this->plan_arrival_date,
-                'revised_delivery_date' => $this->revised_delivery_date,
+//                'revised_delivery_date' => $this->revised_delivery_date,
             );
 
             $inventory->attributes = $inventory_data;

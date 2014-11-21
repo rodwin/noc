@@ -365,7 +365,7 @@ class ProofOfDeliveryController extends Controller {
             $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
             $row['return_date'] = $value->return_date;
             $row['remarks'] = $value->remarks;
-            $row['campaign_no'] = $value->campaign_no;
+            $row['po_no'] = $value->po_no;
             $row['pr_no'] = $value->pr_no;
             $row['status'] = $value->status;
 

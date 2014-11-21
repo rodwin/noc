@@ -100,6 +100,10 @@ class ReceivingInventoryController extends Controller {
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
             $row['updated_by'] = $value->updated_by;
+            $row['po_no'] = $value->po_no;
+            $row['po_date'] = $value->po_date;
+            $row['rra_no'] = $value->rra_no;
+            $row['rra_date'] = $value->rra_date;
 
             $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/receivinginventory/view', array('id' => $value->receiving_inventory_id)) . '">
                                 <i class="glyphicon glyphicon-eye-open"></i>
@@ -841,7 +845,7 @@ class ReceivingInventoryController extends Controller {
         $headers['transaction_date'] = $receiving_inv['transaction_date'];
         $headers['plan_delivery_date'] = $receiving_inv['plan_delivery_date'];
 
-        $headers['campaign_no'] = $receiving_inv['campaign_no'];
+        $headers['po_no'] = $receiving_inv['po_no'];
         $headers['pr_no'] = $receiving_inv['pr_no'];
         $headers['pr_date'] = $receiving_inv['pr_date'];
         $headers['dr_no'] = $receiving_inv['dr_no'];
@@ -939,7 +943,7 @@ class ReceivingInventoryController extends Controller {
         <table class="table_main">
             <tr>
                 <td clss="row_label" style="font-weight: bold; width: 50px;">PO no.</td>
-                <td class="border-bottom" style="width: 130px;">' . $headers['campaign_no'] . '</td>
+                <td class="border-bottom" style="width: 130px;">' . $headers['po_no'] . '</td>
                 <td style="width: 10px;"></td>
                 <td clss="row_label" style="font-weight: bold; width: 100px;">DESTINATION ZONE</td>
                 <td class="border-bottom" style="width: 390px;">' . $destination['zone_name'] . '</td>
@@ -952,7 +956,7 @@ class ReceivingInventoryController extends Controller {
                 <td class="border-bottom">' . $source['supplier_name'] . '</td>
             </tr>
             <tr>
-                <td style="font-weight: bold;">PR DATE</td>
+                <td style="font-weight: bold;">PR date</td>
                 <td class="border-bottom">' . $headers['pr_date'] . '</td>
                 <td></td>
                 <td style="font-weight: bold;">CONTACT PERSON</td>
@@ -1133,7 +1137,7 @@ class ReceivingInventoryController extends Controller {
         $headers['transaction_date'] = $receiving_inv->transaction_date;
         $headers['plan_delivery_date'] = $receiving_inv->plan_delivery_date;
 
-        $headers['campaign_no'] = $receiving_inv->campaign_no;
+        $headers['po_no'] = $receiving_inv->po_no;
         $headers['pr_no'] = $receiving_inv->pr_no;
         $headers['pr_date'] = $receiving_inv->pr_date;
         $headers['dr_no'] = $receiving_inv->dr_no;

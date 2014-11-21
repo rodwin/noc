@@ -255,11 +255,32 @@ class OutgoingInventory extends CActiveRecord {
                 break;
         }
 
+        $zone_arr = array();
+        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
+        $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
+
+        if (count($zones) > 0) {
+            foreach ($zones as $key => $val) {
+                $zone_arr[] = $key;
+            }
+        }
+
+        $c1 = new CDbCriteria;
+        $c1->condition = "t.source_zone_id IN (" . Yii::app()->user->zones . ")";
+        $c1->group = "t.outgoing_inventory_id";
+        $outgoing_inv_detail = OutgoingInventoryDetail::model()->findAll($c1);
+
+        $outgoing_inv_id_arr = array();
+        if (count($outgoing_inv_detail) > 0) {
+            foreach ($outgoing_inv_detail as $key1 => $val1) {
+                $outgoing_inv_id_arr[] = $val1->outgoing_inventory_id;
+            }
+        }
 
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
-        $criteria->compare('t.dr_no', $columns[0]['search']['value']);
-        $criteria->compare('t.dr_date', $columns[1]['search']['value']);
+        $criteria->compare('t.dr_no', $columns[0]['search']['value'], true);
+        $criteria->compare('t.dr_date', $columns[1]['search']['value'], true);
         $criteria->compare('t.rra_no', $columns[2]['search']['value'], true);
         $criteria->compare('t.rra_date', $columns[3]['search']['value'], true);
         $criteria->compare('zone.zone_name', $columns[4]['search']['value'], true);
@@ -273,17 +294,7 @@ class OutgoingInventory extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
         $criteria->with = array("zone");
-        $criteria->join = "INNER JOIN outgoing_inventory_detail ON outgoing_inventory_detail.outgoing_inventory_id = t.outgoing_inventory_id";
-        
-        $arr = array();        
-        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
-        $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
-        
-        foreach ($zones as $key => $val) {
-            $arr[] = $key;
-        }
-        
-        $criteria->addInCondition('outgoing_inventory_detail.source_zone_id', $arr);
+        $criteria->addInCondition('t.outgoing_inventory_id', $outgoing_inv_id_arr);
         
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,

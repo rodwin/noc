@@ -79,10 +79,6 @@ $this->breadcrumbs = array(
                     <td><?php echo $model->plan_delivery_date; ?></td>
                 </tr>
                 <tr>
-                    <td><strong><?php echo $receivingFields['dr_no']; ?>:</strong></td>
-                    <td><?php echo $model->dr_no != "" ? $model->dr_no : $not_set; ?></td>
-                </tr>
-                <tr>
                     <td><strong><?php echo $receivingFields['pr_no']; ?>:</strong></td>
                     <td><?php echo $model->pr_no != "" ? $model->pr_no : $not_set; ?></td>
                 </tr>
@@ -91,8 +87,22 @@ $this->breadcrumbs = array(
                     <td><?php echo $model->pr_date != "" ? $model->pr_date : $not_set; ?></td>
                 </tr>
                 <tr>
-                    <td><strong><?php echo $receivingFields['campaign_no']; ?>:</strong></td>
-                    <td><?php echo $model->campaign_no != "" ? $model->campaign_no : $not_set; ?></td>
+                    <td><strong><?php echo $receivingFields['po_no']; ?>:</strong></td>
+                    <td><?php echo $model->po_no != "" ? $model->po_no : $not_set; ?></td>
+                </tr>
+                    <td><strong><?php echo $receivingFields['po_date']; ?>:</strong></td>
+                    <td><?php echo $model->po_date != "" ? $model->po_date : $not_set; ?></td>
+                </tr>
+                <tr>
+                    <td><strong><?php echo $receivingFields['rra_no']; ?>:</strong></td>
+                    <td><?php echo $model->rra_no != "" ? $model->rra_no : $not_set; ?></td>
+                </tr>
+                    <td><strong><?php echo $receivingFields['rra_date']; ?>:</strong></td>
+                    <td><?php echo $model->rra_date != "" ? $model->rra_date : $not_set; ?></td>
+                </tr>
+                <tr>
+                    <td><strong><?php echo $receivingFields['dr_no']; ?>:</strong></td>
+                    <td><?php echo $model->dr_no != "" ? $model->dr_no : $not_set; ?></td>
                 </tr>
             </table>
 

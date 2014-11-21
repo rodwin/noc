@@ -142,8 +142,8 @@ class IncomingInventoryController extends Controller {
         $zone_ids = "";
         $pr_nos = "";
         $pr_no_arr = array();
-        $campaign_nos = "";
-        $campaign_no_arr = array();
+        $po_nos = "";
+        $po_no_arr = array();
         $pr_dates = "";
         $pr_dates_arr = array();
         foreach ($incoming_detail as $key => $val) {
@@ -154,9 +154,9 @@ class IncomingInventoryController extends Controller {
                 $pr_nos .= $val->pr_no . ",";
             }
 
-            if (!in_array($val->campaign_no, $campaign_no_arr)) {
-                array_push($campaign_no_arr, $val->campaign_no);
-                $campaign_nos .= $val->campaign_no . ",";
+            if (!in_array($val->po_no, $po_no_arr)) {
+                array_push($po_no_arr, $val->po_no);
+                $po_nos .= $val->po_no . ",";
             }
 
             if (!in_array($val->pr_date, $pr_dates_arr)) {
@@ -167,7 +167,7 @@ class IncomingInventoryController extends Controller {
 
         $pr_nos = substr($pr_nos, 0, -1);
         $pr_dates = substr($pr_dates, 0, -1);
-        $campaign_nos = substr($campaign_nos, 0, -1);
+        $po_nos = substr($po_nos, 0, -1);
 
 
         $this->render('view', array(
@@ -175,7 +175,7 @@ class IncomingInventoryController extends Controller {
             'destination' => $destination,
             'pr_nos' => $pr_nos,
             'pr_dates' => $pr_dates,
-            'campaign_nos' => $campaign_nos,
+            'po_nos' => $po_nos,
         ));
     }
 
@@ -473,7 +473,7 @@ class IncomingInventoryController extends Controller {
             $row['return_date'] = $value->return_date;
             $row['status'] = $status;
             $row['remarks'] = $value->remarks;
-            $row['campaign_no'] = $value->campaign_no;
+            $row['po_no'] = $value->po_no;
             $row['pr_no'] = $value->pr_no;
 
             $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/incomingInventory/deleteIncomingDetail', array('incoming_inv_detail_id' => $value->incoming_inventory_detail_id)) . '">
@@ -1011,7 +1011,7 @@ class IncomingInventoryController extends Controller {
                 <td class="border-bottom">' . "" . '</td>
             </tr>
             <tr>
-                <td style="font-weight: bold;">DR DATE</td>
+                <td style="font-weight: bold;">DR date</td>
                 <td class="border-bottom">' . $headers['dr_date'] . '</td>
             </tr>
         </table><br/><br/><br/>

@@ -411,7 +411,7 @@ class InventoryController extends Controller {
             $row['pr_date'] = $value->pr_date;
             $row['plan_arrival_date'] = $value->plan_arrival_date;
             $row['revised_delivery_date'] = $value->revised_delivery_date;
-
+            $row['po_no'] = $value->po_no;
 
             $row['links'] = '<a class="btn btn-sm btn-default" title="Inventory Record History" href="' . $this->createUrl('/inventory/inventory/history', array('inventory_id' => $value->inventory_id)) . '">
                                 <i class="glyphicon glyphicon-time"></i>
@@ -707,6 +707,7 @@ class InventoryController extends Controller {
             $row['transaction_type'] = '<a href="#" title="Click to view" data-toggle="tooltip"><b>' . strtoupper(OutgoingInventory::OUTGOING_LABEL) . '</b></a>';
             $row['ra_date'] = date("d-M", strtotime($val->rra_date));
             $row['dr_date'] = date("d-M", strtotime($val->dr_date));
+            $row['delivery_date'] = date("d-M", strtotime($val->transaction_date));
             $row['status'] = $status;
             $row['created_date'] = $val->created_date;
 
@@ -727,21 +728,43 @@ class InventoryController extends Controller {
             $row['transaction_type'] = '<a href="#" title="Click to view" data-toggle="tooltip"><b>' . strtoupper(CustomerItem::CUSTOMER_ITEM_LABEL) . '</b></a>';
             $row['ra_date'] = date("d-M", strtotime($val1->rra_date));
             $row['dr_date'] = date("d-M", strtotime($val1->dr_date));
+            $row['delivery_date'] = date("d-M", strtotime($val1->transaction_date));
             $row['status'] = $status;
             $row['created_date'] = $val1->created_date;
 
             $outgoing_arr[] = $row;
         }
+        
+        $c2 = new CDbCriteria;
+        $c2->condition = "t.status = '" . OutgoingInventory::OUTGOING_PENDING_STATUS . "' AND t.destination_zone_id IN (" . Yii::app()->user->zones . ")";
+        $c2->join = "INNER JOIN outgoing_inventory_detail b ON b.outgoing_inventory_id = t.outgoing_inventory_id";
+        $outbound_for_inbound = OutgoingInventory::model()->findAll($c2);
 
-        $outbound_outgoing = array_merge($outbound_arr, $outgoing_arr);
+        $outbound_for_inbound_arr = array();
+        foreach ($outbound_for_inbound as $key2 => $val2) {
+            $row = array();
+
+            $status = Inventory::model()->status($val2->status);
+
+            $row['transaction_type'] = '<a href="#" title="Click to view" data-toggle="tooltip"><b>' . strtoupper(IncomingInventory::INCOMING_LABEL) . '</b></a>';
+            $row['ra_date'] = date("d-M", strtotime($val2->rra_date));
+            $row['dr_date'] = date("d-M", strtotime($val2->dr_date));
+            $row['delivery_date'] = date("d-M", strtotime($val2->transaction_date));
+            $row['status'] = $status;
+            $row['created_date'] = $val2->created_date;
+
+            $outbound_for_inbound_arr[] = $row;      
+        }
+
+        $notification_arr = array_merge($outbound_arr, $outgoing_arr, $outbound_for_inbound_arr);
         
         $sort['sort'] = array();
-        foreach ($outbound_outgoing as $key2 => $val2) {
-            $sort['sort'][$key2] = $val2['created_date'];
+        foreach ($notification_arr as $key3 => $val3) {
+            $sort['sort'][$key3] = $val3['created_date'];
         }
         
-        array_multisort($sort['sort'], SORT_DESC, $outbound_outgoing);
-        $output = $outbound_outgoing;
+        array_multisort($sort['sort'], SORT_DESC, $notification_arr);
+        $output = $notification_arr;
         
         echo json_encode($output);
         Yii::app()->end();

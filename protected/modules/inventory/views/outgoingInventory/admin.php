@@ -356,7 +356,7 @@ $this->breadcrumbs = array(
 
                 $.each(data.data, function(i, v) {
                     outgoing_inventory_table_detail.fnAddData([
-                        v.campaign_no,
+                        v.po_no,
                         v.pr_no,
                         v.sku_code,
                         v.sku_description,
