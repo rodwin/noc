@@ -545,7 +545,7 @@ class OutgoingInventoryController extends Controller {
 
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
                             $outgoing_inv_ids_to_be_delete = isset($_POST['outgoing_inv_ids']) ? $_POST['outgoing_inv_ids'] : "";
-
+                            
                             if ($outgoing->updateTransaction($outgoing, $outgoing_inv_ids_to_be_delete, $transaction_details)) {
                                 $data['outgoing_inv_id'] = Yii::app()->session['outgoing_inv_id_update_session'];
                                 unset(Yii::app()->session['outgoing_inv_id_update_session']);
@@ -1532,12 +1532,10 @@ class OutgoingInventoryController extends Controller {
         $data['success'] = false;
         $data["type"] = "success";
         $data['actual_qty'] = $actual_qty;
-        $data['new_inventory_id'] = false;
+        $data['qty_for_new_inventory'] = "";
 
         $inventory = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $inventory_id));
         $outgoing_inv_detail = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "outgoing_inventory_detail_id" => $outgoing_inv_detail_id));
-
-        $uom = Uom::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $outgoing_inv_detail->uom_id));
 
         $qty_issued = $outgoing_inv_detail->quantity_issued;
 
@@ -1547,6 +1545,7 @@ class OutgoingInventoryController extends Controller {
 
                 $data['message'] = 'Successfully updated';
                 $data['success'] = true;
+                $data['actual_qty'] = $new_actual_qty;
             } else if ($new_actual_qty > $qty_issued) {
 
                 $new_qty = $new_actual_qty - $qty_issued;
@@ -1555,29 +1554,12 @@ class OutgoingInventoryController extends Controller {
 
                     if ($inventory->qty > $new_qty || $inventory->qty == $new_qty) {
 
-                        $outgoing_inv_detail->quantity_issued = $outgoing_inv_detail->quantity_issued + $new_qty;
-                        $outgoing_inv_detail->updated_by = Yii::app()->user->name;
-                        $outgoing_inv_detail->updated_date = date("Y-m-d H:i:s");
-
-                        $decrease_inv = new DecreaseInventoryForm();
-                        $decrease_inv->inventoryObj = $inventory;
-                        $decrease_inv->qty = $new_qty;
-                        $decrease_inv->transaction_date = date("Y-m-d");
-                        $decrease_inv->created_by = Yii::app()->user->name;
-
-                        if ($decrease_inv->decrease(false) && $outgoing_inv_detail->save()) {
-
-                            $data['message'] = 'Successfully updated';
-                            $data['success'] = true;
-                            $data['actual_qty'] = $outgoing_inv_detail->quantity_issued;
-                        } else {
-
-                            $data['message'] = 'An error occured!';
-                            $data["type"] = "danger";
-                        }
+                        $data['message'] = 'Successfully updated';
+                        $data['success'] = true;
+                        $data['actual_qty'] = $new_actual_qty;
                     } else {
 
-                        $data['message'] = 'Source inventory quantity issued has only <b>' . $inventory->qty . " " . strtolower($uom->uom_name) . '</b> inventory on hand';
+                        $data['message'] = 'Source inventory quantity issued has only <b>' . $inventory->qty . " " . strtolower(isset($outgoing_inv_detail->uom) ? $outgoing_inv_detail->uom->uom_name : "") . '</b> inventory on hand';
                         $data["type"] = "danger";
                     }
                 } else {
@@ -1586,60 +1568,13 @@ class OutgoingInventoryController extends Controller {
                     $data["type"] = "danger";
                 }
             } else {
-
-                $new_qty = $new_actual_qty;
+                
                 $new_inv_qty = $qty_issued - $new_actual_qty;
-
-                $outgoing_inv_detail->quantity_issued = $outgoing_inv_detail->quantity_issued - $new_inv_qty;
-                $outgoing_inv_detail->updated_by = Yii::app()->user->name;
-                $outgoing_inv_detail->updated_date = date("Y-m-d H:i:s");
-
-                if ($inventory) {
-
-                    $increase_inv = new IncreaseInventoryForm();
-                    $increase_inv->inventoryObj = $inventory;
-                    $increase_inv->qty = $new_inv_qty;
-                    $increase_inv->transaction_date = date("Y-m-d");
-                    $increase_inv->created_by = Yii::app()->user->name;
-
-                    $increase_inv->increase(false);
-                } else {
-
-                    $sku_status_id = ($outgoing_inv_detail->sku_status_id != "" ? $outgoing_inv_detail->sku_status_id : null);
-                    $saved_inv = ReceivingInventoryDetail::model()->createInventory($outgoing_inv_detail->company_id, $outgoing_inv_detail->sku_id, $outgoing_inv_detail->uom_id, $outgoing_inv_detail->unit_price, $new_inv_qty, $outgoing_inv_detail->source_zone_id, date("Y-m-d"), Yii::app()->user->name, $outgoing_inv_detail->expiration_date, $outgoing_inv_detail->batch_no, $sku_status_id, $outgoing_inv_detail->campaign_no, $outgoing_inv_detail->pr_no, $outgoing_inv_detail->pr_date, $outgoing_inv_detail->plan_arrival_date, $outgoing_inv_detail->revised_delivery_date);
-
-                    if ($saved_inv) {
-
-                        $inv = Inventory::model()->findByAttributes(array(
-                            'sku_id' => $outgoing_inv_detail->sku_id,
-                            'company_id' => $outgoing_inv_detail->company_id,
-                            'uom_id' => $outgoing_inv_detail->uom_id,
-                            'zone_id' => $outgoing_inv_detail->source_zone_id,
-                            'sku_status_id' => $sku_status_id,
-                            'expiration_date' => $outgoing_inv_detail->expiration_date,
-                            'reference_no' => $outgoing_inv_detail->batch_no,
-                            'campaign_no' => $outgoing_inv_detail->campaign_no,
-                            'pr_no' => $outgoing_inv_detail->pr_no,
-                            'pr_date' => $outgoing_inv_detail->pr_date,
-                            'plan_arrival_date' => $outgoing_inv_detail->plan_arrival_date,
-                            'revised_delivery_date' => $outgoing_inv_detail->revised_delivery_date,
-                                ));
-
-                        $outgoing_inv_detail->inventory_id = $inv->inventory_id;
-                        $data['new_inventory_id'] = true;
-                    }
-                }
-
-                if ($outgoing_inv_detail->save()) {
-
-                    $data['message'] = 'Successfully updated';
-                    $data['success'] = true;
-                    $data['actual_qty'] = $outgoing_inv_detail->quantity_issued;
-                } else {
-
-                    $data['message'] = 'An error occured!';
-                    $data["type"] = "danger";
-                }
+                
+                $data['message'] = 'Successfully updated';
+                $data['success'] = true;
+                $data['actual_qty'] = $new_actual_qty;
+                $data['qty_for_new_inventory'] = $new_inv_qty;
             }
         } else {
 
