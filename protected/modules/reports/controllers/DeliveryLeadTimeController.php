@@ -212,7 +212,7 @@ class DeliveryLeadTimeController extends Controller {
                $row++;
                $objPHPExcel->getActiveSheet()->SetCellValue("B" . $row, $val['supplier_name']);
                $objPHPExcel->getActiveSheet()->SetCellValue("C" . $row, $val['sales_office_name']);
-               $objPHPExcel->getActiveSheet()->SetCellValue("D" . $row, $val['campaign_no']);
+               $objPHPExcel->getActiveSheet()->SetCellValue("D" . $row, $val['po_no']);
                $objPHPExcel->getActiveSheet()->SetCellValue("E" . $row, $val['pr_no']);
                $objPHPExcel->getActiveSheet()->SetCellValue("F" . $row, $val['pr_date']);
                $objPHPExcel->getActiveSheet()->SetCellValue("G" . $row, $val['plan_delivery_date']);
@@ -238,7 +238,7 @@ class DeliveryLeadTimeController extends Controller {
                $row++;
                $objPHPExcel->getActiveSheet()->SetCellValue("B" . $row, $val['warehouse']);
                $objPHPExcel->getActiveSheet()->SetCellValue("C" . $row, $val['sales_office_name']);
-               $objPHPExcel->getActiveSheet()->SetCellValue("D" . $row, $val['campaign_no']);
+               $objPHPExcel->getActiveSheet()->SetCellValue("D" . $row, $val['po_no']);
                $objPHPExcel->getActiveSheet()->SetCellValue("E" . $row, $val['pr_no']);
                $objPHPExcel->getActiveSheet()->SetCellValue("F" . $row, $val['pr_date']);
                $objPHPExcel->getActiveSheet()->SetCellValue("G" . $row, $val['plan_delivery_date']);
@@ -265,7 +265,7 @@ class DeliveryLeadTimeController extends Controller {
                $row++;
                $objPHPExcel->getActiveSheet()->SetCellValue("B" . $row, $val['sales_office_name']);
                $objPHPExcel->getActiveSheet()->SetCellValue("C" . $row, $val['short_name']);
-               $objPHPExcel->getActiveSheet()->SetCellValue("D" . $row, $val['campaign_no']);
+               $objPHPExcel->getActiveSheet()->SetCellValue("D" . $row, $val['po_no']);
                $objPHPExcel->getActiveSheet()->SetCellValue("E" . $row, $val['pr_no']);
                $objPHPExcel->getActiveSheet()->SetCellValue("F" . $row, $val['rra_no']);
                $objPHPExcel->getActiveSheet()->SetCellValue("G" . $row, $val['rra_date']);
