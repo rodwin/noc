@@ -79,12 +79,12 @@ $this->breadcrumbs = array(
                     <td><?php echo $model->plan_delivery_date; ?></td>
                 </tr>
                 <tr>
-                    <td><strong><?php echo $customerItemFields['dr_no']; ?>:</strong></td>
-                    <td><?php echo $model->dr_no; ?></td>
+                    <td><strong><?php echo $customerItemDetailFields['pr_no']; ?>:</strong></td>
+                    <td><?php echo $pr_nos; ?></td>
                 </tr>
                 <tr>
-                    <td><strong><?php echo $customerItemFields['dr_date']; ?>:</strong></td>
-                    <td><?php echo $model->dr_date; ?></td>
+                    <td><strong><?php echo $customerItemDetailFields['po_no']; ?>:</strong></td>
+                    <td><?php echo $po_nos; ?></td>
                 </tr>
                 <tr>
                     <td><strong><?php echo $customerItemFields['rra_no']; ?>:</strong></td>
@@ -95,12 +95,12 @@ $this->breadcrumbs = array(
                     <td><?php echo $model->rra_date; ?></td>
                 </tr>
                 <tr>
-                    <td><strong><?php echo $customerItemDetailFields['pr_no']; ?>:</strong></td>
-                    <td><?php echo $pr_nos; ?></td>
+                    <td><strong><?php echo $customerItemFields['dr_no']; ?>:</strong></td>
+                    <td><?php echo $model->dr_no; ?></td>
                 </tr>
                 <tr>
-                    <td><strong><?php echo $customerItemDetailFields['campaign_no']; ?>:</strong></td>
-                    <td><?php echo $campaign_nos; ?></td>
+                    <td><strong><?php echo $customerItemFields['dr_date']; ?>:</strong></td>
+                    <td><?php echo $model->dr_date; ?></td>
                 </tr>
                 <tr>
                     <td><strong><?php echo $customerItemDetailFields['status']; ?>:</strong></td>

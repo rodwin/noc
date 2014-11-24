@@ -255,11 +255,32 @@ class OutgoingInventory extends CActiveRecord {
                 break;
         }
 
+        $zone_arr = array();
+        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
+        $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
+
+        if (count($zones) > 0) {
+            foreach ($zones as $key => $val) {
+                $zone_arr[] = $key;
+            }
+        }
+
+        $c1 = new CDbCriteria;
+        $c1->condition = "t.source_zone_id IN (" . Yii::app()->user->zones . ")";
+        $c1->group = "t.outgoing_inventory_id";
+        $outgoing_inv_detail = OutgoingInventoryDetail::model()->findAll($c1);
+
+        $outgoing_inv_id_arr = array();
+        if (count($outgoing_inv_detail) > 0) {
+            foreach ($outgoing_inv_detail as $key1 => $val1) {
+                $outgoing_inv_id_arr[] = $val1->outgoing_inventory_id;
+            }
+        }
 
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
-        $criteria->compare('t.dr_no', $columns[0]['search']['value']);
-        $criteria->compare('t.dr_date', $columns[1]['search']['value']);
+        $criteria->compare('t.dr_no', $columns[0]['search']['value'], true);
+        $criteria->compare('t.dr_date', $columns[1]['search']['value'], true);
         $criteria->compare('t.rra_no', $columns[2]['search']['value'], true);
         $criteria->compare('t.rra_date', $columns[3]['search']['value'], true);
         $criteria->compare('zone.zone_name', $columns[4]['search']['value'], true);
@@ -273,17 +294,7 @@ class OutgoingInventory extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
         $criteria->with = array("zone");
-        $criteria->join = "INNER JOIN outgoing_inventory_detail ON outgoing_inventory_detail.outgoing_inventory_id = t.outgoing_inventory_id";
-        
-        $arr = array();        
-        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
-        $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
-        
-        foreach ($zones as $key => $val) {
-            $arr[] = $key;
-        }
-        
-        $criteria->addInCondition('outgoing_inventory_detail.source_zone_id', $arr);
+        $criteria->addInCondition('t.outgoing_inventory_id', $outgoing_inv_id_arr);
         
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -399,7 +410,7 @@ class OutgoingInventory extends CActiveRecord {
                     Yii::app()->session['outgoing_inv_id_attachment_session'] = $outgoing_inventory->outgoing_inventory_id;
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         if (trim($transaction_details[$i]['outgoing_inv_detail_id']) != "") {
-                            OutgoingInventoryDetail::model()->updateOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $transaction_details[$i]['outgoing_inv_detail_id'], $outgoing_inventory->company_id);
+                            OutgoingInventoryDetail::model()->updateOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $transaction_details[$i]['outgoing_inv_detail_id'], $outgoing_inventory->company_id, $transaction_details[$i]['qty_for_new_inventory'], $transaction_details[$i]['quantity_issued'], $outgoing_inventory->destination_zone_id, $outgoing_inventory->transaction_date, $transaction_details[$i]['amount']);
                         } else {
                             OutgoingInventoryDetail::model()->createOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $outgoing_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $outgoing_inventory->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $outgoing_inventory->transaction_date);
                         }

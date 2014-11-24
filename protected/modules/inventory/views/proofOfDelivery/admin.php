@@ -76,17 +76,17 @@ $this->breadcrumbs = array(
                         <tr>
                             <th class="hide_row"><?php echo $PODFields['pod_detail_id']; ?></th>
                             <th class="hide_row"><?php echo $PODFields['pod_id']; ?></th>
-                            <th><?php echo $PODFields['campaign_no']; ?></th>
+                            <th><?php echo $PODFields['po_no']; ?></th>
                             <th><?php echo $PODFields['pr_no']; ?></th>
                             <th><?php echo $skuFields['sku_code']; ?></th>
                             <th><?php echo $skuFields['description']; ?></th>
                             <th><?php echo $skuFields['brand_id']; ?></th>
                             <th><?php echo $PODFields['unit_price']; ?></th>
                             <th><?php echo $PODFields['planned_quantity']; ?></th>
-                            <th><?php echo $PODFields['quantity_received']; ?> <span title="Click row to edit" data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
+                            <th><?php echo $PODFields['quantity_received']; ?> <span title="Click green cell to edit" data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
                             <th><?php echo $PODFields['amount']; ?></th>
                             <th><?php echo $PODFields['status']; ?></th>
-                            <th><?php echo $PODFields['remarks']; ?> <span title="Click row to edit" data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
+                            <th><?php echo $PODFields['remarks']; ?> <span title="Click green cell to edit" data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -128,7 +128,7 @@ $this->breadcrumbs = array(
                             <th><?php echo $skuFields['description']; ?></th>
                             <th>Attachment</th>
                             <th>Verification</th>
-                            <th>Remarks <span title="Click row to edit" data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
+                            <th>Remarks <span title="Click green cell to edit" data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -474,7 +474,7 @@ $this->breadcrumbs = array(
                     var addedRow = proof_of_delivery_details_table.fnAddData([
                         v.pod_detail_id,
                         v.pod_id,
-                        v.campaign_no,
+                        v.po_no,
                         v.pr_no,
                         v.sku_code,
                         v.sku_description,

@@ -49,16 +49,16 @@ class ReceivingInventory extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, campaign_no, pr_no, pr_date, requestor, dr_no, transaction_date', 'required'),
-            array('company_id, campaign_no, pr_no, dr_no, requestor, supplier_id, sales_office_id, zone_id, delivery_remarks, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, requestor, dr_no, transaction_date', 'required'),
+            array('company_id, campaign_no, pr_no, dr_no, requestor, supplier_id, sales_office_id, zone_id, delivery_remarks, created_by, updated_by, po_no, rra_no', 'length', 'max' => 50),
             array('total_amount', 'length', 'max' => 18),
-            array('pr_date, plan_delivery_date, revised_delivery_date, plan_arrival_date, transaction_date, dr_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
+            array('pr_date, plan_delivery_date, revised_delivery_date, plan_arrival_date, transaction_date, dr_date, po_date, rra_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('zone_id', 'isValidZone'),
             array('supplier_id', 'isValidSupplier'),
             array('plan_delivery_date, revised_delivery_date, plan_arrival_date, created_date, updated_date, dr_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('receiving_inventory_id, company_id, campaign_no, pr_no, pr_date, dr_no, dr_date, requestor, supplier_id, sales_office_id, zone_id, plan_delivery_date, revised_delivery_date, plan_arrival_date, transaction_date, delivery_remarks, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('receiving_inventory_id, company_id, campaign_no, pr_no, pr_date, dr_no, dr_date, requestor, supplier_id, sales_office_id, zone_id, plan_delivery_date, revised_delivery_date, plan_arrival_date, transaction_date, delivery_remarks, total_amount, created_date, created_by, updated_date, updated_by, po_no, po_date, rra_no, rra_date', 'safe', 'on' => 'search'),
         );
     }
 
@@ -124,7 +124,7 @@ class ReceivingInventory extends CActiveRecord {
         return array(
             'receiving_inventory_id' => 'Receiving Inventory',
             'company_id' => 'Company',
-            'campaign_no' => 'PO No',
+            'campaign_no' => 'Campaign No',
             'pr_no' => 'PR No',
             'pr_date' => 'PR Date',
             'dr_no' => 'DR No',
@@ -144,6 +144,10 @@ class ReceivingInventory extends CActiveRecord {
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
             'updated_by' => 'Updated By',
+            'po_no' => 'PO No',
+            'po_date' => 'PO Date',
+            'rra_no' => 'RA No',
+            'rra_date' => 'RA Date',
         );
     }
 
@@ -186,6 +190,10 @@ class ReceivingInventory extends CActiveRecord {
         $criteria->compare('created_by', $this->created_by, true);
         $criteria->compare('updated_date', $this->updated_date, true);
         $criteria->compare('updated_by', $this->updated_by, true);
+        $criteria->compare('po_no', $this->po_no, true);
+        $criteria->compare('po_date', $this->po_date, true);
+        $criteria->compare('rra_no', $this->rra_no, true);
+        $criteria->compare('rra_date', $this->rra_date, true);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -196,38 +204,46 @@ class ReceivingInventory extends CActiveRecord {
         switch ($col) {
 
             case 0:
-                $sort_column = 't.campaign_no';
-                break;
-
-            case 1:
                 $sort_column = 't.pr_no';
                 break;
 
-            case 2:
+            case 1:
                 $sort_column = 't.pr_date';
                 break;
 
+            case 2:
+                $sort_column = 't.po_no';
+                break;
+
             case 3:
-                $sort_column = 't.dr_no';
+                $sort_column = 't.po_date';
                 break;
 
             case 4:
-                $sort_column = 't.requestor';
+                $sort_column = 't.rra_no';
                 break;
 
             case 5:
-                $sort_column = 'supplier.supplier_name';
+                $sort_column = 't.dr_no';
                 break;
 
             case 6:
-                $sort_column = 'zone.zone_name';
+                $sort_column = 't.requestor';
                 break;
 
             case 7:
-                $sort_column = 't.total_amount';
+                $sort_column = 'supplier.supplier_name';
                 break;
 
             case 8:
+                $sort_column = 'zone.zone_name';
+                break;
+
+            case 9:
+                $sort_column = 't.total_amount';
+                break;
+
+            case 10:
                 $sort_column = 't.created_date';
                 break;
         }
@@ -235,15 +251,17 @@ class ReceivingInventory extends CActiveRecord {
 
         $criteria = new CDbCriteria;
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
-        $criteria->compare('t.campaign_no', $columns[0]['search']['value'], true);
-        $criteria->compare('t.pr_no', $columns[1]['search']['value'], true);
-        $criteria->compare('t.pr_date', $columns[2]['search']['value'], true);
-        $criteria->compare('t.dr_no', $columns[3]['search']['value'], true);
-        $criteria->compare('t.requestor', $columns[4]['search']['value'], true);
-        $criteria->compare('supplier.supplier_name', $columns[5]['search']['value'], true);
-        $criteria->compare('zone.zone_name', $columns[6]['search']['value'], true);
-        $criteria->compare('t.total_amount', $columns[7]['search']['value'], true);
-        $criteria->compare('t.created_date', $columns[8]['search']['value'], true);
+        $criteria->compare('t.pr_no', $columns[0]['search']['value'], true);
+        $criteria->compare('t.pr_date', $columns[1]['search']['value'], true);
+        $criteria->compare('t.po_no', $columns[2]['search']['value'], true);
+        $criteria->compare('t.po_date', $columns[3]['search']['value'], true);
+        $criteria->compare('t.rra_no', $columns[4]['search']['value'], true);
+        $criteria->compare('t.dr_no', $columns[5]['search']['value'], true);
+        $criteria->compare('t.requestor', $columns[6]['search']['value'], true);
+        $criteria->compare('supplier.supplier_name', $columns[7]['search']['value'], true);
+        $criteria->compare('zone.zone_name', $columns[8]['search']['value'], true);
+        $criteria->compare('t.total_amount', $columns[9]['search']['value'], true);
+        $criteria->compare('t.created_date', $columns[10]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
@@ -346,7 +364,7 @@ class ReceivingInventory extends CActiveRecord {
 
             $receiving_inventory_data = array(
                 'company_id' => $this->company_id,
-                'campaign_no' => $this->campaign_no,
+//                'campaign_no' => $this->campaign_no,
                 'pr_no' => $this->pr_no,
                 'pr_date' => $this->pr_date,
                 'dr_no' => $this->dr_no,
@@ -356,13 +374,17 @@ class ReceivingInventory extends CActiveRecord {
                 'sales_office_id' => $this->sales_office_id,
                 'zone_id' => $this->zone_id,
                 'plan_delivery_date' => $this->plan_delivery_date,
-                'revised_delivery_date' => $this->revised_delivery_date,
+//                'revised_delivery_date' => $this->revised_delivery_date,
 //                'actual_delivery_date' => $this->actual_delivery_date,
                 'plan_arrival_date' => $this->plan_arrival_date,
                 'transaction_date' => $this->transaction_date,
                 'delivery_remarks' => $this->delivery_remarks,
                 'total_amount' => $this->total_amount,
                 'created_by' => $this->created_by,
+                'po_no' => $this->po_no,
+                'po_date' => $this->po_date,
+                'rra_no' => $this->rra_no,
+                'rra_date' => $this->rra_date,
             );
 
             $receiving_inventory->attributes = $receiving_inventory_data;
@@ -375,7 +397,7 @@ class ReceivingInventory extends CActiveRecord {
                     Yii::app()->session['receiving_inv_id_attachment_session'] = $receiving_inventory->receiving_inventory_id;
 
                     for ($i = 0; $i < count($transaction_details); $i++) {
-                        ReceivingInventoryDetail::model()->createReceivingTransactionDetails($receiving_inventory->receiving_inventory_id, $receiving_inventory->company_id, $transaction_details[$i]['sku_id'], $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $receiving_inventory->zone_id, $transaction_details[$i]['batch_no'], $transaction_details[$i]['unit_price'], $receiving_inventory->transaction_date, $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['qty_received'], $transaction_details[$i]['amount'], $transaction_details[$i]['remarks'], $receiving_inventory->pr_no, $receiving_inventory->pr_date, $receiving_inventory->created_by, $receiving_inventory->campaign_no, $receiving_inventory->pr_no, $receiving_inventory->pr_date, $receiving_inventory->plan_arrival_date, $receiving_inventory->revised_delivery_date);
+                        ReceivingInventoryDetail::model()->createReceivingTransactionDetails($receiving_inventory->receiving_inventory_id, $receiving_inventory->company_id, $transaction_details[$i]['sku_id'], $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $receiving_inventory->zone_id, $transaction_details[$i]['batch_no'], $transaction_details[$i]['unit_price'], $receiving_inventory->transaction_date, $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['qty_received'], $transaction_details[$i]['amount'], $transaction_details[$i]['remarks'], $receiving_inventory->pr_no, $receiving_inventory->pr_date, $receiving_inventory->created_by, $receiving_inventory->pr_no, $receiving_inventory->pr_date, $receiving_inventory->plan_arrival_date, $receiving_inventory->po_no);
                     }
                 }
                 return true;

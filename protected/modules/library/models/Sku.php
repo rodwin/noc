@@ -454,7 +454,16 @@ class Sku extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
         $criteria->with = array('brand', 'company', 'defaultUom', 'defaultZone');
-        $criteria->condition = "t.brand_id IN (" . Yii::app()->user->brands . ")";
+        
+        $arr = array();        
+        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
+        $brands = CJSON::decode(isset($unserialize['brand']) ? $unserialize['brand'] : "");
+        
+        foreach ($brands as $key => $val) {
+            $arr[] = $key;
+        }
+        
+        $criteria->addInCondition('t.brand_id', $arr);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,

@@ -405,13 +405,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><?php echo $incomingDetailFields['batch_no']; ?></th>
                         <th><?php echo $incomingDetailFields['expiration_date']; ?></th>
                         <th><?php echo $incomingDetailFields['planned_quantity']; ?></th>
-                        <th><?php echo $incomingDetailFields['quantity_received']; ?></th>
+                        <th><?php echo $incomingDetailFields['quantity_received']; ?> <span title="Click green cell to edit" data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
                         <th class="hide_row"><?php echo $incomingDetailFields['uom_id']; ?></th>
                         <th class="hide_row"><?php echo $incomingDetailFields['uom_id']; ?></th>
                         <th class="hide_row"><?php echo $incomingDetailFields['sku_status_id']; ?></th>
                         <th class="hide_row"><?php echo $incomingDetailFields['sku_status_id']; ?></th>
                         <th><?php echo $incomingDetailFields['amount']; ?></th>
-                        <th><?php echo $incomingDetailFields['remarks']; ?></th>
+                        <th><?php echo $incomingDetailFields['remarks']; ?> <span title="Click green cell to edit" data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
                         <th class="hide_row"><?php echo $incomingDetailFields['return_date']; ?></th>
                         <th class="hide_row">Inventory</th>
                         <th class="hide_row"><?php echo $incomingDetailFields['source_zone_id']; ?></th>
@@ -543,7 +543,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     "visible": false
                 }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(8), td:eq(10)', nRow).addClass("success");
+//                $('td:eq(8), td:eq(10)', nRow).addClass("success");
 
                 var added_status_row_value = aData[21];
                 var status_pos_col = 21;
@@ -659,54 +659,54 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     data.details.status,
                 ]);
 
-                $.editable.addInputType('numberOnly', {
-                    element: $.editable.types.text.element,
-                    plugin: function(settings, original) {
-                        $('input', this).bind('keypress', function(event) {
-                            return onlyNumbers(this, event, false);
-                        });
-                    }
-                });
-
-                var oSettings = transaction_table.fnSettings();
-                $('td:eq(8)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
-                    var pos = transaction_table.fnGetPosition(this);
-                    var rowData = transaction_table.fnGetData(pos);
-                    var planned_qty = parseInt(rowData[8]);
-                    var status_pos_col = 21;
-
-                    if (parseInt(value) == planned_qty) {
-                        transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_COMPLETE_STATUS . "'"; ?>, pos[0], status_pos_col);
-                    } else if (parseInt(value) < planned_qty) {
-                        transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "'"; ?>, pos[0], status_pos_col);
-                    } else if (parseInt(value) > planned_qty) {
-                        transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . "'"; ?>, pos[0], status_pos_col);
-                    }
-
-                    transaction_table.fnUpdate(value, pos[0], pos[2]);
-
-                }, {
-                    type: 'numberOnly',
-                    placeholder: '',
-                    indicator: '',
-                    tooltip: 'Click to edit',
-                    submit: 'Ok',
-                    width: "100%",
-                    height: "30px"
-                });
-
-                $('td:eq(10)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
-                    var pos = transaction_table.fnGetPosition(this);
-                    transaction_table.fnUpdate(value, pos[0], pos[2]);
-                }, {
-                    type: 'text',
-                    placeholder: '',
-                    indicator: '',
-                    tooltip: 'Click to edit',
-                    width: "100%",
-                    submit: 'Ok',
-                    height: "30px"
-                });
+//                $.editable.addInputType('numberOnly', {
+//                    element: $.editable.types.text.element,
+//                    plugin: function(settings, original) {
+//                        $('input', this).bind('keypress', function(event) {
+//                            return onlyNumbers(this, event, false);
+//                        });
+//                    }
+//                });
+//
+//                var oSettings = transaction_table.fnSettings();
+//                $('td:eq(8)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
+//                    var pos = transaction_table.fnGetPosition(this);
+//                    var rowData = transaction_table.fnGetData(pos);
+//                    var planned_qty = parseInt(rowData[8]);
+//                    var status_pos_col = 21;
+//
+//                    if (parseInt(value) == planned_qty) {
+//                        transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_COMPLETE_STATUS . "'"; ?>, pos[0], status_pos_col);
+//                    } else if (parseInt(value) < planned_qty) {
+//                        transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "'"; ?>, pos[0], status_pos_col);
+//                    } else if (parseInt(value) > planned_qty) {
+//                        transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . "'"; ?>, pos[0], status_pos_col);
+//                    }
+//
+//                    transaction_table.fnUpdate(value, pos[0], pos[2]);
+//
+//                }, {
+//                    type: 'numberOnly',
+//                    placeholder: '',
+//                    indicator: '',
+//                    tooltip: 'Click to edit',
+//                    submit: 'Ok',
+//                    width: "100%",
+//                    height: "30px"
+//                });
+//
+//                $('td:eq(10)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
+//                    var pos = transaction_table.fnGetPosition(this);
+//                    transaction_table.fnUpdate(value, pos[0], pos[2]);
+//                }, {
+//                    type: 'text',
+//                    placeholder: '',
+//                    indicator: '',
+//                    tooltip: 'Click to edit',
+//                    width: "100%",
+//                    submit: 'Ok',
+//                    height: "30px"
+//                });
 
                 total_amount = (parseFloat(total_amount) + parseFloat(data.details.amount));
                 $("#IncomingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
@@ -920,6 +920,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             v.outgoing_inventory_detail_id,
                             v.status,
                         ]);
+                        
+                        var nTr = transaction_table.fnSettings().aoData[addedRow[0]].nTr;
+                        $('td:eq(8), td:eq(10)', nTr).addClass("success");
 
                         $.editable.addInputType('numberOnly', {
                             element: $.editable.types.text.element,

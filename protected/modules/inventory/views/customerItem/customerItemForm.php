@@ -220,7 +220,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 <th class="hide_row">Action Qty <i class="fa fa-fw fa-info-circle" data-toggle="popover" content="And here's some amazing content. It's very engaging. right?"></i></th>
                                 <th><?php echo $invFields['zone_id']; ?></th>
                                 <th class="hide_row"><?php echo $invFields['sku_status_id']; ?></th>
-                                <th><?php echo $invFields['campaign_no']; ?></th>
+                                <th><?php echo $invFields['po_no']; ?></th>
                                 <th><?php echo $invFields['pr_no']; ?></th>
                                 <th><?php echo $invFields['pr_date']; ?></th>
                                 <th><?php echo $invFields['plan_arrival_date']; ?></th>
@@ -549,7 +549,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 {"name": "action_qty", "data": "action_qty", 'sortable': false, "class": 'action_qty'},
                 {"name": "zone_name", "data": "zone_name"},
                 {"name": "sku_status_name", "data": "sku_status_name"},
-                {"name": "campaign_no", "data": "campaign_no"},
+                {"name": "po_no", "data": "po_no"},
                 {"name": "pr_no", "data": "pr_no"},
                 {"name": "pr_date", "data": "pr_date"},
                 {"name": "plan_arrival_date", "data": "plan_arrival_date"},

@@ -163,7 +163,7 @@ class OutgoingInventoryController extends Controller {
             $row['updated_by'] = $value->updated_by;
             $row['expiration_date'] = $value->expiration_date;
             $row['reference_no'] = $value->reference_no;
-            $row['campaign_no'] = $value->campaign_no;
+            $row['po_no'] = $value->po_no;
             $row['pr_no'] = $value->pr_no;
             $row['pr_date'] = $value->pr_date;
             $row['plan_arrival_date'] = $value->plan_arrival_date;
@@ -215,8 +215,8 @@ class OutgoingInventoryController extends Controller {
         $zone_ids = "";
         $pr_nos = "";
         $pr_no_arr = array();
-        $campaign_nos = "";
-        $campaign_no_arr = array();
+        $po_nos = "";
+        $po_no_arr = array();
         $pr_dates = "";
         $pr_dates_arr = array();
         foreach ($outgoing_detail as $key => $val) {
@@ -227,9 +227,9 @@ class OutgoingInventoryController extends Controller {
                 $pr_nos .= $val->pr_no . ",";
             }
 
-            if (!in_array($val->campaign_no, $campaign_no_arr)) {
-                array_push($campaign_no_arr, $val->campaign_no);
-                $campaign_nos .= $val->campaign_no . ",";
+            if (!in_array($val->po_no, $po_no_arr)) {
+                array_push($po_no_arr, $val->po_no);
+                $po_nos .= $val->po_no . ",";
             }
 
             if (!in_array($val->pr_date, $pr_dates_arr)) {
@@ -240,7 +240,7 @@ class OutgoingInventoryController extends Controller {
 
         $pr_nos = substr($pr_nos, 0, -1);
         $pr_dates = substr($pr_dates, 0, -1);
-        $campaign_nos = substr($campaign_nos, 0, -1);
+        $po_nos = substr($po_nos, 0, -1);
 
 
         $this->render('view', array(
@@ -248,7 +248,7 @@ class OutgoingInventoryController extends Controller {
             'destination' => $destination,
             'pr_nos' => $pr_nos,
             'pr_dates' => $pr_dates,
-            'campaign_nos' => $campaign_nos,
+            'po_nos' => $po_nos,
         ));
     }
 
@@ -475,7 +475,7 @@ class OutgoingInventoryController extends Controller {
             $row['return_date'] = $value->return_date;
             $row['status'] = $status;
             $row['remarks'] = $value->remarks;
-            $row['campaign_no'] = $value->campaign_no;
+            $row['po_no'] = $value->po_no;
             $row['pr_no'] = $value->pr_no;
 
             $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/outgoingInventory/deleteOutgoingDetail', array('outgoing_inv_detail_id' => $value->outgoing_inventory_detail_id)) . '">
@@ -545,7 +545,7 @@ class OutgoingInventoryController extends Controller {
 
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
                             $outgoing_inv_ids_to_be_delete = isset($_POST['outgoing_inv_ids']) ? $_POST['outgoing_inv_ids'] : "";
-
+                            
                             if ($outgoing->updateTransaction($outgoing, $outgoing_inv_ids_to_be_delete, $transaction_details)) {
                                 $data['outgoing_inv_id'] = Yii::app()->session['outgoing_inv_id_update_session'];
                                 unset(Yii::app()->session['outgoing_inv_id_update_session']);
@@ -1075,6 +1075,8 @@ class OutgoingInventoryController extends Controller {
 
         $pr_nos = "";
         $pr_no_arr = array();
+        $po_nos = "";
+        $po_no_arr = array();
         foreach ($outgoing_inv_detail as $key => $val) {
             $row = array();
 
@@ -1088,6 +1090,10 @@ class OutgoingInventoryController extends Controller {
                 if (!in_array($value->pr_no, $pr_no_arr)) {
                     array_push($pr_no_arr, $value->pr_no);
                     $pr_nos .= $value->pr_no . ",";
+                }
+                if (!in_array($value->po_no, $po_no_arr)) {
+                    array_push($po_no_arr, $value->po_no);
+                    $po_nos .= $value->po_no . ",";
                 }
             }
 
@@ -1116,6 +1122,7 @@ class OutgoingInventoryController extends Controller {
         $headers['plan_delivery_date'] = $outgoing_inv['plan_delivery_date'];
 
         $headers['pr_no'] = substr($pr_nos, 0, -1);
+        $headers['po_no'] = substr($po_nos, 0, -1);
         $headers['rra_no'] = $outgoing_inv['rra_no'];
         $headers['rra_date'] = $outgoing_inv['rra_date'];
         $headers['dr_no'] = $outgoing_inv['dr_no'];
@@ -1219,24 +1226,28 @@ class OutgoingInventoryController extends Controller {
                     <td class="border-bottom" style="width: 390px;">' . "" . '</td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold;">RA no.</td>
-                    <td class="border-bottom">' . $headers['rra_no'] . '</td>
+                    <td style="font-weight: bold;">PO no.</td>
+                    <td class="border-bottom">' . $headers['po_no'] . '</td>
                     <td></td>
                     <td style="font-weight: bold;">CONTACT PERSON</td>
                     <td class="border-bottom">' . "" . '</td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold;">RA DATE</td>
-                    <td class="border-bottom">' . $headers['rra_date'] . '</td>
+                    <td style="font-weight: bold;">RA no.</td>
+                    <td class="border-bottom">' . $headers['rra_no'] . '</td>
                     <td></td>
                     <td style="font-weight: bold;">ADDRESS</td>
                     <td class="border-bottom">' . "" . '</td>
                 </tr>
                 <tr>
+                    <td style="font-weight: bold;">RA date</td>
+                    <td class="border-bottom">' . $headers['rra_date'] . '</td>
+                    <td rowspan="3"></td>
+                </tr>
+                <tr>
                     <td style="font-weight: bold;">DR no.</td>
                     <td class="border-bottom">' . $headers['dr_no'] . '</td>
-                    <td rowspan="2"></td>
-                    <td class=""></td>
+                    <td rowspan="3"></td>
                 </tr>
             </table><br/><br/><br/>  
         
@@ -1444,12 +1455,18 @@ class OutgoingInventoryController extends Controller {
 
         $pr_nos = "";
         $pr_no_arr = array();
+        $po_nos = "";
+        $po_no_arr = array();
         foreach ($outgoing_inv_detail as $key => $val) {
             $row = array();
 
             if (!in_array($val->pr_no, $pr_no_arr)) {
                 array_push($pr_no_arr, $val->pr_no);
                 $pr_nos .= $val->pr_no . ",";
+            }
+            if (!in_array($val->po_no, $po_no_arr)) {
+                array_push($po_no_arr, $val->po_no);
+                $po_nos .= $val->po_no . ",";
             }
 
             $row['sku_id'] = $val->sku_id;
@@ -1477,6 +1494,7 @@ class OutgoingInventoryController extends Controller {
         $headers['plan_delivery_date'] = $outgoing_inv->plan_delivery_date;
 
         $headers['pr_no'] = substr($pr_nos, 0, -1);
+        $headers['po_no'] = substr($po_nos, 0, -1);
         $headers['rra_no'] = $outgoing_inv->rra_no;
         $headers['rra_date'] = $outgoing_inv->rra_date;
         $headers['dr_no'] = $outgoing_inv->dr_no;
@@ -1514,12 +1532,10 @@ class OutgoingInventoryController extends Controller {
         $data['success'] = false;
         $data["type"] = "success";
         $data['actual_qty'] = $actual_qty;
-        $data['new_inventory_id'] = false;
+        $data['qty_for_new_inventory'] = "";
 
         $inventory = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $inventory_id));
         $outgoing_inv_detail = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "outgoing_inventory_detail_id" => $outgoing_inv_detail_id));
-
-        $uom = Uom::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $outgoing_inv_detail->uom_id));
 
         $qty_issued = $outgoing_inv_detail->quantity_issued;
 
@@ -1529,6 +1545,7 @@ class OutgoingInventoryController extends Controller {
 
                 $data['message'] = 'Successfully updated';
                 $data['success'] = true;
+                $data['actual_qty'] = $new_actual_qty;
             } else if ($new_actual_qty > $qty_issued) {
 
                 $new_qty = $new_actual_qty - $qty_issued;
@@ -1537,29 +1554,12 @@ class OutgoingInventoryController extends Controller {
 
                     if ($inventory->qty > $new_qty || $inventory->qty == $new_qty) {
 
-                        $outgoing_inv_detail->quantity_issued = $outgoing_inv_detail->quantity_issued + $new_qty;
-                        $outgoing_inv_detail->updated_by = Yii::app()->user->name;
-                        $outgoing_inv_detail->updated_date = date("Y-m-d H:i:s");
-
-                        $decrease_inv = new DecreaseInventoryForm();
-                        $decrease_inv->inventoryObj = $inventory;
-                        $decrease_inv->qty = $new_qty;
-                        $decrease_inv->transaction_date = date("Y-m-d");
-                        $decrease_inv->created_by = Yii::app()->user->name;
-
-                        if ($decrease_inv->decrease(false) && $outgoing_inv_detail->save()) {
-
-                            $data['message'] = 'Successfully updated';
-                            $data['success'] = true;
-                            $data['actual_qty'] = $outgoing_inv_detail->quantity_issued;
-                        } else {
-
-                            $data['message'] = 'An error occured!';
-                            $data["type"] = "danger";
-                        }
+                        $data['message'] = 'Successfully updated';
+                        $data['success'] = true;
+                        $data['actual_qty'] = $new_actual_qty;
                     } else {
 
-                        $data['message'] = 'Source inventory quantity issued has only <b>' . $inventory->qty . " " . strtolower($uom->uom_name) . '</b> inventory on hand';
+                        $data['message'] = 'Source inventory has only <b>' . $inventory->qty . " " . strtolower(isset($outgoing_inv_detail->uom) ? $outgoing_inv_detail->uom->uom_name : "") . '</b> inventory on hand available';
                         $data["type"] = "danger";
                     }
                 } else {
@@ -1568,60 +1568,13 @@ class OutgoingInventoryController extends Controller {
                     $data["type"] = "danger";
                 }
             } else {
-
-                $new_qty = $new_actual_qty;
+                
                 $new_inv_qty = $qty_issued - $new_actual_qty;
-
-                $outgoing_inv_detail->quantity_issued = $outgoing_inv_detail->quantity_issued - $new_inv_qty;
-                $outgoing_inv_detail->updated_by = Yii::app()->user->name;
-                $outgoing_inv_detail->updated_date = date("Y-m-d H:i:s");
-
-                if ($inventory) {
-
-                    $increase_inv = new IncreaseInventoryForm();
-                    $increase_inv->inventoryObj = $inventory;
-                    $increase_inv->qty = $new_inv_qty;
-                    $increase_inv->transaction_date = date("Y-m-d");
-                    $increase_inv->created_by = Yii::app()->user->name;
-
-                    $increase_inv->increase(false);
-                } else {
-
-                    $sku_status_id = ($outgoing_inv_detail->sku_status_id != "" ? $outgoing_inv_detail->sku_status_id : null);
-                    $saved_inv = ReceivingInventoryDetail::model()->createInventory($outgoing_inv_detail->company_id, $outgoing_inv_detail->sku_id, $outgoing_inv_detail->uom_id, $outgoing_inv_detail->unit_price, $new_inv_qty, $outgoing_inv_detail->source_zone_id, date("Y-m-d"), Yii::app()->user->name, $outgoing_inv_detail->expiration_date, $outgoing_inv_detail->batch_no, $sku_status_id, $outgoing_inv_detail->campaign_no, $outgoing_inv_detail->pr_no, $outgoing_inv_detail->pr_date, $outgoing_inv_detail->plan_arrival_date, $outgoing_inv_detail->revised_delivery_date);
-
-                    if ($saved_inv) {
-
-                        $inv = Inventory::model()->findByAttributes(array(
-                            'sku_id' => $outgoing_inv_detail->sku_id,
-                            'company_id' => $outgoing_inv_detail->company_id,
-                            'uom_id' => $outgoing_inv_detail->uom_id,
-                            'zone_id' => $outgoing_inv_detail->source_zone_id,
-                            'sku_status_id' => $sku_status_id,
-                            'expiration_date' => $outgoing_inv_detail->expiration_date,
-                            'reference_no' => $outgoing_inv_detail->batch_no,
-                            'campaign_no' => $outgoing_inv_detail->campaign_no,
-                            'pr_no' => $outgoing_inv_detail->pr_no,
-                            'pr_date' => $outgoing_inv_detail->pr_date,
-                            'plan_arrival_date' => $outgoing_inv_detail->plan_arrival_date,
-                            'revised_delivery_date' => $outgoing_inv_detail->revised_delivery_date,
-                                ));
-
-                        $outgoing_inv_detail->inventory_id = $inv->inventory_id;
-                        $data['new_inventory_id'] = true;
-                    }
-                }
-
-                if ($outgoing_inv_detail->save()) {
-
-                    $data['message'] = 'Successfully updated';
-                    $data['success'] = true;
-                    $data['actual_qty'] = $outgoing_inv_detail->quantity_issued;
-                } else {
-
-                    $data['message'] = 'An error occured!';
-                    $data["type"] = "danger";
-                }
+                
+                $data['message'] = 'Successfully updated';
+                $data['success'] = true;
+                $data['actual_qty'] = $new_actual_qty;
+                $data['qty_for_new_inventory'] = $new_inv_qty;
             }
         } else {
 

@@ -39,9 +39,11 @@ $this->breadcrumbs = array(
     <table id="receiving-inventory_table" class="table table-bordered">
         <thead>
             <tr>
-                <th><?php echo $fields['campaign_no']; ?></th>
                 <th><?php echo $fields['pr_no']; ?></th>
                 <th><?php echo $fields['pr_date']; ?></th>
+                <th><?php echo $fields['po_no']; ?></th>
+                <th><?php echo $fields['po_date']; ?></th>
+                <th><?php echo $fields['rra_no']; ?></th>
                 <th><?php echo $fields['dr_no']; ?></th>
                 <th><?php echo $fields['requestor']; ?></th>
                 <th><?php echo $fields['supplier_id']; ?></th>
@@ -53,6 +55,8 @@ $this->breadcrumbs = array(
         </thead>
         <thead>
             <tr id="filter_row">
+                <td class="filter"></td>
+                <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
                 <td class="filter"></td>
@@ -146,9 +150,11 @@ $this->breadcrumbs = array(
             "order": [[8, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/ReceivingInventory/data'); ?>",
             "columns": [
-                {"name": "campaign_no", "data": "campaign_no"},
                 {"name": "pr_no", "data": "pr_no"},
                 {"name": "pr_date", "data": "pr_date"},
+                {"name": "po_no", "data": "po_no"},
+                {"name": "po_date", "data": "po_date"},
+                {"name": "rra_no", "data": "rra_no"},
                 {"name": "dr_no", "data": "dr_no"},
                 {"name": "requestor_name", "data": "requestor_name"},
                 {"name": "supplier_name", "data": "supplier_name"},
@@ -158,12 +164,12 @@ $this->breadcrumbs = array(
                 {"name": "links", "data": "links", 'sortable': false}
             ],
             "columnDefs": [{
-                    "targets": [8],
+                    "targets": [10],
                     "visible": false
                 }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(8)', nRow).addClass("text-center");
-                $('td:eq(7)', nRow).addClass("text-right");
+                $('td:eq(10)', nRow).addClass("text-center");
+                $('td:eq(9)', nRow).addClass("text-right");
             }
         });
 

@@ -123,34 +123,30 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         <div class="col-md-6 clearfix">
             <div id="input_label" class="pull-left col-md-5">
 
-                <?php echo $form->labelEx($receiving, 'campaign_no'); ?><br/>
                 <?php echo $form->labelEx($receiving, 'pr_no'); ?><br/>
                 <?php echo $form->labelEx($receiving, 'pr_date'); ?><br/>
-                <?php echo $form->labelEx($receiving, 'requestor'); ?><br/>
-                <?php echo $form->labelEx($receiving, 'plan_delivery_date'); ?><br/>
-                <?php echo $form->labelEx($receiving, 'revised_delivery_date'); ?>
+                <?php echo $form->labelEx($receiving, 'po_no'); ?><br/>
+                <?php echo $form->labelEx($receiving, 'po_date'); ?><br/>
+                <?php echo $form->labelEx($receiving, 'rra_no'); ?><br/>
+                <?php echo $form->labelEx($receiving, 'rra_date'); ?><br/>
+                <?php echo $form->labelEx($receiving, 'requestor'); ?>
+                <?php //echo $form->labelEx($receiving, 'revised_delivery_date'); ?>
 
             </div>
 
             <div class="pull-right col-md-7">
 
-                <?php echo $form->textFieldGroup($receiving, 'campaign_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
-
                 <?php echo $form->textFieldGroup($receiving, 'pr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($receiving, 'pr_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-                <?php
-//                echo $form->dropDownListGroup($receiving, 'requestor', array(
-//                    'wrapperHtmlOptions' => array(
-//                        'class' => '',
-//                    ),
-//                    'widgetOptions' => array(
-//                        'data' => $employee,
-//                        'htmlOptions' => array('class' => 'ignore span5', 'multiple' => false, 'prompt' => 'Select Requestor'),
-//                    ),
-//                    'labelOptions' => array('label' => false)));
-                ?>
+                <?php echo $form->textFieldGroup($receiving, 'po_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+
+                <?php echo $form->textFieldGroup($receiving, 'po_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+
+                <?php echo $form->textFieldGroup($receiving, 'rra_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+
+                <?php echo $form->textFieldGroup($receiving, 'rra_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php
                 echo $form->select2Group(
@@ -171,10 +167,20 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         'htmlOptions' => array('class' => 'ignore span5', 'id' => 'ReceivingInventory_requestor', 'prompt' => '--')),
                     'labelOptions' => array('label' => false)));
                 ?>
-
-                <?php echo $form->textFieldGroup($receiving, 'plan_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
-
-                <?php echo $form->textFieldGroup($receiving, 'revised_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+                
+                <?php
+//                echo $form->dropDownListGroup($receiving, 'requestor', array(
+//                    'wrapperHtmlOptions' => array(
+//                        'class' => '',
+//                    ),
+//                    'widgetOptions' => array(
+//                        'data' => $employee,
+//                        'htmlOptions' => array('class' => 'ignore span5', 'multiple' => false, 'prompt' => 'Select Requestor'),
+//                    ),
+//                    'labelOptions' => array('label' => false)));
+                ?>
+                
+                <?php //echo $form->textFieldGroup($receiving, 'revised_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
             </div>
         </div> 
@@ -184,6 +190,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->labelEx($receiving, 'transaction_date'); ?><br/>
                 <?php echo $form->labelEx($receiving, 'dr_no'); ?><br/>
+                <?php echo $form->labelEx($receiving, 'plan_delivery_date'); ?><br/>
                 <?php echo $form->labelEx($receiving, 'zone_id'); ?><br/>
                 <?php echo $form->labelEx($receiving, 'plan_arrival_date'); ?><br/>
                 <?php echo $form->labelEx($receiving, 'supplier_id'); ?><br/>
@@ -198,6 +205,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php // echo CHtml::textField('zone_name', '', array('id' => 'ReceivingInventory_zone_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Zone")); ?>
                 <?php // echo $form->textFieldGroup($receiving, 'zone_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'receivingInventory_zone_id', 'class' => 'ignore span5', 'maxlength' => 50, 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
+
+                <?php echo $form->textFieldGroup($receiving, 'plan_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php
                 echo $form->select2Group(
@@ -938,7 +947,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     $(function() {
-        $('#ReceivingInventory_pr_date, #ReceivingInventory_plan_delivery_date, #ReceivingInventory_revised_delivery_date, #ReceivingInventory_actual_delivery_date, #ReceivingInventory_plan_arrival_date, #ReceivingInventory_transaction_date, #ReceivingInventoryDetail_expiration_date, #ReceivingInventoryDetail_expiration_date').datepicker({
+        $('#ReceivingInventory_pr_date, #ReceivingInventory_plan_delivery_date, #ReceivingInventory_revised_delivery_date, #ReceivingInventory_actual_delivery_date, #ReceivingInventory_plan_arrival_date, #ReceivingInventory_transaction_date, #ReceivingInventoryDetail_expiration_date, #ReceivingInventoryDetail_expiration_date, #ReceivingInventory_po_date, #ReceivingInventory_rra_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'

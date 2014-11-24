@@ -225,7 +225,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                                 <th class="hide_row">Action Qty <i class="fa fa-fw fa-info-circle" data-toggle="popover" content="And here's some amazing content. It's very engaging. right?"></i></th>
                                 <th><?php echo $invFields['zone_id']; ?></th>
                                 <th class="hide_row"><?php echo $invFields['sku_status_id']; ?></th>
-                                <th><?php echo $invFields['campaign_no']; ?></th>
+                                <th><?php echo $invFields['po_no']; ?></th>
                                 <th><?php echo $invFields['pr_no']; ?></th>
                                 <th><?php echo $invFields['pr_date']; ?></th>
                                 <th><?php echo $invFields['plan_arrival_date']; ?></th>
@@ -460,7 +460,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
                         <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
                         <th><?php echo $outgoingDetailFields['amount']; ?></th>
-                        <th><?php // echo $outgoingDetailFields['inventory_on_hand'];                                                                           ?></th>
+                        <th><?php // echo $outgoingDetailFields['inventory_on_hand'];                                                                                ?></th>
                         <th class=""><?php echo $outgoingDetailFields['return_date']; ?></th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['remarks']; ?></th>
                         <th class="hide_row">Inventory</th>
@@ -477,7 +477,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><?php echo $outgoingDetailFields['batch_no']; ?></th>
                         <th><?php echo $outgoingDetailFields['expiration_date']; ?></th>
                         <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
-                        <th><?php echo $outgoingDetailFields['quantity_issued']; ?> <?php if (!$outgoing->isNewRecord) { ?> <span title="Click row to edit" data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span> <?php } ?> </th>
+                        <th><?php echo $outgoingDetailFields['quantity_issued']; ?> <?php if (!$outgoing->isNewRecord) { ?> <span title="Click green cell to edit" data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span> <?php } ?> </th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['uom_id']; ?></th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['uom_id']; ?></th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['sku_status_id']; ?></th>
@@ -571,7 +571,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 {"name": "action_qty", "data": "action_qty", 'sortable': false, "class": 'action_qty'},
                 {"name": "zone_name", "data": "zone_name"},
                 {"name": "sku_status_name", "data": "sku_status_name"},
-                {"name": "campaign_no", "data": "campaign_no"},
+                {"name": "po_no", "data": "po_no"},
                 {"name": "pr_no", "data": "pr_no"},
                 {"name": "pr_date", "data": "pr_date"},
                 {"name": "plan_arrival_date", "data": "plan_arrival_date"},
@@ -663,7 +663,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 <?php if (!$outgoing->isNewRecord) { ?>
                     $('td:eq(8)', nRow).addClass("success");
 <?php } else { ?>
-                                                                        
+                                                                                            
 <?php } ?>
                 return nRow; 
             }
@@ -920,6 +920,35 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 "inventory_id": row_data[17],
                 "source_zone_id": row_data[18],
                 "outgoing_inv_detail_id": row_data[13]
+            });
+        }
+
+        return row_datas;
+    }
+
+    function serializeUpdatedTransactionTable() {
+
+        var row_datas = new Array();
+        var aTrs = transaction_table.fnGetNodes();
+        for (var i = 0; i < aTrs.length; i++) {
+            var row_data = transaction_table.fnGetData(aTrs[i]);
+
+            row_datas.push({
+                "sku_id": row_data[1],
+                "unit_price": row_data[5],
+                "batch_no": row_data[6],
+                "expiration_date": row_data[7],
+                "planned_quantity": row_data[8],
+                "quantity_issued": row_data[9],
+                "uom_id": row_data[10],
+                "sku_status_id": row_data[12],
+                "amount": row_data[14],
+                "remarks": row_data[15],
+                "return_date": row_data[16],
+                "inventory_id": row_data[17],
+                "source_zone_id": row_data[18],
+                "outgoing_inv_detail_id": row_data[13],
+                "qty_for_new_inventory": row_data[11]
             });
         }
 
@@ -1264,9 +1293,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         placeholder: '',
                         indicator: '',
                         tooltip: 'Click to edit',
-                        submit: 'Ok',
+                        //                        submit: 'Ok',
                         width: "100%",
-                        height: "30px"
+                        height: "30px",
+                        onblur: 'submit'
                     });
 
                 });
@@ -1280,7 +1310,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
     function sendUpdate(form) {
 
-        var data = $("#outgoing-inventory-form").serialize() + "&form=" + form + "&outgoing_inv_ids=" + outgoing_inv_ids.slice(0, -1) + '&' + $.param({"transaction_details": serializeTransactionTable()});
+        var data = $("#outgoing-inventory-form").serialize() + "&form=" + form + "&outgoing_inv_ids=" + outgoing_inv_ids.slice(0, -1) + '&' + $.param({"transaction_details": serializeUpdatedTransactionTable()});
 
         if ($("#btn_save, #btn_add_item, #btn_print").is("[disabled=disabled]")) {
             return false;
@@ -1327,20 +1357,30 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             dataType: "json",
             beforeSend: function(data) {},
             success: function(data) {
-                if (data.success === false) {
+                if (data.success === true) {
                     
-                    growlAlert(data.type, data.message);
-                    
-                    if (data.new_inventory_id === true) {
-                        loadItemDetails(outgoing_inv_id);   
-                    }
-                } else {
-                    
-                    growlAlert(data.type, data.message);
-                    inventory_table.fnMultiFilter();
+                    transaction_table.fnUpdate(data.qty_for_new_inventory, tr_position[0], 11);
                 }
                 
-                transaction_table.fnUpdate(data.actual_qty, tr_position[0], tr_position[2]);
+                var rowData = transaction_table.fnGetData(tr_position);
+                var amount = (data.actual_qty * rowData[5]);
+                
+                if (amount > rowData[14]) {
+                    
+                    var new_added_amount = parseFloat(amount) - parseFloat(rowData[14]);
+                    total_amount = (parseFloat(total_amount) + parseFloat(new_added_amount));
+                } else {
+                    
+                    var new_added_amount = parseFloat(rowData[14]) - parseFloat(amount);
+                    total_amount = (parseFloat(total_amount) - parseFloat(new_added_amount));
+                }
+                
+                $("#OutgoingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
+                
+                transaction_table.fnUpdate(data.actual_qty, tr_position[0], tr_position[2]); 
+                transaction_table.fnUpdate(parseFloat(amount).toFixed(2), tr_position[0], 14);   
+                
+                growlAlert(data.type, data.message);
             },
             error: function(data) {
                 alert("Error occured: Please try again.");

@@ -93,7 +93,7 @@ return false;
                 <th class="hide_row">Action Qty <span title="Type a numeric value into a row's field below to see a list of Transaction options." data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
                 <th><?php echo $invFields['zone_id']; ?></th>
                 <th><?php echo $invFields['sku_status_id']; ?></th>
-                <th><?php echo $invFields['campaign_no']; ?></th>
+                <th><?php echo $invFields['po_no']; ?></th>
                 <th><?php echo $invFields['pr_no']; ?></th>
                 <th><?php echo $invFields['pr_date']; ?></th>
                 <th><?php echo $invFields['plan_arrival_date']; ?></th>
@@ -185,7 +185,7 @@ return false;
                 {"name": "action_qty", "data": "action_qty", 'sortable': false, "class": 'action_qty'},
                 {"name": "zone_name", "data": "zone_name"},
                 {"name": "sku_status_name", "data": "sku_status_name"},
-                {"name": "campaign_no", "data": "campaign_no"},
+                {"name": "po_no", "data": "po_no"},
                 {"name": "pr_no", "data": "pr_no"},
                 {"name": "pr_date", "data": "pr_date"},
                 {"name": "plan_arrival_date", "data": "plan_arrival_date"},

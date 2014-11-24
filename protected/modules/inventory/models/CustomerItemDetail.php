@@ -50,7 +50,7 @@ class CustomerItemDetail extends CActiveRecord {
         return array(
             array('company_id, sku_id, uom_id, quantity_issued, amount', 'required'),
             array('customer_item_id, inventory_id, planned_quantity, quantity_issued', 'numerical', 'integerOnly' => true),
-            array('company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, created_by, updated_by, status', 'length', 'max' => 50),
+            array('company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, created_by, updated_by, status, po_no', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
             array('source_zone_id', 'isValidZone'),
@@ -59,7 +59,7 @@ class CustomerItemDetail extends CActiveRecord {
             array('expiration_date, return_date, created_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('customer_item_detail_id, customer_item_id, company_id, inventory_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, unit_price, expiration_date, planned_quantity, quantity_issued, amount, return_date, status, remarks, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('customer_item_detail_id, customer_item_id, company_id, inventory_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, unit_price, expiration_date, planned_quantity, quantity_issued, amount, return_date, status, remarks, created_date, created_by, updated_date, updated_by, po_no', 'safe', 'on' => 'search'),
         );
     }
 
@@ -119,11 +119,12 @@ class CustomerItemDetail extends CActiveRecord {
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
             'updated_by' => 'Updated By',
-            'campaign_no' => 'PO No',
+            'campaign_no' => 'Campaign No',
             'pr_no' => 'PR No',
             'pr_date' => 'PR Date',
             'plan_arrival_date' => 'Plan Arrival Date',
             'revised_delivery_date' => 'Revised Delivery Date',
+            'po_no' => 'PO No',
         );
     }
 
@@ -166,6 +167,7 @@ class CustomerItemDetail extends CActiveRecord {
         $criteria->compare('created_by', $this->created_by, true);
         $criteria->compare('updated_date', $this->updated_date, true);
         $criteria->compare('updated_by', $this->updated_by, true);
+        $criteria->compare('po_no', $this->po_no, true);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -261,7 +263,7 @@ class CustomerItemDetail extends CActiveRecord {
         $customer_item_transaction_detail->status = OutgoingInventory::OUTGOING_PENDING_STATUS;
         $customer_item_transaction_detail->remarks = $remarks;
         $customer_item_transaction_detail->created_by = $created_by;
-        $customer_item_transaction_detail->campaign_no = $inventory->campaign_no;
+        $customer_item_transaction_detail->po_no = $inventory->po_no;
         $customer_item_transaction_detail->pr_no = $inventory->pr_no;
         $customer_item_transaction_detail->pr_date = $inventory->pr_date;
         $customer_item_transaction_detail->plan_arrival_date = $inventory->plan_arrival_date;

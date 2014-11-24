@@ -57,14 +57,14 @@ class Inventory extends CActiveRecord {
         return array(
             array('company_id, sku_id, qty', 'required'),
             array('qty', 'numerical', 'integerOnly' => true),
-            array('company_id, sku_id, uom_id, zone_id, sku_status_id, created_by, updated_by, campaign_no, pr_no', 'length', 'max' => 50),
+            array('company_id, sku_id, uom_id, zone_id, sku_status_id, created_by, updated_by, campaign_no, pr_no, po_no', 'length', 'max' => 50),
             array('reference_no', 'length', 'max' => 250),
             array('cost_per_unit', 'length', 'max' => 18),
             array('cost_per_unit', 'match', 'pattern' => '/^[0-9]{1,9}(\.[0-9]{0,2})?$/'),
             array('transaction_date,expiration_date, updated_date, expiration_date, pr_date, plan_arrival_date, revised_delivery_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('inventory_id, company_id, sku_id, qty, uom_id, zone_id, sku_status_id, created_date, created_by, updated_date, updated_by, expiration_date, reference_no, campaign_no, pr_no, pr_date, plan_arrival_date, revised_delivery_date', 'safe', 'on' => 'search'),
+            array('inventory_id, company_id, sku_id, qty, uom_id, zone_id, sku_status_id, created_date, created_by, updated_date, updated_by, expiration_date, reference_no, campaign_no, pr_no, pr_date, plan_arrival_date, revised_delivery_date, po_no', 'safe', 'on' => 'search'),
         );
     }
 
@@ -139,11 +139,12 @@ class Inventory extends CActiveRecord {
             'updated_by' => 'Updated By',
             'expiration_date' => 'Expiration Date',
             'reference_no' => 'Batch No',
-            'campaign_no' => 'PO No',
+            'campaign_no' => 'Campaign No',
             'pr_no' => 'PR No',
             'pr_date' => 'PR Date',
             'plan_arrival_date' => 'Plan Arrival Date',
             'revised_delivery_date' => 'Revised Delivery Date',
+            'po_no' => 'PO No',
         );
     }
 
@@ -182,6 +183,7 @@ class Inventory extends CActiveRecord {
         $criteria->compare('pr_date', $this->pr_date, true);
         $criteria->compare('plan_arrival_date', $this->plan_arrival_date, true);
         $criteria->compare('revised_delivery_date', $this->revised_delivery_date, true);
+        $criteria->compare('po_no', $this->po_no, true);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -210,7 +212,7 @@ class Inventory extends CActiveRecord {
                 $sort_column = 'skuStatus.status_name';
                 break;
             case 7:
-                $sort_column = 't.campaign_no';
+                $sort_column = 't.po_no';
                 break;
             case 8:
                 $sort_column = 'expiration_date';
@@ -235,7 +237,7 @@ class Inventory extends CActiveRecord {
         $criteria->compare('uom.uom_name', $columns[3]['search']['value'], true);
         $criteria->compare('zone.zone_name', $columns[5]['search']['value'], true);
         $criteria->compare('skuStatus.status_name', $columns[6]['search']['value'], true);
-        $criteria->compare('t.campaign_no', $columns[7]['search']['value'], true);
+        $criteria->compare('t.po_no', $columns[7]['search']['value'], true);
         $criteria->compare('expiration_date', $columns[8]['search']['value'], true);
         $criteria->compare('reference_no', $columns[9]['search']['value'], true);
         $criteria->compare('sku.brand.brand_name', $columns[10]['search']['value'], true);
@@ -273,7 +275,7 @@ class Inventory extends CActiveRecord {
                 $sort_column = 'skuStatus.status_name';
                 break;
             case 7:
-                $sort_column = 't.campaign_no';
+                $sort_column = 't.po_no';
                 break;
             case 8:
                 $sort_column = 't.pr_no';
@@ -306,7 +308,7 @@ class Inventory extends CActiveRecord {
         $criteria->compare('uom.uom_name', $columns[3]['search']['value'], true);
         $criteria->compare('zone.zone_name', $columns[5]['search']['value'], true);
         $criteria->compare('skuStatus.status_name', $columns[6]['search']['value'], true);
-        $criteria->compare('t.campaign_no', $columns[7]['search']['value'], true);
+        $criteria->compare('t.po_no', $columns[7]['search']['value'], true);
         $criteria->compare('t.pr_no', $columns[8]['search']['value'], true);
         $criteria->compare('t.pr_date', $columns[9]['search']['value'], true);
         $criteria->compare('t.plan_arrival_date', $columns[10]['search']['value'], true);

@@ -154,8 +154,8 @@ class CustomerItemController extends Controller {
         $zone_ids = "";
         $pr_nos = "";
         $pr_no_arr = array();
-        $campaign_nos = "";
-        $campaign_no_arr = array();
+        $po_nos = "";
+        $po_no_arr = array();
         $pr_dates = "";
         $pr_dates_arr = array();
         foreach ($customer_item_detail as $key => $val) {
@@ -166,9 +166,9 @@ class CustomerItemController extends Controller {
                 $pr_nos .= $val->pr_no . ",";
             }
 
-            if (!in_array($val->campaign_no, $campaign_no_arr)) {
-                array_push($campaign_no_arr, $val->campaign_no);
-                $campaign_nos .= $val->campaign_no . ",";
+            if (!in_array($val->po_no, $po_no_arr)) {
+                array_push($po_no_arr, $val->po_no);
+                $po_nos .= $val->po_no . ",";
             }
 
             if (!in_array($val->pr_date, $pr_dates_arr)) {
@@ -179,7 +179,7 @@ class CustomerItemController extends Controller {
 
         $pr_nos = substr($pr_nos, 0, -1);
         $pr_dates = substr($pr_dates, 0, -1);
-        $campaign_nos = substr($campaign_nos, 0, -1);
+        $po_nos = substr($po_nos, 0, -1);
 
 
         $this->render('view', array(
@@ -187,7 +187,7 @@ class CustomerItemController extends Controller {
             'destination' => $destination,
             'pr_nos' => $pr_nos,
             'pr_dates' => $pr_dates,
-            'campaign_nos' => $campaign_nos,
+            'po_nos' => $po_nos,
         ));
     }
 
@@ -482,7 +482,7 @@ class CustomerItemController extends Controller {
             $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['return_date'] = $value->return_date;
             $row['remarks'] = $value->remarks;
-            $row['campaign_no'] = $value->campaign_no;
+            $row['po_no'] = $value->po_no;
             $row['pr_no'] = $value->pr_no;
             $row['status'] = $status;
 
@@ -862,6 +862,8 @@ class CustomerItemController extends Controller {
 
         $pr_nos = "";
         $pr_no_arr = array();
+        $po_nos = "";
+        $po_no_arr = array();
         foreach ($customer_item_detail as $key => $val) {
             $row = array();
 
@@ -871,6 +873,10 @@ class CustomerItemController extends Controller {
                 if (!in_array($inventory->pr_no, $pr_no_arr)) {
                     array_push($pr_no_arr, $inventory->pr_no);
                     $pr_nos .= $inventory->pr_no . ",";
+                }
+                if (!in_array($inventory->po_no, $po_no_arr)) {
+                    array_push($po_no_arr, $inventory->po_no);
+                    $po_nos .= $inventory->po_no . ",";
                 }
             }
 
@@ -911,6 +917,7 @@ class CustomerItemController extends Controller {
         $headers['plan_delivery_date'] = $customer_item['plan_delivery_date'];
 
         $headers['pr_no'] = substr($pr_nos, 0, -1);
+        $headers['po_no'] = substr($po_nos, 0, -1);
         $headers['rra_no'] = $customer_item['rra_no'];
         $headers['rra_date'] = $customer_item['rra_date'];
         $headers['dr_no'] = $customer_item['dr_no'];
@@ -1014,18 +1021,23 @@ class CustomerItemController extends Controller {
                     <td class="border-bottom" style="width: 390px;">' . $destination['poi_name'] . '</td>
                 </tr>
                 <tr>
-                    <td clss="row_label" style="font-weight: bold;">RA no.</td>
-                    <td class="border-bottom">' . $headers['rra_no'] . '</td>
+                    <td clss="row_label" style="font-weight: bold;">PO no.</td>
+                    <td class="border-bottom">' . $headers['po_no'] . '</td>
                     <td style="width: 10px;"></td>
                     <td clss="row_label" style="font-weight: bold;">CONTACT PERSON</td>
                     <td class="border-bottom">' . $destination['contact_person'] . '</td>
                 </tr>
                 <tr>
-                    <td style="font-weight: bold;">DR no.</td>
-                    <td class="border-bottom">' . $headers['dr_no'] . '</td>
+                    <td style="font-weight: bold;">RA no.</td>
+                    <td class="border-bottom">' . $headers['rra_no'] . '</td>
                     <td></td>
                     <td style="font-weight: bold;">ADDRESS</td>
                     <td class="border-bottom">' . $destination['address'] . '</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">DR no.</td>
+                    <td class="border-bottom">' . $headers['dr_no'] . '</td>
+                    <td colspan="3"></td>
                 </tr>
             </table><br/><br/><br/>  
         
