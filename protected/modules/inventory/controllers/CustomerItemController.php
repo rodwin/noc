@@ -1207,12 +1207,18 @@ class CustomerItemController extends Controller {
 
         $pr_nos = "";
         $pr_no_arr = array();
+        $po_nos = "";
+        $po_no_arr = array();
         foreach ($customer_item_detail as $key => $val) {
             $row = array();
 
             if (!in_array($val->pr_no, $pr_no_arr)) {
                 array_push($pr_no_arr, $val->pr_no);
                 $pr_nos .= $val->pr_no . ",";
+            }
+            if (!in_array($val->po_no, $po_no_arr)) {
+                array_push($po_no_arr, $val->po_no);
+                $po_nos .= $val->po_no . ",";
             }
 
             $row['sku_id'] = $val->sku_id;
@@ -1252,6 +1258,7 @@ class CustomerItemController extends Controller {
         $headers['plan_delivery_date'] = $customer_item->plan_delivery_date;
 
         $headers['pr_no'] = substr($pr_nos, 0, -1);
+        $headers['po_no'] = substr($po_nos, 0, -1);
         $headers['rra_no'] = $customer_item->rra_no;
         $headers['rra_date'] = $customer_item->rra_date;
         $headers['dr_no'] = $customer_item->dr_no;
