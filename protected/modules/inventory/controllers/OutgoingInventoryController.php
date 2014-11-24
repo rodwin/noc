@@ -1559,7 +1559,7 @@ class OutgoingInventoryController extends Controller {
                         $data['actual_qty'] = $new_actual_qty;
                     } else {
 
-                        $data['message'] = 'Source inventory quantity issued has only <b>' . $inventory->qty . " " . strtolower(isset($outgoing_inv_detail->uom) ? $outgoing_inv_detail->uom->uom_name : "") . '</b> inventory on hand';
+                        $data['message'] = 'Source inventory has only <b>' . $inventory->qty . " " . strtolower(isset($outgoing_inv_detail->uom) ? $outgoing_inv_detail->uom->uom_name : "") . '</b> inventory on hand available';
                         $data["type"] = "danger";
                     }
                 } else {
