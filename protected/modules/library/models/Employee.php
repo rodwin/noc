@@ -432,7 +432,7 @@ class Employee extends CActiveRecord {
                EmployeePoi::model()->removeEmployeePOI($remove_poi[$i]['poi_id'], $employee->employee_id);
             }
          }
-         if (count($assigned_poi) > 0) {
+//         if (count($assigned_poi) > 0) {
             if ($employee->save(false)) {
                for ($i = 0; $i < count($assigned_poi); $i++) {
                   EmployeePoi::model()->createEmployeePOI($assigned_poi[$i]['poi_id'], $employee->company_id, $employee->employee_id, 'create');
@@ -440,9 +440,9 @@ class Employee extends CActiveRecord {
             }
 
 //                return true;
-         } else {
-            return false;
-         }
+//         } else {
+//            return false;
+//         }
          return true;
       } catch (Exception $exc) {
          Yii::log($exc->getTraceAsString(), 'error');
