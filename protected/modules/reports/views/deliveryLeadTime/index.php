@@ -106,7 +106,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                            <tr>
                               <td><?php echo $val['supplier_name'] ?></td>
                               <td><?php echo $val['sales_office_name'] ?></td>
-                              <td><?php echo $val['campaign_no'] ?></td>
+                              <td><?php echo $val['po_no'] ?></td>
                               <td><?php echo $val['pr_no'] ?></td>
                               <td><?php echo $val['pr_date'] ?></td>
                               <td><?php echo $val['plan_delivery_date'] ?></td>
@@ -138,7 +138,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <tr >
                            <td align = "center" rowspan ="2">WAREHOUSE</td>
                            <td align = "center" rowspan ="2">SALES OFFICE</td>
-                           <td align = "center" rowspan ="2">CAMPAIGN NO.</td>
+                           <td align = "center" rowspan ="2">PO NO.</td>
                            <td align = "center" rowspan ="2">PR NO.</td>
                            <td align = "center" rowspan ="2">PR DATE</td>
                            <td align = "center" rowspan ="2">PLAN DELIVERY DATE</td>
@@ -157,7 +157,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                            <tr>
                               <td><?php echo $val['warehouse'] ?></td>
                               <td><?php echo $val['sales_office_name'] ?></td>
-                              <td><?php echo $val['campaign_no'] ?></td>
+                              <td><?php echo $val['po_no'] ?></td>
                               <td><?php echo $val['pr_no'] ?></td>
                               <td><?php echo $val['pr_date'] ?></td>
                               <td><?php echo $val['plan_delivery_date'] ?></td>
@@ -213,7 +213,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                            <tr>
                               <td><?php echo $val['sales_office_name'] ?></td>
                               <td><?php echo $val['short_name'] ?></td>
-                              <td><?php echo $val['campaign_no'] ?></td>
+                              <td><?php echo $val['po_no'] ?></td>
                               <td><?php echo $val['pr_no'] ?></td>
                               <td><?php echo $val['rra_no'] ?></td>
                               <td><?php echo $val['rra_date'] ?></td>
