@@ -76,7 +76,7 @@ $this->breadcrumbs = array(
             <table class="table table-bordered table-condensed">
                 <tr>
                     <td class="first_col_right_table"><strong><?php echo $receivingFields['plan_delivery_date']; ?>:</strong></td>
-                    <td><?php echo $model->plan_delivery_date; ?></td>
+                    <td><?php echo $model->plan_delivery_date != "" ? $model->plan_delivery_date : $not_set; ?></td>
                 </tr>
                 <tr>
                     <td><strong><?php echo $receivingFields['pr_no']; ?>:</strong></td>

@@ -99,6 +99,15 @@ class ReceivingInventory extends CActiveRecord {
         if ($this->dr_date == "") {
             $this->dr_date = null;
         }
+        if ($this->pr_date == "") {
+            $this->pr_date = null;
+        }
+        if ($this->po_date == "") {
+            $this->po_date = null;
+        }
+        if ($this->rra_date == "") {
+            $this->rra_date = null;
+        }
 
         return parent::beforeValidate();
     }

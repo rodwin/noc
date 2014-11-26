@@ -667,6 +667,10 @@ class PoiController extends Controller {
     }
 
     public function actionGetPOIDetails($poi_id) {
+        
+        if ($poi_id == "") {
+            return false;
+        }
 
         $c = new CDbCriteria();
         $c->select = new CDbExpression('t.*, TRIM(barangay.barangay_name) as barangay_name, TRIM(municipal.municipal_name) as municipal_name, TRIM(province.province_name) as province_name, TRIM(region.region_name) as region_name');
@@ -683,9 +687,9 @@ class PoiController extends Controller {
         $poi_address .= isset($poi->province_name) ? $poi->province_name . ", " : "";
         $poi_address .= isset($poi->region_name) ? $poi->region_name : "";
 
-        $return['poi_id'] = $poi->poi_id;
-        $return['short_name'] = $poi->short_name;
-        $return['primary_code'] = $poi->primary_code;
+        $return['poi_id'] = isset($poi) ? $poi->poi_id : "";
+        $return['short_name'] = isset($poi) ? $poi->short_name : "";
+        $return['primary_code'] = isset($poi) ? $poi->primary_code : "";
         $return['address1'] = $poi_address;
 
         echo json_encode($return);

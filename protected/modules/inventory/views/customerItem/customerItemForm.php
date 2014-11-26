@@ -158,8 +158,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php // echo CHtml::textField('poi_id', '', array('id' => 'CustomerItem_poi_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Outlet")); ?>
                 <?php // echo $form->textFieldGroup($customer_item, 'poi_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'CustomerItem_poi', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
 
-                <div id="CustomerItem_poi_primary_code" class="autofill_text"></div>
-                <div id="CustomerItem_poi_address1" class="autofill_text" style="height: auto;"></div>
+                <div id="CustomerItem_poi_primary_code" class="autofill_text"><center>--</center></div>
+                <div id="CustomerItem_poi_address1" class="autofill_text" style="height: auto;"><center>--</center></div>
 
             </div>
 
@@ -180,8 +180,21 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($customer_item, 'plan_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo CHtml::textField('salesman_id', '', array('id' => 'CustomerItem_salesman_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Salesman", 'maxlength' => 50)); ?>
-                <?php echo $form->textFieldGroup($customer_item, 'salesman_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'CustomerItem_salesman', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
+                <?php //echo CHtml::textField('salesman_id', '', array('id' => 'CustomerItem_salesman_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Salesman", 'maxlength' => 50)); ?>
+                <?php //echo $form->textFieldGroup($customer_item, 'salesman_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'CustomerItem_salesman', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
+
+               <?php
+                echo $form->select2Group(
+                        $customer_item, 'salesman_id', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => '', 'id' => '',
+                    ),
+                    'widgetOptions' => array(
+                        'data' => $employee,
+                        'options' => array(),
+                        'htmlOptions' => array('class' => 'ignore span5', 'prompt' => '--')),
+                    'labelOptions' => array('label' => false)));
+                ?>
 
                 <?php
                 echo $form->textAreaGroup($customer_item, 'remarks', array(
@@ -695,9 +708,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             if (data.form == headers) {
 
-//                document.forms["customer-item-form"].reset();
-//                $('#customer-item-form .autofill_text').html('');
-//                $("#customer-item-form .select2-container").select2("val", "");
+                //                document.forms["customer-item-form"].reset();
+                //                $('#customer-item-form .autofill_text').html('');
+                //                $("#customer-item-form .select2-container").select2("val", "");
 
                 success_customer_item_id = data.customer_item_id;
                 success_type = data.type;
@@ -804,7 +817,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 "sku_status_id": row_data[12],
                 "amount": row_data[14],
                 "remarks": row_data[15],
-//                "inventory_on_hand": row_data[13],
+                //                "inventory_on_hand": row_data[13],
                 "return_date": row_data[16],
                 "inventory_id": row_data[17],
                 "source_zone_id": row_data[18],
@@ -1074,6 +1087,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     $('#CustomerItem_poi_id').change(function() {
+        $("#CustomerItem_poi_primary_code, #CustomerItem_poi_address1").html("<center>--</center>");
+
         $.ajax({
             type: 'POST',
             url: '<?php echo Yii::app()->createUrl('/library/poi/getPOIDetails'); ?>' + '&poi_id=' + this.value,

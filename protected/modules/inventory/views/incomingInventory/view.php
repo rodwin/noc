@@ -76,23 +76,23 @@ $this->breadcrumbs = array(
             <table class="table table-bordered table-condensed">
                 <tr>
                     <td class="first_col_right_table"><strong><?php echo $incomingFields['plan_delivery_date'] ?>:</strong></td>
-                    <td><?php echo $model->plan_delivery_date; ?></td>
+                    <td><?php echo $model->plan_delivery_date != "" ? $model->plan_delivery_date : $not_set; ?></td>
                 </tr>
                 <tr>
                     <td><strong><?php echo $incomingDetailFields['pr_no'] ?>:</strong></td>
-                    <td><?php echo $pr_nos; ?></td>
+                    <td><?php echo $pr_nos != "" ? $pr_nos : $not_set; ?></td>
                 </tr>
                 <tr>
                     <td><strong><?php echo $incomingDetailFields['po_no'] ?>:</strong></td>
-                    <td><?php echo $po_nos; ?></td>
+                    <td><?php echo $po_nos != "" ? $po_nos : $not_set; ?></td>
                 </tr>
                 <tr>
                     <td><strong><?php echo $incomingFields['rra_no'] ?>:</strong></td>
-                    <td><?php echo $model->rra_no; ?></td>
+                    <td><?php echo $model->rra_no != "" ? $model->rra_no : $not_set; ?></td>
                 </tr>
                 <tr>
                     <td><strong><?php echo $incomingFields['rra_date'] ?>:</strong></td>
-                    <td><?php echo $model->rra_date; ?></td>
+                    <td><?php echo $model->rra_date != "" ? $model->rra_date : $not_set; ?></td>
                 </tr>
                 <tr>
                     <td><strong><?php echo $incomingFields['dr_no'] ?>:</strong></td>

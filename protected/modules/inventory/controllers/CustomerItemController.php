@@ -207,6 +207,12 @@ class CustomerItemController extends Controller {
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
         $poi_list = CHtml::listData(Poi::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'short_name ASC')), 'poi_id', 'short_name', 'primary_code');
         $model = new Attachment;
+        
+        $c = new CDbCriteria;
+        $c->select = new CDbExpression('t.*, CONCAT(t.first_name, " ", t.last_name) AS fullname');
+        $c->condition = 'company_id = "' . Yii::app()->user->company_id . '"';
+        $c->order = 'fullname ASC';
+        $employee = CHtml::listData(Employee::model()->findAll($c), 'employee_id', 'fullname', 'employee_code');
 
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
@@ -326,6 +332,7 @@ class CustomerItemController extends Controller {
             'sku_status' => $sku_status,
             'model' => $model,
             'poi_list' => $poi_list,
+            'employee' => $employee,
         ));
     }
 
