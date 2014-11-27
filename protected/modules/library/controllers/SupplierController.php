@@ -25,28 +25,33 @@ class SupplierController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view', 'data', 'getProvinceByRegionCode', 'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode', 'searchSupplier'),
+                'actions' => array('index', 'data', 'getProvinceByRegionCode', 'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode', 'searchSupplier'),
                 'users' => array('@'),
             ),
             array('allow',
                 'actions' => array('admin'),
                 'expression' => "Yii::app()->user->checkAccess('Manage Supplier', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('allow',
                 'actions' => array('create'),
                 'expression' => "Yii::app()->user->checkAccess('Add Supplier', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('allow',
                 'actions' => array('view'),
                 'expression' => "Yii::app()->user->checkAccess('View Supplier', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('allow',
-                'actions' => array('edit'),
+                'actions' => array('update'),
                 'expression' => "Yii::app()->user->checkAccess('Edit Supplier', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('allow',
                 'actions' => array('delete'),
                 'expression' => "Yii::app()->user->checkAccess('Delete Supplier', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('deny', // deny all users
                 'users' => array('*'),
@@ -340,7 +345,7 @@ class SupplierController extends Controller {
             $c->addSearchCondition('t.supplier_code', $value, true, 'OR');
             $c->addSearchCondition('t.supplier_name', $value, true, 'OR');
         }
-        
+
         $c->compare('t.company_id', Yii::app()->user->company_id);
         $sku = Supplier::model()->findAll($c);
 

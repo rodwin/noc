@@ -25,28 +25,33 @@ class SalesOfficeController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view', 'data', 'getSODetailsByID'),
+                'actions' => array('index', 'data', 'getSODetailsByID'),
                 'users' => array('@'),
             ),
             array('allow',
                 'actions' => array('admin'),
                 'expression' => "Yii::app()->user->checkAccess('Manage Salesoffice', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('allow',
                 'actions' => array('create'),
                 'expression' => "Yii::app()->user->checkAccess('Add Salesoffice', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('allow',
                 'actions' => array('view'),
                 'expression' => "Yii::app()->user->checkAccess('View Salesoffice', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('allow',
-                'actions' => array('edit'),
+                'actions' => array('update'),
                 'expression' => "Yii::app()->user->checkAccess('Edit Salesoffice', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('allow',
                 'actions' => array('delete'),
                 'expression' => "Yii::app()->user->checkAccess('Delete Salesoffice', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('deny', // deny all users
                 'users' => array('*'),
@@ -340,6 +345,10 @@ class SalesOfficeController extends Controller {
 
     public function actionGetSODetailsByID($sales_office_id) {
 
+        if ($sales_office_id == "") {
+            return false;
+        }
+
         $sales_office = $this->loadModel($sales_office_id);
 
         $return = array();
@@ -349,19 +358,20 @@ class SalesOfficeController extends Controller {
         $so_detail['sales_office_id'] = $sales_office->sales_office_id;
         $so_detail['sales_office_code'] = $sales_office->sales_office_code;
         $so_detail['sales_office_name'] = $sales_office->sales_office_name;
+        $so_detail['sales_office_address1'] = $sales_office->address1;
 
         $zone = Zone::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "sales_office_id" => $sales_office->sales_office_id), array("order" => "zone_name ASC"));
-        
+
         foreach ($zone as $key => $val) {
             $row = array();
-            
+
             $row['zone_id'] = $val->zone_id;
             $row['zone_name'] = $val->zone_name;
             $row['sales_office_code'] = $val->salesOffice->sales_office_code;
-            
+
             $zones[] = $row;
         }
-        
+
         $return['so_detail'] = $so_detail;
         $return['zones'] = $zones;
 
