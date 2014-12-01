@@ -207,6 +207,12 @@ class CustomerItemController extends Controller {
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
         $poi_list = CHtml::listData(Poi::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'short_name ASC')), 'poi_id', 'short_name', 'primary_code');
         $model = new Attachment;
+        
+        $c = new CDbCriteria;
+        $c->select = new CDbExpression('t.*, CONCAT(t.first_name, " ", t.last_name) AS fullname');
+        $c->condition = 'company_id = "' . Yii::app()->user->company_id . '"';
+        $c->order = 'fullname ASC';
+        $employee = CHtml::listData(Employee::model()->findAll($c), 'employee_id', 'fullname', 'employee_code');
 
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
@@ -326,6 +332,7 @@ class CustomerItemController extends Controller {
             'sku_status' => $sku_status,
             'model' => $model,
             'poi_list' => $poi_list,
+            'employee' => $employee,
         ));
     }
 
@@ -1207,12 +1214,18 @@ class CustomerItemController extends Controller {
 
         $pr_nos = "";
         $pr_no_arr = array();
+        $po_nos = "";
+        $po_no_arr = array();
         foreach ($customer_item_detail as $key => $val) {
             $row = array();
 
             if (!in_array($val->pr_no, $pr_no_arr)) {
                 array_push($pr_no_arr, $val->pr_no);
                 $pr_nos .= $val->pr_no . ",";
+            }
+            if (!in_array($val->po_no, $po_no_arr)) {
+                array_push($po_no_arr, $val->po_no);
+                $po_nos .= $val->po_no . ",";
             }
 
             $row['sku_id'] = $val->sku_id;
@@ -1252,6 +1265,7 @@ class CustomerItemController extends Controller {
         $headers['plan_delivery_date'] = $customer_item->plan_delivery_date;
 
         $headers['pr_no'] = substr($pr_nos, 0, -1);
+        $headers['po_no'] = substr($po_nos, 0, -1);
         $headers['rra_no'] = $customer_item->rra_no;
         $headers['rra_date'] = $customer_item->rra_date;
         $headers['dr_no'] = $customer_item->dr_no;

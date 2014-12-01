@@ -27,6 +27,7 @@ class SiteController extends Controller {
             array('allow',
                 'actions' => array('abi'),
                 'expression' => "Yii::app()->user->checkAccess('ABI Dashboard', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('deny', // deny all users
                 'users' => array('*'),
@@ -216,7 +217,7 @@ class SiteController extends Controller {
                     Yii::app()->authManager->save(); //again always save the result
             }
         }
-        
+
         Yii::app()->user->logout();
         Yii::app()->session->clear();
         Yii::app()->session->destroy();

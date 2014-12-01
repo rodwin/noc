@@ -147,7 +147,7 @@ $this->breadcrumbs = array(
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
-            "order": [[8, "asc"]],
+            "order": [[10, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/ReceivingInventory/data'); ?>",
             "columns": [
                 {"name": "pr_no", "data": "pr_no"},
