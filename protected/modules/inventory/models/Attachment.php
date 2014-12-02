@@ -14,6 +14,7 @@
  * @property string $created_by
  * @property string $updated_date
  * @property string $updated_by
+ * @property string $tag_category
  */
 class Attachment extends CActiveRecord {
 

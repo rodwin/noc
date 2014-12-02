@@ -12,6 +12,18 @@
     <td>
     <div class="progress progress-success progress-striped active"><div class="bar" style="width:0%;"></div></div>
     </td>
+     <td>
+         <select class="form-control tagValues" name="inventorytype" id="inventory_type" onchange="selectchange(this);">
+            <option>PO No.</option>
+            <option>DR No.</option>
+            <option>RRA No.</option>
+            <option>OTHERS</option>
+         </select>
+      </td>
+      
+      <td>
+         <input class="form-control tagValues" placeholder="Tag to" type="text" id="txttag" name="tagname" disabled="true" />
+      </td>
     <td class="start">{% if (!o.options.autoUpload) { %}
     <button class="btn btn-primary btn-sm btn-flat" style="display: none;">
     <i class="glyphicon glyphicon-upload"></i>
