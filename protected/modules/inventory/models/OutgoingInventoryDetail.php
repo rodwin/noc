@@ -62,11 +62,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
      * @soap
      */
     public $amount;
-
-    /**
-     * @var string inventory_on_hand
-     * @soap
-     */
+    
     public $inventory_on_hand;
 
     /**
@@ -80,6 +76,12 @@ class OutgoingInventoryDetail extends CActiveRecord {
      * @soap
      */
     public $remarks;
+    
+    /**
+     * @var string po_no
+     * @soap
+     */
+    public $po_no;
 
     /**
      * @var Sku[] sku_obj

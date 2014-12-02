@@ -693,7 +693,10 @@ class ReceivingInventoryController extends Controller {
         $model = new Attachment;
 
         $receiving_inv_id_attachment_session = Yii::app()->session['receiving_inv_id_attachment_session'];
-
+//        dito start
+        $tag_category = Yii::app()->request->getPost('inventorytype', '');
+        $tag_to = Yii::app()->request->getPost('tagname', '');
+//       dito end
         if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
 
             $file = CUploadedFile::getInstance($model, 'file');
@@ -702,7 +705,7 @@ class ReceivingInventoryController extends Controller {
             if (!is_dir($dir)) {
                 mkdir($dir, 0777, true);
             }
-
+            
             $file_name = str_replace(' ', '_', strtolower($file->name));
             $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::RECEIVING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $receiving_inv_id_attachment_session . DIRECTORY_SEPARATOR . $file_name;
             $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
@@ -714,7 +717,13 @@ class ReceivingInventoryController extends Controller {
             $model->transaction_id = $receiving_inv_id_attachment_session;
             $model->transaction_type = Attachment::RECEIVING_TRANSACTION_TYPE;
             $model->created_by = Yii::app()->user->name;
-
+//            dito start
+         if ($tag_category != "OTHERS") {
+            $model->tag_category = $tag_category;
+         } else {
+            $model->tag_category = $tag_to;
+         }
+//          dito end
             if ($model->save()) {
 
                 $data[] = array(
