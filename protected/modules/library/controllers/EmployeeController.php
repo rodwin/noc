@@ -697,7 +697,7 @@ class EmployeeController extends Controller {
 
         $criteria = new CDbCriteria;
         $criteria->select = new CDbExpression('t.*, CONCAT(t.first_name, " ", t.last_name) AS fullname');
-        $criteria->condition = 'company_id = "' . Yii::app()->user->company_id . '"';
+        $criteria->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND t.employee_id = "' . $employee_id . '"';
         $employee = Employee::model()->find($criteria);
 
         $return = array();
@@ -706,6 +706,7 @@ class EmployeeController extends Controller {
         $return['full_name'] = $employee->fullname;
         $return['employee_code'] = $employee->employee_code;
         $return['address1'] = $employee->address1;
+        $return['default_zone_name'] = isset($employee->zone->zone_name) ? $employee->zone->zone_name : "";
 
         echo json_encode($return);
     }
