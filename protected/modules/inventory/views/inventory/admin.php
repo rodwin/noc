@@ -65,7 +65,7 @@ return false;
     <ul class="dropdown-menu" role="menu">
         <li><a href="#">Download All Records</a></li>
         <li><a href="#">Download All Filtered Records</a></li>
-        <li><a href="#">Upload</a></li>
+        <li><a href="<?php echo Yii::app()->createUrl($this->module->id . '/inventory/upload'); ?>">Upload</a></li>
     </ul>
 </div>
 
@@ -99,8 +99,8 @@ return false;
                 <th><?php echo $invFields['plan_arrival_date']; ?></th>
                 <th><?php echo $invFields['reference_no']; ?></th>
                 <th><?php echo $invFields['expiration_date']; ?></th>
-                <th><?php echo $invFields['brand_name']; ?></th>
-                <th><?php echo $invFields['sales_office_name']; ?></th>
+                <th><?php echo $skuFields['brand_id']; ?></th>
+                <th>Salesoffice</th>
                 <th>Actions</th>
             </tr>
         </thead>
