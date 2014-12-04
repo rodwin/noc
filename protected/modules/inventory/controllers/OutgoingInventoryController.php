@@ -31,7 +31,7 @@ class OutgoingInventoryController extends Controller {
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('create', 'update', 'data', 'loadInventoryDetails', 'outgoingInvDetailData', 'afterDeleteTransactionRow', 'invData', 'uploadAttachment', 'preview', 'download', 'searchCampaignNo', 'loadPRNos', 'loadInvByPRNo',
-                    'deleteOutgoingDetail', 'deleteAttachment', 'print', 'loadPDF', 'getDetailsByOutgoingInvID', 'loadItemDetails', 'viewPrint', 'checkInvIfUpdatedActualQtyValid', 'sendDR'),
+                    'deleteOutgoingDetail', 'deleteAttachment', 'print', 'loadPDF', 'getDetailsByOutgoingInvID', 'loadItemDetails', 'viewPrint', 'checkInvIfUpdatedActualQtyValid', 'sendDR', 'loadAttachmentDownload'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -699,7 +699,11 @@ class OutgoingInventoryController extends Controller {
                     $arr = explode("/", $base);
                     $base = $arr[count($arr) - 1];
                     $url = str_replace(Yii::app()->getBaseUrl(true), "", $attachment->url);
-                    unlink('../' . $base . $url);
+                    $delete_link = '../' . $base . $url;
+
+                    if (file_exists($delete_link)) {
+                        unlink($delete_link);
+                    }
                 } else {
                     throw new CHttpException(404, 'The requested page does not exist.');
                 }
@@ -865,7 +869,7 @@ class OutgoingInventoryController extends Controller {
             $row = array();
             $row['file_name'] = $icon . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . $value->file_name;
 
-            $row['links'] = '<a class="btn btn-sm btn-default" title="Delete" href="' . $this->createUrl('/inventory/outgoinginventory/download', array('id' => $value->attachment_id)) . '">
+            $row['links'] = '<a class="btn btn-sm btn-default download_attachment" title="Delete" href="' . $this->createUrl('/inventory/outgoinginventory/download', array('id' => $value->attachment_id)) . '">
                                 <i class="glyphicon glyphicon-download"></i>
                             </a>'
                     . '&nbsp;<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/outgoinginventory/deleteAttachment', array('attachment_id' => $value->attachment_id)) . '">
@@ -891,14 +895,28 @@ class OutgoingInventoryController extends Controller {
         $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
         $src = '../' . $base . $url;
 
-        if (file_exists($src)) {
-            ob_clean();
+        $data = array();
+        $data['success'] = false;
+        $data['type'] = "success";
 
-            Yii::app()->getRequest()->sendFile($name, file_get_contents($src));
+        if (file_exists($src)) {
+
+            $data['name'] = $name;
+            $data['src'] = $src;
+            $data['success'] = true;
+            $data['message'] = "Successfully downloaded";
         } else {
 
-            throw new CHttpException(500, "Could not download file.");
+            $data['type'] = "danger";
+            $data['message'] = "Could not download file";
         }
+
+        echo json_encode($data);
+    }
+
+    public function actionLoadAttachmentDownload($name, $src) {
+        ob_clean();
+        Yii::app()->getRequest()->sendFile($name, file_get_contents($src));
     }
 
     public function actionSearchCampaignNo($value) {
