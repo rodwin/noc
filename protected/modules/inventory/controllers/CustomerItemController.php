@@ -1,994 +1,996 @@
 <?php
 
 class CustomerItemController extends Controller {
-   /**
-    * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
-    * using two-column layout. See 'protected/views/layouts/column2.php'.
-    */
-   //public $layout='//layouts/column2';
+    /**
+     * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
+     * using two-column layout. See 'protected/views/layouts/column2.php'.
+     */
+    //public $layout='//layouts/column2';
 
-   /**
-    * @return array action filters
-    */
-   public function filters() {
-      return array(
-          'accessControl', // perform access control for CRUD operations
-          'postOnly + delete', // we only allow deletion via POST request
-      );
-   }
+    /**
+     * @return array action filters
+     */
+    public function filters() {
+        return array(
+            'accessControl', // perform access control for CRUD operations
+            'postOnly + delete', // we only allow deletion via POST request
+        );
+    }
 
-   /**
-    * Specifies the access control rules.
-    * This method is used by the 'accessControl' filter.
-    * @return array access control rules
-    */
-   public function accessRules() {
-      return array(
-          array('allow', // allow all users to perform 'index' and 'view' actions
-              'actions' => array('index', 'view'),
-              'users' => array('@'),
-          ),
-          array('allow', // allow authenticated user to perform 'create' and 'update' actions
-              'actions' => array('create', 'update', 'data', 'loadTransactionByDRNo', 'loadInventoryDetails', 'customerItemDetailData', 'deleteCustomerItemDetail', 'uploadAttachment', 'preview', 'download', 'deleteAttachment',
-                  'print', 'loadPDF', 'getDetailsByCustomerItemID', 'viewPrint'),
-              'users' => array('@'),
-          ),
-          array('allow', // allow admin user to perform 'admin' and 'delete' actions
-              'actions' => array('admin', 'delete'),
-              'users' => array('@'),
-          ),
-          array('deny', // deny all users
-              'users' => array('*'),
-          ),
-      );
-   }
+    /**
+     * Specifies the access control rules.
+     * This method is used by the 'accessControl' filter.
+     * @return array access control rules
+     */
+    public function accessRules() {
+        return array(
+            array('allow', // allow all users to perform 'index' and 'view' actions
+                'actions' => array('index', 'view'),
+                'users' => array('@'),
+            ),
+            array('allow', // allow authenticated user to perform 'create' and 'update' actions
+                'actions' => array('create', 'update', 'data', 'loadTransactionByDRNo', 'loadInventoryDetails', 'customerItemDetailData', 'deleteCustomerItemDetail', 'uploadAttachment', 'preview', 'download', 'deleteAttachment',
+                    'print', 'loadPDF', 'getDetailsByCustomerItemID', 'viewPrint'),
+                'users' => array('@'),
+            ),
+            array('allow', // allow admin user to perform 'admin' and 'delete' actions
+                'actions' => array('admin', 'delete'),
+                'users' => array('@'),
+            ),
+            array('deny', // deny all users
+                'users' => array('*'),
+            ),
+        );
+    }
 
-   public function actionData() {
+    public function actionData() {
 
-      CustomerItem::model()->search_string = $_GET['search']['value'] != "" ? $_GET['search']['value'] : null;
+        CustomerItem::model()->search_string = $_GET['search']['value'] != "" ? $_GET['search']['value'] : null;
 
-      $dataProvider = CustomerItem::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'], $_GET['columns']);
+        $dataProvider = CustomerItem::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'], $_GET['columns']);
 
-      $count = CustomerItem::model()->countByAttributes(array('company_id' => Yii::app()->user->company_id));
+        $count = CustomerItem::model()->countByAttributes(array('company_id' => Yii::app()->user->company_id));
 
-      $output = array(
-          "draw" => intval($_GET['draw']),
-          "recordsTotal" => $count,
-          "recordsFiltered" => $dataProvider->totalItemCount,
-          "data" => array()
-      );
+        $output = array(
+            "draw" => intval($_GET['draw']),
+            "recordsTotal" => $count,
+            "recordsFiltered" => $dataProvider->totalItemCount,
+            "data" => array()
+        );
 
-      foreach ($dataProvider->getData() as $key => $value) {
-         $row = array();
+        foreach ($dataProvider->getData() as $key => $value) {
+            $row = array();
 
-         $status = "";
-         switch ($value->status) {
-            case OutgoingInventory::OUTGOING_PENDING_STATUS:
-               $status = '<span class="label label-warning">' . OutgoingInventory::OUTGOING_PENDING_STATUS . '</span>';
-               break;
-            case OutgoingInventory::OUTGOING_COMPLETE_STATUS:
-               $status = '<span class="label label-success">' . OutgoingInventory::OUTGOING_COMPLETE_STATUS . '</span>';
-               break;
-            case OutgoingInventory::OUTGOING_INCOMPLETE_STATUS:
-               $status = '<span class="label label-danger">' . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . '</span>';
-               break;
-            case OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS:
-               $status = '<span class="label label-primary">' . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . '</span>';
-               break;
-            default:
-               break;
-         }
+            $status = "";
+            switch ($value->status) {
+                case OutgoingInventory::OUTGOING_PENDING_STATUS:
+                    $status = '<span class="label label-warning">' . OutgoingInventory::OUTGOING_PENDING_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_COMPLETE_STATUS:
+                    $status = '<span class="label label-success">' . OutgoingInventory::OUTGOING_COMPLETE_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_INCOMPLETE_STATUS:
+                    $status = '<span class="label label-danger">' . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS:
+                    $status = '<span class="label label-primary">' . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . '</span>';
+                    break;
+                default:
+                    break;
+            }
 
-         $row['customer_item_id'] = $value->customer_item_id;
-         $row['rra_no'] = $value->rra_no;
-         $row['rra_date'] = $value->rra_date;
+            $row['customer_item_id'] = $value->customer_item_id;
+            $row['rra_no'] = $value->rra_no;
+            $row['rra_date'] = $value->rra_date;
 //            $row['campaign_no'] = $value->campaign_no;
 //            $row['pr_no'] = $value->pr_no;
 //            $row['pr_date'] = $value->pr_date;
-         $row['dr_no'] = $value->dr_no;
-         $row['dr_date'] = $value->dr_date;
+            $row['dr_no'] = $value->dr_no;
+            $row['dr_date'] = $value->dr_date;
 //            $row['source_zone_id'] = $value->source_zone_id;
 //            $row['source_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
-         $row['poi_id'] = $value->poi_id;
-         $row['poi_name'] = isset($value->poi->short_name) ? $value->poi->short_name : null;
-         $row['transaction_date'] = $value->transaction_date;
-         $row['total_amount'] = "&#x20B1;" . number_format($value->total_amount, 2, '.', ',');
-         $row['created_date'] = $value->created_date;
-         $row['created_by'] = $value->created_by;
-         $row['updated_date'] = $value->updated_date;
-         $row['updated_by'] = $value->updated_by;
-         $row['status'] = $status;
+            $row['poi_id'] = $value->poi_id;
+            $row['poi_name'] = isset($value->poi->short_name) ? $value->poi->short_name : null;
+            $row['transaction_date'] = $value->transaction_date;
+            $row['total_amount'] = "&#x20B1;" . number_format($value->total_amount, 2, '.', ',');
+            $row['created_date'] = $value->created_date;
+            $row['created_by'] = $value->created_by;
+            $row['updated_date'] = $value->updated_date;
+            $row['updated_by'] = $value->updated_by;
+            $row['status'] = $status;
 
 
-         $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/customerItem/view', array('id' => $value->customer_item_id)) . '">
+            $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/customerItem/view', array('id' => $value->customer_item_id)) . '">
                                 <i class="glyphicon glyphicon-eye-open"></i>
                             </a>
                             <a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/customerItem/delete', array('id' => $value->customer_item_id)) . '">
                                 <i class="glyphicon glyphicon-trash"></i>
                             </a>';
 
-         $output['data'][] = $row;
-      }
+            $output['data'][] = $row;
+        }
 
-      echo json_encode($output);
-   }
+        echo json_encode($output);
+    }
 
-   /**
-    * Displays a particular model.
-    * @param integer $id the ID of the model to be displayed
-    */
-   public function actionView($id) {
-      $model = $this->loadModel($id);
+    /**
+     * Displays a particular model.
+     * @param integer $id the ID of the model to be displayed
+     */
+    public function actionView($id) {
+        $model = $this->loadModel($id);
 
-      $this->pageTitle = "View " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory';
-      $this->layout = '//layouts/column1';
+        $this->pageTitle = "View " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory';
+        $this->layout = '//layouts/column1';
 
-      $c = new CDbCriteria;
-      $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.customer_item_id = '" . $model->customer_item_id . "'";
-      $c->with = array("zone");
-      $customer_item = CustomerItem::model()->find($c);
+        $c = new CDbCriteria;
+        $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.customer_item_id = '" . $model->customer_item_id . "'";
+        $c->with = array("zone");
+        $customer_item = CustomerItem::model()->find($c);
 
-      $c1 = new CDbCriteria;
-      $c1->select = new CDbExpression('t.*, TRIM(barangay.barangay_name) as barangay_name, TRIM(municipal.municipal_name) as municipal_name, TRIM(province.province_name) as province_name, TRIM(region.region_name) as region_name');
-      $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.poi_id = '" . $model->poi_id . "'";
-      $c1->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
-      $c1->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
-      $c1->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
-      $c1->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
-      $poi = Poi::model()->find($c1);
+        $c1 = new CDbCriteria;
+        $c1->select = new CDbExpression('t.*, TRIM(barangay.barangay_name) as barangay_name, TRIM(municipal.municipal_name) as municipal_name, TRIM(province.province_name) as province_name, TRIM(region.region_name) as region_name');
+        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.poi_id = '" . $model->poi_id . "'";
+        $c1->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
+        $c1->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
+        $c1->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
+        $c1->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
+        $poi = Poi::model()->find($c1);
 
-      $poi_address = isset($poi->barangay_name) ? $poi->barangay_name . ", " : "";
-      $poi_address .= isset($poi->municipal_name) ? $poi->municipal_name . ", " : "";
-      $poi_address .= isset($poi->province_name) ? $poi->province_name . ", " : "";
-      $poi_address .= isset($poi->region_name) ? $poi->region_name : "";
+        $poi_address = isset($poi->barangay_name) ? $poi->barangay_name . ", " : "";
+        $poi_address .= isset($poi->municipal_name) ? $poi->municipal_name . ", " : "";
+        $poi_address .= isset($poi->province_name) ? $poi->province_name . ", " : "";
+        $poi_address .= isset($poi->region_name) ? $poi->region_name : "";
 
-      $destination = array();
-      $destination['poi_name'] = $poi->short_name;
-      $destination['poi_code'] = $poi->primary_code;
-      $destination['contact_person'] = "";
-      $destination['contact_no'] = "";
-      $destination['address'] = $poi_address;
+        $destination = array();
+        $destination['poi_name'] = $poi->short_name;
+        $destination['poi_code'] = $poi->primary_code;
+        $destination['contact_person'] = "";
+        $destination['contact_no'] = "";
+        $destination['address'] = $poi_address;
 
-      $customer_item_detail = CustomerItemDetail::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "customer_item_id" => $model->customer_item_id));
+        $customer_item_detail = CustomerItemDetail::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "customer_item_id" => $model->customer_item_id));
 
-      $zone_ids = "";
-      $pr_nos = "";
-      $pr_no_arr = array();
-      $po_nos = "";
-      $po_no_arr = array();
-      $pr_dates = "";
-      $pr_dates_arr = array();
-      foreach ($customer_item_detail as $key => $val) {
-         $zone_ids .= "'" . $val->source_zone_id . "',";
+        $zone_ids = "";
+        $pr_nos = "";
+        $pr_no_arr = array();
+        $po_nos = "";
+        $po_no_arr = array();
+        $pr_dates = "";
+        $pr_dates_arr = array();
+        foreach ($customer_item_detail as $key => $val) {
+            $zone_ids .= "'" . $val->source_zone_id . "',";
 
-         if (!in_array($val->pr_no, $pr_no_arr)) {
-            array_push($pr_no_arr, $val->pr_no);
-            $pr_nos .= $val->pr_no . ",";
-         }
+            if (!in_array($val->pr_no, $pr_no_arr)) {
+                array_push($pr_no_arr, $val->pr_no);
+                $pr_nos .= $val->pr_no . ",";
+            }
 
-         if (!in_array($val->po_no, $po_no_arr)) {
-            array_push($po_no_arr, $val->po_no);
-            $po_nos .= $val->po_no . ",";
-         }
+            if (!in_array($val->po_no, $po_no_arr)) {
+                array_push($po_no_arr, $val->po_no);
+                $po_nos .= $val->po_no . ",";
+            }
 
-         if (!in_array($val->pr_date, $pr_dates_arr)) {
-            array_push($pr_dates_arr, $val->pr_date);
-            $pr_dates .= $val->pr_date . ",";
-         }
-      }
+            if (!in_array($val->pr_date, $pr_dates_arr)) {
+                array_push($pr_dates_arr, $val->pr_date);
+                $pr_dates .= $val->pr_date . ",";
+            }
+        }
 
-      $pr_nos = substr($pr_nos, 0, -1);
-      $pr_dates = substr($pr_dates, 0, -1);
-      $po_nos = substr($po_nos, 0, -1);
+        $pr_nos = substr($pr_nos, 0, -1);
+        $pr_dates = substr($pr_dates, 0, -1);
+        $po_nos = substr($po_nos, 0, -1);
 
 
-      $this->render('view', array(
-          'model' => $model,
-          'destination' => $destination,
-          'pr_nos' => $pr_nos,
-          'pr_dates' => $pr_dates,
-          'po_nos' => $po_nos,
-      ));
-   }
+        $this->render('view', array(
+            'model' => $model,
+            'destination' => $destination,
+            'pr_nos' => $pr_nos,
+            'pr_dates' => $pr_dates,
+            'po_nos' => $po_nos,
+        ));
+    }
 
-   /**
-    * Creates a new model.
-    * If creation is successful, the browser will be redirected to the 'view' page.
-    */
-   public function actionCreate() {
+    /**
+     * Creates a new model.
+     * If creation is successful, the browser will be redirected to the 'view' page.
+     */
+    public function actionCreate() {
 
-      $this->pageTitle = CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory';
-      $this->layout = '//layouts/column1';
+        $this->pageTitle = CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory';
+        $this->layout = '//layouts/column1';
 
-      $customer_item = new CustomerItem;
-      $transaction_detail = new CustomerItemDetail;
-      $sku = new Sku;
-      $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
-      $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
-      $poi_list = CHtml::listData(Poi::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'short_name ASC')), 'poi_id', 'short_name', 'primary_code');
-      $model = new Attachment;
+        $customer_item = new CustomerItem;
+        $transaction_detail = new CustomerItemDetail;
+        $sku = new Sku;
+        $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
+        $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
+        $poi_list = CHtml::listData(Poi::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'short_name ASC')), 'poi_id', 'short_name', 'primary_code');
+        $model = new Attachment;
 
-      $c = new CDbCriteria;
-      $c->select = new CDbExpression('t.*, CONCAT(t.first_name, " ", t.last_name) AS fullname');
-      $c->condition = 'company_id = "' . Yii::app()->user->company_id . '"';
-      $c->order = 'fullname ASC';
-      $employee = CHtml::listData(Employee::model()->findAll($c), 'employee_id', 'fullname', 'employee_code');
+        $c = new CDbCriteria;
+        $c->select = new CDbExpression('t.*, CONCAT(t.first_name, " ", t.last_name) AS fullname');
+        $c->condition = 'company_id = "' . Yii::app()->user->company_id . '"';
+        $c->order = 'fullname ASC';
+        $employee = CHtml::listData(Employee::model()->findAll($c), 'employee_id', 'fullname', 'employee_code');
 
-      if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
+        if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
-         $data = array();
-         $data['success'] = false;
-         $data["type"] = "success";
-         $data['form'] = $_POST['form'];
+            $data = array();
+            $data['success'] = false;
+            $data["type"] = "success";
+            $data['form'] = $_POST['form'];
 
-         if ($_POST['form'] == "transaction" || $_POST['form'] == "print") {
+            if ($_POST['form'] == "transaction" || $_POST['form'] == "print") {
 
-            if (isset($_POST['CustomerItem'])) {
-               $customer_item->attributes = $_POST['CustomerItem'];
-               $customer_item->company_id = Yii::app()->user->company_id;
-               $customer_item->created_by = Yii::app()->user->name;
-               unset($customer_item->created_date);
+                if (isset($_POST['CustomerItem'])) {
+                    $customer_item->attributes = $_POST['CustomerItem'];
+                    $customer_item->company_id = Yii::app()->user->company_id;
+                    $customer_item->created_by = Yii::app()->user->name;
+                    unset($customer_item->created_date);
 
-               $validatedCustomerItem = CActiveForm::validate($customer_item);
+                    $validatedCustomerItem = CActiveForm::validate($customer_item);
 
-               if ($validatedCustomerItem != '[]') {
+                    if ($validatedCustomerItem != '[]') {
 
-                  $data['error'] = $validatedCustomerItem;
-                  $data['message'] = 'Unable to process';
-                  $data['success'] = false;
-                  $data["type"] = "danger";
-               } else {
-
-                  if ($data['form'] == "print") {
-
-                     $data['print'] = $_POST;
-                     $data['success'] = true;
-                  } else {
-
-                     $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
-
-                     if ($customer_item->create($transaction_details)) {
-                        $data['customer_item_id'] = Yii::app()->session['customer_item_id_create_session'];
-                        unset(Yii::app()->session['customer_item_id_create_session']);
-                        $data['message'] = 'Successfully created';
-                        $data['success'] = true;
-                     } else {
+                        $data['error'] = $validatedCustomerItem;
                         $data['message'] = 'Unable to process';
                         $data['success'] = false;
                         $data["type"] = "danger";
-                     }
-                  }
-               }
+                    } else {
+
+                        if ($data['form'] == "print") {
+
+                            $data['print'] = $_POST;
+                            $data['success'] = true;
+                        } else {
+
+                            $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
+
+                            if ($customer_item->create($transaction_details)) {
+                                $data['customer_item_id'] = Yii::app()->session['customer_item_id_create_session'];
+                                unset(Yii::app()->session['customer_item_id_create_session']);
+                                $data['message'] = 'Successfully created';
+                                $data['success'] = true;
+                            } else {
+                                $data['message'] = 'Unable to process';
+                                $data['success'] = false;
+                                $data["type"] = "danger";
+                            }
+                        }
+                    }
+                }
+            } else if ($_POST['form'] == "details") {
+
+                if (isset($_POST['CustomerItemDetail'])) {
+                    $transaction_detail->attributes = $_POST['CustomerItemDetail'];
+                    $transaction_detail->company_id = Yii::app()->user->company_id;
+                    $transaction_detail->created_by = Yii::app()->user->name;
+                    unset($transaction_detail->created_date);
+
+                    $validatedCustomerItemDetail = CActiveForm::validate($transaction_detail);
+
+                    if ($validatedCustomerItemDetail != '[]') {
+
+                        $data['error'] = $validatedCustomerItemDetail;
+                        $data['message'] = 'Unable to process';
+                        $data['success'] = false;
+                        $data["type"] = "danger";
+                    } else {
+
+                        $c = new CDbCriteria;
+                        $c->compare('t.company_id', Yii::app()->user->company_id);
+                        $c->compare('t.inventory_id', $transaction_detail->inventory_id);
+                        $c->with = array("sku");
+                        $inventory = Inventory::model()->find($c);
+
+                        if ($transaction_detail->quantity_issued <= $inventory->qty) {
+                            $data['success'] = true;
+                            $data['message'] = 'Successfully Added Item';
+
+                            $data['details'] = array(
+                                "inventory_id" => isset($inventory->inventory_id) ? $inventory->inventory_id : null,
+                                "sku_id" => isset($inventory->sku->sku_id) ? $inventory->sku->sku_id : null,
+                                "sku_code" => isset($inventory->sku->sku_code) ? $inventory->sku->sku_code : null,
+                                "sku_description" => isset($inventory->sku->description) ? $inventory->sku->description : null,
+                                'brand_name' => isset($inventory->sku->brand->brand_name) ? $inventory->sku->brand->brand_name : null,
+                                'unit_price' => isset($transaction_detail->unit_price) ? number_format($transaction_detail->unit_price, 2, '.', '') : number_format(0, 2, '.', ''),
+                                'batch_no' => isset($transaction_detail->batch_no) ? $transaction_detail->batch_no : null,
+                                'source_zone_id' => isset($transaction_detail->source_zone_id) ? $transaction_detail->source_zone_id : null,
+                                'source_zone_name' => isset($transaction_detail->zone->zone_name) ? $transaction_detail->zone->zone_name : null,
+                                'expiration_date' => isset($transaction_detail->expiration_date) ? $transaction_detail->expiration_date : null,
+                                'planned_quantity' => $transaction_detail->planned_quantity != "" ? $transaction_detail->planned_quantity : 0,
+                                'quantity_issued' => $transaction_detail->quantity_issued != "" ? $transaction_detail->quantity_issued : 0,
+                                'amount' => $transaction_detail->amount != "" ? number_format($transaction_detail->amount, 2, '.', '') : number_format(0, 2, '.', ''),
+                                'inventory_on_hand' => $transaction_detail->inventory_on_hand != "" ? $transaction_detail->inventory_on_hand : 0,
+                                'return_date' => isset($transaction_detail->return_date) ? $transaction_detail->return_date : null,
+                                'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
+                                'uom_id' => isset($transaction_detail->uom_id) ? $transaction_detail->uom_id : null,
+                                'sku_status_id' => isset($transaction_detail->sku_status_id) ? $transaction_detail->sku_status_id : null,
+                            );
+                        } else {
+
+                            $data['message'] = 'Quantity Received greater than inventory on hand';
+                            $data['success'] = false;
+                            $data["type"] = "danger";
+                        }
+                    }
+                }
             }
-         } else if ($_POST['form'] == "details") {
 
-            if (isset($_POST['CustomerItemDetail'])) {
-               $transaction_detail->attributes = $_POST['CustomerItemDetail'];
-               $transaction_detail->company_id = Yii::app()->user->company_id;
-               $transaction_detail->created_by = Yii::app()->user->name;
-               unset($transaction_detail->created_date);
+            echo json_encode($data);
+            Yii::app()->end();
+        }
 
-               $validatedCustomerItemDetail = CActiveForm::validate($transaction_detail);
+        $customer_item->dr_no = "AS" . date("YmdHis");
 
-               if ($validatedCustomerItemDetail != '[]') {
+        $this->render('customerItemForm', array(
+            'customer_item' => $customer_item,
+            'transaction_detail' => $transaction_detail,
+            'sku' => $sku,
+            'uom' => $uom,
+            'sku_status' => $sku_status,
+            'model' => $model,
+            'poi_list' => $poi_list,
+            'employee' => $employee,
+        ));
+    }
 
-                  $data['error'] = $validatedCustomerItemDetail;
-                  $data['message'] = 'Unable to process';
-                  $data['success'] = false;
-                  $data["type"] = "danger";
-               } else {
+    public function actionLoadTransactionByDRNo($dr_no) {
 
-                  $c = new CDbCriteria;
-                  $c->compare('t.company_id', Yii::app()->user->company_id);
-                  $c->compare('t.inventory_id', $transaction_detail->inventory_id);
-                  $c->with = array("sku");
-                  $inventory = Inventory::model()->find($c);
+        $c = new CDbCriteria;
+        $c->condition = "incomingInventory.company_id = '" . Yii::app()->user->company_id . "' AND incomingInventory.dr_no = '" . $dr_no . "'";
+        $c->with = array("incomingInventory");
+        $incoming_inv_details = IncomingInventoryDetail::model()->findAll($c);
 
-                  if ($transaction_detail->quantity_issued <= $inventory->qty) {
-                     $data['success'] = true;
-                     $data['message'] = 'Successfully Added Item';
+        $inv_ids = "";
+        foreach ($incoming_inv_details as $key => $val) {
 
-                     $data['details'] = array(
-                         "inventory_id" => isset($inventory->inventory_id) ? $inventory->inventory_id : null,
-                         "sku_id" => isset($inventory->sku->sku_id) ? $inventory->sku->sku_id : null,
-                         "sku_code" => isset($inventory->sku->sku_code) ? $inventory->sku->sku_code : null,
-                         "sku_description" => isset($inventory->sku->description) ? $inventory->sku->description : null,
-                         'brand_name' => isset($inventory->sku->brand->brand_name) ? $inventory->sku->brand->brand_name : null,
-                         'unit_price' => isset($transaction_detail->unit_price) ? number_format($transaction_detail->unit_price, 2, '.', '') : number_format(0, 2, '.', ''),
-                         'batch_no' => isset($transaction_detail->batch_no) ? $transaction_detail->batch_no : null,
-                         'source_zone_id' => isset($transaction_detail->source_zone_id) ? $transaction_detail->source_zone_id : null,
-                         'source_zone_name' => isset($transaction_detail->zone->zone_name) ? $transaction_detail->zone->zone_name : null,
-                         'expiration_date' => isset($transaction_detail->expiration_date) ? $transaction_detail->expiration_date : null,
-                         'planned_quantity' => $transaction_detail->planned_quantity != "" ? $transaction_detail->planned_quantity : 0,
-                         'quantity_issued' => $transaction_detail->quantity_issued != "" ? $transaction_detail->quantity_issued : 0,
-                         'amount' => $transaction_detail->amount != "" ? number_format($transaction_detail->amount, 2, '.', '') : number_format(0, 2, '.', ''),
-                         'inventory_on_hand' => $transaction_detail->inventory_on_hand != "" ? $transaction_detail->inventory_on_hand : 0,
-                         'return_date' => isset($transaction_detail->return_date) ? $transaction_detail->return_date : null,
-                         'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
-                         'uom_id' => isset($transaction_detail->uom_id) ? $transaction_detail->uom_id : null,
-                         'sku_status_id' => isset($transaction_detail->sku_status_id) ? $transaction_detail->sku_status_id : null,
-                     );
-                  } else {
+            $inventoryObj = Inventory::model()->findByAttributes(
+                    array(
+                        'company_id' => $val->incomingInventory->company_id,
+                        'sku_id' => $val->sku_id,
+                        'uom_id' => $val->uom_id,
+                        'zone_id' => $val->incomingInventory->destination_zone_id,
+                        'sku_status_id' => $val->sku_status_id != "" ? $val->sku_status_id : null,
+                        'expiration_date' => isset($val->expiration_date) ? $val->expiration_date : null,
+                        'reference_no' => $val->batch_no,
+                    )
+            );
 
-                     $data['message'] = 'Quantity Received greater than inventory on hand';
-                     $data['success'] = false;
-                     $data["type"] = "danger";
-                  }
-               }
+            if ($inventoryObj) {
+                $inv_ids .= $inventoryObj->inventory_id . ",";
             }
-         }
+        }
 
-         echo json_encode($data);
-         Yii::app()->end();
-      }
+        $c2 = new CDbCriteria;
+        $c2->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
+        $c2->compare('t.company_id', Yii::app()->user->company_id);
+        $c2->compare('t.default_zone_id', isset($val->incomingInventory->destination_zone_id) ? $val->incomingInventory->destination_zone_id : 0);
+        $employee = Employee::model()->find($c2);
 
-      $customer_item->dr_no = "AS" . date("YmdHis");
+        $header = array(
+            "rra_no" => isset($val->incomingInventory->rra_no) ? $val->incomingInventory->rra_no : null,
+            "campaign_no" => isset($val->incomingInventory->campaign_no) ? $val->incomingInventory->campaign_no : null,
+            "pr_no" => isset($val->incomingInventory->pr_no) ? $val->incomingInventory->pr_no : null,
+            "pr_date" => isset($val->incomingInventory->pr_date) ? $val->incomingInventory->pr_date : null,
+            "source_zone_id" => isset($val->incomingInventory->destination_zone_id) ? $val->incomingInventory->destination_zone_id : null,
+            "source_zone_name" => isset($val->incomingInventory->zone->zone_name) ? $val->incomingInventory->zone->zone_name : null,
+        );
 
-      $this->render('customerItemForm', array(
-          'customer_item' => $customer_item,
-          'transaction_detail' => $transaction_detail,
-          'sku' => $sku,
-          'uom' => $uom,
-          'sku_status' => $sku_status,
-          'model' => $model,
-          'poi_list' => $poi_list,
-          'employee' => $employee,
-      ));
-   }
+        $inventory = array();
+        if ($inv_ids != "") {
+            $c1 = new CDbCriteria;
+            $c1->compare("company_id", Yii::app()->user->company_id);
+            $c1->condition = "inventory_id IN (" . substr($inv_ids, 0, -1) . ")";
+            $inventory = Inventory::model()->findAll($c1);
+        }
 
-   public function actionLoadTransactionByDRNo($dr_no) {
+        $output = array();
+        foreach ($inventory as $key => $value) {
+            $row = array();
 
-      $c = new CDbCriteria;
-      $c->condition = "incomingInventory.company_id = '" . Yii::app()->user->company_id . "' AND incomingInventory.dr_no = '" . $dr_no . "'";
-      $c->with = array("incomingInventory");
-      $incoming_inv_details = IncomingInventoryDetail::model()->findAll($c);
+            $row['inventory_id'] = $value->inventory_id;
+            $row['company_id'] = $value->company_id;
+            $row['sku_id'] = $value->sku_id;
+            $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
+            $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
+            $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
+            $row['cost_per_unit'] = isset($value->cost_per_unit) ? $value->cost_per_unit : null;
+            $row['inventory_on_hand'] = isset($value->qty) ? $value->qty : null;
+            $row['uom_name'] = isset($value->uom->uom_name) ? $value->uom->uom_name : null;
+            $row['sku_status_name'] = isset($value->skuStatus->status_name) ? $value->skuStatus->status_name : null;
+            $row['expiration_date'] = isset($value->expiration_date) ? $value->expiration_date : null;
+            $row['reference_no'] = isset($value->reference_no) ? $value->reference_no : null;
 
-      $inv_ids = "";
-      foreach ($incoming_inv_details as $key => $val) {
+            $output['data'][] = $row;
+        }
 
-         $inventoryObj = Inventory::model()->findByAttributes(
-                 array(
-                     'company_id' => $val->incomingInventory->company_id,
-                     'sku_id' => $val->sku_id,
-                     'uom_id' => $val->uom_id,
-                     'zone_id' => $val->incomingInventory->destination_zone_id,
-                     'sku_status_id' => $val->sku_status_id != "" ? $val->sku_status_id : null,
-                     'expiration_date' => isset($val->expiration_date) ? $val->expiration_date : null,
-                     'reference_no' => $val->batch_no,
-                 )
-         );
+        $output['headers'] = $header;
 
-         if ($inventoryObj) {
-            $inv_ids .= $inventoryObj->inventory_id . ",";
-         }
-      }
+        echo json_encode($output);
+    }
 
-      $c2 = new CDbCriteria;
-      $c2->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
-      $c2->compare('t.company_id', Yii::app()->user->company_id);
-      $c2->compare('t.default_zone_id', isset($val->incomingInventory->destination_zone_id) ? $val->incomingInventory->destination_zone_id : 0);
-      $employee = Employee::model()->find($c2);
+    public function actionLoadInventoryDetails($inventory_id) {
 
-      $header = array(
-          "rra_no" => isset($val->incomingInventory->rra_no) ? $val->incomingInventory->rra_no : null,
-          "campaign_no" => isset($val->incomingInventory->campaign_no) ? $val->incomingInventory->campaign_no : null,
-          "pr_no" => isset($val->incomingInventory->pr_no) ? $val->incomingInventory->pr_no : null,
-          "pr_date" => isset($val->incomingInventory->pr_date) ? $val->incomingInventory->pr_date : null,
-          "source_zone_id" => isset($val->incomingInventory->destination_zone_id) ? $val->incomingInventory->destination_zone_id : null,
-          "source_zone_name" => isset($val->incomingInventory->zone->zone_name) ? $val->incomingInventory->zone->zone_name : null,
-      );
+        if ($inventory_id != "") {
+            $c = new CDbCriteria;
+            $c->select = 't.*, sum(t.qty) AS inventory_on_hand';
+            $c->compare('t.company_id', Yii::app()->user->company_id);
+            $c->compare('t.inventory_id', $inventory_id);
+            $c->group = "t.sku_id";
+            $inventory = Inventory::model()->find($c);
 
-      $inventory = array();
-      if ($inv_ids != "") {
-         $c1 = new CDbCriteria;
-         $c1->compare("company_id", Yii::app()->user->company_id);
-         $c1->condition = "inventory_id IN (" . substr($inv_ids, 0, -1) . ")";
-         $inventory = Inventory::model()->findAll($c1);
-      }
+            $sku = Sku::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sku_id" => $inventory->sku_id));
+        }
 
-      $output = array();
-      foreach ($inventory as $key => $value) {
-         $row = array();
+        $data = array(
+            "sku_id" => isset($sku->sku_id) ? $sku->sku_id : null,
+            "sku_category" => isset($sku->type) ? $sku->type : null,
+            "sku_sub_category" => isset($sku->sub_type) ? $sku->sub_type : null,
+            'brand_name' => isset($sku->brand->brand_name) ? $sku->brand->brand_name : null,
+            'sku_code' => isset($sku->sku_code) ? $sku->sku_code : null,
+            'sku_description' => isset($sku->description) ? $sku->description : null,
+            'inventory_uom_selected' => isset($inventory->uom->uom_name) ? $inventory->uom->uom_name : null,
+            'source_zone_id' => isset($inventory->zone_id) ? $inventory->zone_id : null,
+            'source_zone_name' => isset($inventory->zone->zone_name) ? $inventory->zone->zone_name : null,
+            'unit_price' => isset($inventory->cost_per_unit) ? $inventory->cost_per_unit : 0,
+            'reference_no' => isset($inventory->reference_no) ? $inventory->reference_no : null,
+            'expiration_date' => isset($inventory->expiration_date) ? $inventory->expiration_date : null,
+            'inventory_on_hand' => isset($inventory->inventory_on_hand) ? $inventory->inventory_on_hand : 0,
+            'uom_id' => isset($inventory->uom_id) ? $inventory->uom_id : null,
+            'sku_status_id' => isset($inventory->sku_status_id) ? $inventory->sku_status_id : null,
+        );
 
-         $row['inventory_id'] = $value->inventory_id;
-         $row['company_id'] = $value->company_id;
-         $row['sku_id'] = $value->sku_id;
-         $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
-         $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
-         $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
-         $row['cost_per_unit'] = isset($value->cost_per_unit) ? $value->cost_per_unit : null;
-         $row['inventory_on_hand'] = isset($value->qty) ? $value->qty : null;
-         $row['uom_name'] = isset($value->uom->uom_name) ? $value->uom->uom_name : null;
-         $row['sku_status_name'] = isset($value->skuStatus->status_name) ? $value->skuStatus->status_name : null;
-         $row['expiration_date'] = isset($value->expiration_date) ? $value->expiration_date : null;
-         $row['reference_no'] = isset($value->reference_no) ? $value->reference_no : null;
+        echo json_encode($data);
+    }
 
-         $output['data'][] = $row;
-      }
+    public function actionCustomerItemDetailData($customer_item_id) {
 
-      $output['headers'] = $header;
+        $c = new CDbCriteria;
+        $c->compare("company_id", Yii::app()->user->company_id);
+        $c->compare("customer_item_id", $customer_item_id);
+        $customer_item_details = CustomerItemDetail::model()->findAll($c);
 
-      echo json_encode($output);
-   }
+        $output = array();
+        foreach ($customer_item_details as $key => $value) {
+            $row = array();
 
-   public function actionLoadInventoryDetails($inventory_id) {
+            $status = "";
+            switch ($value->status) {
+                case OutgoingInventory::OUTGOING_PENDING_STATUS:
+                    $status = '<span class="label label-warning">' . OutgoingInventory::OUTGOING_PENDING_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_COMPLETE_STATUS:
+                    $status = '<span class="label label-success">' . OutgoingInventory::OUTGOING_COMPLETE_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_INCOMPLETE_STATUS:
+                    $status = '<span class="label label-danger">' . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . '</span>';
+                    break;
+                case OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS:
+                    $status = '<span class="label label-primary">' . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . '</span>';
+                    break;
+                default:
+                    break;
+            }
 
-      if ($inventory_id != "") {
-         $c = new CDbCriteria;
-         $c->select = 't.*, sum(t.qty) AS inventory_on_hand';
-         $c->compare('t.company_id', Yii::app()->user->company_id);
-         $c->compare('t.inventory_id', $inventory_id);
-         $c->group = "t.sku_id";
-         $inventory = Inventory::model()->find($c);
+            $row['customer_item_detail_id'] = $value->customer_item_detail_id;
+            $row['customer_item_id'] = $value->customer_item_id;
+            $row['batch_no'] = $value->batch_no;
+            $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
+            $row['sku_name'] = isset($value->sku->sku_name) ? $value->sku->sku_name : null;
+            $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
+            $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
+            $row['unit_price'] = $value->unit_price;
+            $row['expiration_date'] = $value->expiration_date;
+            $row['planned_quantity'] = $value->planned_quantity;
+            $row['quantity_issued'] = $value->quantity_issued;
+            $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
+            $row['inventory_on_hand'] = $value->inventory_on_hand;
+            $row['return_date'] = $value->return_date;
+            $row['remarks'] = $value->remarks;
+            $row['po_no'] = $value->po_no;
+            $row['pr_no'] = $value->pr_no;
+            $row['status'] = $status;
 
-         $sku = Sku::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sku_id" => $inventory->sku_id));
-      }
-
-      $data = array(
-          "sku_id" => isset($sku->sku_id) ? $sku->sku_id : null,
-          "sku_category" => isset($sku->type) ? $sku->type : null,
-          "sku_sub_category" => isset($sku->sub_type) ? $sku->sub_type : null,
-          'brand_name' => isset($sku->brand->brand_name) ? $sku->brand->brand_name : null,
-          'sku_code' => isset($sku->sku_code) ? $sku->sku_code : null,
-          'sku_description' => isset($sku->description) ? $sku->description : null,
-          'inventory_uom_selected' => isset($inventory->uom->uom_name) ? $inventory->uom->uom_name : null,
-          'source_zone_id' => isset($inventory->zone_id) ? $inventory->zone_id : null,
-          'source_zone_name' => isset($inventory->zone->zone_name) ? $inventory->zone->zone_name : null,
-          'unit_price' => isset($inventory->cost_per_unit) ? $inventory->cost_per_unit : 0,
-          'reference_no' => isset($inventory->reference_no) ? $inventory->reference_no : null,
-          'expiration_date' => isset($inventory->expiration_date) ? $inventory->expiration_date : null,
-          'inventory_on_hand' => isset($inventory->inventory_on_hand) ? $inventory->inventory_on_hand : 0,
-          'uom_id' => isset($inventory->uom_id) ? $inventory->uom_id : null,
-          'sku_status_id' => isset($inventory->sku_status_id) ? $inventory->sku_status_id : null,
-      );
-
-      echo json_encode($data);
-   }
-
-   public function actionCustomerItemDetailData($customer_item_id) {
-
-      $c = new CDbCriteria;
-      $c->compare("company_id", Yii::app()->user->company_id);
-      $c->compare("customer_item_id", $customer_item_id);
-      $customer_item_details = CustomerItemDetail::model()->findAll($c);
-
-      $output = array();
-      foreach ($customer_item_details as $key => $value) {
-         $row = array();
-
-         $status = "";
-         switch ($value->status) {
-            case OutgoingInventory::OUTGOING_PENDING_STATUS:
-               $status = '<span class="label label-warning">' . OutgoingInventory::OUTGOING_PENDING_STATUS . '</span>';
-               break;
-            case OutgoingInventory::OUTGOING_COMPLETE_STATUS:
-               $status = '<span class="label label-success">' . OutgoingInventory::OUTGOING_COMPLETE_STATUS . '</span>';
-               break;
-            case OutgoingInventory::OUTGOING_INCOMPLETE_STATUS:
-               $status = '<span class="label label-danger">' . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . '</span>';
-               break;
-            case OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS:
-               $status = '<span class="label label-primary">' . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . '</span>';
-               break;
-            default:
-               break;
-         }
-
-         $row['customer_item_detail_id'] = $value->customer_item_detail_id;
-         $row['customer_item_id'] = $value->customer_item_id;
-         $row['batch_no'] = $value->batch_no;
-         $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
-         $row['sku_name'] = isset($value->sku->sku_name) ? $value->sku->sku_name : null;
-         $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
-         $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
-         $row['unit_price'] = $value->unit_price;
-         $row['expiration_date'] = $value->expiration_date;
-         $row['planned_quantity'] = $value->planned_quantity;
-         $row['quantity_issued'] = $value->quantity_issued;
-         $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
-         $row['inventory_on_hand'] = $value->inventory_on_hand;
-         $row['return_date'] = $value->return_date;
-         $row['remarks'] = $value->remarks;
-         $row['po_no'] = $value->po_no;
-         $row['pr_no'] = $value->pr_no;
-         $row['status'] = $status;
-
-         $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/customerItem/deleteCustomerItemDetail', array('customer_item_detail_id' => $value->customer_item_detail_id)) . '">
+            $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/customerItem/deleteCustomerItemDetail', array('customer_item_detail_id' => $value->customer_item_detail_id)) . '">
                                 <i class="glyphicon glyphicon-trash"></i>
                             </a>';
 
-         $output['data'][] = $row;
-      }
+            $output['data'][] = $row;
+        }
 
-      echo json_encode($output);
-   }
+        echo json_encode($output);
+    }
 
-   /**
-    * Updates a particular model.
-    * If update is successful, the browser will be redirected to the 'view' page.
-    * @param integer $id the ID of the model to be updated
-    */
-   public function actionUpdate($id) {
-      $model = $this->loadModel($id);
+    /**
+     * Updates a particular model.
+     * If update is successful, the browser will be redirected to the 'view' page.
+     * @param integer $id the ID of the model to be updated
+     */
+    public function actionUpdate($id) {
+        $model = $this->loadModel($id);
 
-      $this->menu = array(
-          array('label' => 'Create CustomerItem', 'url' => array('create')),
-          array('label' => 'View CustomerItem', 'url' => array('view', 'id' => $model->customer_item_id)),
-          array('label' => 'Manage CustomerItem', 'url' => array('admin')),
-          '',
-          array('label' => 'Help', 'url' => '#'),
-      );
+        $this->menu = array(
+            array('label' => 'Create CustomerItem', 'url' => array('create')),
+            array('label' => 'View CustomerItem', 'url' => array('view', 'id' => $model->customer_item_id)),
+            array('label' => 'Manage CustomerItem', 'url' => array('admin')),
+            '',
+            array('label' => 'Help', 'url' => '#'),
+        );
 
-      $this->pageTitle = 'Update CustomerItem ' . $model->customer_item_id;
+        $this->pageTitle = 'Update CustomerItem ' . $model->customer_item_id;
 
 // Uncomment the following line if AJAX validation is needed
 // $this->performAjaxValidation($model);
 
-      if (isset($_POST['CustomerItem'])) {
-         $model->attributes = $_POST['CustomerItem'];
-         $model->updated_by = Yii::app()->user->name;
-         $model->updated_date = date('Y-m-d H:i:s');
+        if (isset($_POST['CustomerItem'])) {
+            $model->attributes = $_POST['CustomerItem'];
+            $model->updated_by = Yii::app()->user->name;
+            $model->updated_date = date('Y-m-d H:i:s');
 
-         if ($model->save()) {
-            Yii::app()->user->setFlash('success', "Successfully updated");
-            $this->redirect(array('view', 'id' => $model->customer_item_id));
-         }
-      }
+            if ($model->save()) {
+                Yii::app()->user->setFlash('success', "Successfully updated");
+                $this->redirect(array('view', 'id' => $model->customer_item_id));
+            }
+        }
 
-      $this->render('update', array(
-          'model' => $model,
-      ));
-   }
+        $this->render('update', array(
+            'model' => $model,
+        ));
+    }
 
-   /**
-    * Deletes a particular model.
-    * If deletion is successful, the browser will be redirected to the 'admin' page.
-    * @param integer $id the ID of the model to be deleted
-    */
-   public function actionDelete($id) {
-      if (Yii::app()->request->isPostRequest) {
-         try {
+    /**
+     * Deletes a particular model.
+     * If deletion is successful, the browser will be redirected to the 'admin' page.
+     * @param integer $id the ID of the model to be deleted
+     */
+    public function actionDelete($id) {
+        if (Yii::app()->request->isPostRequest) {
+            try {
 
-            // delete customer item details by customer_item_id
-            CustomerItemDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND customer_item_id = " . $id);
-            // delete attachment by customer_item_id as transaction_id
-            $this->deleteAttachmentByCustomerItemID($id);
-            // we only allow deletion via POST request
-            $this->loadModel($id)->delete();
+                // delete customer item details by customer_item_id
+                CustomerItemDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND customer_item_id = " . $id);
+                // delete attachment by customer_item_id as transaction_id
+                $this->deleteAttachmentByCustomerItemID($id);
+                // we only allow deletion via POST request
+                $this->loadModel($id)->delete();
 
-            // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-            if (!isset($_GET['ajax'])) {
-               Yii::app()->user->setFlash('success', "Successfully deleted");
-               $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    if (!isset($_GET['ajax'])) {
+                        Yii::app()->user->setFlash('danger', "Unable to delete");
+                        $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('view', 'id' => $id));
+                    } else {
+                        echo "1451";
+                        exit;
+                    }
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
+    public function actionDeleteCustomerItemDetail($customer_item_detail_id) {
+        if (Yii::app()->request->isPostRequest) {
+            try {
+
+                CustomerItemDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND customer_item_detail_id = " . $customer_item_detail_id);
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    echo "1451";
+                    exit;
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
+    public function deleteAttachmentByCustomerItemID($customer_item_id, $transaction_type = Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE) {
+        $attachment = Attachment::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "transaction_type" => $transaction_type, "transaction_id" => $customer_item_id));
+
+        if (count($attachment) > 0) {
+            $base = Yii::app()->getBaseUrl(true);
+            $arr = explode("/", $base);
+            $base = $arr[count($arr) - 1];
+
+            Attachment::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND transaction_type = '" . $transaction_type . "' AND transaction_id = " . $customer_item_id);
+            $this->delete_directory('../' . $base . "/protected/uploads/" . Yii::app()->user->company_id . "/attachments/" . $transaction_type . "/" . $customer_item_id);
+        } else {
+            return false;
+        }
+    }
+
+    function delete_directory($dirname) {
+        if (is_dir($dirname)) {
+            $dir_handle = opendir($dirname);
+        } else {
+            return false;
+        }
+
+        if (!$dir_handle) {
+            return false;
+        }
+
+        while ($file = readdir($dir_handle)) {
+            if ($file != "." && $file != "..") {
+                if (!is_dir($dirname . "/" . $file))
+                    unlink($dirname . "/" . $file);
+                else
+                    delete_directory($dirname . '/' . $file);
+            }
+        }
+        closedir($dir_handle);
+        rmdir($dirname);
+        return true;
+    }
+
+    public function actionDeleteAttachment($attachment_id) {
+        if (Yii::app()->request->isPostRequest) {
+            try {
+
+                $attachment = Attachment::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "attachment_id" => $attachment_id));
+
+                if ($attachment) {
+                    Attachment::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND attachment_id = '" . $attachment->attachment_id . "'");
+
+                    $base = Yii::app()->getBaseUrl(true);
+                    $arr = explode("/", $base);
+                    $base = $arr[count($arr) - 1];
+                    $url = str_replace(Yii::app()->getBaseUrl(true), "", $attachment->url);
+                    unlink('../' . $base . $url);
+                } else {
+                    throw new CHttpException(404, 'The requested page does not exist.');
+                }
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    echo "1451";
+                    exit;
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
+    /**
+     * Lists all models.
+     */
+    public function actionIndex() {
+        $dataProvider = new CActiveDataProvider('CustomerItem');
+
+        $this->render('index', array(
+            'dataProvider' => $dataProvider,
+        ));
+    }
+
+    /**
+     * Manages all models.
+     */
+    public function actionAdmin() {
+        $this->layout = '//layouts/column1';
+        $this->pageTitle = 'Manage ' . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory';
+
+        $model = new CustomerItem('search');
+        $model->unsetAttributes();  // clear any default values
+        if (isset($_GET['CustomerItem']))
+            $model->attributes = $_GET['CustomerItem'];
+
+        $this->render('admin', array(
+            'model' => $model,
+        ));
+    }
+
+    /**
+     * Returns the data model based on the primary key given in the GET variable.
+     * If the data model is not found, an HTTP exception will be raised.
+     * @param integer the ID of the model to be loaded
+     */
+    public function loadModel($id) {
+        $model = CustomerItem::model()->findByAttributes(array('customer_item_id' => $id, 'company_id' => Yii::app()->user->company_id));
+        if ($model === null)
+            throw new CHttpException(404, 'The requested page does not exist.');
+
+        return $model;
+    }
+
+    /**
+     * Performs the AJAX validation.
+     * @param CModel the model to be validated
+     */
+    protected function performAjaxValidation($model) {
+        if (isset($_POST['ajax']) && $_POST['ajax'] === 'customer-item-form') {
+            echo CActiveForm::validate($model);
+            Yii::app()->end();
+        }
+    }
+
+    public function actionUploadAttachment() {
+        header('Vary: Accept');
+        if (isset($_SERVER['HTTP_ACCEPT']) &&
+                (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
+            header('Content-type: application/json');
+        } else {
+            header('Content-type: text/plain');
+        }
+
+        $data = array();
+        $model = new Attachment;
+
+        $customer_item_id_attachment_session = Yii::app()->session['customer_item_id_attachment_session'];
+        $tag_category = Yii::app()->request->getPost('inventorytype', '');
+        $tag_to = Yii::app()->request->getPost('tagname', '');
+
+        if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
+
+            $file = CUploadedFile::getInstance($model, 'file');
+            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $customer_item_id_attachment_session;
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+
+            $file_name = str_replace(' ', '_', strtolower($file->name));
+            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $customer_item_id_attachment_session . DIRECTORY_SEPARATOR . $file_name;
+            $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
+
+            $model->attachment_id = Globals::generateV4UUID();
+
+            $model->company_id = Yii::app()->user->company_id;
+            $model->file_name = $file_name;
+            $model->url = $url;
+            $model->transaction_id = $customer_item_id_attachment_session;
+            $model->transaction_type = Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE;
+            $model->created_by = Yii::app()->user->name;
+            if ($tag_category != "OTHERS") {
+                $model->tag_category = $tag_category;
+            } else {
+                $model->tag_category = $tag_to;
+            }
+
+            if ($model->save()) {
+
+                $data[] = array(
+                    'name' => $file->name,
+                    'type' => $file->type,
+                    'size' => $file->size,
+                    'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
+                    'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name
+                );
             } else {
 
-               echo "Successfully deleted";
-               exit;
+                if ($model->hasErrors()) {
+
+                    $data[] = array('error', $model->getErrors());
+                }
             }
-         } catch (CDbException $e) {
-            if ($e->errorInfo[1] == 1451) {
-               if (!isset($_GET['ajax'])) {
-                  Yii::app()->user->setFlash('danger', "Unable to delete");
-                  $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('view', 'id' => $id));
-               } else {
-                  echo "1451";
-                  exit;
-               }
-            }
-         }
-      } else
-         throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
-   }
+        } else {
 
-   public function actionDeleteCustomerItemDetail($customer_item_detail_id) {
-      if (Yii::app()->request->isPostRequest) {
-         try {
+            throw new CHttpException(500, "Could not upload file " . CHtml::errorSummary($model));
+        }
 
-            CustomerItemDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND customer_item_detail_id = " . $customer_item_detail_id);
 
-            // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-            if (!isset($_GET['ajax'])) {
-               Yii::app()->user->setFlash('success', "Successfully deleted");
-               $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-            } else {
+        echo json_encode($data);
+    }
 
-               echo "Successfully deleted";
-               exit;
-            }
-         } catch (CDbException $e) {
-            if ($e->errorInfo[1] == 1451) {
-               echo "1451";
-               exit;
-            }
-         }
-      } else
-         throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
-   }
+    function actionPreview($id) {
 
-   public function deleteAttachmentByCustomerItemID($customer_item_id, $transaction_type = Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE) {
-      $attachment = Attachment::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "transaction_type" => $transaction_type, "transaction_id" => $customer_item_id));
+        $c = new CDbCriteria;
+        $c->compare("company_id", Yii::app()->user->company_id);
+        $c->compare("transaction_id", $id);
+        $c->compare("transaction_type", Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE);
+        $attachment = Attachment::model()->findAll($c);
 
-      if (count($attachment) > 0) {
-         $base = Yii::app()->getBaseUrl(true);
-         $arr = explode("/", $base);
-         $base = $arr[count($arr) - 1];
+        $output = array();
+        foreach ($attachment as $key => $value) {
+            $ext = new SplFileInfo($value->file_name);
 
-         Attachment::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND transaction_type = '" . $transaction_type . "' AND transaction_id = " . $customer_item_id);
-         $this->delete_directory('../' . $base . "/protected/uploads/" . Yii::app()->user->company_id . "/attachments/" . $transaction_type . "/" . $customer_item_id);
-      } else {
-         return false;
-      }
-   }
-
-   function delete_directory($dirname) {
-      if (is_dir($dirname)) {
-         $dir_handle = opendir($dirname);
-      } else {
-         return false;
-      }
-
-      if (!$dir_handle) {
-         return false;
-      }
-
-      while ($file = readdir($dir_handle)) {
-         if ($file != "." && $file != "..") {
-            if (!is_dir($dirname . "/" . $file))
-               unlink($dirname . "/" . $file);
-            else
-               delete_directory($dirname . '/' . $file);
-         }
-      }
-      closedir($dir_handle);
-      rmdir($dirname);
-      return true;
-   }
-
-   public function actionDeleteAttachment($attachment_id) {
-      if (Yii::app()->request->isPostRequest) {
-         try {
-
-            $attachment = Attachment::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "attachment_id" => $attachment_id));
-
-            if ($attachment) {
-               Attachment::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND attachment_id = '" . $attachment->attachment_id . "'");
-
-               $base = Yii::app()->getBaseUrl(true);
-               $arr = explode("/", $base);
-               $base = $arr[count($arr) - 1];
-               $url = str_replace(Yii::app()->getBaseUrl(true), "", $attachment->url);
-               unlink('../' . $base . $url);
-            } else {
-               throw new CHttpException(404, 'The requested page does not exist.');
+            $icon = "";
+            if ($ext->getExtension() == "jpg" || $ext->getExtension() == "jpeg" || $ext->getExtension() == "gif" || $ext->getExtension() == "png") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "picture.png", "Image", array("width" => 30));
+            } else if ($ext->getExtension() == "pdf") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "pdf.png", "Image", array("width" => 30));
+            } else if ($ext->getExtension() == "docx" || $ext->getExtension() == "doc") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "doc.png", "Image", array("width" => 30));
+            } else if ($ext->getExtension() == "xls" || $ext->getExtension() == "xlsx") {
+                $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "xls.png", "Image", array("width" => 30));
             }
 
-            // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
-            if (!isset($_GET['ajax'])) {
-               Yii::app()->user->setFlash('success', "Successfully deleted");
-               $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
-            } else {
+            $row = array();
+            $row['file_name'] = $icon . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . $value->file_name;
 
-               echo "Successfully deleted";
-               exit;
-            }
-         } catch (CDbException $e) {
-            if ($e->errorInfo[1] == 1451) {
-               echo "1451";
-               exit;
-            }
-         }
-      } else
-         throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
-   }
-
-   /**
-    * Lists all models.
-    */
-   public function actionIndex() {
-      $dataProvider = new CActiveDataProvider('CustomerItem');
-
-      $this->render('index', array(
-          'dataProvider' => $dataProvider,
-      ));
-   }
-
-   /**
-    * Manages all models.
-    */
-   public function actionAdmin() {
-      $this->layout = '//layouts/column1';
-      $this->pageTitle = 'Manage ' . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory';
-
-      $model = new CustomerItem('search');
-      $model->unsetAttributes();  // clear any default values
-      if (isset($_GET['CustomerItem']))
-         $model->attributes = $_GET['CustomerItem'];
-
-      $this->render('admin', array(
-          'model' => $model,
-      ));
-   }
-
-   /**
-    * Returns the data model based on the primary key given in the GET variable.
-    * If the data model is not found, an HTTP exception will be raised.
-    * @param integer the ID of the model to be loaded
-    */
-   public function loadModel($id) {
-      $model = CustomerItem::model()->findByAttributes(array('customer_item_id' => $id, 'company_id' => Yii::app()->user->company_id));
-      if ($model === null)
-         throw new CHttpException(404, 'The requested page does not exist.');
-
-      return $model;
-   }
-
-   /**
-    * Performs the AJAX validation.
-    * @param CModel the model to be validated
-    */
-   protected function performAjaxValidation($model) {
-      if (isset($_POST['ajax']) && $_POST['ajax'] === 'customer-item-form') {
-         echo CActiveForm::validate($model);
-         Yii::app()->end();
-      }
-   }
-
-   public function actionUploadAttachment() {
-      header('Vary: Accept');
-      if (isset($_SERVER['HTTP_ACCEPT']) &&
-              (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
-         header('Content-type: application/json');
-      } else {
-         header('Content-type: text/plain');
-      }
-
-      $data = array();
-      $model = new Attachment;
-
-      $customer_item_id_attachment_session = Yii::app()->session['customer_item_id_attachment_session'];
-      $tag_category = Yii::app()->request->getPost('inventorytype', '');
-      $tag_to = Yii::app()->request->getPost('tagname', '');
-
-      if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
-
-         $file = CUploadedFile::getInstance($model, 'file');
-         $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $customer_item_id_attachment_session;
-         if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-         }
-
-         $file_name = str_replace(' ', '_', strtolower($file->name));
-         $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $customer_item_id_attachment_session . DIRECTORY_SEPARATOR . $file_name;
-         $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
-
-         $model->attachment_id = Globals::generateV4UUID();
-
-         $model->company_id = Yii::app()->user->company_id;
-         $model->file_name = $file_name;
-         $model->url = $url;
-         $model->transaction_id = $customer_item_id_attachment_session;
-         $model->transaction_type = Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE;
-         $model->created_by = Yii::app()->user->name;
-         if ($tag_category != "OTHERS") {
-            $model->tag_category = $tag_category;
-         } else {
-            $model->tag_category = $tag_to;
-         }
-
-         if ($model->save()) {
-
-            $data[] = array(
-                'name' => $file->name,
-                'type' => $file->type,
-                'size' => $file->size,
-                'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
-                'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name
-            );
-         } else {
-
-            if ($model->hasErrors()) {
-
-               $data[] = array('error', $model->getErrors());
-            }
-         }
-      } else {
-
-         throw new CHttpException(500, "Could not upload file " . CHtml::errorSummary($model));
-      }
-
-
-      echo json_encode($data);
-   }
-
-   function actionPreview($id) {
-
-      $c = new CDbCriteria;
-      $c->compare("company_id", Yii::app()->user->company_id);
-      $c->compare("transaction_id", $id);
-      $c->compare("transaction_type", Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE);
-      $attachment = Attachment::model()->findAll($c);
-
-      $output = array();
-      foreach ($attachment as $key => $value) {
-         $ext = new SplFileInfo($value->file_name);
-
-         $icon = "";
-         if ($ext->getExtension() == "jpg" || $ext->getExtension() == "jpeg" || $ext->getExtension() == "gif" || $ext->getExtension() == "png") {
-            $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "picture.png", "Image", array("width" => 30));
-         } else if ($ext->getExtension() == "pdf") {
-            $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "pdf.png", "Image", array("width" => 30));
-         } else if ($ext->getExtension() == "docx" || $ext->getExtension() == "doc") {
-            $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "doc.png", "Image", array("width" => 30));
-         } else if ($ext->getExtension() == "xls" || $ext->getExtension() == "xlsx") {
-            $icon = CHtml::image('images' . DIRECTORY_SEPARATOR . "icons" . DIRECTORY_SEPARATOR . "xls.png", "Image", array("width" => 30));
-         }
-
-         $row = array();
-         $row['file_name'] = $icon . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . $value->file_name;
-
-         $row['links'] = '<a class="btn btn-sm btn-default" title="Delete" href="' . $this->createUrl('/inventory/customeritem/download', array('id' => $value->attachment_id)) . '">
+            $row['links'] = '<a class="btn btn-sm btn-default" title="Delete" href="' . $this->createUrl('/inventory/customeritem/download', array('id' => $value->attachment_id)) . '">
                                 <i class="glyphicon glyphicon-download"></i>
                             </a>'
-                 . '&nbsp;<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/customeritem/deleteAttachment', array('attachment_id' => $value->attachment_id)) . '">
+                    . '&nbsp;<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/customeritem/deleteAttachment', array('attachment_id' => $value->attachment_id)) . '">
                                 <i class="glyphicon glyphicon-trash"></i>
                             </a>';
 
-         $output['data'][] = $row;
-      }
+            $output['data'][] = $row;
+        }
 
-      echo json_encode($output);
-   }
+        echo json_encode($output);
+    }
 
-   public function actionDownload($id) {
+    public function actionDownload($id) {
 
-      $attachment = Attachment::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "attachment_id" => $id));
+        $attachment = Attachment::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "attachment_id" => $id));
 
-      $url = $attachment->url;
-      $name = $attachment->file_name;
+        $url = $attachment->url;
+        $name = $attachment->file_name;
 
-      $base = Yii::app()->getBaseUrl(true);
-      $arr = explode("/", $base);
-      $base = $arr[count($arr) - 1];
-      $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
+        $base = Yii::app()->getBaseUrl(true);
+        $arr = explode("/", $base);
+        $base = $arr[count($arr) - 1];
+        $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
+        $src = '../' . $base . $url;
 
-      if (file_exists('../' . $base . $url)) {
+        if (file_exists($src)) {
+            ob_clean();
 
-         Yii::app()->getRequest()->sendFile($name, file_get_contents('../' . $base . $url));
-      } else {
+            Yii::app()->getRequest()->sendFile($name, file_get_contents($src));
+        } else {
 
-         throw new CHttpException(500, "Could not download file.");
-      }
-   }
+            throw new CHttpException(500, "Could not download file.");
+        }
+    }
 
-   public function actionPrint() {
+    public function actionPrint() {
 
-      $data = Yii::app()->request->getParam('post_data');
+        $data = Yii::app()->request->getParam('post_data');
 
-      $customer_item = $data['CustomerItem'];
-      $customer_item_detail = $data['transaction_details'];
+        $customer_item = $data['CustomerItem'];
+        $customer_item_detail = $data['transaction_details'];
 
-      $return = array();
+        $return = array();
 
-      $details = array();
-      $source = array();
-      $destination = array();
-      $headers = array();
+        $details = array();
+        $source = array();
+        $destination = array();
+        $headers = array();
 
-      $pr_nos = "";
-      $pr_no_arr = array();
-      $po_nos = "";
-      $po_no_arr = array();
-      foreach ($customer_item_detail as $key => $val) {
-         $row = array();
+        $pr_nos = "";
+        $pr_no_arr = array();
+        $po_nos = "";
+        $po_no_arr = array();
+        foreach ($customer_item_detail as $key => $val) {
+            $row = array();
 
-         $inventory = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $val['inventory_id']));
+            $inventory = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $val['inventory_id']));
 
-         if ($inventory) {
-            if (!in_array($inventory->pr_no, $pr_no_arr)) {
-               array_push($pr_no_arr, $inventory->pr_no);
-               $pr_nos .= $inventory->pr_no . ",";
+            if ($inventory) {
+                if (!in_array($inventory->pr_no, $pr_no_arr)) {
+                    array_push($pr_no_arr, $inventory->pr_no);
+                    $pr_nos .= $inventory->pr_no . ",";
+                }
+                if (!in_array($inventory->po_no, $po_no_arr)) {
+                    array_push($po_no_arr, $inventory->po_no);
+                    $po_nos .= $inventory->po_no . ",";
+                }
             }
-            if (!in_array($inventory->po_no, $po_no_arr)) {
-               array_push($po_no_arr, $inventory->po_no);
-               $po_nos .= $inventory->po_no . ",";
-            }
-         }
 
-         $row['sku_id'] = $val['sku_id'];
-         $row['uom_id'] = $val['uom_id'];
-         $row['planned_quantity'] = $val['planned_quantity'];
-         $row['quantity_issued'] = $val['quantity_issued'];
-         $row['unit_price'] = $val['unit_price'];
-         $row['amount'] = $val['amount'];
-         $row['expiration_date'] = $val['expiration_date'];
-         $row['amount'] = $val['amount'];
-         $row['remarks'] = $val['remarks'];
+            $row['sku_id'] = $val['sku_id'];
+            $row['uom_id'] = $val['uom_id'];
+            $row['planned_quantity'] = $val['planned_quantity'];
+            $row['quantity_issued'] = $val['quantity_issued'];
+            $row['unit_price'] = $val['unit_price'];
+            $row['amount'] = $val['amount'];
+            $row['expiration_date'] = $val['expiration_date'];
+            $row['amount'] = $val['amount'];
+            $row['remarks'] = $val['remarks'];
 
-         $details[] = $row;
-      }
+            $details[] = $row;
+        }
 
-      $c1 = new CDbCriteria;
-      $c1->select = new CDbExpression('t.*, TRIM(barangay.barangay_name) as barangay_name, TRIM(municipal.municipal_name) as municipal_name, TRIM(province.province_name) as province_name, TRIM(region.region_name) as region_name');
-      $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.poi_id = '" . $customer_item['poi_id'] . "'";
-      $c1->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
-      $c1->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
-      $c1->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
-      $c1->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
-      $poi = Poi::model()->find($c1);
+        $c1 = new CDbCriteria;
+        $c1->select = new CDbExpression('t.*, TRIM(barangay.barangay_name) as barangay_name, TRIM(municipal.municipal_name) as municipal_name, TRIM(province.province_name) as province_name, TRIM(region.region_name) as region_name');
+        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.poi_id = '" . $customer_item['poi_id'] . "'";
+        $c1->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
+        $c1->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
+        $c1->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
+        $c1->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
+        $poi = Poi::model()->find($c1);
 
-      $poi_address = isset($poi->barangay_name) ? $poi->barangay_name . ", " : "";
-      $poi_address .= isset($poi->municipal_name) ? $poi->municipal_name . ", " : "";
-      $poi_address .= isset($poi->province_name) ? $poi->province_name . ", " : "";
-      $poi_address .= isset($poi->region_name) ? $poi->region_name : "";
+        $poi_address = isset($poi->barangay_name) ? $poi->barangay_name . ", " : "";
+        $poi_address .= isset($poi->municipal_name) ? $poi->municipal_name . ", " : "";
+        $poi_address .= isset($poi->province_name) ? $poi->province_name . ", " : "";
+        $poi_address .= isset($poi->region_name) ? $poi->region_name : "";
 
-      $destination['poi_name'] = $poi->short_name;
-      $destination['poi_code'] = $poi->primary_code;
-      $destination['contact_person'] = "";
-      $destination['contact_no'] = "";
-      $destination['address'] = $poi_address;
+        $destination['poi_name'] = $poi->short_name;
+        $destination['poi_code'] = $poi->primary_code;
+        $destination['contact_person'] = "";
+        $destination['contact_no'] = "";
+        $destination['address'] = $poi_address;
 
-      $headers['transaction_date'] = $customer_item['transaction_date'];
-      $headers['plan_delivery_date'] = $customer_item['plan_delivery_date'];
+        $headers['transaction_date'] = $customer_item['transaction_date'];
+        $headers['plan_delivery_date'] = $customer_item['plan_delivery_date'];
 
-      $headers['pr_no'] = substr($pr_nos, 0, -1);
-      $headers['po_no'] = substr($po_nos, 0, -1);
-      $headers['rra_no'] = $customer_item['rra_no'];
-      $headers['rra_date'] = $customer_item['rra_date'];
-      $headers['dr_no'] = $customer_item['dr_no'];
-      $headers['total_amount'] = $customer_item['total_amount'];
-      $headers['remarks'] = $customer_item['remarks'];
+        $headers['pr_no'] = substr($pr_nos, 0, -1);
+        $headers['po_no'] = substr($po_nos, 0, -1);
+        $headers['rra_no'] = $customer_item['rra_no'];
+        $headers['rra_date'] = $customer_item['rra_date'];
+        $headers['dr_no'] = $customer_item['dr_no'];
+        $headers['total_amount'] = $customer_item['total_amount'];
+        $headers['remarks'] = $customer_item['remarks'];
 
-      $return['headers'] = $headers;
-      $return['source'] = $source;
-      $return['destination'] = $destination;
-      $return['details'] = $details;
+        $return['headers'] = $headers;
+        $return['source'] = $source;
+        $return['destination'] = $destination;
+        $return['details'] = $details;
 
-      unset(Yii::app()->session["post_pdf_data_id"]);
+        unset(Yii::app()->session["post_pdf_data_id"]);
 
-      sleep(1);
+        sleep(1);
 
-      Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
-      Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = $return;
+        Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
+        Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = $return;
 
-      $output = array();
-      if (Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] == "") {
-         $output["success"] = false;
-         return false;
-      }
+        $output = array();
+        if (Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] == "") {
+            $output["success"] = false;
+            return false;
+        }
 
-      $output["success"] = true;
-      $output["id"] = Yii::app()->session["post_pdf_data_id"];
+        $output["success"] = true;
+        $output["id"] = Yii::app()->session["post_pdf_data_id"];
 
-      echo json_encode($output);
-      Yii::app()->end();
-   }
+        echo json_encode($output);
+        Yii::app()->end();
+    }
 
-   public function actionLoadPDF($id) {
+    public function actionLoadPDF($id) {
 
-      $data = Yii::app()->session[$id];
+        $data = Yii::app()->session[$id];
 
-      if ($data == "") {
-         echo "Error: Please close and try again.";
-         return false;
-      }
+        if ($data == "") {
+            echo "Error: Please close and try again.";
+            return false;
+        }
 
-      $headers = $data['headers'];
-      $source = $data['source'];
-      $destination = $data['destination'];
-      $details = $data['details'];
+        $headers = $data['headers'];
+        $source = $data['source'];
+        $destination = $data['destination'];
+        $details = $data['details'];
 
-      ob_start();
+        ob_start();
 
-      $pdf = Globals::pdf();
+        $pdf = Globals::pdf();
 
-      $pdf->setPrintHeader(false);
-      $pdf->setPrintFooter(false);
-      $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-      $pdf->SetFont('DejaVu Sans', '#000', 10);
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        $pdf->SetFont('DejaVu Sans', '#000', 10);
 
-      $pdf->AddPage();
+        $pdf->AddPage();
 
-      $html = '
+        $html = '
             <style type="text/css">
                 .text-center { text-align: center; }
                 .title { font-size: 12px; }
@@ -1068,15 +1070,15 @@ class CustomerItemController extends Controller {
                     <td style="font-weight: bold;">REMARKS</td>
                 </tr>';
 
-      $planned_qty = 0;
-      $actual_qty = 0;
-      $total_unit_price = 0;
-      foreach ($details as $key => $val) {
-         $sku = Sku::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sku_id" => $val['sku_id']));
-         $uom = UOM::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $val['uom_id']));
-         $uom_name = isset($uom->uom_name) ? $uom->uom_name : "";
+        $planned_qty = 0;
+        $actual_qty = 0;
+        $total_unit_price = 0;
+        foreach ($details as $key => $val) {
+            $sku = Sku::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sku_id" => $val['sku_id']));
+            $uom = UOM::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $val['uom_id']));
+            $uom_name = isset($uom->uom_name) ? $uom->uom_name : "";
 
-         $html .= '<tr>
+            $html .= '<tr>
                             <td>' . $sku->sku_code . '</td>
                             <td>' . $sku->description . '</td>
                             <td>' . $sku->brand->brand_name . '</td>
@@ -1088,12 +1090,12 @@ class CustomerItemController extends Controller {
                             <td>' . $val['remarks'] . '</td>
                         </tr>';
 
-         $planned_qty += $val['planned_quantity'];
-         $actual_qty += $val['quantity_issued'];
-         $total_unit_price += $val['unit_price'];
-      }
+            $planned_qty += $val['planned_quantity'];
+            $actual_qty += $val['quantity_issued'];
+            $total_unit_price += $val['unit_price'];
+        }
 
-      $html .= '<tr>
+        $html .= '<tr>
                     <td colspan="9"></td>
                 </tr>
                 <tr>
@@ -1103,7 +1105,7 @@ class CustomerItemController extends Controller {
                     <td colspan="3"></td>
                 </tr>';
 
-      $html .= '</table><br/><br/><br/>
+        $html .= '</table><br/><br/><br/>
             
                <table class="table_footer">
                     <tr>
@@ -1158,148 +1160,148 @@ class CustomerItemController extends Controller {
                     </tr>
                 </table>';
 
-      $pdf->writeHTML($html, true, false, true, false, '');
+        $pdf->writeHTML($html, true, false, true, false, '');
 
-      $pdf->Output('outgoing.pdf', 'I');
-   }
+        $pdf->Output('outgoing.pdf', 'I');
+    }
 
-   public function actionGetDetailsByCustomerItemID($customer_item_id) {
+    public function actionGetDetailsByCustomerItemID($customer_item_id) {
 
-      $c = new CDbCriteria;
-      $c->condition = "company_id = '" . Yii::app()->user->company_id . "' AND customer_item_id = '" . $customer_item_id . "'";
-      $customer_item_details = CustomerItemDetail::model()->findAll($c);
+        $c = new CDbCriteria;
+        $c->condition = "company_id = '" . Yii::app()->user->company_id . "' AND customer_item_id = '" . $customer_item_id . "'";
+        $customer_item_details = CustomerItemDetail::model()->findAll($c);
 
-      $output = array();
-      foreach ($customer_item_details as $key => $value) {
-         $row = array();
+        $output = array();
+        foreach ($customer_item_details as $key => $value) {
+            $row = array();
 
-         $status = Inventory::model()->status($value->status);
+            $status = Inventory::model()->status($value->status);
 
-         $uom = Uom::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $value->uom_id));
+            $uom = Uom::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $value->uom_id));
 
-         $row['customer_item_detail_id'] = $value->customer_item_detail_id;
-         $row['customer_item_id'] = $value->customer_item_id;
-         $row['batch_no'] = $value->batch_no;
-         $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
-         $row['sku_name'] = isset($value->sku->sku_name) ? $value->sku->sku_name : null;
-         $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
-         $row['sku_category'] = isset($value->sku->type) ? $value->sku->type : null;
-         $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
-         $row['source_zone_id'] = $value->source_zone_id;
-         $row['source_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
-         $row['unit_price'] = $value->unit_price;
-         $row['expiration_date'] = $value->expiration_date;
-         $row['planned_quantity'] = $value->planned_quantity;
-         $row['quantity_issued'] = $value->quantity_issued;
-         $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
-         $row['inventory_on_hand'] = $value->inventory_on_hand;
-         $row['return_date'] = $value->return_date;
-         $row['status'] = $status;
-         $row['remarks'] = $value->remarks;
-         $row['campaign_no'] = $value->campaign_no;
-         $row['pr_no'] = $value->pr_no;
-         $row['uom_name'] = $uom->uom_name;
+            $row['customer_item_detail_id'] = $value->customer_item_detail_id;
+            $row['customer_item_id'] = $value->customer_item_id;
+            $row['batch_no'] = $value->batch_no;
+            $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
+            $row['sku_name'] = isset($value->sku->sku_name) ? $value->sku->sku_name : null;
+            $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
+            $row['sku_category'] = isset($value->sku->type) ? $value->sku->type : null;
+            $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
+            $row['source_zone_id'] = $value->source_zone_id;
+            $row['source_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
+            $row['unit_price'] = $value->unit_price;
+            $row['expiration_date'] = $value->expiration_date;
+            $row['planned_quantity'] = $value->planned_quantity;
+            $row['quantity_issued'] = $value->quantity_issued;
+            $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
+            $row['inventory_on_hand'] = $value->inventory_on_hand;
+            $row['return_date'] = $value->return_date;
+            $row['status'] = $status;
+            $row['remarks'] = $value->remarks;
+            $row['campaign_no'] = $value->campaign_no;
+            $row['pr_no'] = $value->pr_no;
+            $row['uom_name'] = $uom->uom_name;
 
-         $output['data'][] = $row;
-      }
+            $output['data'][] = $row;
+        }
 
-      echo json_encode($output);
-   }
+        echo json_encode($output);
+    }
 
-   public function actionViewPrint($customer_item_id) {
+    public function actionViewPrint($customer_item_id) {
 
-      $customer_item = $this->loadModel($customer_item_id);
+        $customer_item = $this->loadModel($customer_item_id);
 
-      $customer_item_detail = CustomerItemDetail::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "customer_item_id" => $customer_item_id));
+        $customer_item_detail = CustomerItemDetail::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "customer_item_id" => $customer_item_id));
 
-      $return = array();
+        $return = array();
 
-      $details = array();
-      $source = array();
-      $destination = array();
-      $headers = array();
+        $details = array();
+        $source = array();
+        $destination = array();
+        $headers = array();
 
-      $pr_nos = "";
-      $pr_no_arr = array();
-      $po_nos = "";
-      $po_no_arr = array();
-      foreach ($customer_item_detail as $key => $val) {
-         $row = array();
+        $pr_nos = "";
+        $pr_no_arr = array();
+        $po_nos = "";
+        $po_no_arr = array();
+        foreach ($customer_item_detail as $key => $val) {
+            $row = array();
 
-         if (!in_array($val->pr_no, $pr_no_arr)) {
-            array_push($pr_no_arr, $val->pr_no);
-            $pr_nos .= $val->pr_no . ",";
-         }
-         if (!in_array($val->po_no, $po_no_arr)) {
-            array_push($po_no_arr, $val->po_no);
-            $po_nos .= $val->po_no . ",";
-         }
+            if (!in_array($val->pr_no, $pr_no_arr)) {
+                array_push($pr_no_arr, $val->pr_no);
+                $pr_nos .= $val->pr_no . ",";
+            }
+            if (!in_array($val->po_no, $po_no_arr)) {
+                array_push($po_no_arr, $val->po_no);
+                $po_nos .= $val->po_no . ",";
+            }
 
-         $row['sku_id'] = $val->sku_id;
-         $row['uom_id'] = $val->uom_id;
-         $row['planned_quantity'] = $val->planned_quantity;
-         $row['quantity_issued'] = $val->quantity_issued;
-         $row['unit_price'] = $val->unit_price;
-         $row['amount'] = $val->amount;
-         $row['expiration_date'] = $val->expiration_date;
-         $row['amount'] = $val->amount;
-         $row['remarks'] = $val->remarks;
+            $row['sku_id'] = $val->sku_id;
+            $row['uom_id'] = $val->uom_id;
+            $row['planned_quantity'] = $val->planned_quantity;
+            $row['quantity_issued'] = $val->quantity_issued;
+            $row['unit_price'] = $val->unit_price;
+            $row['amount'] = $val->amount;
+            $row['expiration_date'] = $val->expiration_date;
+            $row['amount'] = $val->amount;
+            $row['remarks'] = $val->remarks;
 
-         $details[] = $row;
-      }
+            $details[] = $row;
+        }
 
-      $c1 = new CDbCriteria;
-      $c1->select = new CDbExpression('t.*, TRIM(barangay.barangay_name) as barangay_name, TRIM(municipal.municipal_name) as municipal_name, TRIM(province.province_name) as province_name, TRIM(region.region_name) as region_name');
-      $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.poi_id = '" . $customer_item->poi_id . "'";
-      $c1->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
-      $c1->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
-      $c1->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
-      $c1->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
-      $poi = Poi::model()->find($c1);
+        $c1 = new CDbCriteria;
+        $c1->select = new CDbExpression('t.*, TRIM(barangay.barangay_name) as barangay_name, TRIM(municipal.municipal_name) as municipal_name, TRIM(province.province_name) as province_name, TRIM(region.region_name) as region_name');
+        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.poi_id = '" . $customer_item->poi_id . "'";
+        $c1->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
+        $c1->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
+        $c1->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
+        $c1->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
+        $poi = Poi::model()->find($c1);
 
-      $poi_address = isset($poi->barangay_name) ? $poi->barangay_name . ", " : "";
-      $poi_address .= isset($poi->municipal_name) ? $poi->municipal_name . ", " : "";
-      $poi_address .= isset($poi->province_name) ? $poi->province_name . ", " : "";
-      $poi_address .= isset($poi->region_name) ? $poi->region_name : "";
+        $poi_address = isset($poi->barangay_name) ? $poi->barangay_name . ", " : "";
+        $poi_address .= isset($poi->municipal_name) ? $poi->municipal_name . ", " : "";
+        $poi_address .= isset($poi->province_name) ? $poi->province_name . ", " : "";
+        $poi_address .= isset($poi->region_name) ? $poi->region_name : "";
 
-      $destination['poi_name'] = $poi->short_name;
-      $destination['poi_code'] = $poi->primary_code;
-      $destination['contact_person'] = "";
-      $destination['contact_no'] = "";
-      $destination['address'] = $poi_address;
+        $destination['poi_name'] = $poi->short_name;
+        $destination['poi_code'] = $poi->primary_code;
+        $destination['contact_person'] = "";
+        $destination['contact_no'] = "";
+        $destination['address'] = $poi_address;
 
-      $headers['transaction_date'] = $customer_item->transaction_date;
-      $headers['plan_delivery_date'] = $customer_item->plan_delivery_date;
+        $headers['transaction_date'] = $customer_item->transaction_date;
+        $headers['plan_delivery_date'] = $customer_item->plan_delivery_date;
 
-      $headers['pr_no'] = substr($pr_nos, 0, -1);
-      $headers['po_no'] = substr($po_nos, 0, -1);
-      $headers['rra_no'] = $customer_item->rra_no;
-      $headers['rra_date'] = $customer_item->rra_date;
-      $headers['dr_no'] = $customer_item->dr_no;
-      $headers['total_amount'] = $customer_item->total_amount;
-      $headers['remarks'] = $customer_item->remarks;
+        $headers['pr_no'] = substr($pr_nos, 0, -1);
+        $headers['po_no'] = substr($po_nos, 0, -1);
+        $headers['rra_no'] = $customer_item->rra_no;
+        $headers['rra_date'] = $customer_item->rra_date;
+        $headers['dr_no'] = $customer_item->dr_no;
+        $headers['total_amount'] = $customer_item->total_amount;
+        $headers['remarks'] = $customer_item->remarks;
 
-      $return['headers'] = $headers;
-      $return['source'] = $source;
-      $return['destination'] = $destination;
-      $return['details'] = $details;
+        $return['headers'] = $headers;
+        $return['source'] = $source;
+        $return['destination'] = $destination;
+        $return['details'] = $details;
 
-      unset(Yii::app()->session["post_pdf_data_id"]);
+        unset(Yii::app()->session["post_pdf_data_id"]);
 
-      Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
-      Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = $return;
+        Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
+        Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = $return;
 
-      $output = array();
-      if (Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] == "") {
-         $output["success"] = false;
-         return false;
-      }
+        $output = array();
+        if (Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] == "") {
+            $output["success"] = false;
+            return false;
+        }
 
-      $output["success"] = true;
-      $output["id"] = Yii::app()->session["post_pdf_data_id"];
+        $output["success"] = true;
+        $output["id"] = Yii::app()->session["post_pdf_data_id"];
 
-      echo json_encode($output);
-      Yii::app()->end();
-   }
+        echo json_encode($output);
+        Yii::app()->end();
+    }
 
 }

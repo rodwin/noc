@@ -705,7 +705,7 @@ class ReceivingInventoryController extends Controller {
             if (!is_dir($dir)) {
                 mkdir($dir, 0777, true);
             }
-            
+
             $file_name = str_replace(' ', '_', strtolower($file->name));
             $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::RECEIVING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $receiving_inv_id_attachment_session . DIRECTORY_SEPARATOR . $file_name;
             $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
@@ -718,11 +718,11 @@ class ReceivingInventoryController extends Controller {
             $model->transaction_type = Attachment::RECEIVING_TRANSACTION_TYPE;
             $model->created_by = Yii::app()->user->name;
 //            dito start
-         if ($tag_category != "OTHERS") {
-            $model->tag_category = $tag_category;
-         } else {
-            $model->tag_category = $tag_to;
-         }
+            if ($tag_category != "OTHERS") {
+                $model->tag_category = $tag_category;
+            } else {
+                $model->tag_category = $tag_to;
+            }
 //          dito end
             if ($model->save()) {
 
@@ -797,10 +797,12 @@ class ReceivingInventoryController extends Controller {
         $arr = explode("/", $base);
         $base = $arr[count($arr) - 1];
         $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
+        $src = '../' . $base . $url;
 
-        if (file_exists('../' . $base . $url)) {
+        if (file_exists($src)) {
+            ob_clean();
 
-            Yii::app()->getRequest()->sendFile($name, file_get_contents('../' . $base . $url));
+            Yii::app()->getRequest()->sendFile($name, file_get_contents($src));
         } else {
 
             throw new CHttpException(500, "Could not download file.");
@@ -872,7 +874,7 @@ class ReceivingInventoryController extends Controller {
         $return['details'] = $details;
 
         unset(Yii::app()->session["post_pdf_data_id"]);
-        
+
         sleep(1);
 
         Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
@@ -894,7 +896,7 @@ class ReceivingInventoryController extends Controller {
     public function actionLoadPDF($id) {
 
         $data = Yii::app()->session[$id];
-        
+
         if ($data == "") {
             echo "Error: Please close and try again.";
             return false;

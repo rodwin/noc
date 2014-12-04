@@ -665,7 +665,7 @@ class ProofOfDeliveryController extends Controller {
                 $base = $arr[count($arr) - 1];
                 $url = str_replace(Yii::app()->getBaseUrl(true), "", $pod_attachment->url);
                 $delete_link = '../' . $base . $url;
-                
+
                 if (file_exists($delete_link)) {
                     unlink($delete_link);
                 }
@@ -694,10 +694,12 @@ class ProofOfDeliveryController extends Controller {
         $arr = explode("/", $base);
         $base = $arr[count($arr) - 1];
         $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
+        $src = '../' . $base . $url;
 
-        if (file_exists('../' . $base . $url)) {
+        if (file_exists($src)) {
+            ob_clean();
 
-            Yii::app()->getRequest()->sendFile($name, file_get_contents('../' . $base . $url));
+            Yii::app()->getRequest()->sendFile($name, file_get_contents($src));
         } else {
 
             throw new CHttpException(500, "Could not download file.");
