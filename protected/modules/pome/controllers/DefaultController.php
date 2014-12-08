@@ -72,11 +72,10 @@ class DefaultController extends Controller
             $qtr[1]['name']='AMJ';
             $qtr[2]['name']='JAS';
             $qtr[3]['name']='OND';
-            
-            $year[0]['id']='2013';
-            $year[1]['id']='2014';
-            $year[2]['id']='2015';
-            $year[3]['id']='2016';
+
+            $year[0]['id']='2014';
+            $year[1]['id']='2015';
+            $year[2]['id']='2016';
 
             
                 
@@ -362,6 +361,7 @@ class DefaultController extends Controller
                         $detail_array[$key_count]['target_attendance'] = $target_attendance;
                         $detail_array[$key_count]['actual_attendance'] = 0;
                         $detail_array[$key_count]['target_reach'] = 0;
+                        $detail_array[$key_count]['actual_reach'] = 0;
                         if(isset($bws_target[$valc['id']])){
                             $target_reach +=$bws_target[$valc['id']];
                             $detail_array[$key_count]['target_reach'] = $target_reach ;
@@ -383,6 +383,7 @@ class DefaultController extends Controller
                     $detail_array[$key_count]['target_attendance'] = $target_attendance;
                     $detail_array[$key_count]['actual_attendance'] = 0;
                     $detail_array[$key_count]['target_reach'] = 0;
+                    $detail_array[$key_count]['actual_reach'] = 0;
                     if(isset($bws_target[$valc['id']])){
                         $target_reach =$bws_target[$valc['id']];
                         $detail_array[$key_count]['target_reach'] =$target_reach ;
@@ -590,6 +591,7 @@ class DefaultController extends Controller
             }
            
             foreach($data_actual_half as $keyb=> $valb){
+                
                 $bws_actual_half[$valb['code']] = $valb['par'];
             }
             
@@ -1251,6 +1253,51 @@ class DefaultController extends Controller
             }
 //         pr($total_array);
             echo json_encode($total_array);
+            
+            
+        }
+        
+        public function actionTlQa()
+        {
+            $total = new Pome;   
+          
+            $seller = $total->getBwsPerTl($_GET['teamlead']);
+            
+            $str = '';
+            foreach($seller as $keyb => $valb){
+                    $str .= $valb['id'].',';
+            }
+            $str = substr($str,0,-1);
+            $survey = $total->getTotalSurvey($str,$_GET['ph'],$_GET['month'],$_GET['year']);
+            
+            $survey_array = array();
+            $previous = '';
+            foreach($survey as $keyb => $valb){
+//                    $code = substr($valb['code'],5);
+//                if($previous == $valb['code']){
+                    $survey_array[$valb['code']]= $valb['answer'];  
+//                }else{
+//                    $survey_array[$valb['code']]+= $valb['answer'];
+//                }
+            }
+
+            $score = 20;
+            
+            $seller_array = array();
+            foreach($seller as $key => $val){
+             
+                $seller_array[$key]['bws'] = $val['code'];
+                $seller_array[$key]['id'] = $val['id'];
+                $seller_array[$key]['total'] = 0;
+                $seller_array[$key]['score'] = $score;
+                if(isset($survey_array[$val['code']])){                       
+                     $seller_array[$key]['total'] =$survey_array[$val['code']] ; 
+                }
+                
+            }
+//            pr($seller_array);
+//            exit;
+           echo json_encode($seller_array);
             
             
         }

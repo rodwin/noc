@@ -172,7 +172,7 @@
    
      
         $.ajax({
-            'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TlAttendance'); ?>",
+            'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Tl/TlAttendance'); ?>",
             'type':'GET',
             'dataType': 'json',
             'data':'agency='+agency_tl.value+'&month='+month_tl.value+'&brand='+brand_tl.value+'&teamlead='+team_leader.value+'&year='+tl_year.value,
@@ -204,7 +204,7 @@
                         color = 'red';
                     }
                     attendancetl_target.push({y: target, color: 'gray',mydata:targettl});
-                    attendancetl_reach.push({y: data[i].actual_attendance, color: color,mydata:targettl});
+                    attendancetl_reach.push({y: parseFloat (data[i].actual_attendance), color: color,mydata:targettl});
    
                }
                chartx.xAxis[0].setCategories(labelstl)
@@ -294,7 +294,7 @@
           var team_ph =  document.getElementById('tl_ph');
           var tls_year =  document.getElementById('tl_year');
             $.ajax({
-                'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TlReach'); ?>",
+                'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Tl/TlReach'); ?>",
                 'type':'get',
                 'dataType': 'json',
                 'data':'agency='+agency_tl_reach.value+'&month='+month_tl_reach.value+'&brand='+brand_tl_reach.value+'&teamlead='+team_leader_reach.value+'&ph='+team_ph.value+'&year='+tls_year.value,
@@ -411,12 +411,12 @@
       var score_actual = new Array();
       var score_target = new Array();
       var team_ph =  document.getElementById('tl_ph');
-      var team_leader_qa =  document.getElementById('tl_leader');
+      var team_leader_qa =  document.getElementById('tl_leader'); 
       var month_tl =  document.getElementById('tl_month');
 //      var brand_tl =  document.getElementById('tl_brand');
       var year_tl =  document.getElementById('tl_year');
         $.ajax({
-            'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TlQa'); ?>",
+            'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Tl/TlQa'); ?>",
             'type':'GET',
             'dataType': 'json',
             'data':'teamlead='+team_leader_qa.value+'&ph='+team_ph.value+'&month='+month_tl.value+'&year='+year_tl.value,
@@ -445,8 +445,8 @@
                         color = 'red';
                     }
                    
-                    score_target.push({y: remaining, color: 'gray',mydata:test});
-                    score_actual.push({y: parseFloat(data[i].total), color: color,mydata:test});
+                    score_target.push({y: remaining, color: 'gray',mydata:data[i].total});
+                    score_actual.push({y: parseFloat(data[i].total), color: color,mydata:data[i].total});
 //                    target_actual_total_jfm.push({y: data[i].actual_reach, color: color,mydatac:data[i].target_reach});
                    
    

@@ -539,7 +539,7 @@
                 'success':function(data) {
 
                    for(var i = 0; i < data.length; i++){
-                        labels_total_amj.push(data[i].name);
+                        labels_total_jfm.push(data[i].name);
 
                         var target = data[i].target_reach - data[i].actual_reach;
                         var percentage = data[i].actual_reach / data[i].target_reach * 100;
