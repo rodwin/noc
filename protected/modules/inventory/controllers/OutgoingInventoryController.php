@@ -506,6 +506,12 @@ class OutgoingInventoryController extends Controller {
      */
     public function actionUpdate($id) {
         $outgoing = $this->loadModel($id);
+        
+        if ($outgoing) {
+            if ($outgoing->status != OutgoingInventory::OUTGOING_PENDING_STATUS) {
+                throw new CHttpException(403, "You are not authorized to perform this action.");
+            }
+        }
 
         $this->pageTitle = "Update " . OutgoingInventory::OUTGOING_LABEL . ' Inventory';
         $this->layout = '//layouts/column1';
