@@ -173,13 +173,18 @@ $this->breadcrumbs=array(
           </br>
          
                 
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div id="tlreach" style="min-width: auto; height: 400px; margin: 0 auto"></div>
 <!--                <div id="detail_table_loader_tl_reach"><img height="50" style="display:block;margin:auto;" alt="activity indicator" src="<?php Yii::app()->baseUrl ;?>protected/modules/pome/image/loader.gif" alt="" /></div>-->
  
               </div>
-              <div class="col-md-6">
+              <div class="col-md-4">
                  <div id="tlattendance" style="min-width: auto; height: 400px; margin: 0 auto"></div>
+<!--                 <div id="detail_table_loader_dtl_tl_attn"><img height="50" style="display:block;margin:auto;" alt="activity indicator" src="<?php Yii::app()->baseUrl ;?>protected/modules/pome/image/loader.gif" alt="" /></div>-->
+ 
+              </div>
+              <div class="col-md-4">
+                 <div id="tlqa" style="min-width: auto; height: 400px; margin: 0 auto"></div>
 <!--                 <div id="detail_table_loader_dtl_tl_attn"><img height="50" style="display:block;margin:auto;" alt="activity indicator" src="<?php Yii::app()->baseUrl ;?>protected/modules/pome/image/loader.gif" alt="" /></div>-->
  
               </div>
@@ -1147,7 +1152,7 @@ $(function () {
             'success':function(data) {
              
                for(var i = 0; i < data.length; i++){
-                    labels_total_amj.push(data[i].name);
+                    labels_total_jfm.push(data[i].name);
 
                     var target = data[i].target_reach - data[i].actual_reach;
                     var percentage = data[i].actual_reach / data[i].target_reach * 100;
@@ -1196,6 +1201,125 @@ $(function () {
 //                $("#detail_table_loader_ttl_national").hide();  
 //                $("#TotalNational").show();
                chartjfm.hideLoading();
+               alert('An error occured: '+ exception);
+            }
+         }); 
+         
+         
+         
+        var chartqa= new Highcharts.Chart({
+        
+             chart: {
+                        type: 'column',
+                        renderTo: 'tlqa'
+                    },
+                    title: {
+                        text: 'QA Checklist'
+                    },
+                    xAxis: {
+                        categories: labels_code
+                    },
+                    yAxis: {
+                        min: 0,
+                        
+                        stackLabels: {
+                            enabled: true,
+                            style: {
+                                fontWeight: 'bold',
+                                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                            }
+                        }
+                    },
+                
+                tooltip: {
+                    formatter: function () {
+                        return '<b>' + this.x + '</b><br/>' +
+                            this.series.name + ': ' + this.y + '<br/>' +
+                            'Actual Score: ' + this.point.mydata;
+                    }
+                },
+                    plotOptions: {
+                        column: {
+                            stacking: 'normal',
+                            dataLabels: {
+                                enabled: true,
+                                color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
+                                style: {
+                                    textShadow: '0 0 3px black, 0 0 3px black'
+                                }
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Total Score',
+                         data:score_target
+
+                    }, {
+                        name: 'Actual Score',
+                        data:score_actual
+
+                    }]
+      });
+    
+      var labels_code= new Array();
+      var score_actual = new Array();
+      var score_target = new Array();
+      var team_ph =  document.getElementById('tl_ph');
+      var team_leader_qa =  document.getElementById('tl_leader');
+      var team_month =  document.getElementById('tl_month');
+//      var brand_tl =  document.getElementById('tl_brand');
+      var team_year =  document.getElementById('tl_year');
+        $.ajax({
+            'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TlQa'); ?>",
+            'type':'GET',
+            'dataType': 'json',
+            'data':'teamlead='+team_leader_qa.value+'&ph='+team_ph.value+'&month='+team_month.value+'&year='+team_year.value,
+            beforeSend: function(){
+//                $("#detail_table_loader_ttl_national").show();  
+//                $("#TotalNational").hide(); 
+                  chartqa.showLoading();
+             },
+            'success':function(data) {
+             
+               for(var i = 0; i < data.length; i++){
+                    labels_code.push(data[i].bws);
+
+ 
+                    var test = data[i].total / data[i].score * 100;
+
+       
+                    if(test >= 100)
+                    {
+                        color = 'green';
+                    }else if(test >= 90 && test <99)
+                    {
+                        color = 'yellow';
+                    }else{
+                        color = 'red';
+                    }
+                   
+                    score_target.push({y: data[i].score, color: 'gray',mydata:test});
+                    score_actual.push({y: data[i].total, color: color,mydata:test});
+//                    target_actual_total_jfm.push({y: data[i].actual_reach, color: color,mydatac:data[i].target_reach});
+                   
+   
+               }
+//             $("#detail_table_loader_ttl_national").hide();  
+//             $("#TotalNational").show();  
+
+               chartqa.xAxis[0].setCategories(labels_code)
+               chartqa.series[0].setData(score_target)
+               chartqa.series[1].setData(score_actual)
+               chartqa.hideLoading();
+            
+               
+              
+               
+            },
+            error: function(jqXHR, exception) {
+//                $("#detail_table_loader_ttl_national").hide();  
+//                $("#TotalNational").show();
+               chartqa.hideLoading();
                alert('An error occured: '+ exception);
             }
          }); 
