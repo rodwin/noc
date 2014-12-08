@@ -219,7 +219,6 @@ class InventoryHistory extends CActiveRecord {
          foreach ($data as $key => $value) {
             $curavgc = $value['ave_cost_per_unit'];
          }
-
          $avg = floatval($curavgc);
       } else {
          $curavgc = 0;
