@@ -948,4 +948,101 @@ class InventoryController extends Controller {
         Yii::app()->end();
     }
 
+    public function actionUpload() {
+
+        $this->pageTitle = 'Upload Inventories';
+        $this->layout = '//layouts/column1';
+
+        $model = new InventoryImportForm;
+
+        if (isset($_POST) && count($_POST) > 0) {
+            $model->attributes = $_POST['InventoryImportForm'];
+            if ($model->validate()) {
+
+                if (isset($_FILES['InventoryImportForm']['name']) && $_FILES['InventoryImportForm']['name'] != "") {
+
+                    $file = CUploadedFile::getInstance($model, 'doc_file');
+
+                    $dir = Yii::app()->basePath . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'inventory';
+
+                    if (!is_dir($dir)) {
+                        mkdir($dir, 0777, true);
+                    }
+
+                    $file_name = str_replace(' ', '_', strtolower($file->name));
+                    $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
+
+                    $batch_upload = new BatchUpload;
+                    $batch_upload->company_id = Yii::app()->user->company_id;
+                    $batch_upload->status = 'PENDING';
+                    $batch_upload->file_name = $file_name;
+                    $batch_upload->file = $dir . DIRECTORY_SEPARATOR . $file_name;
+                    $batch_upload->total_rows = 0;
+                    $batch_upload->failed_rows = 0;
+                    $batch_upload->type = 'inventory';
+                    $batch_upload->notify = $_POST['InventoryImportForm']['notify'];
+                    $batch_upload->module = 'inventory';
+                    $batch_upload->created_by = Yii::app()->user->name;
+                    if ($batch_upload->validate()) {
+
+                        $batch_upload->save();
+
+                        $data = array(
+                            'task' => "import_inventory",
+                            'details' => array(
+                                'batch_id' => $batch_upload->id,
+                                'company_id' => Yii::app()->user->company_id,
+                            )
+                        );
+
+                        Globals::queue(json_encode($data));
+//                        Inventory::model()->processBatchUpload($batch_upload->id, Yii::app()->user->company_id);
+
+                        Yii::app()->user->setFlash('success', "Successfully uploaded data. Please wait for the checking to finish!");
+                    } else {
+                        Yii::app()->user->setFlash('danger', "Failed to create batch upload.");
+                    }
+
+                    $this->redirect(array('upload'));
+                }
+            }
+        }
+
+        $uploads = BatchUpload::model()->getByTypeAndCompanyID('inventory', Yii::app()->user->company_id);
+        $headers = Inventory::model()->requiredHeaders();
+
+        $this->render('upload', array(
+            'model' => $model,
+            'headers' => $headers,
+            'uploads' => $uploads,
+        ));
+    }
+
+    public function actionGenerateTemplate() {
+
+        Inventory::model()->generateTemplate();
+    }
+
+    public function actionUploadDetails($id) {
+
+        $this->pageTitle = 'Upload Inventories';
+//        $this->layout = '//layouts/column1';
+
+        $this->menu = array(
+            array('label' => 'Upload Inventory', 'url' => array('upload')),
+            array('label' => 'Create Inventory', 'url' => array('create')),
+            array('label' => 'Manage Inventory', 'url' => array('admin')),
+            '',
+            array('label' => 'Help', 'url' => '#'),
+        );
+
+        $model = BatchUpload::model()->findByAttributes(array('id' => $id, 'company_id' => Yii::app()->user->company_id));
+        if ($model === null)
+            throw new CHttpException(404, 'The requested page does not exist.');
+
+        $uploads = BatchUploadDetail::model()->findAllByAttributes(array('batch_upload_id' => $id, 'company_id' => Yii::app()->user->company_id));
+
+        $this->render('upload_details', array('model' => $model, 'uploads' => $uploads));
+    }
+
 }
