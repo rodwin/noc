@@ -350,6 +350,20 @@ class Survey extends CFormModel {
     
     public function saveSurvey($data)
     {
+        $code = Yii::app()->user->userObj->user_name;
+        if($data['Survey']['team_id'] ==''){
+            $sql ="SELECT *
+                from [pg_mapping].[dbo].[user] where user_name = '$code'
+                ";
+
+            $command = Yii::app()->db3->createCommand($sql);
+            $user = $command->queryRow();
+            $team_id = $user['id']; 
+        }else{
+            $team_id = $data['Survey']['team_id'];
+        }
+//        pr($team_id);
+//        exit;
         foreach($data['question'] as $key => $val){
                     $sql = "INSERT INTO [pg_mapping].[dbo].[pome_qachecklist]
                             ([pps_id]
@@ -381,14 +395,28 @@ class Survey extends CFormModel {
             $command->bindParam(':hospital', $data['Survey']['hospital'], PDO::PARAM_STR);
             $command->bindParam(':date', $data['Survey']['date'], PDO::PARAM_STR);
             $command->bindParam(':rater', $data['Survey']['rater'], PDO::PARAM_STR);
-            $command->bindParam(':ph', $data['ph'], PDO::PARAM_STR);
-            $command->bindParam(':added_by', $data['Survey']['team_id'], PDO::PARAM_INT);
+            $command->bindParam(':ph', $data['Survey']['ph'], PDO::PARAM_STR);
+            $command->bindParam(':added_by', $team_id, PDO::PARAM_INT);
             $command->bindParam(':question', $data['question'][$key], PDO::PARAM_STR);
             $command->bindParam(':answer', $data['answer'][$key], PDO::PARAM_STR);
      
 
             $command->execute();
         }
+    }
+    
+    public function getTlDetailForTL()
+    {
+//        echo "asd";
+        $code = Yii::app()->user->userObj->user_name;
+        $sql = "SELECT *
+                FROM [pg_mapping].[dbo].[pome_pps]
+                where code = '$code' ";
+//        pr($sql);
+        $command = Yii::app()->db3->createCommand($sql);
+        $leader = $command->queryAll();
+//        pr($leader);
+        return $leader;
     }
     
   

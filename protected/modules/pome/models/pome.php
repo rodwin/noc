@@ -774,7 +774,7 @@ class Pome extends CFormModel {
                 FROM [pg_mapping].[dbo].[pome_pps]
                 where parent_leader =$team_lead and team_leader = 0
                 order by code";
-        
+//        pr($sql);
           $command = Yii::app()->db3->createCommand($sql);
           $data = $command->queryAll();
           return $data;
@@ -782,28 +782,26 @@ class Pome extends CFormModel {
         
     public function getTotalSurvey($str,$ph,$month,$year)
     {
-        
+        if(strlen($str) == 0){
+            $str = 0;
+        }else{
+            $str = $str;
+        }
         $date1 = date($year.'-'.$month.'-01');
         $to = date($year.'-m-t',strtotime($date1));
 
         $from = date($year.'-'.$month.'-01');
-         
-//        $sql = "SELECT a.pps_id,avg(q1+q2+q3+q4+q5+q6+q7+q8+q9+q10+q11+q12+q13+q14+q15+q16+q17+q18+q19+q20) as total, SUBSTRING(b.code, 6,13)  as code
-//                FROM [pg_mapping].[dbo].[pome_qa] a
-//                inner join [pg_mapping].[dbo].[pome_pps] b on b.id = a.pps_id 
-//                where pps_id in ($str) and ph_class = '$ph' and a.date_checked between '$from' and '$to'
-//                group by pps_id,b.code
-//                order by b.code";
-////        pr($sql);
+
           $sql ="SELECT code,avg(answer) as answer from (
-                    SELECT SUBSTRING(b.code, 6,13) as code,a.date_checked,sum(CONVERT(int,a.answer)) as answer
+                    SELECT SUBSTRING(b.code, 6,13) as code,a.hospital,a.date_checked,sum(CONVERT(float,a.answer)) as answer
                     FROM [pg_mapping].[dbo].[pome_qachecklist] a
                     inner join [pg_mapping].[dbo].[pome_pps] b on b.id = a.pps_id
-                    where b.id in ($str) and a.date_checked between '$from' and '$to'
-                    group by  b.code,a.date_checked
+                    where b.id in ($str) and a.date_checked between '$from' and '$to' and a.ph_class = '$ph'
+                    group by  b.code,a.date_checked,a.hospital
                     ) as w
                     group by  code
                 ";
+
           $command = Yii::app()->db3->createCommand($sql);
           $data = $command->queryAll();
           return $data;

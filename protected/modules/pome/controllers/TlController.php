@@ -31,14 +31,13 @@ class TlController extends Controller
 	public function actionIndex()
 	{     $this->layout='//layouts/column1';
             $model = new Attendance;
+            $survey = new Survey;
             $data = $model->getAllAgency();            
             $data1 = $model->getAllRegion();       
             $data2 = $model->getAllBrand();       
-//            $data3 = $model->getAllBwsTeam(); 
-            $data_b =  $model->getTlDetail();    
-            
+//            $data_b = $model->getAllBwsTeam(); 
+            $data_3 =  $survey->getTlDetailForTL();    
 
-            
             $month[0]['id']=1;
             $month[0]['name']='January';
             $month[1]['id']=2;
@@ -80,6 +79,9 @@ class TlController extends Controller
             $year[0]['id']='2014';
             $year[1]['id']='2015';
             $year[2]['id']='2016';
+            
+            $brand[0]['id']='3';
+            $brand[0]['name']='PAMPERS';
 
             
                 
@@ -89,10 +91,11 @@ class TlController extends Controller
             $month = CHtml::listData($month, 'id', 'name');
             $ph = CHtml::listData($ph, 'id', 'name');
             $qtr = CHtml::listData($qtr, 'name', 'name');
-            $brand= CHtml::listData($data2,'id', 'name');
-            $teamlead= CHtml::listData($data_b,'id', 'code');
-//            pr($teamlead);
-//            exit;
+            $brand= CHtml::listData($brand,'id', 'name');
+       
+            $teamlead= CHtml::listData($data_3,'id','code');
+
+            
             $year= CHtml::listData($year,'id', 'id');
 
    
@@ -108,6 +111,7 @@ class TlController extends Controller
                 'qtr' => $qtr,
                 'teamlead' => $teamlead,
                 'year' => $year,
+//                'bws' => $bws,
 
             ));
 		
@@ -353,6 +357,8 @@ class TlController extends Controller
             $total = new Pome;   
           
             $seller = $total->getBwsPerTl($_GET['teamlead']);
+//            pr($seller);
+//            exit;
             
            
             $str = '';
@@ -361,6 +367,7 @@ class TlController extends Controller
             }
 //            pr($seller);
             $str = substr($str,0,-1);
+            
             $survey = $total->getTotalSurvey($str,$_GET['ph'],$_GET['month'],$_GET['year']);
 //            pr($survey);
 //            exit;
