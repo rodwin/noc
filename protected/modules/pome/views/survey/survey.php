@@ -109,7 +109,7 @@ $this->breadcrumbs=array(
                                   DATE CHECKED:
                               </td>
                               <td>
-                                   <?php echo $form->textField($model,'date',array('size'=>10,'maxlength'=>50,'value'=>date('Y-m-d'),'disabled'=>'disabled')); ?>
+                                   <?php echo $form->textField($model,'date',array('size'=>10,'maxlength'=>50,'value'=>date('Y-m-d'), 'readonly'=>'readonly')); ?>
                                    <?php echo $form->error($model,'date'); ?>
                               </td>
                           </tr>
@@ -119,7 +119,7 @@ $this->breadcrumbs=array(
                               </td>
                           
                               <td>
-                                   <?php echo $form->textField($model,'rater',array('size'=>30,'maxlength'=>50,'disabled'=>'disabled')); ?>
+                                   <?php echo $form->textField($model,'rater',array('size'=>30,'maxlength'=>50, 'readonly'=>'readonly')); ?>
                                    <?php echo $form->error($model,'rater'); ?>
                               </td>
                          </tr>
@@ -142,8 +142,14 @@ $this->breadcrumbs=array(
                           ?>
                           <tr>
                               <td><?php echo $v ?></td>
-                              <td><input type="textbox" name ="answer[]"></td>
-                              <input type="hidden" name ="question[]" value="<?php echo $v?>" onkeypress="javascript: return acceptValidNumbersOnly(this,event);"></td>
+                              <td>  <select name ="answer[]">
+                                      <option value="1">1</option>
+                                      <option value="0.5">0.5</option>
+                                      <option value="0.25">0.25</option>
+                                      <option value="0.75">0.75</option>
+                                    </select>
+<!--                                  <input type="textbox" name ="answer[]" maxlength='2' onkeypress="javascript: return acceptValidNumbersOnly(this,event);"</td>-->
+                              <input type="hidden" name ="question[]" value="<?php echo $v?>" ></td>
                           </tr>
                           <?php
                            }
@@ -162,6 +168,9 @@ $this->breadcrumbs=array(
 <?php $this->endWidget(); ?>
 
       <script>
+      $(document).ready(function(){
+      $('#bws_survey').val('');
+      });
 $('#bws_survey').change(function() {
     
         $.ajax({
@@ -194,7 +203,7 @@ $('#ph_survey').change(function() {
 
 function acceptValidNumbersOnly(obj,e) {
 			var key='';
-			var strcheck = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^&*()_+=-`{}[]:\";'\|/?,><\\ ";
+			var strcheck = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^&*()_+=-`{}[]:\";'\|/?,><\\23456789 ";
 			var whichcode = (window.Event) ? e.which : e.keyCode;
 			try{
 			if(whichcode == 13 || whichcode == 8)return true;

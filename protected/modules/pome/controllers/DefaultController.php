@@ -76,6 +76,9 @@ class DefaultController extends Controller
             $year[0]['id']='2014';
             $year[1]['id']='2015';
             $year[2]['id']='2016';
+            
+            $brand[0]['id']='3';
+            $brand[0]['name']='PAMPERS';
 
             
                 
@@ -85,7 +88,7 @@ class DefaultController extends Controller
             $month = CHtml::listData($month, 'id', 'name');
             $ph = CHtml::listData($ph, 'id', 'name');
             $qtr = CHtml::listData($qtr, 'name', 'name');
-            $brand= CHtml::listData($data2,'id', 'name');
+            $brand= CHtml::listData($brand,'id', 'name');
             $teamlead= CHtml::listData($data3,'parent_leader', 'code');
             $year= CHtml::listData($year,'id', 'id');
 
