@@ -39,7 +39,7 @@ class SurveyController extends Controller
            
             $question =  $survey->getQuestionare();
             $survey->team_leader_id = $data_b['id'];
-//            pr($survey->team_leader_id);
+//            pre($survey->team_leader_id);
             
             $data =  $survey->getBwsPerTl($survey->team_leader_id);
 //            pr($data);
@@ -53,19 +53,6 @@ class SurveyController extends Controller
             $ph = CHtml::listData($ph, 'id', 'name');
             $hospital = CHtml::listData($data_a, 'outlet_id', 'outlet_code');
             
-            
-            if(isset($_POST['Survey'])){
-   
-               $survey->attributes =$_POST['Survey'];
-                $_POST['Survey']['team_id'] = $survey->team_leader_id;
-//                pr($_POST);
-//             exit;
-                if($survey->validate()){
-                   $survey->saveSurvey($_POST);
-                    Yii::app()->user->setFlash('success', "Successfully created"); 
-                } 
-                
-            }
             $question_array = array();
             $previous = '';
             foreach($question as $key => $val){
@@ -73,16 +60,30 @@ class SurveyController extends Controller
                     $question_array[$val['header']][] =$val['question']; 
 
             }
-//            pr($question_array);
-//            exit;
-            $this->render('survey', array(
-              'model' => $survey,
-                'bws' => $bws,
-                'ph' => $ph,
-                'hospital' => $hospital,
-                'question' => $question_array,
+            if(isset($_POST['Survey'])){
 
-            ));
+               $survey->attributes =$_POST['Survey'];
+                $_POST['Survey']['team_id'] = $survey->team_leader_id;
+//                pr($_POST);
+//             exit;
+                if($survey->validate()){
+                   $survey->saveSurvey($_POST);
+                    Yii::app()->user->setFlash('success', "Successfully created");
+                  
+                    
+                }
+                
+            }
+                $this->render('survey', array(
+                  'model' => $survey,
+                    'bws' => $bws,
+                    'ph' => $ph,
+                    'hospital' => $hospital,
+                    'question' => $question_array,
+
+                ));
+            
+            
         }
         
         public function actiongetBwsDetail()
