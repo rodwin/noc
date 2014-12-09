@@ -258,7 +258,6 @@ class CustomerItemDetail extends CActiveRecord {
         $customer_item_transaction_detail->planned_quantity = $planned_quantity;
         $customer_item_transaction_detail->quantity_issued = $quantity_issued != "" ? $quantity_issued : 0;
         $customer_item_transaction_detail->amount = $amount;
-//        $customer_item_transaction_detail->inventory_on_hand = $inventory_on_hand;
         $customer_item_transaction_detail->return_date = $ret_date;
         $customer_item_transaction_detail->status = OutgoingInventory::OUTGOING_PENDING_STATUS;
         $customer_item_transaction_detail->remarks = $remarks;
@@ -270,7 +269,9 @@ class CustomerItemDetail extends CActiveRecord {
         $customer_item_transaction_detail->revised_delivery_date = $inventory->revised_delivery_date;
 
         if ($customer_item_transaction_detail->save(false)) {
-            Yii::app()->session['customer_item_detail_ids'] = $customer_item_transaction_detail->customer_item_detail_id;
+
+            return $customer_item_transaction_detail;
+
             $this->decreaseInventory($customer_item_transaction_detail->inventory_id, $customer_item_transaction_detail->quantity_issued, $transaction_date, $customer_item_transaction_detail->unit_price, $customer_item_transaction_detail->created_by);
         } else {
             return $customer_item_transaction_detail->getErrors();
@@ -292,6 +293,81 @@ class CustomerItemDetail extends CActiveRecord {
             return true;
         } else {
             return $decrease_inventory->getErrors();
+        }
+    }
+
+    public function updateCustomerItemTransactionDetails($customer_item_id, $customer_item_detail_id, $company_id, $qty_for_new_inventory, $quantity_issued, $source_zone_id, $transaction_date, $amount) {
+
+        $customer_item_detail = CustomerItemDetail::model()->findByAttributes(array("company_id" => $company_id, "customer_item_id" => $customer_item_id, "customer_item_detail_id" => $customer_item_detail_id));
+
+        $inventory = Inventory::model()->findByAttributes(array("company_id" => $company_id, "inventory_id" => $customer_item_detail->inventory_id));
+
+        $new_qty_value = trim($qty_for_new_inventory);
+        $qty_issued = $customer_item_detail->quantity_issued;
+
+        if ($inventory) {
+            if ($quantity_issued == $qty_issued) {
+                
+            } else if ($quantity_issued > $qty_issued) {
+
+                $new_qty = $quantity_issued - $qty_issued;
+
+                if ($inventory->qty > $new_qty || $inventory->qty == $new_qty) {
+
+                    $decrease_inv = new DecreaseInventoryForm();
+                    $decrease_inv->inventoryObj = $inventory;
+                    $decrease_inv->qty = $new_qty;
+                    $decrease_inv->transaction_date = date("Y-m-d");
+                    $decrease_inv->created_by = $customer_item_detail->created_by;
+
+                    $decrease_inv->decrease(false);
+                }
+            } else {
+
+                $new_inv_qty = $qty_issued - $quantity_issued;
+
+                $increase_inv = new IncreaseInventoryForm();
+                $increase_inv->inventoryObj = $inventory;
+                $increase_inv->qty = $new_inv_qty;
+                $increase_inv->transaction_date = date("Y-m-d");
+                $increase_inv->created_by = $customer_item_detail->created_by;
+
+                $increase_inv->increase(false);
+            }
+        } else {
+
+            $status_id = ($customer_item_detail->sku_status_id != "" ? $customer_item_detail->sku_status_id : null);
+            $saved_inv = ReceivingInventoryDetail::model()->createInventory($company_id, $customer_item_detail->sku_id, $customer_item_detail->uom_id, $customer_item_detail->unit_price, $new_qty_value, $source_zone_id, $transaction_date, $customer_item_detail->created_by, $customer_item_detail->expiration_date, $customer_item_detail->batch_no, $status_id, $customer_item_detail->pr_no, $customer_item_detail->pr_date, $customer_item_detail->plan_arrival_date, $customer_item_detail->po_no);
+
+            if ($saved_inv) {
+
+                $inv = Inventory::model()->findByAttributes(array(
+                    'sku_id' => $customer_item_detail->sku_id,
+                    'company_id' => $customer_item_detail->company_id,
+                    'uom_id' => $customer_item_detail->uom_id,
+                    'zone_id' => $source_zone_id,
+                    'sku_status_id' => $status_id,
+                    'expiration_date' => $customer_item_detail->expiration_date,
+                    'reference_no' => $customer_item_detail->batch_no,
+                    'po_no' => $customer_item_detail->po_no,
+                    'pr_no' => $customer_item_detail->pr_no,
+                    'pr_date' => $customer_item_detail->pr_date,
+                    'plan_arrival_date' => $customer_item_detail->plan_arrival_date,
+                ));
+
+                $customer_item_detail->inventory_id = $inv->inventory_id;
+            }
+        }
+
+        $customer_item_detail->amount = $amount;
+        $customer_item_detail->quantity_issued = $quantity_issued;
+        $customer_item_detail->updated_date = date("Y-m-d H:i:s");
+        $customer_item_detail->updated_by = Yii::app()->user->name;
+
+        if ($customer_item_detail->save(false)) {
+            return $customer_item_detail;
+        } else {
+            return $customer_item_detail->getErrors();
         }
     }
 

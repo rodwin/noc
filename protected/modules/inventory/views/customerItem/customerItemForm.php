@@ -464,7 +464,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><?php echo $customerItemFields['batch_no']; ?></th>
                         <th><?php echo $customerItemFields['expiration_date']; ?></th>
                         <th><?php echo $customerItemFields['planned_quantity']; ?></th>
-                        <th><?php echo $customerItemFields['quantity_issued']; ?></th>
+                        <th><?php echo $customerItemFields['quantity_issued']; ?> <?php if (!$customer_item->isNewRecord) { ?> <span title="Click green cell to edit" data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span> <?php } ?> </th>
                         <th class="hide_row"><?php echo $customerItemFields['uom_id']; ?></th>
                         <th class="hide_row"><?php echo $customerItemFields['uom_id']; ?></th>
                         <th class="hide_row"><?php echo $customerItemFields['sku_status_id']; ?></th>
@@ -482,7 +482,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="pull-right col-md-4 no-padding" style='margin-top: 10px;'>
             <?php echo $form->labelEx($customer_item, 'total_amount', array("class" => "pull-left")); ?>
-            <?php echo $form->textFieldGroup($customer_item, 'total_amount', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5 pull-right', 'value' => 0, 'readonly' => true)), 'labelOptions' => array('label' => false))); ?>
+            <?php echo $form->textFieldGroup($customer_item, 'total_amount', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5 pull-right', 'value' => $customer_item->isNewRecord ? '0' : $customer_item->total_amount, 'readonly' => true)), 'labelOptions' => array('label' => false))); ?>
         </div>
 
     </div>
@@ -504,7 +504,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         <?php
         $this->widget('booster.widgets.TbFileUpload', array(
             'url' => $this->createUrl('CustomerItem/uploadAttachment'),
-            'model' => $model,
+            'model' => $attachment,
             'attribute' => 'file',
             'multiple' => true,
             'options' => array(
@@ -653,7 +653,15 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             "columnDefs": [{
                     "targets": [1, 10, 11, 12, 13, 15, 16, 17, 18, 19],
                     "visible": false
-                }]
+                }],
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                var customer_item_detail_id = aData[13].trim();
+
+                if (customer_item_detail_id != "") {
+                    $('td:eq(8)', nRow).addClass("success");
+                }
+                return nRow;
+            }
         });
     });
 
@@ -881,7 +889,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     $('#btn_save').click(function() {
         if (!confirm('Are you sure you want to submit?'))
             return false;
-        send(headers);
+
+<?php if (!$customer_item->isNewRecord) { ?>
+            sendUpdate(headers);
+<?php } else { ?>
+            send(headers);
+<?php } ?>
+
     });
 
     $('#btn_add_item').click(function() {
@@ -893,7 +907,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     });
 
     $('#btn_print').click(function() {
-        send(print);
+
+<?php if (!$customer_item->isNewRecord) { ?>
+            sendUpdate(print);
+<?php } else { ?>
+            send(print);
+<?php } ?>
+
     });
 
     $("#CustomerItemDetail_quantity_issued").keyup(function(e) {
@@ -1037,7 +1057,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
     }
 
+    var customer_item_detail_ids = "";
     function deleteTransactionRow() {
+        if (!confirm('Are you sure you want to delete selected item?'))
+            return false;
 
         var aTrs = transaction_table.fnGetNodes();
 
@@ -1048,6 +1071,12 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $("#CustomerItem_total_amount").val(parseFloat(total_amount).toFixed(2));
 
                 transaction_table.fnDeleteRow(aTrs[i]);
+
+<?php if (!$customer_item->isNewRecord) { ?>
+                    if (row_data[13].trim() != "") {
+                        customer_item_detail_ids += row_data[13] + ",";
+                    }
+<?php } ?>
             });
         }
 
@@ -1106,11 +1135,15 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     $('#CustomerItem_poi_id').change(function() {
+        loadPOIDetails(this.value);
+    });
+
+    function loadPOIDetails(poi_id) {
         $("#CustomerItem_poi_primary_code, #CustomerItem_poi_address1").html("<center>--</center>");
 
         $.ajax({
             type: 'POST',
-            url: '<?php echo Yii::app()->createUrl('/library/poi/getPOIDetails'); ?>' + '&poi_id=' + this.value,
+            url: '<?php echo Yii::app()->createUrl('/library/poi/getPOIDetails'); ?>' + '&poi_id=' + poi_id,
             dataType: "json",
             success: function(data) {
                 $("#CustomerItem_poi_primary_code").html(data.primary_code);
@@ -1120,13 +1153,205 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 alert("Error occured: Please try again.");
             }
         });
-    });
+    }
 
     function loadToView() {
 
         window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/customerItem') . '"' ?> + "/view&id=" + success_customer_item_id;
 
         growlAlert(success_type, success_message);
+    }
+
+    $(function() {
+
+<?php if (!$customer_item->isNewRecord) { ?>
+            total_amount = parseFloat(<?php echo $customer_item->total_amount ?>);
+            loadItemDetails(<?php echo $customer_item->customer_item_id; ?>);
+
+            loadPOIDetails(<?php echo "'" . $customer_item->poi_id . "'"; ?>);
+<?php } ?>
+
+    });
+
+    function loadItemDetails(customer_item_id) {
+
+        var oSettings = transaction_table.fnSettings();
+        var iTotalRecords = oSettings.fnRecordsTotal();
+        for (var i = 0; i <= iTotalRecords; i++) {
+            transaction_table.fnDeleteRow(0, null, true);
+        }
+
+        $.ajax({
+            dataType: "json",
+            url: "<?php echo Yii::app()->createUrl($this->module->id . '/customerItem/loadItemDetails') ?>" + "&customer_item_id=" + customer_item_id,
+            success: function(data) {
+
+                $.each(data, function(i, v) {
+                    var addedRow = transaction_table.fnAddData([
+                        '<input type="checkbox" name="transaction_row[]" onclick="showDeleteRowBtn()"/>',
+                        v.sku_id,
+                        v.sku_code,
+                        v.sku_description,
+                        v.brand_name,
+                        v.unit_price,
+                        v.batch_no,
+                        v.expiration_date,
+                        v.planned_quantity,
+                        v.quantity_issued,
+                        v.uom_id,
+                        "",
+                        v.sku_status_id,
+                        v.customer_item_detail_id,
+                        v.amount,
+                        v.remarks,
+                        v.return_date,
+                        v.inventory_id,
+                        v.source_zone_id,
+                        v.source_zone_name,
+                    ]);
+
+
+                    $.editable.addInputType('numberOnly', {
+                        element: $.editable.types.text.element,
+                        plugin: function(settings, original) {
+                            $('input', this).bind('keypress', function(event) {
+                                return onlyNumbers(this, event, false);
+                            });
+                        }
+                    });
+
+                    var oSettings = transaction_table.fnSettings();
+                    $('td:eq(8)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
+                        var pos = transaction_table.fnGetPosition(this);
+
+                        var rowData = transaction_table.fnGetData(pos);
+                        var inventory_id = parseInt(rowData[17]);
+                        var customer_item_detail_id = parseInt(rowData[13]);
+                        var actual_qty = parseInt(rowData[9]);
+                        var new_actual_qty = value;
+
+                        checkInvIfUpdatedActualQtyValid(inventory_id, actual_qty, new_actual_qty, <?php echo isset($customer_item->customer_item_id) ? $customer_item->customer_item_id : 0; ?>, customer_item_detail_id, pos);
+                    }, {
+                        type: 'numberOnly',
+                        placeholder: '',
+                        indicator: '',
+                        tooltip: 'Click to edit',
+                        width: "100%",
+                        height: "30px",
+                        onblur: 'submit'
+                    });
+
+                });
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+
+    }
+
+    function checkInvIfUpdatedActualQtyValid(inventory_id, actual_qty, new_actual_qty, customer_item_id, customer_item_detail_id, tr_position) {
+
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/customerItem/checkInvIfUpdatedActualQtyValid'); ?>' + '&inventory_id=' + inventory_id + '&actual_qty=' + actual_qty + '&new_actual_qty=' + new_actual_qty + '&customer_item_detail_id=' + customer_item_detail_id,
+            dataType: "json",
+            beforeSend: function(data) {
+            },
+            success: function(data) {
+                if (data.success === true) {
+
+                    transaction_table.fnUpdate(data.qty_for_new_inventory, tr_position[0], 11);
+                }
+
+                var rowData = transaction_table.fnGetData(tr_position);
+                var amount = (data.actual_qty * rowData[5]);
+
+                if (amount > rowData[14]) {
+
+                    var new_added_amount = parseFloat(amount) - parseFloat(rowData[14]);
+                    total_amount = (parseFloat(total_amount) + parseFloat(new_added_amount));
+                } else {
+
+                    var new_added_amount = parseFloat(rowData[14]) - parseFloat(amount);
+                    total_amount = (parseFloat(total_amount) - parseFloat(new_added_amount));
+                }
+
+                $("#CustomerItem_total_amount").val(parseFloat(total_amount).toFixed(2));
+
+                transaction_table.fnUpdate(data.actual_qty, tr_position[0], tr_position[2]);
+                transaction_table.fnUpdate(parseFloat(amount).toFixed(2), tr_position[0], 14);
+
+                growlAlert(data.type, data.message);
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+
+    }
+
+    function serializeUpdatedTransactionTable() {
+
+        var row_datas = new Array();
+        var aTrs = transaction_table.fnGetNodes();
+        for (var i = 0; i < aTrs.length; i++) {
+            var row_data = transaction_table.fnGetData(aTrs[i]);
+
+            row_datas.push({
+                "sku_id": row_data[1],
+                "unit_price": row_data[5],
+                "batch_no": row_data[6],
+                "expiration_date": row_data[7],
+                "planned_quantity": row_data[8],
+                "quantity_issued": row_data[9],
+                "uom_id": row_data[10],
+                "sku_status_id": row_data[12],
+                "amount": row_data[14],
+                "remarks": row_data[15],
+                "return_date": row_data[16],
+                "inventory_id": row_data[17],
+                "source_zone_id": row_data[18],
+                "customer_item_detail_id": row_data[13],
+                "qty_for_new_inventory": row_data[11]
+            });
+        }
+
+        return row_datas;
+    }
+
+    function sendUpdate(form) {
+
+        var data = $("#customer-item-form").serialize() + "&form=" + form + "&customer_item_detail_ids=" + customer_item_detail_ids.slice(0, -1) + '&' + $.param({"transaction_details": serializeUpdatedTransactionTable()});
+
+        if ($("#btn_save, #btn_add_item, #btn_print").is("[disabled=disabled]")) {
+            return false;
+        } else {
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo Yii::app()->createUrl($this->module->id . '/customerItem/update', array("id" => $customer_item->customer_item_id)); ?>',
+                data: data,
+                dataType: "json",
+                beforeSend: function(data) {
+                    $("#btn_save, #btn_add_item, #btn_print").attr("disabled", "disabled");
+                    if (form == headers) {
+                        $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
+                    } else if (form == print) {
+                        $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Loading...');
+                    }
+                },
+                success: function(data) {
+                    validateForm(data);
+                },
+                error: function(data) {
+                    alert("Error occured: Please try again.");
+                    $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
+                    $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
+                    $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
+                }
+            });
+        }
+
     }
 
 </script>
