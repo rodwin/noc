@@ -83,7 +83,7 @@ $this->breadcrumbs = array(
                 <table id="outgoing-inventory-details_table" class="table table-bordered">
                     <thead>
                         <tr>
-                            <th><?php echo $outgoingInvFields['campaign_no']; ?></th>
+                            <th><?php echo $outgoingInvFields['po_no']; ?></th>
                             <th><?php echo $outgoingInvFields['pr_no']; ?></th>
                             <th><?php echo $skuFields['sku_code']; ?></th>
                             <th><?php echo $skuFields['description']; ?></th>

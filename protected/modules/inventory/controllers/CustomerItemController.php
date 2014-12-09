@@ -727,6 +727,9 @@ class CustomerItemController extends Controller {
 
                 if ($inventory) {
 
+                    $added_actual = $inventory->qty + $qty_issued;
+                    $last_qty = $added_actual - $actual_qty;
+
                     if ($inventory->qty > $new_qty || $inventory->qty == $new_qty) {
 
                         $data['message'] = 'Successfully updated';
@@ -734,7 +737,13 @@ class CustomerItemController extends Controller {
                         $data['actual_qty'] = $new_actual_qty;
                     } else {
 
-                        $data['message'] = 'Source inventory has only <b>' . $inventory->qty . " " . strtolower(isset($outgoing_inv_detail->uom) ? $outgoing_inv_detail->uom->uom_name : "") . '</b> inventory on hand available';
+                        if ($last_qty < 0) {
+                            $value = 0;
+                        } else {
+                            $value = $last_qty;
+                        }
+
+                        $data['message'] = 'Source inventory has only <b>' . $value . " " . strtolower(isset($customer_item_detail->uom) ? $customer_item_detail->uom->uom_name : "") . '</b> inventory on hand available';
                         $data["type"] = "danger";
                     }
                 } else {

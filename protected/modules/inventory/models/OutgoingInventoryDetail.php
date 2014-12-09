@@ -62,7 +62,6 @@ class OutgoingInventoryDetail extends CActiveRecord {
      * @soap
      */
     public $amount;
-    
     public $inventory_on_hand;
 
     /**
@@ -76,7 +75,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
      * @soap
      */
     public $remarks;
-    
+
     /**
      * @var string po_no
      * @soap
@@ -227,8 +226,8 @@ class OutgoingInventoryDetail extends CActiveRecord {
         $criteria->compare('po_no', $this->po_no, true);
 
         return new CActiveDataProvider($this, array(
-                    'criteria' => $criteria,
-                ));
+            'criteria' => $criteria,
+        ));
     }
 
     public function data($col, $order_dir, $limit, $offset, $columns) {
@@ -278,9 +277,9 @@ class OutgoingInventoryDetail extends CActiveRecord {
         $criteria->offset = $offset;
 
         return new CActiveDataProvider($this, array(
-                    'criteria' => $criteria,
-                    'pagination' => false,
-                ));
+            'criteria' => $criteria,
+            'pagination' => false,
+        ));
     }
 
     /**
@@ -356,7 +355,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
         return $outgoing_inventory_details;
     }
 
-    public function updateOutgoingTransactionDetails($outgoing_inventory_id, $outgoing_inventory_detail_id, $company_id, $qty_for_new_inventory, $quantity_issued, $destination_zone_id, $transaction_date, $amount) {
+    public function updateOutgoingTransactionDetails($outgoing_inventory_id, $outgoing_inventory_detail_id, $company_id, $qty_for_new_inventory, $quantity_issued, $source_zone_id, $transaction_date, $amount) {
 
         $outgoing_inv_detail = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => $company_id, "outgoing_inventory_id" => $outgoing_inventory_id, "outgoing_inventory_detail_id" => $outgoing_inventory_detail_id));
 
@@ -396,26 +395,28 @@ class OutgoingInventoryDetail extends CActiveRecord {
             }
         } else {
 
-            $status_id = ($outgoing_inv_detail->sku_status_id != "" ? $outgoing_inv_detail->sku_status_id : null);
-            $saved_inv = ReceivingInventoryDetail::model()->createInventory($company_id, $outgoing_inv_detail->sku_id, $outgoing_inv_detail->uom_id, $outgoing_inv_detail->unit_price, $new_qty_value, $destination_zone_id, $transaction_date, $outgoing_inv_detail->created_by, $outgoing_inv_detail->expiration_date, $outgoing_inv_detail->batch_no, $status_id, $outgoing_inv_detail->pr_no, $outgoing_inv_detail->pr_date, $outgoing_inv_detail->plan_arrival_date, $outgoing_inv_detail->po_no);
+            if ($new_qty_value != "") {
+                $status_id = ($outgoing_inv_detail->sku_status_id != "" ? $outgoing_inv_detail->sku_status_id : null);
+                $saved_inv = ReceivingInventoryDetail::model()->createInventory($company_id, $outgoing_inv_detail->sku_id, $outgoing_inv_detail->uom_id, $outgoing_inv_detail->unit_price, $new_qty_value, $source_zone_id, $transaction_date, $outgoing_inv_detail->created_by, $outgoing_inv_detail->expiration_date, $outgoing_inv_detail->batch_no, $status_id, $outgoing_inv_detail->pr_no, $outgoing_inv_detail->pr_date, $outgoing_inv_detail->plan_arrival_date, $outgoing_inv_detail->po_no);
 
-            if ($saved_inv) {
+                if ($saved_inv) {
 
-                $inv = Inventory::model()->findByAttributes(array(
-                    'sku_id' => $outgoing_inv_detail->sku_id,
-                    'company_id' => $outgoing_inv_detail->company_id,
-                    'uom_id' => $outgoing_inv_detail->uom_id,
-                    'zone_id' => $destination_zone_id,
-                    'sku_status_id' => $status_id,
-                    'expiration_date' => $outgoing_inv_detail->expiration_date,
-                    'reference_no' => $outgoing_inv_detail->batch_no,
-                    'po_no' => $outgoing_inv_detail->po_no,
-                    'pr_no' => $outgoing_inv_detail->pr_no,
-                    'pr_date' => $outgoing_inv_detail->pr_date,
-                    'plan_arrival_date' => $outgoing_inv_detail->plan_arrival_date,
-                        ));
+                    $inv = Inventory::model()->findByAttributes(array(
+                        'sku_id' => $outgoing_inv_detail->sku_id,
+                        'company_id' => $outgoing_inv_detail->company_id,
+                        'uom_id' => $outgoing_inv_detail->uom_id,
+                        'zone_id' => $source_zone_id,
+                        'sku_status_id' => $status_id,
+                        'expiration_date' => $outgoing_inv_detail->expiration_date,
+                        'reference_no' => $outgoing_inv_detail->batch_no,
+                        'po_no' => $outgoing_inv_detail->po_no,
+                        'pr_no' => $outgoing_inv_detail->pr_no,
+                        'pr_date' => $outgoing_inv_detail->pr_date,
+                        'plan_arrival_date' => $outgoing_inv_detail->plan_arrival_date,
+                    ));
 
-                $outgoing_inv_detail->inventory_id = $inv->inventory_id;
+                    $outgoing_inv_detail->inventory_id = $inv->inventory_id;
+                }
             }
         }
 
