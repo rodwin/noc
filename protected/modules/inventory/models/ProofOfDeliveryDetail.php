@@ -249,6 +249,7 @@ class ProofOfDeliveryDetail extends CActiveRecord {
         $ret_date = ($return_date != "" ? $return_date : null);
         $exp_date = ($expiration_date != "" ? $expiration_date : null);
         $cost_per_unit = (isset($unit_price) ? $unit_price : 0);
+        $status_id = ($sku_status_id != "" ? $sku_status_id : null);
 
         $pod_transaction_detail = new ProofOfDeliveryDetail;
         $pod_transaction_detail->pod_id = $pod_id;
@@ -257,7 +258,7 @@ class ProofOfDeliveryDetail extends CActiveRecord {
         $pod_transaction_detail->batch_no = $batch_no;
         $pod_transaction_detail->sku_id = $sku_id;
         $pod_transaction_detail->uom_id = $uom_id;
-        $pod_transaction_detail->sku_status_id = $sku_status_id;
+        $pod_transaction_detail->sku_status_id = $status_id;
         $pod_transaction_detail->source_zone_id = $source_zone_id;
         $pod_transaction_detail->unit_price = $cost_per_unit;
         $pod_transaction_detail->expiration_date = $exp_date;

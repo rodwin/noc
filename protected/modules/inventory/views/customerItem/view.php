@@ -106,6 +106,10 @@ $this->breadcrumbs = array(
                     <td><strong><?php echo $customerItemDetailFields['status']; ?>:</strong></td>
                     <td><?php echo Inventory::model()->status($model->status); ?></td>
                 </tr>
+                <tr>
+                    <td><strong><?php echo $customerItemFields['salesman_id']; ?>:</strong></td>
+                    <td><?php echo isset($employee->fullname) ? $employee->fullname : $not_set; ?></td>
+                </tr>
             </table>
 
             <table class="table table-bordered table-condensed">

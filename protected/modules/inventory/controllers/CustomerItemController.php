@@ -185,6 +185,10 @@ class CustomerItemController extends Controller {
         $pr_dates = substr($pr_dates, 0, -1);
         $po_nos = substr($po_nos, 0, -1);
 
+        $c2 = new CDbCriteria;
+        $c2->select = new CDbExpression('t.*, CONCAT(t.first_name, " ", t.last_name) AS fullname');
+        $c2->condition = 't.company_id = "' . Yii::app()->user->company_id . '" AND t.employee_id = "' . $model->salesman_id . '"';
+        $employee = Employee::model()->find($c2);
 
         $this->render('view', array(
             'model' => $model,
@@ -192,6 +196,7 @@ class CustomerItemController extends Controller {
             'pr_nos' => $pr_nos,
             'pr_dates' => $pr_dates,
             'po_nos' => $po_nos,
+            'employee' => $employee,
         ));
     }
 
@@ -725,7 +730,7 @@ class CustomerItemController extends Controller {
                     'plan_arrival_date' => $customer_item_detail->plan_arrival_date,
                 )
         );
-        
+
         $qty_issued = $customer_item_detail->quantity_issued;
 
         if ($customer_item_detail) {

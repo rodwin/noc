@@ -243,6 +243,7 @@ class CustomerItemDetail extends CActiveRecord {
         $ret_date = ($return_date != "" ? $return_date : null);
         $exp_date = ($expiration_date != "" ? $expiration_date : null);
         $cost_per_unit = (isset($unit_price) ? $unit_price : 0);
+        $status_id = ($sku_status_id != "" ? $sku_status_id : null);
 
         $customer_item_transaction_detail = new CustomerItemDetail;
         $customer_item_transaction_detail->customer_item_id = $customer_item_id;
@@ -251,7 +252,7 @@ class CustomerItemDetail extends CActiveRecord {
         $customer_item_transaction_detail->batch_no = $batch_no;
         $customer_item_transaction_detail->sku_id = $sku_id;
         $customer_item_transaction_detail->uom_id = $uom_id;
-        $customer_item_transaction_detail->sku_status_id = $sku_status_id;
+        $customer_item_transaction_detail->sku_status_id = $status_id;
         $customer_item_transaction_detail->source_zone_id = $source_zone_id;
         $customer_item_transaction_detail->unit_price = $cost_per_unit;
         $customer_item_transaction_detail->expiration_date = $exp_date;
@@ -270,9 +271,9 @@ class CustomerItemDetail extends CActiveRecord {
 
         if ($customer_item_transaction_detail->save(false)) {
 
-            return $customer_item_transaction_detail;
-
             $this->decreaseInventory($customer_item_transaction_detail->inventory_id, $customer_item_transaction_detail->quantity_issued, $transaction_date, $customer_item_transaction_detail->unit_price, $customer_item_transaction_detail->created_by);
+
+            return $customer_item_transaction_detail;
         } else {
             return $customer_item_transaction_detail->getErrors();
         }
@@ -350,7 +351,7 @@ class CustomerItemDetail extends CActiveRecord {
                 $increase_inv->increase(false);
             }
         } else {
-            
+
             if ($new_qty_value != "") {
 
                 $saved_inv = ReceivingInventoryDetail::model()->createInventory($company_id, $customer_item_detail->sku_id, $customer_item_detail->uom_id, $customer_item_detail->unit_price, $new_qty_value, $source_zone_id, date("Y-m-d", strtotime($updated_date)), $updated_by, $customer_item_detail->expiration_date, $customer_item_detail->batch_no, $status_id, $customer_item_detail->pr_no, $customer_item_detail->pr_date, $customer_item_detail->plan_arrival_date, $customer_item_detail->po_no);
