@@ -253,7 +253,7 @@ class CustomerItem extends CActiveRecord {
         $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
         $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
 
-        if (count($zones) > 0) {
+        if (!empty($zones)) {
             foreach ($zones as $key => $val) {
                 $zone_arr[] = $key;
             }
@@ -343,7 +343,7 @@ class CustomerItem extends CActiveRecord {
 
                     unset(Yii::app()->session['customer_item_id_attachment_session']);
                     Yii::app()->session['customer_item_id_attachment_session'] = $customer_item->customer_item_id;
-                    
+
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         $customer_item_detail = CustomerItemDetail::model()->createCustomerItemTransactionDetails($customer_item->customer_item_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $customer_item->transaction_date);
 

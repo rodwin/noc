@@ -1605,7 +1605,7 @@ class OutgoingInventoryController extends Controller {
                             $value = $last_qty;
                         }
 
-                        $data['message'] = 'Source inventory has only <b>' . $value . " " . strtolower(isset($outgoing_inv_detail->uom) ? $outgoing_inv_detail->uom->uom_name : "") . '</b> inventory on hand available';
+                        $data['message'] = 'Source inventory has only <b>' . $value . " " . strtolower(isset($outgoing_inv_detail->uom) ? $outgoing_inv_detail->uom->uom_name : "") . '</b> inventory on hand remaining';
                         $data["type"] = "danger";
                     }
                 } else {

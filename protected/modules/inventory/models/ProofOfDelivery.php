@@ -198,7 +198,7 @@ class ProofOfDelivery extends CActiveRecord {
         $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
         $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
 
-        if (count($zones) > 0) {
+        if (!empty($zones)) {
             foreach ($zones as $key => $val) {
                 $zone_arr[] = $key;
             }

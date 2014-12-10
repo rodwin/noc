@@ -743,7 +743,7 @@ class CustomerItemController extends Controller {
                             $value = $last_qty;
                         }
 
-                        $data['message'] = 'Source inventory has only <b>' . $value . " " . strtolower(isset($customer_item_detail->uom) ? $customer_item_detail->uom->uom_name : "") . '</b> inventory on hand available';
+                        $data['message'] = 'Source inventory has only <b>' . $value . " " . strtolower(isset($customer_item_detail->uom) ? $customer_item_detail->uom->uom_name : "") . '</b> inventory on hand remaining';
                         $data["type"] = "danger";
                     }
                 } else {

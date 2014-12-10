@@ -378,8 +378,10 @@ class Inventory extends CActiveRecord {
         $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
         $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
 
-        foreach ($zones as $key => $val) {
-            $arr[] = $key;
+        if (!empty($zones)) {
+            foreach ($zones as $key => $val) {
+                $arr[] = $key;
+            }
         }
 
         $criteria->addInCondition('t.zone_id', $arr);
@@ -683,7 +685,7 @@ class Inventory extends CActiveRecord {
                     $uom = Uom::model()->find(array("condition" => "company_id = '" . $company_id . "' AND TRIM(uom_name) = '" . trim($val[$required_headers['uom_id']]) . "'"));
                     $zone = Zone::model()->find(array("condition" => "company_id = '" . $company_id . "' AND TRIM(zone_name) = '" . trim($val[$required_headers['zone_id']]) . "'"));
                     $sku_status = SkuStatus::model()->find(array("condition" => "company_id = '" . $company_id . "' AND TRIM(status_name) = '" . trim($val[$required_headers['sku_status_id']]) . "'"));
-                    
+
                     $data = array(
                         'company_id' => $company_id,
                         'sku_id' => isset($sku->sku_id) ? $sku->sku_id : trim($val[$required_headers['sku_id']]),

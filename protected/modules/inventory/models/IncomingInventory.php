@@ -232,17 +232,19 @@ class IncomingInventory extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
         $criteria->with = array("zone");
-        
-        $arr = array();        
+
+        $arr = array();
         $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
         $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
-        
-        foreach ($zones as $key => $val) {
-            $arr[] = $key;
+
+        if (!empty($zones)) {
+            foreach ($zones as $key => $val) {
+                $arr[] = $key;
+            }
         }
-        
+
         $criteria->addInCondition('t.destination_zone_id', $arr);
-        
+
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
             'pagination' => false,

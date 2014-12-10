@@ -30,121 +30,122 @@
  * @property OutgoingInventoryDetail[] $outgoingInventoryDetails
  */
 class OutgoingInventory extends CActiveRecord {
-   ////start of variables for soap
-   /**
-    * @var integer outgoing_inventory_id
-    * @soap
-    */
-   public $outgoing_inventory_id;
 
-   /**
-    * @var string company_id
-    * @soap
-    */
-   public $company_id;
+    ////start of variables for soap
+    /**
+     * @var integer outgoing_inventory_id
+     * @soap
+     */
+    public $outgoing_inventory_id;
 
-   /**
-    * @var string rra_no
-    * @soap
-    */
-   public $rra_no;
+    /**
+     * @var string company_id
+     * @soap
+     */
+    public $company_id;
 
-   /**
-    * @var string rra_name
-    * @soap
-    */
-   public $rra_name;
+    /**
+     * @var string rra_no
+     * @soap
+     */
+    public $rra_no;
 
-   /**
-    * @var string destination_zone_id
-    * @soap
-    */
-   public $destination_zone_id;
+    /**
+     * @var string rra_name
+     * @soap
+     */
+    public $rra_name;
 
-   /**
-    * @var string contact_person
-    * @soap
-    */
-   public $contact_person;
+    /**
+     * @var string destination_zone_id
+     * @soap
+     */
+    public $destination_zone_id;
 
-   /**
-    * @var string contact_no
-    * @soap
-    */
-   public $contact_no;
+    /**
+     * @var string contact_person
+     * @soap
+     */
+    public $contact_person;
 
-   /**
-    * @var string address
-    * @soap
-    */
-   public $address;
+    /**
+     * @var string contact_no
+     * @soap
+     */
+    public $contact_no;
 
-   /**
-    * @var string campaign_no
-    * @soap
-    */
-   public $campaign_no;
+    /**
+     * @var string address
+     * @soap
+     */
+    public $address;
 
-   /**
-    * @var string pr_no
-    * @soap
-    */
-   public $pr_no;
+    /**
+     * @var string campaign_no
+     * @soap
+     */
+    public $campaign_no;
 
-   /**
-    * @var string $pr_date
-    * @soap
-    */
-   public $pr_date;
+    /**
+     * @var string pr_no
+     * @soap
+     */
+    public $pr_no;
 
-   /**
-    * @var string plan_delivery_date
-    * @soap
-    */
-   public $plan_delivery_date;
+    /**
+     * @var string $pr_date
+     * @soap
+     */
+    public $pr_date;
 
-   /**
-    * @var string revised_delivery_date
-    * @soap
-    */
-   public $revised_delivery_date;
+    /**
+     * @var string plan_delivery_date
+     * @soap
+     */
+    public $plan_delivery_date;
 
-   /**
-    * @var string actual_delivery_date
-    * @soap
-    */
-   public $actual_delivery_date;
+    /**
+     * @var string revised_delivery_date
+     * @soap
+     */
+    public $revised_delivery_date;
 
-   /**
-    * @var string plan_arrival_date
-    * @soap
-    */
-   public $plan_arrival_date;
+    /**
+     * @var string actual_delivery_date
+     * @soap
+     */
+    public $actual_delivery_date;
 
-   /**
-    * @var string transaction_date
-    * @soap
-    */
-   public $transaction_date;
+    /**
+     * @var string plan_arrival_date
+     * @soap
+     */
+    public $plan_arrival_date;
 
-   /**
-    * @var string total_amount
-    * @soap
-    */
-   public $total_amount;
+    /**
+     * @var string transaction_date
+     * @soap
+     */
+    public $transaction_date;
 
-   /**
-    * @var string status
-    * @soap
-    */
-   public $status;
+    /**
+     * @var string total_amount
+     * @soap
+     */
+    public $total_amount;
 
-   /**
-    * @var OutgoingInventoryDetail[] outgoing_inventory_detail_obj
-    * @soap
-    */
-   public $outgoing_inventory_detail_obj;
-   ////end of variables for soap
+    /**
+     * @var string status
+     * @soap
+     */
+    public $status;
+
+    /**
+     * @var OutgoingInventoryDetail[] outgoing_inventory_detail_obj
+     * @soap
+     */
+    public $outgoing_inventory_detail_obj;
+    ////end of variables for soap
 
     public $search_string;
     public $total_quantity;
@@ -374,9 +375,11 @@ class OutgoingInventory extends CActiveRecord {
         $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
         $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
 
-        if (count($zones) > 0) {
-            foreach ($zones as $key => $val) {
-                $zone_arr[] = $key;
+        if (!empty($zones)) {
+            if (count($zones) > 0) {
+                foreach ($zones as $key => $val) {
+                    $zone_arr[] = $key;
+                }
             }
         }
 
@@ -410,7 +413,7 @@ class OutgoingInventory extends CActiveRecord {
         $criteria->offset = $offset;
         $criteria->with = array("zone");
         $criteria->addInCondition('t.outgoing_inventory_id', $outgoing_inv_id_arr);
-        
+
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
             'pagination' => false,
@@ -547,22 +550,22 @@ class OutgoingInventory extends CActiveRecord {
             return false;
         }
     }
-     ///// start of retriving of data for outgoing in webservice
-   public function retrieveOutgoing($dr_no, $employee_code, $sales_office_code) {
-      $cdbcriteria = new CDbCriteria();
-      $cdbcriteria->with = array('outgoingInventoryDetails', 'outgoingInventoryDetails.sku', 'outgoingInventoryDetails.sku.brand', 'zone');
+
+    ///// start of retriving of data for outgoing in webservice
+    public function retrieveOutgoing($dr_no, $employee_code, $sales_office_code) {
+        $cdbcriteria = new CDbCriteria();
+        $cdbcriteria->with = array('outgoingInventoryDetails', 'outgoingInventoryDetails.sku', 'outgoingInventoryDetails.sku.brand', 'zone');
 //      $cdbcriteria->compare('t.company_id', $company_id);
-      $cdbcriteria->join = "INNER JOIN zone a ON a.zone_id = t.destination_zone_id";
-      $cdbcriteria->join .= " INNER JOIN sales_office b ON b.sales_office_id = a.sales_office_id";
-      $cdbcriteria->join .= " INNER JOIN employee c ON c.sales_office_id = b.sales_office_id";
-      $cdbcriteria->condition = "c.employee_code = '" . $employee_code . "'";
-      $cdbcriteria->condition .= " AND b.sales_office_code = '" . $sales_office_code . "'";
-      $cdbcriteria->compare('t.dr_no', $dr_no); //pre($cdbcriteria);
-      $val = OutgoingInventory::model()->find($cdbcriteria);
-      // pre($val);
-      return $val;
-   }
+        $cdbcriteria->join = "INNER JOIN zone a ON a.zone_id = t.destination_zone_id";
+        $cdbcriteria->join .= " INNER JOIN sales_office b ON b.sales_office_id = a.sales_office_id";
+        $cdbcriteria->join .= " INNER JOIN employee c ON c.sales_office_id = b.sales_office_id";
+        $cdbcriteria->condition = "c.employee_code = '" . $employee_code . "'";
+        $cdbcriteria->condition .= " AND b.sales_office_code = '" . $sales_office_code . "'";
+        $cdbcriteria->compare('t.dr_no', $dr_no); //pre($cdbcriteria);
+        $val = OutgoingInventory::model()->find($cdbcriteria);
+        // pre($val);
+        return $val;
+    }
 
-   ///// end of retriving of data for outgoing in webservice
-
+    ///// end of retriving of data for outgoing in webservice
 }
