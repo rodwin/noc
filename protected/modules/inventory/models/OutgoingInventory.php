@@ -515,7 +515,8 @@ class OutgoingInventory extends CActiveRecord {
                 'status' => OutgoingInventory::OUTGOING_PENDING_STATUS,
                 'remarks' => $this->remarks,
                 'total_amount' => $this->total_amount,
-                'created_by' => $this->created_by,
+                'updated_by' => $this->updated_by,
+                'updated_date' => $this->updated_date,
             );
 
             $outgoing_inventory->attributes = $outgoing_inventory_data;
@@ -528,9 +529,9 @@ class OutgoingInventory extends CActiveRecord {
                     Yii::app()->session['outgoing_inv_id_attachment_session'] = $outgoing_inventory->outgoing_inventory_id;
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         if (trim($transaction_details[$i]['outgoing_inv_detail_id']) != "") {
-                            OutgoingInventoryDetail::model()->updateOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $transaction_details[$i]['outgoing_inv_detail_id'], $outgoing_inventory->company_id, $transaction_details[$i]['qty_for_new_inventory'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['source_zone_id'], $outgoing_inventory->transaction_date, $transaction_details[$i]['amount']);
+                            OutgoingInventoryDetail::model()->updateOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $transaction_details[$i]['outgoing_inv_detail_id'], $outgoing_inventory->company_id, $transaction_details[$i]['qty_for_new_inventory'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['amount'], $outgoing_inventory->updated_by, $outgoing_inventory->updated_date);
                         } else {
-                            OutgoingInventoryDetail::model()->createOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $outgoing_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $outgoing_inventory->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $outgoing_inventory->transaction_date);
+                            OutgoingInventoryDetail::model()->createOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $outgoing_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $outgoing_inventory->updated_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], date("Y-m-d", strtotime($outgoing_inventory->updated_date)));
                         }
                     }
 

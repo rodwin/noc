@@ -709,9 +709,23 @@ class CustomerItemController extends Controller {
         $data['actual_qty'] = $actual_qty;
         $data['qty_for_new_inventory'] = "";
 
-        $inventory = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $inventory_id));
         $customer_item_detail = CustomerItemDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "customer_item_detail_id" => $customer_item_detail_id));
 
+        $inventory = Inventory::model()->findByAttributes(
+                array(
+                    'company_id' => $customer_item_detail->company_id,
+                    'sku_id' => $customer_item_detail->sku_id,
+                    'uom_id' => $customer_item_detail->uom_id,
+                    'zone_id' => $customer_item_detail->source_zone_id,
+                    'sku_status_id' => $customer_item_detail->sku_status_id != "" ? $customer_item_detail->sku_status_id : null,
+                    'expiration_date' => $customer_item_detail->expiration_date,
+                    'po_no' => $customer_item_detail->po_no,
+                    'pr_no' => $customer_item_detail->pr_no,
+                    'pr_date' => $customer_item_detail->pr_date,
+                    'plan_arrival_date' => $customer_item_detail->plan_arrival_date,
+                )
+        );
+        
         $qty_issued = $customer_item_detail->quantity_issued;
 
         if ($customer_item_detail) {

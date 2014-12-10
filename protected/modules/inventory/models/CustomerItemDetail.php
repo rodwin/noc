@@ -300,7 +300,22 @@ class CustomerItemDetail extends CActiveRecord {
 
         $customer_item_detail = CustomerItemDetail::model()->findByAttributes(array("company_id" => $company_id, "customer_item_id" => $customer_item_id, "customer_item_detail_id" => $customer_item_detail_id));
 
-        $inventory = Inventory::model()->findByAttributes(array("company_id" => $company_id, "inventory_id" => $customer_item_detail->inventory_id));
+        $status_id = ($customer_item_detail->sku_status_id != "" ? $customer_item_detail->sku_status_id : null);
+
+        $inventory = Inventory::model()->findByAttributes(
+                array(
+                    'company_id' => $customer_item_detail->company_id,
+                    'sku_id' => $customer_item_detail->sku_id,
+                    'uom_id' => $customer_item_detail->uom_id,
+                    'zone_id' => $customer_item_detail->source_zone_id,
+                    'sku_status_id' => $status_id,
+                    'expiration_date' => $customer_item_detail->expiration_date,
+                    'po_no' => $customer_item_detail->po_no,
+                    'pr_no' => $customer_item_detail->pr_no,
+                    'pr_date' => $customer_item_detail->pr_date,
+                    'plan_arrival_date' => $customer_item_detail->plan_arrival_date,
+                )
+        );
 
         $new_qty_value = trim($qty_for_new_inventory);
         $qty_issued = $customer_item_detail->quantity_issued;
@@ -335,27 +350,29 @@ class CustomerItemDetail extends CActiveRecord {
                 $increase_inv->increase(false);
             }
         } else {
+            
+            if ($new_qty_value != "") {
 
-            $status_id = ($customer_item_detail->sku_status_id != "" ? $customer_item_detail->sku_status_id : null);
-            $saved_inv = ReceivingInventoryDetail::model()->createInventory($company_id, $customer_item_detail->sku_id, $customer_item_detail->uom_id, $customer_item_detail->unit_price, $new_qty_value, $source_zone_id, date("Y-m-d", strtotime($updated_date)), $updated_by, $customer_item_detail->expiration_date, $customer_item_detail->batch_no, $status_id, $customer_item_detail->pr_no, $customer_item_detail->pr_date, $customer_item_detail->plan_arrival_date, $customer_item_detail->po_no);
+                $saved_inv = ReceivingInventoryDetail::model()->createInventory($company_id, $customer_item_detail->sku_id, $customer_item_detail->uom_id, $customer_item_detail->unit_price, $new_qty_value, $source_zone_id, date("Y-m-d", strtotime($updated_date)), $updated_by, $customer_item_detail->expiration_date, $customer_item_detail->batch_no, $status_id, $customer_item_detail->pr_no, $customer_item_detail->pr_date, $customer_item_detail->plan_arrival_date, $customer_item_detail->po_no);
 
-            if ($saved_inv) {
+                if ($saved_inv) {
 
-                $inv = Inventory::model()->findByAttributes(array(
-                    'sku_id' => $customer_item_detail->sku_id,
-                    'company_id' => $customer_item_detail->company_id,
-                    'uom_id' => $customer_item_detail->uom_id,
-                    'zone_id' => $source_zone_id,
-                    'sku_status_id' => $status_id,
-                    'expiration_date' => $customer_item_detail->expiration_date,
-                    'reference_no' => $customer_item_detail->batch_no,
-                    'po_no' => $customer_item_detail->po_no,
-                    'pr_no' => $customer_item_detail->pr_no,
-                    'pr_date' => $customer_item_detail->pr_date,
-                    'plan_arrival_date' => $customer_item_detail->plan_arrival_date,
-                ));
+                    $inv = Inventory::model()->findByAttributes(array(
+                        'sku_id' => $customer_item_detail->sku_id,
+                        'company_id' => $customer_item_detail->company_id,
+                        'uom_id' => $customer_item_detail->uom_id,
+                        'zone_id' => $source_zone_id,
+                        'sku_status_id' => $status_id,
+                        'expiration_date' => $customer_item_detail->expiration_date,
+                        'reference_no' => $customer_item_detail->batch_no,
+                        'po_no' => $customer_item_detail->po_no,
+                        'pr_no' => $customer_item_detail->pr_no,
+                        'pr_date' => $customer_item_detail->pr_date,
+                        'plan_arrival_date' => $customer_item_detail->plan_arrival_date,
+                    ));
 
-                $customer_item_detail->inventory_id = $inv->inventory_id;
+                    $customer_item_detail->inventory_id = $inv->inventory_id;
+                }
             }
         }
 

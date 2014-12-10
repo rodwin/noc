@@ -355,11 +355,26 @@ class OutgoingInventoryDetail extends CActiveRecord {
         return $outgoing_inventory_details;
     }
 
-    public function updateOutgoingTransactionDetails($outgoing_inventory_id, $outgoing_inventory_detail_id, $company_id, $qty_for_new_inventory, $quantity_issued, $source_zone_id, $transaction_date, $amount) {
+    public function updateOutgoingTransactionDetails($outgoing_inventory_id, $outgoing_inventory_detail_id, $company_id, $qty_for_new_inventory, $quantity_issued, $source_zone_id, $amount, $updated_by, $updated_date) {
 
         $outgoing_inv_detail = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => $company_id, "outgoing_inventory_id" => $outgoing_inventory_id, "outgoing_inventory_detail_id" => $outgoing_inventory_detail_id));
 
-        $inventory = Inventory::model()->findByAttributes(array("company_id" => $company_id, "inventory_id" => $outgoing_inv_detail->inventory_id));
+        $status_id = ($outgoing_inv_detail->sku_status_id != "" ? $outgoing_inv_detail->sku_status_id : null);
+
+        $inventory = Inventory::model()->findByAttributes(
+                array(
+                    'company_id' => $outgoing_inv_detail->company_id,
+                    'sku_id' => $outgoing_inv_detail->sku_id,
+                    'uom_id' => $outgoing_inv_detail->uom_id,
+                    'zone_id' => $outgoing_inv_detail->source_zone_id,
+                    'sku_status_id' => $status_id,
+                    'expiration_date' => $outgoing_inv_detail->expiration_date,
+                    'po_no' => $outgoing_inv_detail->po_no,
+                    'pr_no' => $outgoing_inv_detail->pr_no,
+                    'pr_date' => $outgoing_inv_detail->pr_date,
+                    'plan_arrival_date' => $outgoing_inv_detail->plan_arrival_date,
+                )
+        );
 
         $new_qty_value = trim($qty_for_new_inventory);
         $qty_issued = $outgoing_inv_detail->quantity_issued;
@@ -376,8 +391,8 @@ class OutgoingInventoryDetail extends CActiveRecord {
                     $decrease_inv = new DecreaseInventoryForm();
                     $decrease_inv->inventoryObj = $inventory;
                     $decrease_inv->qty = $new_qty;
-                    $decrease_inv->transaction_date = date("Y-m-d");
-                    $decrease_inv->created_by = $outgoing_inv_detail->created_by;
+                    $decrease_inv->transaction_date = date("Y-m-d", strtotime($updated_date));
+                    $decrease_inv->created_by = $updated_by;
 
                     $decrease_inv->decrease(false);
                 }
@@ -388,16 +403,16 @@ class OutgoingInventoryDetail extends CActiveRecord {
                 $increase_inv = new IncreaseInventoryForm();
                 $increase_inv->inventoryObj = $inventory;
                 $increase_inv->qty = $new_inv_qty;
-                $increase_inv->transaction_date = date("Y-m-d");
-                $increase_inv->created_by = $outgoing_inv_detail->created_by;
+                $increase_inv->transaction_date = date("Y-m-d", strtotime($updated_date));
+                $increase_inv->created_by = $updated_by;
 
                 $increase_inv->increase(false);
             }
         } else {
 
             if ($new_qty_value != "") {
-                $status_id = ($outgoing_inv_detail->sku_status_id != "" ? $outgoing_inv_detail->sku_status_id : null);
-                $saved_inv = ReceivingInventoryDetail::model()->createInventory($company_id, $outgoing_inv_detail->sku_id, $outgoing_inv_detail->uom_id, $outgoing_inv_detail->unit_price, $new_qty_value, $source_zone_id, $transaction_date, $outgoing_inv_detail->created_by, $outgoing_inv_detail->expiration_date, $outgoing_inv_detail->batch_no, $status_id, $outgoing_inv_detail->pr_no, $outgoing_inv_detail->pr_date, $outgoing_inv_detail->plan_arrival_date, $outgoing_inv_detail->po_no);
+
+                $saved_inv = ReceivingInventoryDetail::model()->createInventory($company_id, $outgoing_inv_detail->sku_id, $outgoing_inv_detail->uom_id, $outgoing_inv_detail->unit_price, $new_qty_value, $source_zone_id, date("Y-m-d", strtotime($updated_date)), $updated_by, $outgoing_inv_detail->expiration_date, $outgoing_inv_detail->batch_no, $status_id, $outgoing_inv_detail->pr_no, $outgoing_inv_detail->pr_date, $outgoing_inv_detail->plan_arrival_date, $outgoing_inv_detail->po_no);
 
                 if ($saved_inv) {
 
@@ -422,8 +437,8 @@ class OutgoingInventoryDetail extends CActiveRecord {
 
         $outgoing_inv_detail->amount = $amount;
         $outgoing_inv_detail->quantity_issued = $quantity_issued;
-        $outgoing_inv_detail->updated_date = date("Y-m-d");
-        $outgoing_inv_detail->updated_by = Yii::app()->user->name;
+        $outgoing_inv_detail->updated_date = $updated_date;
+        $outgoing_inv_detail->updated_by = $updated_by;
 
         if ($outgoing_inv_detail->save(false)) {
             

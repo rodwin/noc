@@ -1571,8 +1571,22 @@ class OutgoingInventoryController extends Controller {
         $data['actual_qty'] = $actual_qty;
         $data['qty_for_new_inventory'] = "";
 
-        $inventory = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $inventory_id));
         $outgoing_inv_detail = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "outgoing_inventory_detail_id" => $outgoing_inv_detail_id));
+
+        $inventory = Inventory::model()->findByAttributes(
+                array(
+                    'company_id' => $outgoing_inv_detail->company_id,
+                    'sku_id' => $outgoing_inv_detail->sku_id,
+                    'uom_id' => $outgoing_inv_detail->uom_id,
+                    'zone_id' => $outgoing_inv_detail->source_zone_id,
+                    'sku_status_id' => $outgoing_inv_detail->sku_status_id != "" ? $outgoing_inv_detail->sku_status_id : null,
+                    'expiration_date' => $outgoing_inv_detail->expiration_date,
+                    'po_no' => $outgoing_inv_detail->po_no,
+                    'pr_no' => $outgoing_inv_detail->pr_no,
+                    'pr_date' => $outgoing_inv_detail->pr_date,
+                    'plan_arrival_date' => $outgoing_inv_detail->plan_arrival_date,
+                )
+        );
 
         $qty_issued = $outgoing_inv_detail->quantity_issued;
 
