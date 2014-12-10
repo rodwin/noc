@@ -507,6 +507,12 @@ class OutgoingInventoryController extends Controller {
     public function actionUpdate($id) {
         $outgoing = $this->loadModel($id);
 
+        if ($outgoing) {
+            if ($outgoing->status != OutgoingInventory::OUTGOING_PENDING_STATUS) {
+                throw new CHttpException(403, "You are not authorized to perform this action.");
+            }
+        }
+
         $this->pageTitle = "Update " . OutgoingInventory::OUTGOING_LABEL . ' Inventory';
         $this->layout = '//layouts/column1';
 
@@ -1565,8 +1571,22 @@ class OutgoingInventoryController extends Controller {
         $data['actual_qty'] = $actual_qty;
         $data['qty_for_new_inventory'] = "";
 
-        $inventory = Inventory::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "inventory_id" => $inventory_id));
         $outgoing_inv_detail = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "outgoing_inventory_detail_id" => $outgoing_inv_detail_id));
+
+        $inventory = Inventory::model()->findByAttributes(
+                array(
+                    'company_id' => $outgoing_inv_detail->company_id,
+                    'sku_id' => $outgoing_inv_detail->sku_id,
+                    'uom_id' => $outgoing_inv_detail->uom_id,
+                    'zone_id' => $outgoing_inv_detail->source_zone_id,
+                    'sku_status_id' => $outgoing_inv_detail->sku_status_id != "" ? $outgoing_inv_detail->sku_status_id : null,
+                    'expiration_date' => $outgoing_inv_detail->expiration_date,
+                    'po_no' => $outgoing_inv_detail->po_no,
+                    'pr_no' => $outgoing_inv_detail->pr_no,
+                    'pr_date' => $outgoing_inv_detail->pr_date,
+                    'plan_arrival_date' => $outgoing_inv_detail->plan_arrival_date,
+                )
+        );
 
         $qty_issued = $outgoing_inv_detail->quantity_issued;
 
@@ -1583,6 +1603,9 @@ class OutgoingInventoryController extends Controller {
 
                 if ($inventory) {
 
+                    $added_actual = $inventory->qty + $qty_issued;
+                    $last_qty = $added_actual - $actual_qty;
+
                     if ($inventory->qty > $new_qty || $inventory->qty == $new_qty) {
 
                         $data['message'] = 'Successfully updated';
@@ -1590,7 +1613,13 @@ class OutgoingInventoryController extends Controller {
                         $data['actual_qty'] = $new_actual_qty;
                     } else {
 
-                        $data['message'] = 'Source inventory has only <b>' . $inventory->qty . " " . strtolower(isset($outgoing_inv_detail->uom) ? $outgoing_inv_detail->uom->uom_name : "") . '</b> inventory on hand available';
+                        if ($last_qty < 0) {
+                            $value = 0;
+                        } else {
+                            $value = $last_qty;
+                        }
+
+                        $data['message'] = 'Source inventory has only <b>' . $value . " " . strtolower(isset($outgoing_inv_detail->uom) ? $outgoing_inv_detail->uom->uom_name : "") . '</b> inventory on hand remaining';
                         $data["type"] = "danger";
                     }
                 } else {

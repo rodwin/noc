@@ -460,7 +460,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
                         <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
                         <th><?php echo $outgoingDetailFields['amount']; ?></th>
-                        <th><?php // echo $outgoingDetailFields['inventory_on_hand'];                                                                                  ?></th>
+                        <th><?php // echo $outgoingDetailFields['inventory_on_hand'];                                                                                     ?></th>
                         <th class=""><?php echo $outgoingDetailFields['return_date']; ?></th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['remarks']; ?></th>
                         <th class="hide_row">Inventory</th>
@@ -664,12 +664,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     "visible": false
                 }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                var outgoing_inv_detail_id = aData[13].trim();
 
-<?php if (!$outgoing->isNewRecord) { ?>
+                if (outgoing_inv_detail_id != "") {
                     $('td:eq(8)', nRow).addClass("success");
-<?php } else { ?>
-
-<?php } ?>
+                }
                 return nRow;
             }
         });

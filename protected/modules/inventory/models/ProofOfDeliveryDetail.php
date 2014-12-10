@@ -245,7 +245,7 @@ class ProofOfDeliveryDetail extends CActiveRecord {
     public function createPODTransactionDetails($pod_id, $company_id, $inventory_id, $batch_no, $sku_id, $source_zone_id, $unit_price, $expiration_date, $planned_quantity, $quantity_issued, $amount, $return_date, $remarks, $created_by = null, $uom_id, $sku_status_id, $transaction_date, $customer_item_detail_id) {
 
         $inventory = Inventory::model()->findByAttributes(array("inventory_id" => $inventory_id, "company_id" => $company_id));
-        
+
         $ret_date = ($return_date != "" ? $return_date : null);
         $exp_date = ($expiration_date != "" ? $expiration_date : null);
         $cost_per_unit = (isset($unit_price) ? $unit_price : 0);
@@ -274,6 +274,32 @@ class ProofOfDeliveryDetail extends CActiveRecord {
         $pod_transaction_detail->plan_arrival_date = $inventory->plan_arrival_date;
         $pod_transaction_detail->revised_delivery_date = $inventory->revised_delivery_date;
         $pod_transaction_detail->customer_item_detail_id = $customer_item_detail_id;
+
+        if ($pod_transaction_detail->save(false)) {
+            
+        } else {
+            return $pod_transaction_detail->getErrors();
+        }
+    }
+
+    public function updatePODTransactionDetails($pod_id, $customer_item_detail_id, $company_id, $inventory_id, $quantity_issued, $amount, $updated_by, $updated_date) {
+
+        $pod_detail = ProofOfDeliveryDetail::model()->findByAttributes(array("company_id" => $company_id, "pod_id" => $pod_id, "customer_item_detail_id" => $customer_item_detail_id));
+
+        if ($pod_detail) {
+
+            $pod_transaction_detail = $pod_detail;
+            $pod_transaction_detail->updated_date = $updated_date;
+            $pod_transaction_detail->updated_by = $updated_by;
+        } else {
+
+            $pod_transaction_detail = new ProofOfDeliveryDetail;
+            $pod_transaction_detail->created_by = $updated_by;
+        }
+
+        $pod_transaction_detail->inventory_id = $inventory_id;
+        $pod_transaction_detail->planned_quantity = $quantity_issued;
+        $pod_transaction_detail->amount = $amount;
 
         if ($pod_transaction_detail->save(false)) {
             
