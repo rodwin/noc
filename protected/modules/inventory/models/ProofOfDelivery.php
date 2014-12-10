@@ -328,11 +328,13 @@ class ProofOfDelivery extends CActiveRecord {
         $pod->rra_date = $customer_header_data->rra_date;
         $pod->dr_no = $customer_header_data->dr_no;
         $pod->dr_date = $customer_header_data->dr_date;
+        $pod->dr_date = $customer_header_data->dr_date;
         $pod->source_zone_id = $customer_header_data->source_zone_id;
         $pod->poi_id = $customer_header_data->poi_id;
-        $pod->transaction_date = $customer_header_data->transaction_date;
         $pod->status = $customer_header_data->status;
         $pod->total_amount = $customer_header_data->total_amount;
+        $pod->updated_by = $customer_header_data->updated_by;
+        $pod->updated_date = $customer_header_data->updated_date;
 
         $pod->updateTransaction($pod, $customer_item_detail_ids_to_be_delete, $transaction_details);
     }
@@ -352,14 +354,14 @@ class ProofOfDelivery extends CActiveRecord {
                 'rra_no' => $this->rra_no,
                 'rra_date' => $this->rra_date,
                 'dr_no' => $this->dr_no,
-                'dr_date' => $this->transaction_date,
+                'dr_date' => $this->dr_date,
                 'source_zone_id' => $this->source_zone_id,
                 'poi_id' => $this->poi_id,
-                'transaction_date' => null,
                 'status' => $this->status,
                 'total_amount' => $this->total_amount,
-                'created_by' => $this->created_by,
                 'customer_item_id' => $this->customer_item_id,
+                'updated_by' => $this->updated_by,
+                'updated_date' => $this->updated_date,
             );
 
             $proofOfDelivery->attributes = $proof_of_delivery_data;
@@ -368,7 +370,7 @@ class ProofOfDelivery extends CActiveRecord {
                 if ($proofOfDelivery->save(false)) {
 
                     for ($i = 0; $i < count($transaction_details); $i++) {
-                       ProofOfDeliveryDetail::model()->updatePODTransactionDetails($proofOfDelivery->pod_id, $transaction_details->customer_item_detail_id, $proofOfDelivery->company_id, $transaction_details->inventory_id, $transaction_details->quantity_issued, $proofOfDelivery->transaction_date, $transaction_details->amount);
+                        ProofOfDeliveryDetail::model()->updatePODTransactionDetails($proofOfDelivery->pod_id, $transaction_details->customer_item_detail_id, $proofOfDelivery->company_id, $transaction_details->inventory_id, $transaction_details->quantity_issued, $transaction_details->amount, $proofOfDelivery->updated_by, $proofOfDelivery->updated_date);
                     }
                 }
                 return true;

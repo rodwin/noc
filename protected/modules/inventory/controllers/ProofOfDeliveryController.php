@@ -434,6 +434,9 @@ class ProofOfDeliveryController extends Controller {
 
             if ($pod) {
                 $pod->status = $pod_status;
+                $pod->transaction_date = date("Y-m-d");
+                $pod->updated_by = Yii::app()->user->name;
+                $pod->updated_date = date('Y-m-d H:i:s');
 
                 if ($pod->save()) {
 
@@ -528,6 +531,7 @@ class ProofOfDeliveryController extends Controller {
             $pod = ProofOfDelivery::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "pod_id" => $pod_id));
 
             if ($pod) {
+                $pod->transaction_date = date("Y-m-d");
                 $pod->updated_by = Yii::app()->user->name;
                 $pod->updated_date = date('Y-m-d H:i:s');
                 $pod->verified = $pod_verified;

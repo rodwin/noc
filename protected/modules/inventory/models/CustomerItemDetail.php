@@ -296,7 +296,7 @@ class CustomerItemDetail extends CActiveRecord {
         }
     }
 
-    public function updateCustomerItemTransactionDetails($customer_item_id, $customer_item_detail_id, $company_id, $qty_for_new_inventory, $quantity_issued, $source_zone_id, $transaction_date, $amount) {
+    public function updateCustomerItemTransactionDetails($customer_item_id, $customer_item_detail_id, $company_id, $qty_for_new_inventory, $quantity_issued, $source_zone_id, $amount, $updated_by, $updated_date) {
 
         $customer_item_detail = CustomerItemDetail::model()->findByAttributes(array("company_id" => $company_id, "customer_item_id" => $customer_item_id, "customer_item_detail_id" => $customer_item_detail_id));
 
@@ -317,8 +317,8 @@ class CustomerItemDetail extends CActiveRecord {
                     $decrease_inv = new DecreaseInventoryForm();
                     $decrease_inv->inventoryObj = $inventory;
                     $decrease_inv->qty = $new_qty;
-                    $decrease_inv->transaction_date = date("Y-m-d");
-                    $decrease_inv->created_by = $customer_item_detail->created_by;
+                    $decrease_inv->transaction_date = date("Y-m-d", strtotime($updated_date));
+                    $decrease_inv->created_by = $updated_by;
 
                     $decrease_inv->decrease(false);
                 }
@@ -329,15 +329,15 @@ class CustomerItemDetail extends CActiveRecord {
                 $increase_inv = new IncreaseInventoryForm();
                 $increase_inv->inventoryObj = $inventory;
                 $increase_inv->qty = $new_inv_qty;
-                $increase_inv->transaction_date = date("Y-m-d");
-                $increase_inv->created_by = $customer_item_detail->created_by;
+                $increase_inv->transaction_date = date("Y-m-d", strtotime($updated_date));
+                $increase_inv->created_by = $updated_by;
 
                 $increase_inv->increase(false);
             }
         } else {
 
             $status_id = ($customer_item_detail->sku_status_id != "" ? $customer_item_detail->sku_status_id : null);
-            $saved_inv = ReceivingInventoryDetail::model()->createInventory($company_id, $customer_item_detail->sku_id, $customer_item_detail->uom_id, $customer_item_detail->unit_price, $new_qty_value, $source_zone_id, $transaction_date, $customer_item_detail->created_by, $customer_item_detail->expiration_date, $customer_item_detail->batch_no, $status_id, $customer_item_detail->pr_no, $customer_item_detail->pr_date, $customer_item_detail->plan_arrival_date, $customer_item_detail->po_no);
+            $saved_inv = ReceivingInventoryDetail::model()->createInventory($company_id, $customer_item_detail->sku_id, $customer_item_detail->uom_id, $customer_item_detail->unit_price, $new_qty_value, $source_zone_id, date("Y-m-d", strtotime($updated_date)), $updated_by, $customer_item_detail->expiration_date, $customer_item_detail->batch_no, $status_id, $customer_item_detail->pr_no, $customer_item_detail->pr_date, $customer_item_detail->plan_arrival_date, $customer_item_detail->po_no);
 
             if ($saved_inv) {
 
@@ -361,8 +361,8 @@ class CustomerItemDetail extends CActiveRecord {
 
         $customer_item_detail->amount = $amount;
         $customer_item_detail->quantity_issued = $quantity_issued;
-        $customer_item_detail->updated_date = date("Y-m-d H:i:s");
-        $customer_item_detail->updated_by = Yii::app()->user->name;
+        $customer_item_detail->updated_date = $updated_date;
+        $customer_item_detail->updated_by = $updated_by;
 
         if ($customer_item_detail->save(false)) {
             return $customer_item_detail;

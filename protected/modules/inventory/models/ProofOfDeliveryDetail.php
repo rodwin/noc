@@ -282,19 +282,19 @@ class ProofOfDeliveryDetail extends CActiveRecord {
         }
     }
 
-    public function updatePODTransactionDetails($pod_id, $customer_item_detail_id, $company_id, $inventory_id, $quantity_issued, $transaction_date, $amount) {
+    public function updatePODTransactionDetails($pod_id, $customer_item_detail_id, $company_id, $inventory_id, $quantity_issued, $amount, $updated_by, $updated_date) {
 
         $pod_detail = ProofOfDeliveryDetail::model()->findByAttributes(array("company_id" => $company_id, "pod_id" => $pod_id, "customer_item_detail_id" => $customer_item_detail_id));
 
         if ($pod_detail) {
 
             $pod_transaction_detail = $pod_detail;
-            $pod_transaction_detail->updated_date = date("Y-m-d H:i:s");
-            $pod_transaction_detail->updated_by = Yii::app()->user->name;
+            $pod_transaction_detail->updated_date = $updated_date;
+            $pod_transaction_detail->updated_by = $updated_by;
         } else {
 
             $pod_transaction_detail = new ProofOfDeliveryDetail;
-            $pod_transaction_detail->created_by = Yii::app()->user->name;
+            $pod_transaction_detail->created_by = $updated_by;
         }
 
         $pod_transaction_detail->inventory_id = $inventory_id;
