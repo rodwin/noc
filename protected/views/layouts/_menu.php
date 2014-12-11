@@ -12,6 +12,7 @@ $main_menu = array(
             array('label' => OutgoingInventory::OUTGOING_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('inventory/outgoingInventory/admin'), 'visible' => Yii::app()->user->checkAccess('Manage Outbound', array('company_id' => Yii::app()->user->company_id))),
             array('label' => CustomerItem::CUSTOMER_ITEM_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('inventory/customerItem/admin'), 'visible' => Yii::app()->user->checkAccess('Manage Outgoing', array('company_id' => Yii::app()->user->company_id))),
             array('label' => ProofOfDelivery::PROOF_OF_DELIVERY_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('inventory/proofOfDelivery/admin'), 'visible' => Yii::app()->user->checkAccess('Manage Proof Of Delivery', array('company_id' => Yii::app()->user->company_id))),
+            array('label' => 'Returns', 'icon' => 'fa fa-angle-double-right', 'url' => array('inventory/returns/admin'), 'visible' => Yii::app()->user->checkAccess('Manage Returns', array('company_id' => Yii::app()->user->company_id))),
     )),
     array('label' => 'Library', 'url' => '#', 'icon' => 'fa fa-book', 'visible' => true, 'items' => array(
             array('label' => 'Supplier', 'icon' => 'fa fa-angle-double-right', 'url' => array('library/supplier/admin'), 'visible' => Yii::app()->user->checkAccess('Manage Supplier', array('company_id' => Yii::app()->user->company_id))),
