@@ -118,27 +118,28 @@ $this->breadcrumbs = array(
     <br/>
 
     <div class="col-xs-12">
-        <div class="table-responsive" style="overflow-x: scroll;">
+        <div class="table-responsive">
             <h5 class="control-label text-primary text_bold">Item Details</h5>
-
-            <table id="receiving-inv-detail_table" class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th><?php echo $skuFields['sku_code']; ?></th>
-                        <th><?php echo $skuFields['description']; ?></th>
-                        <th><?php echo $skuFields['brand_id']; ?></th>
-                        <th><?php echo $skuFields['type']; ?></th>
-                        <th><?php echo $receivingDetailFields['uom_id']; ?></th>
-                        <th><?php echo $receivingDetailFields['unit_price']; ?></th>
-                        <th><?php echo $receivingDetailFields['batch_no']; ?></th>
-                        <th><?php echo $receivingDetailFields['expiration_date']; ?></th>
-                        <th><?php echo $receivingDetailFields['planned_quantity']; ?></th>
-                        <th><?php echo $receivingDetailFields['quantity_received']; ?></th>
-                        <th><?php echo $receivingDetailFields['amount']; ?></th>
-                        <th><?php echo $receivingDetailFields['remarks']; ?></th>
-                    </tr>                                    
-                </thead>
-            </table>                            
+            <div  style="overflow-x: scroll;">
+                <table id="receiving-inv-detail_table" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th><?php echo $skuFields['sku_code']; ?></th>
+                            <th><?php echo $skuFields['description']; ?></th>
+                            <th><?php echo $skuFields['brand_id']; ?></th>
+                            <th><?php echo $skuFields['type']; ?></th>
+                            <th><?php echo $receivingDetailFields['uom_id']; ?></th>
+                            <th><?php echo $receivingDetailFields['unit_price']; ?></th>
+                            <th><?php echo $receivingDetailFields['batch_no']; ?></th>
+                            <th><?php echo $receivingDetailFields['expiration_date']; ?></th>
+                            <th><?php echo $receivingDetailFields['planned_quantity']; ?></th>
+                            <th><?php echo $receivingDetailFields['quantity_received']; ?></th>
+                            <th><?php echo $receivingDetailFields['amount']; ?></th>
+                            <th><?php echo $receivingDetailFields['remarks']; ?></th>
+                        </tr>                                    
+                    </thead>
+                </table>     
+            </div>
         </div><br/>
     </div>
 

@@ -194,10 +194,12 @@ class OutgoingInventoryController extends Controller {
         $model = $this->loadModel($id);
 
         $this->pageTitle = "View " . OutgoingInventory::OUTGOING_LABEL . ' Inventory';
-        
+
+        $visible = $model->status == OutgoingInventory::OUTGOING_PENDING_STATUS ? true : false;
+
         $this->menu = array(
             array('label' => "Create " . OutgoingInventory::OUTGOING_LABEL . ' Inventory', 'url' => array('create')),
-            array('label' => "Update " . OutgoingInventory::OUTGOING_LABEL . ' Inventory', 'url' => array('update', 'id' => $model->outgoing_inventory_id)),
+            array('label' => "Update " . OutgoingInventory::OUTGOING_LABEL . ' Inventory', 'url' => '#', 'linkOptions' => array('submit' => array('update', 'id' => $model->outgoing_inventory_id)), "visible" => $visible),
             array('label' => "Delete " . OutgoingInventory::OUTGOING_LABEL . ' Inventory', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->outgoing_inventory_id), 'confirm' => 'Are you sure you want to delete this item?')),
             array('label' => "Manage " . OutgoingInventory::OUTGOING_LABEL . ' Inventory', 'url' => array('admin')),
         );
@@ -1150,6 +1152,7 @@ class OutgoingInventoryController extends Controller {
             $row['expiration_date'] = $val['expiration_date'];
             $row['amount'] = $val['amount'];
             $row['remarks'] = $val['remarks'];
+            $row['return_date'] = $val['return_date'];
 
             $details[] = $row;
         }
@@ -1306,7 +1309,7 @@ class OutgoingInventoryController extends Controller {
                     <td style="font-weight: bold; width: 40px;">UOM</td>
                     <td style="font-weight: bold;">UNIT PRICE</td>
                     <td style="font-weight: bold;">AMOUNT</td>
-                    <td style="font-weight: bold;">EXPIRY DATE</td>
+                    <td style="font-weight: bold;">RETURN DATE</td>
                     <td style="font-weight: bold;">REMARKS</td>
                 </tr>';
 
@@ -1327,7 +1330,7 @@ class OutgoingInventoryController extends Controller {
                             <td>' . $uom->uom_name . '</td>
                         <td class="align-right">&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
                         <td class="align-right">&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
-                            <td>' . $val['expiration_date'] . '</td>
+                            <td>' . $val['return_date'] . '</td>
                             <td>' . $val['remarks'] . '</td>
                         </tr>';
 
@@ -1522,6 +1525,7 @@ class OutgoingInventoryController extends Controller {
             $row['expiration_date'] = $val->expiration_date;
             $row['amount'] = $val->amount;
             $row['remarks'] = $val->remarks;
+            $row['return_date'] = $val->return_date;
 
             $details[] = $row;
         }

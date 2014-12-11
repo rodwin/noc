@@ -126,9 +126,11 @@ class CustomerItemController extends Controller {
 
         $this->pageTitle = "View " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory';
         
+        $visible = $model->status == OutgoingInventory::OUTGOING_PENDING_STATUS ? true : false;
+        
         $this->menu = array(
             array('label' => "Create " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory', 'url' => array('create')),
-            array('label' => "Update " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory', 'url' => array('update', 'id' => $model->customer_item_id)),
+            array('label' => "Update " . OutgoingInventory::OUTGOING_LABEL . ' Inventory', 'url' => '#', 'linkOptions' => array('submit' => array('update', 'id' => $model->customer_item_id)), "visible" => $visible),
             array('label' => "Delete " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->customer_item_id), 'confirm' => 'Are you sure you want to delete this item?')),
             array('label' => "Manage " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory', 'url' => array('admin')),
         );
@@ -1113,6 +1115,7 @@ class CustomerItemController extends Controller {
             $row['expiration_date'] = $val['expiration_date'];
             $row['amount'] = $val['amount'];
             $row['remarks'] = $val['remarks'];
+            $row['return_date'] = $val['return_date'];
 
             $details[] = $row;
         }
@@ -1274,7 +1277,7 @@ class CustomerItemController extends Controller {
                     <td style="font-weight: bold; width: 65px;">ALLOCATION</td>
                     <td style="font-weight: bold; width: 55px;">QUANTITY ISSUED</td>
                     <td style="font-weight: bold; width: 40px;">UOM</td>
-                    <td style="font-weight: bold;">EXPIRY DATE</td>
+                    <td style="font-weight: bold;">RETURN DATE</td>
                     <td style="font-weight: bold;">REMARKS</td>
                 </tr>';
 
@@ -1294,7 +1297,7 @@ class CustomerItemController extends Controller {
                             <td>' . $val['planned_quantity'] . '</td>
                             <td>' . $val['quantity_issued'] . '</td>
                             <td>' . $uom_name . '</td>
-                            <td>' . $val['expiration_date'] . '</td>
+                            <td>' . $val['return_date'] . '</td>
                             <td>' . $val['remarks'] . '</td>
                         </tr>';
 
@@ -1454,6 +1457,7 @@ class CustomerItemController extends Controller {
             $row['expiration_date'] = $val->expiration_date;
             $row['amount'] = $val->amount;
             $row['remarks'] = $val->remarks;
+            $row['return_date'] = $val->return_date;
 
             $details[] = $row;
         }

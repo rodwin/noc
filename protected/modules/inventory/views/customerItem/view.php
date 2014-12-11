@@ -124,28 +124,29 @@ $this->breadcrumbs = array(
     <br/>
 
     <div class="col-xs-12">
-        <div class="table-responsive" style="overflow-x: scroll;">
+        <div class="table-responsive">
             <h5 class="control-label text-primary text_bold">Item Details</h5>
-
-            <table id="customer-item-detail_table" class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th><?php echo $skuFields['sku_code']; ?></th>
-                        <th><?php echo $skuFields['description']; ?></th>
-                        <th><?php echo $skuFields['brand_id']; ?></th>
-                        <th><?php echo $skuFields['type']; ?></th>
-                        <th><?php echo $customerItemDetailFields['uom_id']; ?></th>
-                        <th><?php echo $customerItemDetailFields['unit_price']; ?></th>
-                        <th><?php echo $customerItemDetailFields['batch_no']; ?></th>
-                        <th><?php echo $customerItemDetailFields['expiration_date']; ?></th>
-                        <th><?php echo $customerItemDetailFields['planned_quantity']; ?></th>
-                        <th><?php echo $customerItemDetailFields['quantity_issued']; ?></th>
-                        <th><?php echo $customerItemDetailFields['amount']; ?></th>
-                        <th><?php echo $customerItemDetailFields['remarks']; ?></th>
-                        <th><?php echo $customerItemDetailFields['status']; ?></th>
-                    </tr>                                    
-                </thead>
-            </table>                            
+            <div  style="overflow-x: scroll;">
+                <table id="customer-item-detail_table" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th><?php echo $skuFields['sku_code']; ?></th>
+                            <th><?php echo $skuFields['description']; ?></th>
+                            <th><?php echo $skuFields['brand_id']; ?></th>
+                            <th><?php echo $skuFields['type']; ?></th>
+                            <th><?php echo $customerItemDetailFields['uom_id']; ?></th>
+                            <th><?php echo $customerItemDetailFields['unit_price']; ?></th>
+                            <th><?php echo $customerItemDetailFields['batch_no']; ?></th>
+                            <th><?php echo $customerItemDetailFields['return_date']; ?></th>
+                            <th><?php echo $customerItemDetailFields['planned_quantity']; ?></th>
+                            <th><?php echo $customerItemDetailFields['quantity_issued']; ?></th>
+                            <th><?php echo $customerItemDetailFields['amount']; ?></th>
+                            <th><?php echo $customerItemDetailFields['remarks']; ?></th>
+                            <th><?php echo $customerItemDetailFields['status']; ?></th>
+                        </tr>                                    
+                    </thead>
+                </table>       
+            </div>
         </div><br/>
     </div>
 
@@ -183,7 +184,7 @@ $this->breadcrumbs = array(
                 {"name": "uom_name", "data": "uom_name"},
                 {"name": "unit_price", "data": "unit_price"},
                 {"name": "batch_no", "data": "batch_no"},
-                {"name": "expiration_date", "data": "expiration_date"},
+                {"name": "return_date", "data": "return_date"},
                 {"name": "planned_quantity", "data": "planned_quantity"},
                 {"name": "quantity_issued", "data": "quantity_issued"},
                 {"name": "amount", "data": "amount"},
