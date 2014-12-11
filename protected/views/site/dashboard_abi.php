@@ -147,7 +147,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                         <th>PR No.</th>
                         <th>RA No.</th>
                         <th>DR No.</th>
-                        <th>Destination Zone</th>
+                        <th>Outlet / Destination Zone</th>
                         <th>Plan Delivery Date</th>
                         <th>Quantity</th>
                         <th>Amount</th>
@@ -390,7 +390,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                     v.pr_no,
                     v.ra_no,
                     v.dr_no,
-                    v.source,
+                    v.destination,
                     v.plan_delivery_date,
                     v.qty,
                     v.amount,
