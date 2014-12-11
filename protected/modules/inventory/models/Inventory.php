@@ -829,5 +829,26 @@ class Inventory extends CActiveRecord {
         $model->message = $message;
         return $model->save();
     }
+    
+    public function checkIfAllInventoryCriteriaExist($company_id, $sku_id, $uom_id, $zone_id, $sku_status_id, $expiration_date, $po_no, $pr_no, $pr_date, $plan_arrival_date) {
+        
+        $inventory = Inventory::model()->findByAttributes(
+                array(
+                    'company_id' => $company_id,
+                    'sku_id' => $sku_id,
+                    'uom_id' => $uom_id,
+                    'zone_id' => $zone_id,
+                    'sku_status_id' => $sku_status_id,
+                    'expiration_date' => $expiration_date,
+                    'po_no' => $po_no,
+                    'pr_no' => $pr_no,
+                    'pr_date' => $pr_date,
+                    'plan_arrival_date' => $plan_arrival_date,
+                )
+        );
+        
+        return $inventory;
+        
+    }
 
 }

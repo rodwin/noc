@@ -487,7 +487,7 @@ class OutgoingInventory extends CActiveRecord {
         }
     }
 
-    public function updateTransaction($model, $outgoing_inv_ids_to_be_delete, $transaction_details, $validate = true) {
+    public function updateTransaction($model, $outgoing_inv_ids_to_be_delete, $transaction_details, $deletedTransactionRowData, $validate = true) {
 
         if ($validate) {
             if (!$this->validate()) {
@@ -529,18 +529,30 @@ class OutgoingInventory extends CActiveRecord {
                     Yii::app()->session['outgoing_inv_id_attachment_session'] = $outgoing_inventory->outgoing_inventory_id;
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         if (trim($transaction_details[$i]['outgoing_inv_detail_id']) != "") {
+                            
                             OutgoingInventoryDetail::model()->updateOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $transaction_details[$i]['outgoing_inv_detail_id'], $outgoing_inventory->company_id, $transaction_details[$i]['qty_for_new_inventory'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['amount'], $outgoing_inventory->updated_by, $outgoing_inventory->updated_date);
                         } else {
+                            
                             OutgoingInventoryDetail::model()->createOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $outgoing_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $outgoing_inventory->updated_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], date("Y-m-d", strtotime($outgoing_inventory->updated_date)));
                         }
                     }
 
-                    if ($outgoing_inv_ids_to_be_delete != "") {
-                        OutgoingInventoryDetail::model()->deleteAll("company_id = '" . $outgoing_inventory->company_id . "' AND outgoing_inventory_detail_id = (" . $outgoing_inv_ids_to_be_delete . ")");
+                    if (count($deletedTransactionRowData) > 0) {
+                        for ($x = 0; $x < count($deletedTransactionRowData); $x++) {
+                            
+                            $outgoing_inv_detail = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => $outgoing_inventory->company_id, "outgoing_inventory_detail_id" => $deletedTransactionRowData[$x]['outgoing_inv_detail_id']));
+
+                            ReceivingInventoryDetail::model()->createInventory($outgoing_inventory->company_id, $deletedTransactionRowData[$x]['sku_id'], $deletedTransactionRowData[$x]['uom_id'], $deletedTransactionRowData[$x]['unit_price'], $deletedTransactionRowData[$x]['quantity_issued'], $deletedTransactionRowData[$x]['source_zone_id'], date("Y-m-d", strtotime($outgoing_inventory->updated_date)), $outgoing_inventory->updated_by, $deletedTransactionRowData[$x]['expiration_date'], $deletedTransactionRowData[$x]['batch_no'], $deletedTransactionRowData[$x]['sku_status_id'], $outgoing_inv_detail->pr_no, $outgoing_inv_detail->pr_date, $outgoing_inv_detail->plan_arrival_date, $outgoing_inv_detail->po_no);
+
+                            if ((count($deletedTransactionRowData) - 1) == $x) {
+                                for ($y = 0; $y < count($outgoing_inv_ids_to_be_delete); $y++) {
+
+                                    OutgoingInventoryDetail::model()->deleteAll("company_id = '" . $outgoing_inventory->company_id . "' AND outgoing_inventory_detail_id = " . $outgoing_inv_ids_to_be_delete[$y]);
+                                }
+                            }
+                        }
                     }
                 }
-
-//                return true;
             } else {
                 return false;
             }

@@ -125,7 +125,13 @@ class CustomerItemController extends Controller {
         $model = $this->loadModel($id);
 
         $this->pageTitle = "View " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory';
-        $this->layout = '//layouts/column1';
+        
+        $this->menu = array(
+            array('label' => "Create " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory', 'url' => array('create')),
+            array('label' => "Update " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory', 'url' => array('update', 'id' => $model->customer_item_id)),
+            array('label' => "Delete " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->customer_item_id), 'confirm' => 'Are you sure you want to delete this item?')),
+            array('label' => "Manage " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory', 'url' => array('admin')),
+        );
 
         $c = new CDbCriteria;
         $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.customer_item_id = '" . $model->customer_item_id . "'";

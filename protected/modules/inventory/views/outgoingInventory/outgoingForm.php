@@ -460,7 +460,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
                         <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
                         <th><?php echo $outgoingDetailFields['amount']; ?></th>
-                        <th><?php // echo $outgoingDetailFields['inventory_on_hand'];                                                                                     ?></th>
+                        <th><?php // echo $outgoingDetailFields['inventory_on_hand'];                                                                                               ?></th>
                         <th class=""><?php echo $outgoingDetailFields['return_date']; ?></th>
                         <th class="hide_row"><?php echo $outgoingDetailFields['remarks']; ?></th>
                         <th class="hide_row">Inventory</th>
@@ -878,7 +878,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
     }
 
-    var outgoing_inv_ids = "";
     function deleteTransactionRow() {
         if (!confirm('Are you sure you want to delete selected item?'))
             return false;
@@ -891,28 +890,53 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 total_amount = (parseFloat(total_amount) - parseFloat(row_data[14]));
                 $("#OutgoingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
 
-                transaction_table.fnDeleteRow(aTrs[i]);
-
 <?php if (!$outgoing->isNewRecord) { ?>
-                    if (row_data[13].trim() != "") {
-                        outgoing_inv_ids += row_data[13] + ",";
-                    }
+                    pushDeletedTransactionRowData(row_data);
 <?php } ?>
 
-                $.ajax({
-                    type: 'POST',
-                    url: '<?php echo Yii::app()->createUrl('/inventory/OutgoingInventory/afterDeleteTransactionRow'); ?>' + '&inventory_id=' + row_data[16] + '&quantity=' + row_data[11],
-                    success: function(data) {
-                        inventory_table.fnMultiFilter();
-                    },
-                    error: function(data) {
-                        alert("Error occured: Please try again.");
-                    }
-                });
+                transaction_table.fnDeleteRow(aTrs[i]);
+
+//                $.ajax({
+//                    type: 'POST',
+//                    url: '<?php echo Yii::app()->createUrl('/inventory/OutgoingInventory/afterDeleteTransactionRow'); ?>' + '&inventory_id=' + row_data[16] + '&quantity=' + row_data[11],
+//                    success: function(data) {
+//                        inventory_table.fnMultiFilter();
+//                    },
+//                    error: function(data) {
+//                        alert("Error occured: Please try again.");
+//                    }
+//                });
             });
         }
 
         $("#delete_row_btn").hide();
+    }
+
+    var deletedTransactionRowData = new Array();
+    var outgoing_inv_ids = new Array();
+    function pushDeletedTransactionRowData(row_data) {
+
+        if (row_data[13].trim() != "") {
+            deletedTransactionRowData.push({
+                "sku_id": row_data[1],
+                "unit_price": row_data[5],
+                "batch_no": row_data[6],
+                "expiration_date": row_data[7],
+                "planned_quantity": row_data[8],
+                "quantity_issued": row_data[9],
+                "uom_id": row_data[10],
+                "sku_status_id": row_data[12],
+                "amount": row_data[14],
+                "remarks": row_data[15],
+                "return_date": row_data[16],
+                "inventory_id": row_data[17],
+                "source_zone_id": row_data[18],
+                "outgoing_inv_detail_id": row_data[13],
+                "qty_for_new_inventory": row_data[11]
+            });
+
+            outgoing_inv_ids.push(row_data[13].trim());
+        }
     }
 
     function serializeTransactionTable() {
@@ -1328,7 +1352,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
     function sendUpdate(form) {
 
-        var data = $("#outgoing-inventory-form").serialize() + "&form=" + form + "&outgoing_inv_ids=" + outgoing_inv_ids.slice(0, -1) + '&' + $.param({"transaction_details": serializeUpdatedTransactionTable()});
+        var data = $("#outgoing-inventory-form").serialize() + "&form=" + form + '&' + $.param({"outgoing_inv_ids": outgoing_inv_ids}) + '&' + $.param({"transaction_details": serializeUpdatedTransactionTable()}) + '&' + $.param({"deletedTransactionRowData": deletedTransactionRowData});
 
         if ($("#btn_save, #btn_add_item, #btn_print").is("[disabled=disabled]")) {
             return false;

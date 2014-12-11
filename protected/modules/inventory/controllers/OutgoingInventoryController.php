@@ -194,7 +194,13 @@ class OutgoingInventoryController extends Controller {
         $model = $this->loadModel($id);
 
         $this->pageTitle = "View " . OutgoingInventory::OUTGOING_LABEL . ' Inventory';
-        $this->layout = '//layouts/column1';
+        
+        $this->menu = array(
+            array('label' => "Create " . OutgoingInventory::OUTGOING_LABEL . ' Inventory', 'url' => array('create')),
+            array('label' => "Update " . OutgoingInventory::OUTGOING_LABEL . ' Inventory', 'url' => array('update', 'id' => $model->outgoing_inventory_id)),
+            array('label' => "Delete " . OutgoingInventory::OUTGOING_LABEL . ' Inventory', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->outgoing_inventory_id), 'confirm' => 'Are you sure you want to delete this item?')),
+            array('label' => "Manage " . OutgoingInventory::OUTGOING_LABEL . ' Inventory', 'url' => array('admin')),
+        );
 
         $c = new CDbCriteria;
         $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.outgoing_inventory_id = '" . $model->outgoing_inventory_id . "'";
@@ -556,8 +562,9 @@ class OutgoingInventoryController extends Controller {
 
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
                             $outgoing_inv_ids_to_be_delete = isset($_POST['outgoing_inv_ids']) ? $_POST['outgoing_inv_ids'] : "";
+                            $deletedTransactionRowData = isset($_POST['deletedTransactionRowData']) ? $_POST['deletedTransactionRowData'] : array();
 
-                            if ($outgoing->updateTransaction($outgoing, $outgoing_inv_ids_to_be_delete, $transaction_details)) {
+                            if ($outgoing->updateTransaction($outgoing, $outgoing_inv_ids_to_be_delete, $transaction_details, $deletedTransactionRowData)) {
                                 $data['outgoing_inv_id'] = Yii::app()->session['outgoing_inv_id_update_session'];
                                 unset(Yii::app()->session['outgoing_inv_id_update_session']);
                                 $data['message'] = 'Successfully updated';

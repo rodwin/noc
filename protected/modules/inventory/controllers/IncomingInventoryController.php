@@ -118,7 +118,12 @@ class IncomingInventoryController extends Controller {
         $model = $this->loadModel($id);
 
         $this->pageTitle = "View " . IncomingInventory::INCOMING_LABEL . ' Inventory';
-        $this->layout = '//layouts/column1';
+        
+        $this->menu = array(
+            array('label' => "Create " . IncomingInventory::INCOMING_LABEL . ' Inventory', 'url' => array('create')),
+            array('label' => "Delete " . IncomingInventory::INCOMING_LABEL . ' Inventory', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->incoming_inventory_id), 'confirm' => 'Are you sure you want to delete this item?')),
+            array('label' => "Manage " . IncomingInventory::INCOMING_LABEL . ' Inventory', 'url' => array('admin')),
+        );
 
         $c = new CDbCriteria;
         $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.incoming_inventory_id = '" . $model->incoming_inventory_id . "'";
