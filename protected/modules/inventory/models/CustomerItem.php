@@ -154,7 +154,7 @@ class CustomerItem extends CActiveRecord {
             'source_zone_id' => 'Source Zone',
             'poi_id' => Poi::POI_LABEL,
             'salesman_id' => 'Salesman',
-            'transaction_date' => 'Transaction Date',
+            'transaction_date' => 'Date',
             'plan_delivery_date' => 'Plan Delivery Date',
 //            'revised_delivery_date' => 'Revised Delivery Date',
             'remarks' => 'Remarks',

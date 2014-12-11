@@ -261,7 +261,7 @@ class OutgoingInventory extends CActiveRecord {
 //            'revised_delivery_date' => 'Revised Delivery Date',
 //            'actual_delivery_date' => 'Actual Delivery Date',
 //            'plan_arrival_date' => 'Plan Arrival Date',
-            'transaction_date' => 'Transaction Date',
+            'transaction_date' => 'Date',
             'status' => 'Status',
             'remarks' => 'Remarks',
             'total_amount' => 'Total Amount',

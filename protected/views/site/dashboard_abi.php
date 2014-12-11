@@ -115,7 +115,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
             <table id="incoming_inbound_table" class="table table-bordered table-hover">
                 <thead>
                     <tr>
-                        <th>Transaction Date</th>
+                        <th style="width: 70px;">Date</th>
                         <th>Transaction Type</th>
                         <th>PR No.</th>
                         <th>RA No.</th>
@@ -142,7 +142,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
             <table id="outgoing_outbound_table" class="table table-bordered table-hover">
                 <thead>
                     <tr>
-                        <th>Transaction Date</th>
+                        <th style="width: 70px;">Date</th>
                         <th>Transaction Type</th>
                         <th>PR No.</th>
                         <th>RA No.</th>
@@ -167,7 +167,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
             <table id="returnables_table" class="table table-bordered table-hover">
                 <thead>
                     <tr>
-                        <th>Transaction Date</th>
+                        <th style="width: 70px;">Date</th>
                         <th>Transaction Type</th>
                         <th>PR No.</th>
                         <th>DR No.</th>

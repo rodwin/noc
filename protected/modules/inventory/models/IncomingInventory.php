@@ -109,7 +109,7 @@ class IncomingInventory extends CActiveRecord {
             'rra_no' => 'RA No',
             'source_zone_id' => 'Source Zone',
             'destination_zone_id' => 'Destination Zone',
-            'transaction_date' => 'Transaction Date',
+            'transaction_date' => 'Date',
             'plan_delivery_date' => 'Plan Delivery Date',
 //            'revised_delivery_date' => 'Revised Delivery Date',
 //            'plan_arrival_date' => 'Plan Arrival Date',
