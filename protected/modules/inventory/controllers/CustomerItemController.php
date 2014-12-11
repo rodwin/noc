@@ -125,9 +125,9 @@ class CustomerItemController extends Controller {
         $model = $this->loadModel($id);
 
         $this->pageTitle = "View " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory';
-        
+
         $visible = $model->status == OutgoingInventory::OUTGOING_PENDING_STATUS ? true : false;
-        
+
         $this->menu = array(
             array('label' => "Create " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory', 'url' => array('create')),
             array('label' => "Update " . OutgoingInventory::OUTGOING_LABEL . ' Inventory', 'url' => '#', 'linkOptions' => array('submit' => array('update', 'id' => $model->customer_item_id)), "visible" => $visible),
@@ -582,8 +582,9 @@ class CustomerItemController extends Controller {
 
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
                             $customer_item_detail_ids_to_be_delete = isset($_POST['customer_item_detail_ids']) ? $_POST['customer_item_detail_ids'] : "";
+                            $deletedTransactionRowData = isset($_POST['deletedTransactionRowData']) ? $_POST['deletedTransactionRowData'] : array();
 
-                            if ($customer_item->updateTransaction($customer_item, $customer_item_detail_ids_to_be_delete, $transaction_details)) {
+                            if ($customer_item->updateTransaction($customer_item, $customer_item_detail_ids_to_be_delete, $transaction_details, $deletedTransactionRowData)) {
                                 $data['customer_item_id'] = Yii::app()->session['customer_item_id_update_session'];
                                 unset(Yii::app()->session['customer_item_id_update_session']);
                                 $data['message'] = 'Successfully updated';

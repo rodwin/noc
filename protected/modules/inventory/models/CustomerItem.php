@@ -362,7 +362,7 @@ class CustomerItem extends CActiveRecord {
         }
     }
 
-    public function updateTransaction($model, $customer_item_detail_ids_to_be_delete, $transaction_details, $validate = true) {
+    public function updateTransaction($model, $customer_item_detail_ids_to_be_delete, $transaction_details, $deletedTransactionRowData, $validate = true) {
 
         if ($validate) {
             if (!$this->validate()) {
@@ -412,8 +412,21 @@ class CustomerItem extends CActiveRecord {
                         }
                     }
 
-                    if ($customer_item_detail_ids_to_be_delete != "") {
-                        CustomerItemDetail::model()->deleteAll("company_id = '" . $customer_item->company_id . "' AND customer_item_detail_id = (" . $customer_item_detail_ids_to_be_delete . ")");
+                    if (count($deletedTransactionRowData) > 0) {
+                        for ($x = 0; $x < count($deletedTransactionRowData); $x++) {
+
+                            $customer_item_detail = CustomerItemDetail::model()->findByAttributes(array("company_id" => $customer_item->company_id, "customer_item_detail_id" => $deletedTransactionRowData[$x]['customer_item_detail_id']));
+
+                            ReceivingInventoryDetail::model()->createInventory($customer_item->company_id, $deletedTransactionRowData[$x]['sku_id'], $deletedTransactionRowData[$x]['uom_id'], $deletedTransactionRowData[$x]['unit_price'], $deletedTransactionRowData[$x]['quantity_issued'], $deletedTransactionRowData[$x]['source_zone_id'], date("Y-m-d", strtotime($customer_item->updated_date)), $customer_item->updated_by, $deletedTransactionRowData[$x]['expiration_date'], $deletedTransactionRowData[$x]['batch_no'], $deletedTransactionRowData[$x]['sku_status_id'], $customer_item_detail->pr_no, $customer_item_detail->pr_date, $customer_item_detail->plan_arrival_date, $customer_item_detail->po_no);
+
+                            if ((count($deletedTransactionRowData) - 1) == $x) {
+                                for ($y = 0; $y < count($customer_item_detail_ids_to_be_delete); $y++) {
+
+                                    CustomerItemDetail::model()->deleteAll("company_id = '" . $customer_item->company_id . "' AND customer_item_detail_id = " . $customer_item_detail_ids_to_be_delete[$y]);
+                                    ProofOfDeliveryDetail::model()->deleteAll("company_id = '" . $customer_item->company_id . "' AND customer_item_detail_id = " . $customer_item_detail_ids_to_be_delete[$y]);
+                                }
+                            }
+                        }
                     }
                 }
             } else {
