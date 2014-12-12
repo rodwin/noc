@@ -13,7 +13,7 @@
             <div class="panel-body">
 
                 <?php
-                echo CHtml::image('images' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . $image->file_name, "Image", array("style" => "max-height: 100px;", 'class' => 'img-thumbnail'));
+                echo CHtml::image(CHtml::encode($image->url), "Image", array("style" => "max-height: 100px;", 'class' => 'img-thumbnail'));
                 ?>
 
             </div>
