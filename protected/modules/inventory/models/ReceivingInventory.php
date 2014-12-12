@@ -146,7 +146,7 @@ class ReceivingInventory extends CActiveRecord {
             'revised_delivery_date' => 'Revised Delivery Date',
 //            'actual_delivery_date' => 'Actual Delivery Date',
             'plan_arrival_date' => 'Plan Arrival Date To SO',
-            'transaction_date' => 'Transaction Date',
+            'transaction_date' => 'Date',
             'delivery_remarks' => 'Delivery Remarks',
             'total_amount' => 'Total Amount',
             'created_date' => 'Created Date',

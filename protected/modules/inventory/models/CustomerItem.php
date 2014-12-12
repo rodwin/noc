@@ -154,7 +154,7 @@ class CustomerItem extends CActiveRecord {
             'source_zone_id' => 'Source Zone',
             'poi_id' => Poi::POI_LABEL,
             'salesman_id' => 'Salesman',
-            'transaction_date' => 'Transaction Date',
+            'transaction_date' => 'Date',
             'plan_delivery_date' => 'Plan Delivery Date',
 //            'revised_delivery_date' => 'Revised Delivery Date',
             'remarks' => 'Remarks',
@@ -362,7 +362,7 @@ class CustomerItem extends CActiveRecord {
         }
     }
 
-    public function updateTransaction($model, $customer_item_detail_ids_to_be_delete, $transaction_details, $validate = true) {
+    public function updateTransaction($model, $customer_item_detail_ids_to_be_delete, $transaction_details, $deletedTransactionRowData, $validate = true) {
 
         if ($validate) {
             if (!$this->validate()) {
@@ -402,15 +402,31 @@ class CustomerItem extends CActiveRecord {
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         if (trim($transaction_details[$i]['customer_item_detail_id']) != "") {
                             $customer_item_detail = CustomerItemDetail::model()->updateCustomerItemTransactionDetails($customer_item->customer_item_id, $transaction_details[$i]['customer_item_detail_id'], $customer_item->company_id, $transaction_details[$i]['qty_for_new_inventory'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['amount'], $customer_item->updated_by, $customer_item->updated_date);
+
+                            ProofOfDelivery::model()->updateCustomerData($customer_item, $customer_item_detail_ids_to_be_delete, $customer_item_detail);
                         } else {
                             $customer_item_detail = CustomerItemDetail::model()->createCustomerItemTransactionDetails($customer_item->customer_item_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->updated_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], date("Y-m-d", strtotime($customer_item->updated_date)));
-                        }
+                            $pod = ProofOfDelivery::model()->findByAttributes(array("company_id" => $customer_item->company_id, "customer_item_id" => $customer_item->customer_item_id));
 
-                        ProofOfDelivery::model()->updateCustomerData($customer_item, $customer_item_detail_ids_to_be_delete, $customer_item_detail);
+                            ProofOfDeliveryDetail::model()->createPODTransactionDetails($pod->pod_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->updated_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], date("Y-m-d", strtotime($customer_item->updated_date)), $customer_item_detail->customer_item_detail_id);
+                        }
                     }
 
-                    if ($customer_item_detail_ids_to_be_delete != "") {
-                        CustomerItemDetail::model()->deleteAll("company_id = '" . $customer_item->company_id . "' AND customer_item_detail_id = (" . $customer_item_detail_ids_to_be_delete . ")");
+                    if (count($deletedTransactionRowData) > 0) {
+                        for ($x = 0; $x < count($deletedTransactionRowData); $x++) {
+
+                            $customer_item_detail = CustomerItemDetail::model()->findByAttributes(array("company_id" => $customer_item->company_id, "customer_item_detail_id" => $deletedTransactionRowData[$x]['customer_item_detail_id']));
+
+                            ReceivingInventoryDetail::model()->createInventory($customer_item->company_id, $deletedTransactionRowData[$x]['sku_id'], $deletedTransactionRowData[$x]['uom_id'], $deletedTransactionRowData[$x]['unit_price'], $deletedTransactionRowData[$x]['quantity_issued'], $deletedTransactionRowData[$x]['source_zone_id'], date("Y-m-d", strtotime($customer_item->updated_date)), $customer_item->updated_by, $deletedTransactionRowData[$x]['expiration_date'], $deletedTransactionRowData[$x]['batch_no'], $deletedTransactionRowData[$x]['sku_status_id'], $customer_item_detail->pr_no, $customer_item_detail->pr_date, $customer_item_detail->plan_arrival_date, $customer_item_detail->po_no);
+
+                            if ((count($deletedTransactionRowData) - 1) == $x) {
+                                for ($y = 0; $y < count($customer_item_detail_ids_to_be_delete); $y++) {
+
+                                    CustomerItemDetail::model()->deleteAll("company_id = '" . $customer_item->company_id . "' AND customer_item_detail_id = " . $customer_item_detail_ids_to_be_delete[$y]);
+                                    ProofOfDeliveryDetail::model()->deleteAll("company_id = '" . $customer_item->company_id . "' AND customer_item_detail_id = " . $customer_item_detail_ids_to_be_delete[$y]);
+                                }
+                            }
+                        }
                     }
                 }
             } else {

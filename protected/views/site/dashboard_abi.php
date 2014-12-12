@@ -10,6 +10,8 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
 <style type="text/css">
 
     #notification_table tbody tr { cursor: pointer }
+    
+    sup { font-weight: bold; }
 
 </style>
 
@@ -115,7 +117,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
             <table id="incoming_inbound_table" class="table table-bordered table-hover">
                 <thead>
                     <tr>
-                        <th>Transaction Date</th>
+                        <th style="width: 70px;">Date</th>
                         <th>Transaction Type</th>
                         <th>PR No.</th>
                         <th>RA No.</th>
@@ -142,12 +144,12 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
             <table id="outgoing_outbound_table" class="table table-bordered table-hover">
                 <thead>
                     <tr>
-                        <th>Transaction Date</th>
+                        <th style="width: 70px;">Date</th>
                         <th>Transaction Type</th>
                         <th>PR No.</th>
                         <th>RA No.</th>
                         <th>DR No.</th>
-                        <th>Destination Zone</th>
+                        <th>Outlet / Destination Zone</th>
                         <th>Plan Delivery Date</th>
                         <th>Quantity</th>
                         <th>Amount</th>
@@ -167,7 +169,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
             <table id="returnables_table" class="table table-bordered table-hover">
                 <thead>
                     <tr>
-                        <th>Transaction Date</th>
+                        <th style="width: 70px;">Date</th>
                         <th>Transaction Type</th>
                         <th>PR No.</th>
                         <th>DR No.</th>
@@ -390,7 +392,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                     v.pr_no,
                     v.ra_no,
                     v.dr_no,
-                    v.source,
+                    v.destination,
                     v.plan_delivery_date,
                     v.qty,
                     v.amount,

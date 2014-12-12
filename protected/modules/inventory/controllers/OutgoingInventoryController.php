@@ -194,7 +194,15 @@ class OutgoingInventoryController extends Controller {
         $model = $this->loadModel($id);
 
         $this->pageTitle = "View " . OutgoingInventory::OUTGOING_LABEL . ' Inventory';
-        $this->layout = '//layouts/column1';
+
+        $visible = $model->status == OutgoingInventory::OUTGOING_PENDING_STATUS ? true : false;
+
+        $this->menu = array(
+            array('label' => "Create " . OutgoingInventory::OUTGOING_LABEL . ' Inventory', 'url' => array('create')),
+            array('label' => "Update " . OutgoingInventory::OUTGOING_LABEL . ' Inventory', 'url' => '#', 'linkOptions' => array('submit' => array('update', 'id' => $model->outgoing_inventory_id)), "visible" => $visible),
+            array('label' => "Delete " . OutgoingInventory::OUTGOING_LABEL . ' Inventory', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->outgoing_inventory_id), 'confirm' => 'Are you sure you want to delete this item?')),
+            array('label' => "Manage " . OutgoingInventory::OUTGOING_LABEL . ' Inventory', 'url' => array('admin')),
+        );
 
         $c = new CDbCriteria;
         $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.outgoing_inventory_id = '" . $model->outgoing_inventory_id . "'";
@@ -222,6 +230,12 @@ class OutgoingInventoryController extends Controller {
         $po_no_arr = array();
         $pr_dates = "";
         $pr_dates_arr = array();
+        $source_zones = "";
+        $source_zones_arr = array();
+        $source_address = "";
+        $source_contact_person = "";
+        $source_contact_no = "";
+        $i = $x = $y = $z = 1;
         foreach ($outgoing_detail as $key => $val) {
             $zone_ids .= "'" . $val->source_zone_id . "',";
 
@@ -239,12 +253,32 @@ class OutgoingInventoryController extends Controller {
                 array_push($pr_dates_arr, $val->pr_date);
                 $pr_dates .= $val->pr_date . ",";
             }
+
+            if (!in_array($val->source_zone_id, $source_zones_arr)) {
+                array_push($source_zones_arr, $val->source_zone_id);
+
+                $inc_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $val->source_zone_id));
+                $source_zones .= "<sup>" . $i++ . ".</sup> " . $inc_source_zone->zone_name . " <i class='text-muted'>(" . $inc_source_zone->salesOffice->sales_office_name . ")</i><br/>";
+                $source_address .= isset($inc_source_zone->salesOffice->address1) ? "<sup>" . $x++ . ".</sup> " . $inc_source_zone->salesOffice->address1 . "<br/>" : "";
+
+                $c3 = new CDbCriteria;
+                $c3->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
+                $c3->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $val->source_zone_id . "'";
+                $source_employee = Employee::model()->find($c3);
+                $source_contact_person .= isset($source_employee) ? "<sup>" . $y++ . ".</sup> " . $source_employee->fullname . "<br/>" : "";
+                $source_contact_no .= isset($source_employee) ? "<sup>" . $z++ . ".</sup> " . $source_employee->work_phone_number . "<br/>" : "";
+            }
         }
 
         $pr_nos = substr($pr_nos, 0, -1);
         $pr_dates = substr($pr_dates, 0, -1);
         $po_nos = substr($po_nos, 0, -1);
 
+        $source = array();
+        $source['source_zone_name_so_name'] = $source_zones;
+        $source['contact_person'] = $source_contact_person;
+        $source['contact_no'] = $source_contact_no;
+        $source['address'] = $source_address;
 
         $this->render('view', array(
             'model' => $model,
@@ -252,6 +286,7 @@ class OutgoingInventoryController extends Controller {
             'pr_nos' => $pr_nos,
             'pr_dates' => $pr_dates,
             'po_nos' => $po_nos,
+            'source' => $source,
         ));
     }
 
@@ -556,8 +591,9 @@ class OutgoingInventoryController extends Controller {
 
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
                             $outgoing_inv_ids_to_be_delete = isset($_POST['outgoing_inv_ids']) ? $_POST['outgoing_inv_ids'] : "";
+                            $deletedTransactionRowData = isset($_POST['deletedTransactionRowData']) ? $_POST['deletedTransactionRowData'] : array();
 
-                            if ($outgoing->updateTransaction($outgoing, $outgoing_inv_ids_to_be_delete, $transaction_details)) {
+                            if ($outgoing->updateTransaction($outgoing, $outgoing_inv_ids_to_be_delete, $transaction_details, $deletedTransactionRowData)) {
                                 $data['outgoing_inv_id'] = Yii::app()->session['outgoing_inv_id_update_session'];
                                 unset(Yii::app()->session['outgoing_inv_id_update_session']);
                                 $data['message'] = 'Successfully updated';
@@ -1143,6 +1179,7 @@ class OutgoingInventoryController extends Controller {
             $row['expiration_date'] = $val['expiration_date'];
             $row['amount'] = $val['amount'];
             $row['remarks'] = $val['remarks'];
+            $row['return_date'] = $val['return_date'];
 
             $details[] = $row;
         }
@@ -1299,7 +1336,7 @@ class OutgoingInventoryController extends Controller {
                     <td style="font-weight: bold; width: 40px;">UOM</td>
                     <td style="font-weight: bold;">UNIT PRICE</td>
                     <td style="font-weight: bold;">AMOUNT</td>
-                    <td style="font-weight: bold;">EXPIRY DATE</td>
+                    <td style="font-weight: bold;">RETURN DATE</td>
                     <td style="font-weight: bold;">REMARKS</td>
                 </tr>';
 
@@ -1320,7 +1357,7 @@ class OutgoingInventoryController extends Controller {
                             <td>' . $uom->uom_name . '</td>
                         <td class="align-right">&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
                         <td class="align-right">&#x20B1; ' . number_format($val['amount'], 2, '.', ',') . '</td>
-                            <td>' . $val['expiration_date'] . '</td>
+                            <td>' . $val['return_date'] . '</td>
                             <td>' . $val['remarks'] . '</td>
                         </tr>';
 
@@ -1515,6 +1552,7 @@ class OutgoingInventoryController extends Controller {
             $row['expiration_date'] = $val->expiration_date;
             $row['amount'] = $val->amount;
             $row['remarks'] = $val->remarks;
+            $row['return_date'] = $val->return_date;
 
             $details[] = $row;
         }

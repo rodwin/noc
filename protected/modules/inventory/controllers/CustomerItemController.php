@@ -125,7 +125,15 @@ class CustomerItemController extends Controller {
         $model = $this->loadModel($id);
 
         $this->pageTitle = "View " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory';
-        $this->layout = '//layouts/column1';
+
+        $visible = $model->status == OutgoingInventory::OUTGOING_PENDING_STATUS ? true : false;
+
+        $this->menu = array(
+            array('label' => "Create " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory', 'url' => array('create')),
+            array('label' => "Update " . OutgoingInventory::OUTGOING_LABEL . ' Inventory', 'url' => '#', 'linkOptions' => array('submit' => array('update', 'id' => $model->customer_item_id)), "visible" => $visible),
+            array('label' => "Delete " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->customer_item_id), 'confirm' => 'Are you sure you want to delete this item?')),
+            array('label' => "Manage " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory', 'url' => array('admin')),
+        );
 
         $c = new CDbCriteria;
         $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.customer_item_id = '" . $model->customer_item_id . "'";
@@ -162,6 +170,12 @@ class CustomerItemController extends Controller {
         $po_no_arr = array();
         $pr_dates = "";
         $pr_dates_arr = array();
+        $source_zones = "";
+        $source_zones_arr = array();
+        $source_address = "";
+        $source_contact_person = "";
+        $source_contact_no = "";
+        $i = $x = $y = $z = 1;
         foreach ($customer_item_detail as $key => $val) {
             $zone_ids .= "'" . $val->source_zone_id . "',";
 
@@ -179,12 +193,37 @@ class CustomerItemController extends Controller {
                 array_push($pr_dates_arr, $val->pr_date);
                 $pr_dates .= $val->pr_date . ",";
             }
+
+            if (!in_array($val->source_zone_id, $source_zones_arr)) {
+                array_push($source_zones_arr, $val->source_zone_id);
+
+                $inc_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $val->source_zone_id));
+                $source_zones .= "<sup>" . $i++ . ".</sup> " . $inc_source_zone->zone_name . " <i class='text-muted'>(" . $inc_source_zone->salesOffice->sales_office_name . ")</i><br/>";
+                $source_address .= isset($inc_source_zone->salesOffice->address1) ? "<sup>" . $x++ . ".</sup> " . $inc_source_zone->salesOffice->address1 . "<br/>" : "";
+
+                $c3 = new CDbCriteria;
+                $c3->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
+                $c3->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $val->source_zone_id . "'";
+                $source_employee = Employee::model()->find($c3);
+                $source_contact_person .= isset($source_employee) ? "<sup>" . $y++ . ".</sup> " . $source_employee->fullname . "<br/>" : "";
+                $source_contact_no .= isset($source_employee) ? "<sup>" . $z++ . ".</sup> " . $source_employee->work_phone_number . "<br/>" : "";
+            }
         }
 
         $pr_nos = substr($pr_nos, 0, -1);
         $pr_dates = substr($pr_dates, 0, -1);
         $po_nos = substr($po_nos, 0, -1);
 
+        $source = array();
+        $source['source_zone_name_so_name'] = $source_zones;
+        $source['contact_person'] = $source_contact_person;
+        $source['contact_no'] = $source_contact_no;
+        $source['address'] = $source_address;
+
+        $c2 = new CDbCriteria;
+        $c2->select = new CDbExpression('t.*, CONCAT(t.first_name, " ", t.last_name) AS fullname');
+        $c2->condition = 't.company_id = "' . Yii::app()->user->company_id . '" AND t.employee_id = "' . $model->salesman_id . '"';
+        $employee = Employee::model()->find($c2);
 
         $this->render('view', array(
             'model' => $model,
@@ -192,6 +231,8 @@ class CustomerItemController extends Controller {
             'pr_nos' => $pr_nos,
             'pr_dates' => $pr_dates,
             'po_nos' => $po_nos,
+            'employee' => $employee,
+            'source' => $source,
         ));
     }
 
@@ -569,8 +610,9 @@ class CustomerItemController extends Controller {
 
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
                             $customer_item_detail_ids_to_be_delete = isset($_POST['customer_item_detail_ids']) ? $_POST['customer_item_detail_ids'] : "";
+                            $deletedTransactionRowData = isset($_POST['deletedTransactionRowData']) ? $_POST['deletedTransactionRowData'] : array();
 
-                            if ($customer_item->updateTransaction($customer_item, $customer_item_detail_ids_to_be_delete, $transaction_details)) {
+                            if ($customer_item->updateTransaction($customer_item, $customer_item_detail_ids_to_be_delete, $transaction_details, $deletedTransactionRowData)) {
                                 $data['customer_item_id'] = Yii::app()->session['customer_item_id_update_session'];
                                 unset(Yii::app()->session['customer_item_id_update_session']);
                                 $data['message'] = 'Successfully updated';
@@ -725,7 +767,7 @@ class CustomerItemController extends Controller {
                     'plan_arrival_date' => $customer_item_detail->plan_arrival_date,
                 )
         );
-        
+
         $qty_issued = $customer_item_detail->quantity_issued;
 
         if ($customer_item_detail) {
@@ -1102,6 +1144,7 @@ class CustomerItemController extends Controller {
             $row['expiration_date'] = $val['expiration_date'];
             $row['amount'] = $val['amount'];
             $row['remarks'] = $val['remarks'];
+            $row['return_date'] = $val['return_date'];
 
             $details[] = $row;
         }
@@ -1263,7 +1306,7 @@ class CustomerItemController extends Controller {
                     <td style="font-weight: bold; width: 65px;">ALLOCATION</td>
                     <td style="font-weight: bold; width: 55px;">QUANTITY ISSUED</td>
                     <td style="font-weight: bold; width: 40px;">UOM</td>
-                    <td style="font-weight: bold;">EXPIRY DATE</td>
+                    <td style="font-weight: bold;">RETURN DATE</td>
                     <td style="font-weight: bold;">REMARKS</td>
                 </tr>';
 
@@ -1283,7 +1326,7 @@ class CustomerItemController extends Controller {
                             <td>' . $val['planned_quantity'] . '</td>
                             <td>' . $val['quantity_issued'] . '</td>
                             <td>' . $uom_name . '</td>
-                            <td>' . $val['expiration_date'] . '</td>
+                            <td>' . $val['return_date'] . '</td>
                             <td>' . $val['remarks'] . '</td>
                         </tr>';
 
@@ -1443,6 +1486,7 @@ class CustomerItemController extends Controller {
             $row['expiration_date'] = $val->expiration_date;
             $row['amount'] = $val->amount;
             $row['remarks'] = $val->remarks;
+            $row['return_date'] = $val->return_date;
 
             $details[] = $row;
         }

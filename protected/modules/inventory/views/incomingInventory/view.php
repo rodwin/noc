@@ -26,104 +26,103 @@ $this->breadcrumbs = array(
 
 <?php $not_set = "<i class='text-muted'>Not Set</i>"; ?>
 
-<div class="content invoice" style="width: 100%;">
-    <div class="row">
+<div class="row panel panel-default">
 
-        <div class="col-sm-6">
+    <div class="col-sm-6">
 
-            <h5 class="control-label text-primary text_bold">From</h5>
-            <table class="table table-bordered table-condensed">
-                <tr>
-                    <td colspan="2"><strong class="source_name"><i class="text-muted">Not Set</i></strong></td>
-                </tr>
-                <tr>
-                    <td class="first_col_left_table"><strong>Address:</strong></td><td><span class="source_address"></span></td>
-                </tr>
-                <tr>
-                    <td><strong>Contact Person:</strong></td><td><span class="source_contact_person"></span></td>
-                </tr>
-                <tr>
-                    <td><strong>Contact Number:</strong></td><td><span class="source_contact_no"></span></td>
-                </tr>
-            </table>
+        <h5 class="control-label text-primary text_bold">From</h5>
+        <table class="table table-bordered table-condensed">
+            <tr>
+                <td colspan="2"><strong><?php echo $source['source_zone_name_so_name']; ?></strong></td>
+            </tr>
+            <tr>
+                <td class="first_col_left_table"><strong>Address:</strong></td><td><strong><?php echo $source['address']; ?></strong></td>
+            </tr>
+            <tr>
+                <td><strong>Contact Person:</strong></td><td><strong><?php echo $source['contact_person']; ?></strong></td>
+            </tr>
+            <tr>
+                <td><strong>Contact Number:</strong></td><td><strong><?php echo $source['contact_no']; ?></strong></td>
+            </tr>
+        </table>
 
-            <h5 class="control-label text-primary text_bold">To</h5>
-            <table class="table table-bordered table-condensed">
-                <tr>
-                    <td colspan="2"><strong><?php echo $destination['zone_name']; ?></strong> <i class="text-muted">(<?php echo $destination['destination_sales_office_name']; ?>)</i></td>
-                </tr>
-                <tr>
-                    <td class="first_col_left_table"><strong>Address:</strong></td><td><?php echo $destination['address']; ?></td>
-                </tr>
-                <tr>
-                    <td><strong>Contact Person:</strong></td><td><?php echo $destination['contact_person']; ?></td>
-                </tr>
-                <tr>
-                    <td><strong>Contact Number:</strong></td><td><?php echo $destination['contact_no']; ?></td>
-                </tr>
-            </table>
+        <h5 class="control-label text-primary text_bold">To</h5>
+        <table class="table table-bordered table-condensed">
+            <tr>
+                <td colspan="2"><strong><?php echo $destination['zone_name']; ?></strong> <i class="text-muted">(<?php echo $destination['destination_sales_office_name']; ?>)</i></td>
+            </tr>
+            <tr>
+                <td class="first_col_left_table"><strong>Address:</strong></td><td><?php echo $destination['address']; ?></td>
+            </tr>
+            <tr>
+                <td><strong>Contact Person:</strong></td><td><?php echo $destination['contact_person']; ?></td>
+            </tr>
+            <tr>
+                <td><strong>Contact Number:</strong></td><td><?php echo $destination['contact_no']; ?></td>
+            </tr>
+        </table>
 
-        </div>
+    </div>
 
-        <div class="col-sm-6">
-            <table class="table table-bordered table-condensed">
-                <tr>
-                    <td class="first_col_right_table"><strong><?php echo $incomingFields['transaction_date'] ?>:</strong></td>
-                    <td><?php echo $model->transaction_date; ?></td>
-                </tr>
-            </table>
+    <div class="col-sm-6"><br/>
+        <table class="table table-bordered table-condensed">
+            <tr>
+                <td class="first_col_right_table"><strong><?php echo $incomingFields['transaction_date'] ?>:</strong></td>
+                <td><?php echo $model->transaction_date; ?></td>
+            </tr>
+        </table>
 
-            <table class="table table-bordered table-condensed">
-                <tr>
-                    <td class="first_col_right_table"><strong><?php echo $incomingFields['plan_delivery_date'] ?>:</strong></td>
-                    <td><?php echo $model->plan_delivery_date != "" ? $model->plan_delivery_date : $not_set; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $incomingDetailFields['pr_no'] ?>:</strong></td>
-                    <td><?php echo $pr_nos != "" ? $pr_nos : $not_set; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $incomingDetailFields['po_no'] ?>:</strong></td>
-                    <td><?php echo $po_nos != "" ? $po_nos : $not_set; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $incomingFields['rra_no'] ?>:</strong></td>
-                    <td><?php echo $model->rra_no != "" ? $model->rra_no : $not_set; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $incomingFields['rra_date'] ?>:</strong></td>
-                    <td><?php echo $model->rra_date != "" ? $model->rra_date : $not_set; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $incomingFields['dr_no'] ?>:</strong></td>
-                    <td><?php echo $model->dr_no; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $incomingFields['dr_date']; ?>:</strong></td>
-                    <td><?php echo $model->dr_date; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $incomingDetailFields['status'] ?>:</strong></td>
-                    <td><?php echo Inventory::model()->status($model->status); ?></td>
-                </tr>
-            </table>
+        <table class="table table-bordered table-condensed">
+            <tr>
+                <td class="first_col_right_table"><strong><?php echo $incomingFields['plan_delivery_date'] ?>:</strong></td>
+                <td><?php echo $model->plan_delivery_date != "" ? $model->plan_delivery_date : $not_set; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $incomingDetailFields['pr_no'] ?>:</strong></td>
+                <td><?php echo $pr_nos != "" ? $pr_nos : $not_set; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $incomingDetailFields['po_no'] ?>:</strong></td>
+                <td><?php echo $po_nos != "" ? $po_nos : $not_set; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $incomingFields['rra_no'] ?>:</strong></td>
+                <td><?php echo $model->rra_no != "" ? $model->rra_no : $not_set; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $incomingFields['rra_date'] ?>:</strong></td>
+                <td><?php echo $model->rra_date != "" ? $model->rra_date : $not_set; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $incomingFields['dr_no'] ?>:</strong></td>
+                <td><?php echo $model->dr_no; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $incomingFields['dr_date']; ?>:</strong></td>
+                <td><?php echo $model->dr_date; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $incomingDetailFields['status'] ?>:</strong></td>
+                <td><?php echo Inventory::model()->status($model->status); ?></td>
+            </tr>
+        </table>
 
-            <table class="table table-bordered table-condensed">
-                <tr>
-                    <td><strong><?php echo $incomingFields['remarks'] ?>:</strong></td>
-                </tr>
-                <tr>
-                    <td><?php echo $model->remarks != "" ? $model->remarks : $not_set; ?></td>
-                </tr>
-            </table>
-        </div>
+        <table class="table table-bordered table-condensed">
+            <tr>
+                <td><strong><?php echo $incomingFields['remarks'] ?>:</strong></td>
+            </tr>
+            <tr>
+                <td><?php echo $model->remarks != "" ? $model->remarks : $not_set; ?></td>
+            </tr>
+        </table>
+    </div>
 
-        <br/>
+    <br/>
 
-        <div class="col-xs-12">
-            <div class="table-responsive">
-                <h5 class="control-label text-primary text_bold">Item Details</h5>
-
+    <div class="col-xs-12">
+        <div class="table-responsive">
+            <h5 class="control-label text-primary text_bold">Item Details</h5>
+            <div  style="overflow-x: scroll;">
                 <table id="incoming-inv-detail_table" class="table table-bordered">
                     <thead>
                         <tr>
@@ -142,24 +141,23 @@ $this->breadcrumbs = array(
                             <th><?php echo $incomingDetailFields['status']; ?></th>
                         </tr>                                    
                     </thead>
-                </table>                            
+                </table>  
             </div>
-        </div>
-
-        <div class="col-md12">
-
-            <div class="col-md-6 pull-right">
-                <p class="lead big text-right">Total Amount: &nbsp;&nbsp; &#x20B1; <?php echo number_format($model->total_amount, 2, '.', ','); ?></p>
-            </div>
-
-            <div class="col-md-6 pull-left">
-                <button id="btn_print" class="btn btn-default"><i class="fa fa-print"></i> Print</button>
-            </div>
-        </div>
-
+        </div><br/>
     </div>
-</div>
 
+    <div class="col-md12">
+
+        <div class="col-md-6 pull-right">
+            <p class="lead big text-right">Total Amount: &nbsp;&nbsp; &#x20B1; <?php echo number_format($model->total_amount, 2, '.', ','); ?></p>
+        </div>
+
+        <div class="col-md-6 pull-left">
+            <button id="btn_print" class="btn btn-default"><i class="fa fa-print"></i> Print</button>
+        </div>
+    </div>
+
+</div>
 
 <script type="text/javascript">
 

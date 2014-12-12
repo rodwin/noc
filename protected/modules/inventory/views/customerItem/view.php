@@ -26,104 +26,107 @@ $this->breadcrumbs = array(
 
 <?php $not_set = "<i class='text-muted'>Not Set</i>"; ?>
 
-<div class="content invoice" style="width: 100%;">
-    <div class="row">
+<div class="row panel panel-default">
 
-        <div class="col-sm-6">
+    <div class="col-sm-6">
 
-            <h5 class="control-label text-primary text_bold">From</h5>
-            <table class="table table-bordered table-condensed">
-                <tr>
-                    <td colspan="2"><strong class="source_name"><i class="text-muted">Not Set</i></strong></td>
-                </tr>
-                <tr>
-                    <td class="first_col_left_table"><strong>Address:</strong></td><td><span class="source_address"></span></td>
-                </tr>
-                <tr>
-                    <td><strong>Contact Person:</strong></td><td><span class="source_contact_person"></span></td>
-                </tr>
-                <tr>
-                    <td><strong>Contact Number:</strong></td><td><span class="source_contact_no"></span></td>
-                </tr>
-            </table>
+        <h5 class="control-label text-primary text_bold">From</h5>
+        <table class="table table-bordered table-condensed">
+            <tr>
+                <td colspan="2"><strong><?php echo $source['source_zone_name_so_name']; ?></strong></td>
+            </tr>
+            <tr>
+                <td class="first_col_left_table"><strong>Address:</strong></td><td><strong><?php echo $source['address']; ?></strong></td>
+            </tr>
+            <tr>
+                <td><strong>Contact Person:</strong></td><td><strong><?php echo $source['contact_person']; ?></strong></td>
+            </tr>
+            <tr>
+                <td><strong>Contact Number:</strong></td><td><strong><?php echo $source['contact_no']; ?></strong></td>
+            </tr>
+        </table>
 
-            <h5 class="control-label text-primary text_bold">To</h5>
-            <table class="table table-bordered table-condensed">
-                <tr>
-                    <td colspan="2"><strong><?php echo $destination['poi_name']; ?></strong> <i class="text-muted">(<?php echo $destination['poi_code']; ?>)</i></td>
-                </tr>
-                <tr>
-                    <td class="first_col_left_table"><strong>Address:</strong></td><td><?php echo $destination['address']; ?></td>
-                </tr>
-                <tr>
-                    <td><strong>Contact Person:</strong></td><td><?php echo $destination['contact_person']; ?></td>
-                </tr>
-                <tr>
-                    <td><strong>Contact Number:</strong></td><td><?php echo $destination['contact_no']; ?></td>
-                </tr>
-            </table>
+        <h5 class="control-label text-primary text_bold">To</h5>
+        <table class="table table-bordered table-condensed">
+            <tr>
+                <td colspan="2"><strong><?php echo $destination['poi_name']; ?></strong> <i class="text-muted">(<?php echo $destination['poi_code']; ?>)</i></td>
+            </tr>
+            <tr>
+                <td class="first_col_left_table"><strong>Address:</strong></td><td><?php echo $destination['address']; ?></td>
+            </tr>
+            <tr>
+                <td><strong>Contact Person:</strong></td><td><?php echo $destination['contact_person']; ?></td>
+            </tr>
+            <tr>
+                <td><strong>Contact Number:</strong></td><td><?php echo $destination['contact_no']; ?></td>
+            </tr>
+        </table>
 
-        </div>
+    </div>
 
-        <div class="col-sm-6">
-            <table class="table table-bordered table-condensed">
-                <tr>
-                    <td class="first_col_right_table"><strong><?php echo $customerItemFields['transaction_date']; ?>:</strong></td>
-                    <td><?php echo $model->transaction_date; ?></td>
-                </tr>
-            </table>
+    <div class="col-sm-6"><br/>
+        <table class="table table-bordered table-condensed">
+            <tr>
+                <td class="first_col_right_table"><strong><?php echo $customerItemFields['transaction_date']; ?>:</strong></td>
+                <td><?php echo $model->transaction_date; ?></td>
+            </tr>
+        </table>
 
-            <table class="table table-bordered table-condensed">
-                <tr>
-                    <td class="first_col_right_table"><strong><?php echo $customerItemFields['plan_delivery_date']; ?>:</strong></td>
-                    <td><?php echo $model->plan_delivery_date != "" ? $model->plan_delivery_date : $not_set; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $customerItemDetailFields['pr_no']; ?>:</strong></td>
-                    <td><?php echo $pr_nos != "" ? $pr_nos : $not_set; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $customerItemDetailFields['po_no']; ?>:</strong></td>
-                    <td><?php echo $po_nos != "" ? $po_nos : $not_set; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $customerItemFields['rra_no']; ?>:</strong></td>
-                    <td><?php echo $model->rra_no != "" ? $model->rra_no : $not_set; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $customerItemFields['rra_date']; ?>:</strong></td>
-                    <td><?php echo $model->rra_date != "" ? $model->rra_date : $not_set; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $customerItemFields['dr_no']; ?>:</strong></td>
-                    <td><?php echo $model->dr_no; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $customerItemFields['dr_date']; ?>:</strong></td>
-                    <td><?php echo $model->dr_date; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $customerItemDetailFields['status']; ?>:</strong></td>
-                    <td><?php echo Inventory::model()->status($model->status); ?></td>
-                </tr>
-            </table>
+        <table class="table table-bordered table-condensed">
+            <tr>
+                <td class="first_col_right_table"><strong><?php echo $customerItemFields['plan_delivery_date']; ?>:</strong></td>
+                <td><?php echo $model->plan_delivery_date != "" ? $model->plan_delivery_date : $not_set; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $customerItemDetailFields['pr_no']; ?>:</strong></td>
+                <td><?php echo $pr_nos != "" ? $pr_nos : $not_set; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $customerItemDetailFields['po_no']; ?>:</strong></td>
+                <td><?php echo $po_nos != "" ? $po_nos : $not_set; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $customerItemFields['rra_no']; ?>:</strong></td>
+                <td><?php echo $model->rra_no != "" ? $model->rra_no : $not_set; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $customerItemFields['rra_date']; ?>:</strong></td>
+                <td><?php echo $model->rra_date != "" ? $model->rra_date : $not_set; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $customerItemFields['dr_no']; ?>:</strong></td>
+                <td><?php echo $model->dr_no; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $customerItemFields['dr_date']; ?>:</strong></td>
+                <td><?php echo $model->dr_date; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $customerItemDetailFields['status']; ?>:</strong></td>
+                <td><?php echo Inventory::model()->status($model->status); ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $customerItemFields['salesman_id']; ?>:</strong></td>
+                <td><?php echo isset($employee->fullname) ? $employee->fullname : $not_set; ?></td>
+            </tr>
+        </table>
 
-            <table class="table table-bordered table-condensed">
-                <tr>
-                    <td><strong><?php echo $customerItemFields['remarks']; ?>:</strong></td>
-                </tr>
-                <tr>
-                    <td><?php echo $model->remarks != "" ? $model->remarks : $not_set; ?></td>
-                </tr>
-            </table>
-        </div>
+        <table class="table table-bordered table-condensed">
+            <tr>
+                <td><strong><?php echo $customerItemFields['remarks']; ?>:</strong></td>
+            </tr>
+            <tr>
+                <td><?php echo $model->remarks != "" ? $model->remarks : $not_set; ?></td>
+            </tr>
+        </table>
+    </div>
 
-        <br/>
+    <br/>
 
-        <div class="col-xs-12">
-            <div class="table-responsive">
-                <h5 class="control-label text-primary text_bold">Item Details</h5>
-
+    <div class="col-xs-12">
+        <div class="table-responsive">
+            <h5 class="control-label text-primary text_bold">Item Details</h5>
+            <div  style="overflow-x: scroll;">
                 <table id="customer-item-detail_table" class="table table-bordered">
                     <thead>
                         <tr>
@@ -134,7 +137,7 @@ $this->breadcrumbs = array(
                             <th><?php echo $customerItemDetailFields['uom_id']; ?></th>
                             <th><?php echo $customerItemDetailFields['unit_price']; ?></th>
                             <th><?php echo $customerItemDetailFields['batch_no']; ?></th>
-                            <th><?php echo $customerItemDetailFields['expiration_date']; ?></th>
+                            <th><?php echo $customerItemDetailFields['return_date']; ?></th>
                             <th><?php echo $customerItemDetailFields['planned_quantity']; ?></th>
                             <th><?php echo $customerItemDetailFields['quantity_issued']; ?></th>
                             <th><?php echo $customerItemDetailFields['amount']; ?></th>
@@ -142,24 +145,23 @@ $this->breadcrumbs = array(
                             <th><?php echo $customerItemDetailFields['status']; ?></th>
                         </tr>                                    
                     </thead>
-                </table>                            
+                </table>       
             </div>
-        </div>
-
-        <div class="col-md12">
-
-            <div class="col-md-6 pull-right">
-                <p class="lead big text-right">Total Amount: &nbsp;&nbsp; &#x20B1; <?php echo number_format($model->total_amount, 2, '.', ','); ?></p>
-            </div>
-
-            <div class="col-md-6 pull-left">
-                <button id="btn_print" class="btn btn-default"><i class="fa fa-print"></i> Print</button>
-            </div>
-        </div>
-
+        </div><br/>
     </div>
-</div>
 
+    <div class="col-md12">
+
+        <div class="col-md-6 pull-right">
+            <p class="lead big text-right">Total Amount: &nbsp;&nbsp; &#x20B1; <?php echo number_format($model->total_amount, 2, '.', ','); ?></p>
+        </div>
+
+        <div class="col-md-6 pull-left">
+            <button id="btn_print" class="btn btn-default"><i class="fa fa-print"></i> Print</button>
+        </div>
+    </div>
+
+</div>
 
 <script type="text/javascript">
 
@@ -182,7 +184,7 @@ $this->breadcrumbs = array(
                 {"name": "uom_name", "data": "uom_name"},
                 {"name": "unit_price", "data": "unit_price"},
                 {"name": "batch_no", "data": "batch_no"},
-                {"name": "expiration_date", "data": "expiration_date"},
+                {"name": "return_date", "data": "return_date"},
                 {"name": "planned_quantity", "data": "planned_quantity"},
                 {"name": "quantity_issued", "data": "quantity_issued"},
                 {"name": "amount", "data": "amount"},
