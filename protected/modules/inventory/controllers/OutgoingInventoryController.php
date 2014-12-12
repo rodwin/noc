@@ -259,9 +259,11 @@ class OutgoingInventoryController extends Controller {
             if (!in_array($source_zone_id, $source_zones_arr)) {
                 array_push($source_zones_arr, $source_zone_id);
 
-                $inc_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $source_zone_id));
-                $source_zones .= "<sup>" . $i++ . ".</sup> " . $inc_source_zone->zone_name . " <i class='text-muted'>(" . $inc_source_zone->salesOffice->sales_office_name . ")</i><br/>";
-                $source_address .= isset($inc_source_zone->salesOffice->address1) ? "<sup>" . $x++ . ".</sup> " . $inc_source_zone->salesOffice->address1 . "<br/>" : "";
+                $out_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $source_zone_id));
+                if ($out_source_zone) {
+                    $source_zones .= "<sup>" . $i++ . ".</sup> " . $out_source_zone->zone_name . " <i class='text-muted'>(" . $out_source_zone->salesOffice->sales_office_name . ")</i><br/>";
+                    $source_address .= isset($out_source_zone->salesOffice->address1) ? "<sup>" . $x++ . ".</sup> " . $out_source_zone->salesOffice->address1 . "<br/>" : "";
+                }
 
                 $c3 = new CDbCriteria;
                 $c3->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
@@ -1574,7 +1576,7 @@ class OutgoingInventoryController extends Controller {
                 array_push($po_no_arr, $val->po_no);
                 $po_nos .= $val->po_no . ",";
             }
-            
+
             $source_zone_id = $val->source_zone_id;
 
             if (!in_array($source_zone_id, $source_zones_arr)) {
