@@ -176,7 +176,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             </div>
             <div class="pull-right col-md-7">
 
-                <?php echo $form->textFieldGroup($customer_item, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'value' => date("Y-m-d"), 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask', 'disabled' => $customer_item->isNewRecord ? false : true)), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($customer_item, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'value' => date("Y-m-d"), 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask', 'readonly' => $customer_item->isNewRecord ? false : true)), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($customer_item, 'plan_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
@@ -1079,7 +1079,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         $("#delete_row_btn").hide();
     }
-    
+
     var deletedTransactionRowData = new Array();
     var customer_item_detail_ids = new Array();
     function pushDeletedTransactionRowData(row_data) {
@@ -1120,10 +1120,18 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     $(function() {
-        $('#CustomerItem_transaction_date, #CustomerItem_rra_date, #CustomerItem_plan_delivery_date, #CustomerItemDetail_expiration_date, #CustomerItemDetail_return_date').datepicker({
+        $('#CustomerItem_rra_date, #CustomerItem_plan_delivery_date, #CustomerItemDetail_expiration_date, #CustomerItemDetail_return_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'});
+
+<?php if ($customer_item->isNewRecord) { ?>
+            $('#CustomerItem_transaction_date').datepicker({
+                timePicker: false,
+                format: 'YYYY-MM-DD',
+                applyClass: 'btn-primary'
+            });
+<?php } ?>
     });
 
     function printPDF(data) {
