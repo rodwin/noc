@@ -797,7 +797,7 @@ class InventoryController extends Controller {
             $row['pr_no'] = $v1->pr_no;
             $row['ra_no'] = "";
             $row['dr_no'] = $v1->dr_no;
-            $row['source'] = "<sup>1.</sup> " . $supplier->supplier_name;
+            $row['source'] = $supplier->supplier_name;
             $row['plan_delivery_date'] = isset($v1->plan_delivery_date) ? date("d-M", strtotime($v1->plan_delivery_date)) : "";
             $row['qty'] = number_format($v1->total_quantity);
             $row['amount'] = "&#x20B1;" . number_format($v1->total_amount, 2, '.', ',');
@@ -946,7 +946,7 @@ class InventoryController extends Controller {
             $row['pr_no'] = substr(trim($outgoing_pr_nos), 0, -1);
             $row['ra_no'] = $v4->rra_no;
             $row['dr_no'] = $v4->dr_no;
-            $row['destination'] = "<sup>1.</sup> " . $poi->short_name;
+            $row['destination'] = $poi->short_name;
             $row['plan_delivery_date'] = isset($v4->plan_delivery_date) ? date("d-M", strtotime($v4->plan_delivery_date)) : "";
             $row['qty'] = number_format($v4->total_quantity);
             $row['amount'] = "&#x20B1;" . number_format($v4->total_amount, 2, '.', ',');

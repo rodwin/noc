@@ -194,16 +194,18 @@ class CustomerItemController extends Controller {
                 $pr_dates .= $val->pr_date . ",";
             }
 
-            if (!in_array($val->source_zone_id, $source_zones_arr)) {
-                array_push($source_zones_arr, $val->source_zone_id);
+            $source_zone_id = $val->source_zone_id;
 
-                $inc_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $val->source_zone_id));
+            if (!in_array($source_zone_id, $source_zones_arr)) {
+                array_push($source_zones_arr, $source_zone_id);
+
+                $inc_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $source_zone_id));
                 $source_zones .= "<sup>" . $i++ . ".</sup> " . $inc_source_zone->zone_name . " <i class='text-muted'>(" . $inc_source_zone->salesOffice->sales_office_name . ")</i><br/>";
                 $source_address .= isset($inc_source_zone->salesOffice->address1) ? "<sup>" . $x++ . ".</sup> " . $inc_source_zone->salesOffice->address1 . "<br/>" : "";
 
                 $c3 = new CDbCriteria;
                 $c3->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
-                $c3->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $val->source_zone_id . "'";
+                $c3->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $source_zone_id . "'";
                 $source_employee = Employee::model()->find($c3);
                 $source_contact_person .= isset($source_employee) ? "<sup>" . $y++ . ".</sup> " . $source_employee->fullname . "<br/>" : "";
                 $source_contact_no .= isset($source_employee) ? "<sup>" . $z++ . ".</sup> " . $source_employee->work_phone_number . "<br/>" : "";
@@ -1119,6 +1121,11 @@ class CustomerItemController extends Controller {
         $pr_no_arr = array();
         $po_nos = "";
         $po_no_arr = array();
+        $source_zones = "";
+        $source_zones_arr = array();
+        $source_address = "";
+        $source_contact_person = "";
+        $i = $x = $y = 1;
         foreach ($customer_item_detail as $key => $val) {
             $row = array();
 
@@ -1133,6 +1140,22 @@ class CustomerItemController extends Controller {
                     array_push($po_no_arr, $inventory->po_no);
                     $po_nos .= $inventory->po_no . ",";
                 }
+            }
+
+            $source_zone_id = trim($val['source_zone_id']);
+
+            if (!in_array($source_zone_id, $source_zones_arr)) {
+                array_push($source_zones_arr, $source_zone_id);
+
+                $inc_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $source_zone_id));
+                $source_zones .= isset($inc_source_zone->salesOffice->sales_office_name) ? "<sup>" . $i++ . ".</sup> " . $inc_source_zone->salesOffice->sales_office_name . "<br/>" : "";
+                $source_address .= isset($inc_source_zone->salesOffice->address1) ? "<sup>" . $x++ . ".</sup> " . $inc_source_zone->salesOffice->address1 . "<br/>" : "";
+
+                $c3 = new CDbCriteria;
+                $c3->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
+                $c3->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $source_zone_id . "'";
+                $source_employee = Employee::model()->find($c3);
+                $source_contact_person .= isset($source_employee) ? "<sup>" . $y++ . ".</sup> " . $source_employee->fullname . "<br/>" : "";
             }
 
             $row['sku_id'] = $val['sku_id'];
@@ -1168,6 +1191,10 @@ class CustomerItemController extends Controller {
         $destination['contact_person'] = "";
         $destination['contact_no'] = "";
         $destination['address'] = $poi_address;
+
+        $source['source_zone_name_so_name'] = rtrim($source_zones, "<br/>");
+        $source['contact_person'] = rtrim($source_contact_person, "<br/>");
+        $source['address'] = rtrim($source_address, "<br/>");
 
         $headers['transaction_date'] = $customer_item['transaction_date'];
         $headers['plan_delivery_date'] = $customer_item['plan_delivery_date'];
@@ -1254,14 +1281,14 @@ class CustomerItemController extends Controller {
             <table class="table_main">
                 <tr>
                     <td style="font-weight: bold; width: 100px;">SALES OFFICE NAME</td>
-                    <td class="border-bottom" style="width: 400px;">' . "" . '</td>
+                    <td class="border-bottom" style="width: 400px;">' . $source['source_zone_name_so_name'] . '</td>
                     <td style="width: 10px;"></td>
                     <td style="font-weight: bold; width: 110px;">DELIVERY DATE</td>
                     <td class="border-bottom" style="width: 60px;">' . $headers['transaction_date'] . '</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold;">ADDRESS</td>
-                    <td class="border-bottom">' . "" . '</td>
+                    <td class="border-bottom">' . $source['address'] . '</td>
                     <td></td>
                     <td style="font-weight: bold;">PLAN DELIVERY DATE</td>
                     <td class="border-bottom">' . $headers['plan_delivery_date'] . '</td>
@@ -1465,6 +1492,11 @@ class CustomerItemController extends Controller {
         $pr_no_arr = array();
         $po_nos = "";
         $po_no_arr = array();
+        $source_zones = "";
+        $source_zones_arr = array();
+        $source_address = "";
+        $source_contact_person = "";
+        $i = $x = $y = 1;
         foreach ($customer_item_detail as $key => $val) {
             $row = array();
 
@@ -1475,6 +1507,22 @@ class CustomerItemController extends Controller {
             if (!in_array($val->po_no, $po_no_arr)) {
                 array_push($po_no_arr, $val->po_no);
                 $po_nos .= $val->po_no . ",";
+            }
+
+            $source_zone_id = $val->source_zone_id;
+
+            if (!in_array($source_zone_id, $source_zones_arr)) {
+                array_push($source_zones_arr, $source_zone_id);
+
+                $inc_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $source_zone_id));
+                $source_zones .= isset($inc_source_zone->salesOffice->sales_office_name) ? "<sup>" . $i++ . ".</sup> " . $inc_source_zone->salesOffice->sales_office_name . "<br/>" : "";
+                $source_address .= isset($inc_source_zone->salesOffice->address1) ? "<sup>" . $x++ . ".</sup> " . $inc_source_zone->salesOffice->address1 . "<br/>" : "";
+
+                $c3 = new CDbCriteria;
+                $c3->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
+                $c3->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $source_zone_id . "'";
+                $source_employee = Employee::model()->find($c3);
+                $source_contact_person .= isset($source_employee) ? "<sup>" . $y++ . ".</sup> " . $source_employee->fullname . "<br/>" : "";
             }
 
             $row['sku_id'] = $val->sku_id;
@@ -1510,6 +1558,10 @@ class CustomerItemController extends Controller {
         $destination['contact_person'] = "";
         $destination['contact_no'] = "";
         $destination['address'] = $poi_address;
+
+        $source['source_zone_name_so_name'] = rtrim($source_zones, "<br/>");
+        $source['contact_person'] = rtrim($source_contact_person, "<br/>");
+        $source['address'] = rtrim($source_address, "<br/>");
 
         $headers['transaction_date'] = $customer_item->transaction_date;
         $headers['plan_delivery_date'] = $customer_item->plan_delivery_date;
