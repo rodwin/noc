@@ -230,6 +230,12 @@ class OutgoingInventoryController extends Controller {
         $po_no_arr = array();
         $pr_dates = "";
         $pr_dates_arr = array();
+        $source_zones = "";
+        $source_zones_arr = array();
+        $source_address = "";
+        $source_contact_person = "";
+        $source_contact_no = "";
+        $i = $x = $y = $z = 1;
         foreach ($outgoing_detail as $key => $val) {
             $zone_ids .= "'" . $val->source_zone_id . "',";
 
@@ -247,12 +253,32 @@ class OutgoingInventoryController extends Controller {
                 array_push($pr_dates_arr, $val->pr_date);
                 $pr_dates .= $val->pr_date . ",";
             }
+
+            if (!in_array($val->source_zone_id, $source_zones_arr)) {
+                array_push($source_zones_arr, $val->source_zone_id);
+
+                $inc_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $val->source_zone_id));
+                $source_zones .= "<sup>" . $i++ . ".</sup> " . $inc_source_zone->zone_name . " <i class='text-muted'>(" . $inc_source_zone->salesOffice->sales_office_name . ")</i><br/>";
+                $source_address .= isset($inc_source_zone->salesOffice->address1) ? "<sup>" . $x++ . ".</sup> " . $inc_source_zone->salesOffice->address1 . "<br/>" : "";
+
+                $c3 = new CDbCriteria;
+                $c3->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
+                $c3->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $val->source_zone_id . "'";
+                $source_employee = Employee::model()->find($c3);
+                $source_contact_person .= isset($source_employee) ? "<sup>" . $y++ . ".</sup> " . $source_employee->fullname . "<br/>" : "";
+                $source_contact_no .= isset($source_employee) ? "<sup>" . $z++ . ".</sup> " . $source_employee->work_phone_number . "<br/>" : "";
+            }
         }
 
         $pr_nos = substr($pr_nos, 0, -1);
         $pr_dates = substr($pr_dates, 0, -1);
         $po_nos = substr($po_nos, 0, -1);
 
+        $source = array();
+        $source['source_zone_name_so_name'] = $source_zones;
+        $source['contact_person'] = $source_contact_person;
+        $source['contact_no'] = $source_contact_no;
+        $source['address'] = $source_address;
 
         $this->render('view', array(
             'model' => $model,
@@ -260,6 +286,7 @@ class OutgoingInventoryController extends Controller {
             'pr_nos' => $pr_nos,
             'pr_dates' => $pr_dates,
             'po_nos' => $po_nos,
+            'source' => $source,
         ));
     }
 

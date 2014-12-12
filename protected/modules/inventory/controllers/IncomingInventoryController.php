@@ -118,7 +118,7 @@ class IncomingInventoryController extends Controller {
         $model = $this->loadModel($id);
 
         $this->pageTitle = "View " . IncomingInventory::INCOMING_LABEL . ' Inventory';
-        
+
         $this->menu = array(
             array('label' => "Create " . IncomingInventory::INCOMING_LABEL . ' Inventory', 'url' => array('create')),
             array('label' => "Delete " . IncomingInventory::INCOMING_LABEL . ' Inventory', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->incoming_inventory_id), 'confirm' => 'Are you sure you want to delete this item?')),
@@ -135,12 +135,17 @@ class IncomingInventoryController extends Controller {
         $c1->with = array("zones");
         $destination_sales_office = SalesOffice::model()->find($c1);
 
+        $c2 = new CDbCriteria;
+        $c2->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
+        $c2->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $incoming_inv->zone->zone_id . "'";
+        $employee = Employee::model()->find($c2);
+
         $destination = array();
         $destination['zone_name'] = $incoming_inv->zone->zone_name;
         $destination['destination_sales_office_name'] = isset($destination_sales_office->sales_office_name) ? $destination_sales_office->sales_office_name : "";
-        $destination['contact_person'] = "";
-        $destination['contact_no'] = "";
-        $destination['address'] = "";
+        $destination['contact_person'] = isset($employee) ? $employee->fullname : "";
+        $destination['contact_no'] = isset($employee) ? $employee->work_phone_number : "";
+        $destination['address'] = isset($destination_sales_office->address1) ? $destination_sales_office->address1 : "";
 
         $incoming_detail = IncomingInventoryDetail::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "incoming_inventory_id" => $model->incoming_inventory_id));
 
@@ -151,6 +156,12 @@ class IncomingInventoryController extends Controller {
         $po_no_arr = array();
         $pr_dates = "";
         $pr_dates_arr = array();
+        $source_zones = "";
+        $source_zones_arr = array();
+        $source_address = "";
+        $source_contact_person = "";
+        $source_contact_no = "";
+        $i = $x = $y = $z = 1;
         foreach ($incoming_detail as $key => $val) {
             $zone_ids .= "'" . $val->source_zone_id . "',";
 
@@ -168,12 +179,32 @@ class IncomingInventoryController extends Controller {
                 array_push($pr_dates_arr, $val->pr_date);
                 $pr_dates .= $val->pr_date . ",";
             }
+
+            if (!in_array($val->source_zone_id, $source_zones_arr)) {
+                array_push($source_zones_arr, $val->source_zone_id);
+
+                $inc_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $val->source_zone_id));
+                $source_zones .= "<sup>" . $i++ . ".</sup> " . $inc_source_zone->zone_name . " <i class='text-muted'>(" . $inc_source_zone->salesOffice->sales_office_name . ")</i><br/>";
+                $source_address .= isset($inc_source_zone->salesOffice->address1) ? "<sup>" . $x++ . ".</sup> " . $inc_source_zone->salesOffice->address1 . "<br/>" : "";
+
+                $c3 = new CDbCriteria;
+                $c3->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
+                $c3->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $val->source_zone_id . "'";
+                $source_employee = Employee::model()->find($c3);
+                $source_contact_person .= isset($source_employee) ? "<sup>" . $y++ . ".</sup> " . $source_employee->fullname . "<br/>" : "";
+                $source_contact_no .= isset($source_employee) ? "<sup>" . $z++ . ".</sup> " . $source_employee->work_phone_number . "<br/>" : "";
+            }
         }
 
         $pr_nos = substr($pr_nos, 0, -1);
         $pr_dates = substr($pr_dates, 0, -1);
         $po_nos = substr($po_nos, 0, -1);
 
+        $source = array();
+        $source['source_zone_name_so_name'] = $source_zones;
+        $source['contact_person'] = $source_contact_person;
+        $source['contact_no'] = $source_contact_no;
+        $source['address'] = $source_address;
 
         $this->render('view', array(
             'model' => $model,
@@ -181,6 +212,7 @@ class IncomingInventoryController extends Controller {
             'pr_nos' => $pr_nos,
             'pr_dates' => $pr_dates,
             'po_nos' => $po_nos,
+            'source' => $source,
         ));
     }
 

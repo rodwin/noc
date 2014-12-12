@@ -10,6 +10,8 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
 <style type="text/css">
 
     #notification_table tbody tr { cursor: pointer }
+    
+    sup { font-weight: bold; }
 
 </style>
 

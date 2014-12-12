@@ -33,16 +33,16 @@ $this->breadcrumbs = array(
         <h5 class="control-label text-primary text_bold">From</h5>
         <table class="table table-bordered table-condensed">
             <tr>
-                <td colspan="2"><strong class="source_name"><i class="text-muted">Not Set</i></strong></td>
+                <td colspan="2"><strong><?php echo $source['source_zone_name_so_name']; ?></strong></td>
             </tr>
             <tr>
-                <td class="first_col_left_table"><strong>Address:</strong></td><td><span class="source_address"></span></td>
+                <td class="first_col_left_table"><strong>Address:</strong></td><td><strong><?php echo $source['address']; ?></strong></td>
             </tr>
             <tr>
-                <td><strong>Contact Person:</strong></td><td><span class="source_contact_person"></span></td>
+                <td><strong>Contact Person:</strong></td><td><strong><?php echo $source['contact_person']; ?></strong></td>
             </tr>
             <tr>
-                <td><strong>Contact Number:</strong></td><td><span class="source_contact_no"></span></td>
+                <td><strong>Contact Number:</strong></td><td><strong><?php echo $source['contact_no']; ?></strong></td>
             </tr>
         </table>
 
