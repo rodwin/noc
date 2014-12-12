@@ -43,7 +43,7 @@ $this->breadcrumbs = array(
                 <th><?php echo $fields['rra_no']; ?></th>
                 <th><?php echo $fields['rra_date']; ?></th>
                 <th><?php echo $fields['destination_zone_id']; ?></th>
-                <!--<th><?php // echo $fields['pr_no'];                 ?></th>-->
+                <!--<th><?php // echo $fields['pr_no'];                  ?></th>-->
                 <th><?php echo $fields['status']; ?></th>
                 <th><?php echo $fields['contact_person']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
@@ -265,8 +265,8 @@ $this->breadcrumbs = array(
                     loadOutgoingInvDetails(outgoing_inventory_id);
                     loadAttachmentPreview(outgoing_inventory_id);
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;
@@ -287,8 +287,8 @@ $this->breadcrumbs = array(
 
                     loadOutgoingInvDetails(outgoing_inventory_id);
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;
@@ -309,8 +309,8 @@ $this->breadcrumbs = array(
 
                     loadAttachmentPreview(outgoing_inventory_id);
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;

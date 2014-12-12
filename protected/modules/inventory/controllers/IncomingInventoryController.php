@@ -25,16 +25,37 @@ class IncomingInventoryController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view'),
+                'actions' => array('index'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'loadAllOutgoingTransactionDetailsByDRNo', 'loadInventoryDetails', 'incomingInvDetailData', 'uploadAttachment', 'preview', 'download', 'deleteIncomingDetail', 'deleteAttachment', 'print', 'loadPDF',
+                'actions' => array('data', 'loadAllOutgoingTransactionDetailsByDRNo', 'loadInventoryDetails', 'incomingInvDetailData', 'uploadAttachment', 'preview', 'download', 'print', 'loadPDF',
                     'getDetailsByIncomingInvID', 'viewPrint'),
                 'users' => array('@'),
             ),
-            array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('admin', 'delete'),
+            array('allow',
+                'actions' => array('admin'),
+                'expression' => "Yii::app()->user->checkAccess('Manage Inbound', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
+            ),
+            array('allow',
+                'actions' => array('create'),
+                'expression' => "Yii::app()->user->checkAccess('Add Inbound', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
+            ),
+            array('allow',
+                'actions' => array('view'),
+                'expression' => "Yii::app()->user->checkAccess('View Inbound', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
+            ),
+            array('allow',
+                'actions' => array('update'),
+                'expression' => "Yii::app()->user->checkAccess('Edit Inbound', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
+            ),
+            array('allow',
+                'actions' => array('delete', 'deleteIncomingDetail', 'deleteAttachment'),
+                'expression' => "Yii::app()->user->checkAccess('Delete Inbound', array('company_id' => Yii::app()->user->company_id))",
                 'users' => array('@'),
             ),
             array('deny', // deny all users
@@ -854,10 +875,10 @@ class IncomingInventoryController extends Controller {
             $row = array();
             $row['file_name'] = $icon . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . $value->file_name;
 
-            $row['links'] = '<a class="btn btn-sm btn-default download_attachment" title="Delete" href="' . $this->createUrl('/inventory/outgoinginventory/download', array('id' => $value->attachment_id)) . '">
+            $row['links'] = '<a class="btn btn-sm btn-default download_attachment" title="Delete" href="' . $this->createUrl('/inventory/incomingInventory/download', array('id' => $value->attachment_id)) . '">
                                 <i class="glyphicon glyphicon-download"></i>
                             </a>'
-                    . '&nbsp;<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/outgoinginventory/deleteAttachment', array('attachment_id' => $value->attachment_id)) . '">
+                    . '&nbsp;<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/incomingInventory/deleteAttachment', array('attachment_id' => $value->attachment_id)) . '">
                                 <i class="glyphicon glyphicon-trash"></i>
                             </a>';
 

@@ -251,8 +251,8 @@ $this->breadcrumbs = array(
                         customer_item_table.fnMultiFilter();
                     }
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;
@@ -273,8 +273,8 @@ $this->breadcrumbs = array(
 
                     loadCustomItemDetails(customerItem_id);
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;
@@ -295,8 +295,8 @@ $this->breadcrumbs = array(
 
                     loadAttachmentPreview(customerItem_id);
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;
