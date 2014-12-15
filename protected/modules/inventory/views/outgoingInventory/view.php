@@ -18,6 +18,8 @@ $this->breadcrumbs = array(
     .first_col_right_table { width: 150px; } 
 
     .text_bold { font-weight: bold; }
+    
+    sup { font-weight: bold; }
 </style>
 
 <?php $skuFields = Sku::model()->attributeLabels(); ?>
@@ -36,13 +38,13 @@ $this->breadcrumbs = array(
                 <td colspan="2"><strong><?php echo $source['source_zone_name_so_name']; ?></strong></td>
             </tr>
             <tr>
-                <td class="first_col_left_table"><strong>Address:</strong></td><td><strong><?php echo $source['address']; ?></strong></td>
+                <td class="first_col_left_table"><strong>Address:</strong></td><td><?php echo $source['address']; ?></td>
             </tr>
             <tr>
-                <td><strong>Contact Person:</strong></td><td><strong><?php echo $source['contact_person']; ?></strong></td>
+                <td><strong>Contact Person:</strong></td><td><?php echo $source['contact_person']; ?></td>
             </tr>
             <tr>
-                <td><strong>Contact Number:</strong></td><td><strong><?php echo $source['contact_no']; ?></strong></td>
+                <td><strong>Contact Number:</strong></td><td><?php echo $source['contact_no']; ?></td>
             </tr>
         </table>
 

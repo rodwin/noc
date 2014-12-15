@@ -78,7 +78,7 @@ class ImagesController extends Controller {
 
         foreach ($dataProvider->getData() as $key => $value) {
             $row = array();
-            $row['image'] = CHtml::image('images' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . $value->file_name, "Image", array("width" => 100));
+            $row['image'] = CHtml::image($value->url, "Image", array("width" => 100));
             $row['image_id'] = $value->image_id;
             $row['file_name'] = $value->file_name;
             $row['url'] = $value->url;
@@ -442,8 +442,11 @@ class ImagesController extends Controller {
         $arr = explode("/", $base);
         $base = $arr[count($arr) - 1];
         $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
-        //pre('../' .$base . $url);
-        unlink('../' . $base . $url);
+        $delete_link = '../' . $base . $url;
+
+        if (file_exists($delete_link)) {
+            unlink($delete_link);
+        }
     }
 
 }

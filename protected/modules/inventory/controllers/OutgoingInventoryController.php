@@ -26,16 +26,37 @@ class OutgoingInventoryController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'view'),
+                'actions' => array('index'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
-                'actions' => array('create', 'update', 'data', 'loadInventoryDetails', 'outgoingInvDetailData', 'afterDeleteTransactionRow', 'invData', 'uploadAttachment', 'preview', 'download', 'searchCampaignNo', 'loadPRNos', 'loadInvByPRNo',
-                    'deleteOutgoingDetail', 'deleteAttachment', 'print', 'loadPDF', 'getDetailsByOutgoingInvID', 'loadItemDetails', 'viewPrint', 'checkInvIfUpdatedActualQtyValid', 'sendDR', 'loadAttachmentDownload'),
+                'actions' => array('data', 'loadInventoryDetails', 'outgoingInvDetailData', 'afterDeleteTransactionRow', 'invData', 'uploadAttachment', 'preview', 'download', 'searchCampaignNo', 'loadPRNos', 'loadInvByPRNo',
+                    'print', 'loadPDF', 'getDetailsByOutgoingInvID', 'loadItemDetails', 'viewPrint', 'checkInvIfUpdatedActualQtyValid', 'sendDR', 'loadAttachmentDownload'),
                 'users' => array('@'),
             ),
-            array('allow', // allow admin user to perform 'admin' and 'delete' actions
-                'actions' => array('admin', 'delete'),
+            array('allow',
+                'actions' => array('admin'),
+                'expression' => "Yii::app()->user->checkAccess('Manage Outbound', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
+            ),
+            array('allow',
+                'actions' => array('create'),
+                'expression' => "Yii::app()->user->checkAccess('Add Outbound', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
+            ),
+            array('allow',
+                'actions' => array('view'),
+                'expression' => "Yii::app()->user->checkAccess('View Outbound', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
+            ),
+            array('allow',
+                'actions' => array('update'),
+                'expression' => "Yii::app()->user->checkAccess('Edit Outbound', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
+            ),
+            array('allow',
+                'actions' => array('delete', 'deleteOutgoingDetail', 'deleteAttachment'),
+                'expression' => "Yii::app()->user->checkAccess('Delete Outbound', array('company_id' => Yii::app()->user->company_id))",
                 'users' => array('@'),
             ),
             array('deny', // deny all users
@@ -254,16 +275,20 @@ class OutgoingInventoryController extends Controller {
                 $pr_dates .= $val->pr_date . ",";
             }
 
-            if (!in_array($val->source_zone_id, $source_zones_arr)) {
-                array_push($source_zones_arr, $val->source_zone_id);
+            $source_zone_id = $val->source_zone_id;
 
-                $inc_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $val->source_zone_id));
-                $source_zones .= "<sup>" . $i++ . ".</sup> " . $inc_source_zone->zone_name . " <i class='text-muted'>(" . $inc_source_zone->salesOffice->sales_office_name . ")</i><br/>";
-                $source_address .= isset($inc_source_zone->salesOffice->address1) ? "<sup>" . $x++ . ".</sup> " . $inc_source_zone->salesOffice->address1 . "<br/>" : "";
+            if (!in_array($source_zone_id, $source_zones_arr)) {
+                array_push($source_zones_arr, $source_zone_id);
+
+                $out_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $source_zone_id));
+                if ($out_source_zone) {
+                    $source_zones .= "<sup>" . $i++ . ".</sup> " . $out_source_zone->zone_name . " <i class='text-muted'>(" . $out_source_zone->salesOffice->sales_office_name . ")</i><br/>";
+                    $source_address .= isset($out_source_zone->salesOffice->address1) ? "<sup>" . $x++ . ".</sup> " . $out_source_zone->salesOffice->address1 . "<br/>" : "";
+                }
 
                 $c3 = new CDbCriteria;
                 $c3->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
-                $c3->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $val->source_zone_id . "'";
+                $c3->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $source_zone_id . "'";
                 $source_employee = Employee::model()->find($c3);
                 $source_contact_person .= isset($source_employee) ? "<sup>" . $y++ . ".</sup> " . $source_employee->fullname . "<br/>" : "";
                 $source_contact_no .= isset($source_employee) ? "<sup>" . $z++ . ".</sup> " . $source_employee->work_phone_number . "<br/>" : "";
@@ -1150,6 +1175,11 @@ class OutgoingInventoryController extends Controller {
         $pr_no_arr = array();
         $po_nos = "";
         $po_no_arr = array();
+        $source_zones = "";
+        $source_zones_arr = array();
+        $source_address = "";
+        $source_contact_person = "";
+        $i = $x = $y = 1;
         foreach ($outgoing_inv_detail as $key => $val) {
             $row = array();
 
@@ -1170,6 +1200,22 @@ class OutgoingInventoryController extends Controller {
                 }
             }
 
+            $source_zone_id = trim($val['source_zone_id']);
+
+            if (!in_array($source_zone_id, $source_zones_arr)) {
+                array_push($source_zones_arr, $source_zone_id);
+
+                $inc_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $source_zone_id));
+                $source_zones .= isset($inc_source_zone->salesOffice->sales_office_name) ? "<sup>" . $i++ . ".</sup> " . $inc_source_zone->salesOffice->sales_office_name . "<br/>" : "";
+                $source_address .= isset($inc_source_zone->salesOffice->address1) ? "<sup>" . $x++ . ".</sup> " . $inc_source_zone->salesOffice->address1 . "<br/>" : "";
+
+                $c3 = new CDbCriteria;
+                $c3->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
+                $c3->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $source_zone_id . "'";
+                $source_employee = Employee::model()->find($c3);
+                $source_contact_person .= isset($source_employee) ? "<sup>" . $y++ . ".</sup> " . $source_employee->fullname . "<br/>" : "";
+            }
+
             $row['sku_id'] = $val['sku_id'];
             $row['uom_id'] = $val['uom_id'];
             $row['planned_quantity'] = $val['planned_quantity'];
@@ -1188,6 +1234,10 @@ class OutgoingInventoryController extends Controller {
         $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.zone_id = '" . $outgoing_inv['destination_zone_id'] . "'";
         $c->with = array("salesOffice");
         $zone = Zone::model()->find($c);
+
+        $source['source_zone_name_so_name'] = rtrim($source_zones, "<br/>");
+        $source['contact_person'] = rtrim($source_contact_person, "<br/>");
+        $source['address'] = rtrim($source_address, "<br/>");
 
         $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
         $destination['address'] = $zone->salesOffice->address1;
@@ -1297,21 +1347,21 @@ class OutgoingInventoryController extends Controller {
                     <td class="border-bottom" style="130px;">' . $headers['pr_no'] . '</td>
                     <td style="width: 10px;"></td>
                     <td style="font-weight: bold; width: 100px;">WAREHOUSE NAME</td>
-                    <td class="border-bottom" style="width: 390px;">' . "" . '</td>
+                    <td class="border-bottom" style="width: 390px;">' . $source['source_zone_name_so_name'] . '</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold;">PO no.</td>
                     <td class="border-bottom">' . $headers['po_no'] . '</td>
                     <td></td>
                     <td style="font-weight: bold;">CONTACT PERSON</td>
-                    <td class="border-bottom">' . "" . '</td>
+                    <td class="border-bottom">' . $source['contact_person'] . '</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold;">RA no.</td>
                     <td class="border-bottom">' . $headers['rra_no'] . '</td>
                     <td></td>
                     <td style="font-weight: bold;">ADDRESS</td>
-                    <td class="border-bottom">' . "" . '</td>
+                    <td class="border-bottom">' . $source['address'] . '</td>
                 </tr>
                 <tr>
                     <td style="font-weight: bold;">RA date</td>
@@ -1531,6 +1581,11 @@ class OutgoingInventoryController extends Controller {
         $pr_no_arr = array();
         $po_nos = "";
         $po_no_arr = array();
+        $source_zones = "";
+        $source_zones_arr = array();
+        $source_address = "";
+        $source_contact_person = "";
+        $i = $x = $y = 1;
         foreach ($outgoing_inv_detail as $key => $val) {
             $row = array();
 
@@ -1541,6 +1596,22 @@ class OutgoingInventoryController extends Controller {
             if (!in_array($val->po_no, $po_no_arr)) {
                 array_push($po_no_arr, $val->po_no);
                 $po_nos .= $val->po_no . ",";
+            }
+
+            $source_zone_id = $val->source_zone_id;
+
+            if (!in_array($source_zone_id, $source_zones_arr)) {
+                array_push($source_zones_arr, $source_zone_id);
+
+                $inc_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $source_zone_id));
+                $source_zones .= isset($inc_source_zone->salesOffice->sales_office_name) ? "<sup>" . $i++ . ".</sup> " . $inc_source_zone->salesOffice->sales_office_name . "<br/>" : "";
+                $source_address .= isset($inc_source_zone->salesOffice->address1) ? "<sup>" . $x++ . ".</sup> " . $inc_source_zone->salesOffice->address1 . "<br/>" : "";
+
+                $c3 = new CDbCriteria;
+                $c3->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
+                $c3->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.default_zone_id = '" . $source_zone_id . "'";
+                $source_employee = Employee::model()->find($c3);
+                $source_contact_person .= isset($source_employee) ? "<sup>" . $y++ . ".</sup> " . $source_employee->fullname . "<br/>" : "";
             }
 
             $row['sku_id'] = $val->sku_id;
@@ -1561,6 +1632,10 @@ class OutgoingInventoryController extends Controller {
         $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.zone_id = '" . $outgoing_inv->destination_zone_id . "'";
         $c->with = array("salesOffice");
         $zone = Zone::model()->find($c);
+
+        $source['source_zone_name_so_name'] = rtrim($source_zones, "<br/>");
+        $source['contact_person'] = rtrim($source_contact_person, "<br/>");
+        $source['address'] = rtrim($source_address, "<br/>");
 
         $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
         $destination['address'] = $zone->salesOffice->address1;
