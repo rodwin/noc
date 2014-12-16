@@ -195,7 +195,6 @@ class ReceivingInventoryController extends Controller {
             $row['planned_quantity'] = $value->planned_quantity;
             $row['quantity_received'] = $value->quantity_received;
             $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
-            ;
             $row['inventory_on_hand'] = $value->inventory_on_hand;
             $row['remarks'] = $value->remarks;
 

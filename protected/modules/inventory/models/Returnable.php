@@ -1,19 +1,18 @@
 <?php
 
 /**
- * This is the model class for table "returns".
+ * This is the model class for table "returnable".
  *
- * The followings are the available columns in table 'returns':
- * @property integer $returns_id
+ * The followings are the available columns in table 'returnable':
+ * @property integer $returnable_id
  * @property string $company_id
- * @property string $return_type
  * @property string $return_receipt_no
  * @property string $reference_dr_no
  * @property string $receive_return_from
  * @property string $receive_return_from_id
  * @property string $transaction_date
  * @property string $date_returned
- * @property string $return_to_id
+ * @property string $destination_zone_id
  * @property string $remarks
  * @property string $total_amount
  * @property string $created_date
@@ -22,21 +21,19 @@
  * @property string $updated_by
  *
  * The followings are the available model relations:
- * @property ReturnsDetail[] $returnsDetails
+ * @property ReturnableDetail[] $returnableDetails
  */
-class Returns extends CActiveRecord {
+class Returnable extends CActiveRecord {
 
     public $search_string;
 
     const RETURNABLE = "RETURNABLE";
-    const RETURN_RECEIPT = "RETURN RECEIPT";
-    const RETURN_MDSE = "RETURN MDSE";
 
     /**
      * @return string the associated database table name
      */
     public function tableName() {
-        return 'returns';
+        return 'returnable';
     }
 
     /**
@@ -46,37 +43,15 @@ class Returns extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, return_type, return_receipt_no, receive_return_from, transaction_date, return_to, return_to_id, date_returned', 'required'),
-            array('company_id, return_type, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, return_to, return_to_id, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, return_receipt_no, receive_return_from, transaction_date, date_returned, destination_zone_id', 'required'),
+            array('company_id, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, destination_zone_id, created_by, updated_by', 'length', 'max' => 50),
             array('remarks', 'length', 'max' => 150),
             array('total_amount', 'length', 'max' => 18),
-            array('reference_dr_no', 'uniqueReferenceDRNo'),
-            array('return_receipt_no', 'uniqueRRNo'),
-            array('transaction_date, date_returned', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
-            array('transaction_date, date_returned, created_date, updated_date', 'safe'),
+            array('transaction_date, date_returned, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('returns_id, company_id, return_type, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, transaction_date, date_returned, return_to, return_to_id, remarks, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('returnable_id, company_id, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, transaction_date, date_returned, destination_zone_id, remarks, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
-    }
-
-    public function uniqueRRNo($attribute, $params) {
-
-        $model = Returns::model()->findByAttributes(array('company_id' => $this->company_id, 'return_receipt_no' => $this->$attribute));
-        if ($model && $model->returns_id != $this->returns_id) {
-            $this->addError($attribute, 'RR Number selected already taken');
-        }
-        return;
-    }
-
-    public function uniqueReferenceDRNo($attribute, $params) {
-
-        $model = Returns::model()->findByAttributes(array('company_id' => $this->company_id, 'reference_dr_no' => $this->$attribute));
-
-        if ($model && $model->returns_id != $this->returns_id) {
-            $this->addError($attribute, 'Hello');
-        }
-        return;
     }
 
     public function beforeValidate() {
@@ -90,7 +65,8 @@ class Returns extends CActiveRecord {
         // NOTE: you may need to adjust the relation name and the related
         // class name for the relations automatically generated below.
         return array(
-            'returnsDetails' => array(self::HAS_MANY, 'ReturnsDetail', 'returns_id'),
+            'returnableDetails' => array(self::HAS_MANY, 'ReturnableDetail', 'returnable_id'),
+            'zone' => array(self::BELONGS_TO, 'Zone', 'destination_zone_id'),
         );
     }
 
@@ -99,17 +75,15 @@ class Returns extends CActiveRecord {
      */
     public function attributeLabels() {
         return array(
-            'returns_id' => 'Returns',
+            'returnable_id' => 'Returnable',
             'company_id' => 'Company',
-            'return_type' => 'Return Type',
             'return_receipt_no' => 'Return Receipt No',
             'reference_dr_no' => 'Reference DR No',
-            'receive_return_from' => 'Return From',
-            'receive_return_from_id' => 'Source',
+            'receive_return_from' => 'Receive Return From',
+            'receive_return_from_id' => 'Receive Return From',
             'transaction_date' => 'Transaction Date',
             'date_returned' => 'Date Returned',
-            'return_to' => 'Return To',
-            'return_to_id' => 'Destination',
+            'destination_zone_id' => 'Destination Zone',
             'remarks' => 'Remarks',
             'total_amount' => 'Total Amount',
             'created_date' => 'Created Date',
@@ -136,16 +110,15 @@ class Returns extends CActiveRecord {
 
         $criteria = new CDbCriteria;
 
-        $criteria->compare('returns_id', $this->returns_id);
+        $criteria->compare('returnable_id', $this->returnable_id);
         $criteria->compare('company_id', Yii::app()->user->company_id);
-        $criteria->compare('return_type', $this->return_type, true);
         $criteria->compare('return_receipt_no', $this->return_receipt_no, true);
         $criteria->compare('reference_dr_no', $this->reference_dr_no, true);
         $criteria->compare('receive_return_from', $this->receive_return_from, true);
         $criteria->compare('receive_return_from_id', $this->receive_return_from_id, true);
         $criteria->compare('transaction_date', $this->transaction_date, true);
         $criteria->compare('date_returned', $this->date_returned, true);
-        $criteria->compare('return_to_id', $this->return_to_id, true);
+        $criteria->compare('destination_zone_id', $this->destination_zone_id, true);
         $criteria->compare('remarks', $this->remarks, true);
         $criteria->compare('total_amount', $this->total_amount, true);
         $criteria->compare('created_date', $this->created_date, true);
@@ -159,52 +132,47 @@ class Returns extends CActiveRecord {
     }
 
     public function data($col, $order_dir, $limit, $offset, $columns) {
-
         switch ($col) {
 
             case 0:
-                $sort_column = 't.return_type';
+                $sort_column = 'returnable_id';
                 break;
 
             case 1:
-                $sort_column = 't.return_receipt_no';
+                $sort_column = 'return_type';
                 break;
 
             case 2:
-                $sort_column = 't.transaction_date';
+                $sort_column = 'return_receipt_no';
                 break;
 
             case 3:
-                $sort_column = 't.receive_return_from';
+                $sort_column = 'reference_dr_no';
                 break;
 
             case 4:
-                $sort_column = 't.receive_return_from_id';
+                $sort_column = 'receive_return_from';
                 break;
 
             case 5:
-                $sort_column = 't.return_to_id';
+                $sort_column = 'receive_return_from_id';
                 break;
 
             case 6:
-                $sort_column = 't.total_amount';
-                break;
-
-            case 7:
-                $sort_column = 't.remarks';
+                $sort_column = 'transaction_date';
                 break;
         }
 
+
         $criteria = new CDbCriteria;
         $criteria->compare('company_id', Yii::app()->user->company_id);
-        $criteria->compare('t.return_type', $columns[0]['search']['value'], true);
-        $criteria->compare('t.return_receipt_no', $columns[1]['search']['value'], true);
-        $criteria->compare('t.transaction_date', $columns[2]['search']['value'], true);
-        $criteria->compare('t.receive_return_from', $columns[3]['search']['value'], true);
-        $criteria->compare('t.receive_return_from_id', $columns[4]['search']['value'], true);
-        $criteria->compare('t.return_to_id', $columns[5]['search']['value'], true);
-        $criteria->compare('t.total_amount', $columns[6]['search']['value'], true);
-        $criteria->compare('t.remarks', $columns[7]['search']['value'], true);
+        $criteria->compare('returnable_id', $columns[0]['search']['value']);
+        $criteria->compare('return_type', $columns[1]['search']['value'], true);
+        $criteria->compare('return_receipt_no', $columns[2]['search']['value'], true);
+        $criteria->compare('reference_dr_no', $columns[3]['search']['value'], true);
+        $criteria->compare('receive_return_from', $columns[4]['search']['value'], true);
+        $criteria->compare('receive_return_from_id', $columns[5]['search']['value'], true);
+        $criteria->compare('transaction_date', $columns[6]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
@@ -219,7 +187,7 @@ class Returns extends CActiveRecord {
      * Returns the static model of the specified AR class.
      * Please note that you should have this exact method in all your CActiveRecord descendants!
      * @param string $className active record class name.
-     * @return Returns the static model class
+     * @return Returnable the static model class
      */
     public static function model($className = __CLASS__) {
         return parent::model($className);
@@ -242,31 +210,31 @@ class Returns extends CActiveRecord {
         );
     }
 
-    public function validateReturnFrom($model, $key) {
+    public function validateReturnFrom($model, $key, $return_label) {
 
-        $source_arr = Returns::model()->getListReturnFrom();
+        $source_arr = Returnable::model()->getListReturnFrom();
         $id = "";
 
         if ($key == $source_arr[0]['value']) {
 
-            if ($_POST[$source_arr[0]['id']] == "") {
-                $model->addError($source_arr[0]['id'], "Salesoffice cannot be blank.");
+            if ($_POST[$return_label . $source_arr[0]['id']] == "") {
+                $model->addError($return_label . $source_arr[0]['id'], "Salesoffice cannot be blank.");
             } else {
-                $id = $_POST[$source_arr[0]['id']];
+                $id = $_POST[$return_label . $source_arr[0]['id']];
             }
         } else if ($key == $source_arr[1]['value']) {
 
-            if ($_POST[$source_arr[1]['id']] == "") {
-                $model->addError($source_arr[1]['id'], "Salesman cannot be blank.");
+            if ($_POST[$return_label . $source_arr[1]['id']] == "") {
+                $model->addError($return_label . $source_arr[1]['id'], "Salesman cannot be blank.");
             } else {
-                $id = $_POST[$source_arr[1]['id']];
+                $id = $_POST[$return_label . $source_arr[1]['id']];
             }
         } else {
 
-            if ($_POST[$source_arr[2]['id']] == "") {
-                $model->addError($source_arr[2]['id'], "Outlet cannot be blank.");
+            if ($_POST[$return_label . $source_arr[2]['id']] == "") {
+                $model->addError($return_label . $source_arr[2]['id'], "Outlet cannot be blank.");
             } else {
-                $id = $_POST[$source_arr[2]['id']];
+                $id = $_POST[$return_label . $source_arr[2]['id']];
             }
         }
 
@@ -275,7 +243,7 @@ class Returns extends CActiveRecord {
 
     function getReturnFromIDDetail($source, $id, $company_id) {
 
-        $source_arr = Returns::model()->getListReturnFrom();
+        $source_arr = Returnable::model()->getListReturnFrom();
         $source_name = "";
 
         if ($source == $source_arr[0]['value']) {
@@ -303,7 +271,7 @@ class Returns extends CActiveRecord {
 
     function getReturnToIDDetail($destination, $id, $company_id) {
 
-        $destination_arr = Returns::model()->getListReturnTo();
+        $destination_arr = Returnable::model()->getListReturnTo();
         $destination_name = "";
 
         if ($destination == $destination_arr[0]['value']) {
@@ -345,19 +313,17 @@ class Returns extends CActiveRecord {
             $incoming_status = OutgoingInventory::OUTGOING_COMPLETE_STATUS;
         }
 
-        $return = new Returns;
+        $returnable = new Returnable;
 
         try {
 
-            $return_data = array(
+            $returnable_data = array(
                 'company_id' => $this->company_id,
                 'return_receipt_no' => $this->return_receipt_no,
                 'reference_dr_no' => $this->reference_dr_no,
-                'return_type' => $this->return_type,
                 'receive_return_from' => $this->receive_return_from,
                 'receive_return_from_id' => $this->receive_return_from_id,
-                'return_to' => $this->return_to,
-                'return_to_id' => $this->return_to_id,
+                'destination_zone_id' => $this->destination_zone_id,
                 'transaction_date' => $this->transaction_date,
                 'date_returned' => $this->date_returned,
                 'status' => $incoming_status,
@@ -366,26 +332,29 @@ class Returns extends CActiveRecord {
                 'created_by' => $this->created_by,
             );
 
-            $return->attributes = $return_data;
+            $returnable->attributes = $returnable_data;
 
             if (count($transaction_details) > 0) {
-                if ($return->save(false)) {
+                if ($returnable->save(false)) {
 
-                    Yii::app()->session['returns_id_create_session'] = $return->returns_id;
-                    unset(Yii::app()->session['returns_id_create_session']);
+//                    Yii::app()->session['returns_id_create_session'] = $return->returns_id;
+//                    unset(Yii::app()->session['returns_id_create_session']);
 
                     for ($i = 0; $i < count($transaction_details); $i++) {
-                        ReturnsDetail::model()->createReturnsTransactionDetails($return->returns_id, $return->company_id, $transaction_details[$i], $return->return_to_id, $return->transaction_date, $return->created_by);
+                        ReturnableDetail::model()->createReturnableTransactionDetails($returnable->returnable_id, $returnable->company_id, $transaction_details[$i], $returnable->destination_zone_id, $returnable->transaction_date, $returnable->created_by);
                     }
 
                     return true;
                 } else {
                     return false;
                 }
+            } else {
+                return false;
             }
 
             return true;
         } catch (Exception $exc) {
+            pr($exc);
             Yii::log($exc->getTraceAsString(), 'error');
             return false;
         }
