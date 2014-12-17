@@ -548,27 +548,35 @@ class ReturnsController extends Controller {
             $row['text'] = "--";
             $return[] = $row;
 
+            $dr_nos = "";
+            $dr_nos_arr = array();
             if ($data['header'] == $source_arr[0]['value'] || $data['header'] == $source_arr[1]['value']) {
                 foreach ($data['details'] as $key => $val) {
                     $row = array();
 
-                    $row['id'] = $val->outgoingInventory->dr_no;
-                    $row['text'] = $val->outgoingInventory->dr_no;
+                    if (!in_array($val->outgoingInventory->dr_no, $dr_nos_arr)) {
+                        array_push($dr_nos_arr, $val->outgoingInventory->dr_no);
+                        $row['id'] = $val->outgoingInventory->dr_no;
+                        $row['text'] = $val->outgoingInventory->dr_no;
 
-                    $return[] = $row;
+                        $return[] = $row;
+                    }
                 }
             } else if ($data['header'] == $source_arr[2]['value']) {
                 foreach ($data['details'] as $key => $val) {
                     $row = array();
 
-                    $row['id'] = $val->customerItem->dr_no;
-                    $row['text'] = $val->customerItem->dr_no;
+                    if (!in_array($val->customerItem->dr_no, $dr_nos_arr)) {
+                        array_push($dr_nos_arr, $val->customerItem->dr_no);
+                        $row['id'] = $val->customerItem->dr_no;
+                        $row['text'] = $val->customerItem->dr_no;
 
-                    $return[] = $row;
+                        $return[] = $row;
+                    }
                 }
             }
         }
-
+        
         echo json_encode($return);
     }
 

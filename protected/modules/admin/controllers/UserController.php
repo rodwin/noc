@@ -172,6 +172,46 @@ class UserController extends Controller {
             $model->created_by = Yii::app()->user->name;
 
             if ($model->save()) {
+
+                $user = User::model()->userDetailsByID($model->user_id, $model->company_id);
+                
+                $mailer = Globals::swiftmailer();
+
+                $message = Swift_Message::newInstance(Yii::app()->name . ' User Name and Password')
+                        ->setFrom(array(Yii::app()->params['swiftMailer']['username'] => 'Administrator'))
+                        ->setTo(array($user->email => $user->first_name ." ". $user->last_name))
+                        ->setBody(
+                        '<html>'
+                        . '<body>'
+                        . ''
+                        . '<div>'
+                        . '<p style="'
+                        . "font-family: 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif;"
+                        . 'font-size: 14px; font-style: normal; font-variant: normal; font-weight: 500; line-height: 15.3999996185303px;'
+                        . '">Good Day <b>' . $user->first_name ." ". $user->last_name . '</b>,</p>'
+                        . '<div style="margin-left: 30px;">'
+                        . '<p style="'
+                        . "font-family: 'Brush Script MT', cursive; font-size: 23px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 30px;"
+                        . '">Welcome to ' . Yii::app()->name . '</p>'
+                        . '<p style="'
+                        . "font-family: 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif;"
+                        . 'font-size: 14px; font-style: normal; font-variant: normal; font-weight: 500; line-height: 15.3999996185303px;'
+                        . '">'
+                        . '<span>Here is your User Name and Password:</span><br/><br/>'
+                        . '<b>Account Name:</b>&nbsp;&nbsp;&nbsp;<i style="color: #0000FF;">' . $user->company->code . '</i><br/>'
+                        . '<b>Username:</b>&nbsp;&nbsp;&nbsp;<i style="color: #0000FF;">' . $user->user_name . '</i><br/>'
+                        . '<b>Password:</b>&nbsp;&nbsp;&nbsp;<i style="color: #0000FF;">' . $model->password2 . '</i><br/><br/>'
+                        . '</p>'
+                        . '<span>You may now <a href="' . Yii::app()->params['serverIP'] . 'index.php?r=site/login" target="_blank">login</a>.</span>'
+                        . '</div>'
+                        . '</div>'
+                        . ''
+                        . '</body>'
+                        . '</html>', 'text/html' // Mark the content-type as HTML
+                );
+
+                $result = $mailer->send($message);
+
                 Yii::app()->user->setFlash('success', "Successfully created");
                 $this->redirect(array('view', 'id' => $model->user_id));
             }
@@ -180,15 +220,15 @@ class UserController extends Controller {
         $auth = Yii::app()->authManager;
         $role_data = $auth->getRoles();
         $role_arr = array();
-        
+
         foreach ($role_data as $key => $val) {
             if ($val->bizrule == Yii::app()->user->auth_company_id) {
                 $role_arr[] = $val;
             }
         }
-        
+
         $list_role = CHtml::listData($role_arr, 'name', 'name');
-       
+
         $this->render('create', array(
             'model' => $model,
             'listCompanies' => $listCompanies,
@@ -232,17 +272,17 @@ class UserController extends Controller {
                 $this->redirect(array('view', 'id' => $model->user_id));
             }
         }
-        
+
         $auth = Yii::app()->authManager;
         $role_data = $auth->getRoles();
         $role_arr = array();
-        
+
         foreach ($role_data as $key => $val) {
             if ($val->bizrule == Yii::app()->user->auth_company_id) {
                 $role_arr[] = $val;
             }
         }
-        
+
         $list_role = CHtml::listData($role_arr, 'name', 'name');
 
         $this->render('update', array(

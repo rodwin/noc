@@ -230,4 +230,14 @@ class User extends CActiveRecord {
         return parent::model($className);
     }
 
+    public function userDetailsByID($id, $company_id) {
+
+        $c = new CDbCriteria;
+        $c->condition = 't.company_id = "' . $company_id . '" AND t.user_id = "' . $id . '"';
+        $c->with = array("company");
+        $user = User::model()->find($c);
+
+        return $user;
+    }
+
 }

@@ -252,6 +252,24 @@ class Globals {
 
         return $objPHPExcel;
     }
+    
+    public static function swiftmailer() {
+        
+        ini_set('include_path', 'vendor/swiftmailer/swiftmailer/lib/swift_required.php');
+        
+        // Create the Transport
+        $transport = Swift_SmtpTransport::newInstance('ssl://smtp.googlemail.com', 465)
+                                ->setUsername(Yii::app()->params['swiftMailer']['username'])
+                                ->setPassword(Yii::app()->params['swiftMailer']['password']);
+        
+//        $transport = Swift_MailTransport::newInstance();
+
+        // Create the Mailer using your created Transport
+        $mailer = Swift_Mailer::newInstance($transport);
+        
+        return $mailer;
+        
+    }
 
 }
 
