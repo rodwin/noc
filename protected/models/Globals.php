@@ -156,6 +156,7 @@ class Globals {
             return FALSE;
         }
 
+        $found_header = FALSE;
         $return = false;
         $handle = fopen($file, "r");
         if ($head !== FALSE) {

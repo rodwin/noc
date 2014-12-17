@@ -75,17 +75,17 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                 <div class="navbar-right">
                     <ul class="nav navbar-nav">
                         <!-- Messages: style can be found in dropdown.less-->
-                        <li class="dropdown messages-menu">
+<!--                        <li class="dropdown messages-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-envelope"></i>
-<!--                                <span class="label label-success">4</span>-->
+                                <span class="label label-success">4</span>
                             </a>
                             <ul class="dropdown-menu">
                                 <li class="header">You have 0 messages</li>
                                 <li>
-                                    <!-- inner menu: contains the actual data -->
+                                     inner menu: contains the actual data 
                                     <ul class="menu">
-<!--                                        <li> start message 
+                                        <li> start message 
                                             <a href="#">
                                                 <div class="pull-left">
                                                     <img src="<?php echo Yii::app()->theme->baseUrl;?>/img/avatar3.png" class="img-circle" alt="User Image"/>
@@ -144,24 +144,24 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                                                 </h4>
                                                 <p>Why not buy a new awesome theme?</p>
                                             </a>
-                                        </li>-->
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="footer"><a href="#">See All Messages</a></li>
                             </ul>
-                        </li>
+                        </li>-->
                         <!-- Notifications: style can be found in dropdown.less -->
-                        <li class="dropdown notifications-menu">
+<!--                        <li class="dropdown notifications-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-warning"></i>
-<!--                                <span class="label label-warning">10</span>-->
+                                <span class="label label-warning">10</span>
                             </a>
                             <ul class="dropdown-menu">
                                 <li class="header">You have 0 notifications</li>
                                 <li>
-                                    <!-- inner menu: contains the actual data -->
+                                     inner menu: contains the actual data 
                                     <ul class="menu">
-<!--                                        <li>
+                                        <li>
                                             <a href="#">
                                                 <i class="ion ion-ios7-people info"></i> 5 new members joined today
                                             </a>
@@ -186,24 +186,24 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                                             <a href="#">
                                                 <i class="ion ion-ios7-person danger"></i> You changed your username
                                             </a>
-                                        </li>-->
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="footer"><a href="#">View all</a></li>
                             </ul>
-                        </li>
+                        </li>-->
                         <!-- Tasks: style can be found in dropdown.less -->
-                        <li class="dropdown tasks-menu">
+<!--                        <li class="dropdown tasks-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-tasks"></i>
-<!--                                <span class="label label-danger">9</span>-->
+                                <span class="label label-danger">9</span>
                             </a>
                             <ul class="dropdown-menu">
                                 <li class="header">You have 0 tasks</li>
                                 <li>
-                                    <!-- inner menu: contains the actual data -->
+                                     inner menu: contains the actual data 
                                     <ul class="menu">
-<!--                                        <li> Task item 
+                                        <li> Task item 
                                             <a href="#">
                                                 <h3>
                                                     Design some buttons
@@ -254,14 +254,14 @@ Yii::app()->clientScript->registerCoreScript('jquery.ui',CClientScript::POS_END)
                                                     </div>
                                                 </div>
                                             </a>
-                                        </li> end task item -->
+                                        </li> end task item 
                                     </ul>
                                 </li>
                                 <li class="footer">
                                     <a href="#">View all tasks</a>
                                 </li>
                             </ul>
-                        </li>
+                        </li>-->
                         <!-- User Account: style can be found in dropdown.less -->
                         <li class="dropdown user user-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
