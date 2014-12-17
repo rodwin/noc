@@ -21,6 +21,8 @@
     .text-apply { color: #CC9900; }
 
     #hide_textbox input {display:none;}
+
+    .input-width { width: 300px; }
 </style>
 
 <link href="<?php echo Yii::app()->theme->baseUrl; ?>/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
@@ -205,9 +207,11 @@ return false;
             $(this).html('<input type="text" class="form-control input-sm" onclick="" placeholder="" colPos="' + i + '" />');
             i++;
         });
+
         $("#inventory_table thead input").keyup(function() {
             table.fnFilter(this.value, $(this).attr("colPos"));
         });
+
         transaction_table = $('#transaction_table').dataTable({
             "filter": false,
             "dom": 't',
@@ -302,6 +306,16 @@ return false;
                 }
             });
             return false;
+        });
+
+        $('#inventory_table tbody').on('click', 'tr', function() {
+            if ($(this).hasClass('success')) {
+                $(this).removeClass('success');
+            }
+            else {
+                table.$('tr.success').removeClass('success');
+                $(this).addClass('success');
+            }
         });
 
     });

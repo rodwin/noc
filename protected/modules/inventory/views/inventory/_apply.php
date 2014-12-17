@@ -79,7 +79,7 @@
 
             <div class="form-group">
                 <script type="text/javascript">
-                    $("#ApplyInventoryForm_unique_tag").val(<?php echo '"'.$inventoryObj->reference_no.'"'; ?>);
+                    $("#ApplyInventoryForm_unique_tag").val(<?php echo '"' . $inventoryObj->reference_no . '"'; ?>);
                 </script>
 
                 <?php
@@ -103,6 +103,16 @@
 
             <div class="form-group">
                 <?php echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('id' => 'transaction_date_dp')))); ?> 
+
+                <?php
+                echo $form->textAreaGroup($model, 'remarks', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => 'span5',
+                    ),
+                    'widgetOptions' => array(
+                        'htmlOptions' => array('class' => 'input-width', 'style' => 'resize: none;', 'maxlength' => 200),
+                )));
+                ?>
             </div>
 
         </div>

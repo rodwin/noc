@@ -362,7 +362,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     <table id="transaction_table2" class="table table-bordered ">
         <thead>
             <tr>
-                <th style="text-align: center;"><button id="delete_row_btn" class="btn btn-danger btn-sm" onclick="deleteTransactionRow()" style="display: none;"><i class="fa fa-trash-o"></i></button></th>
+                <th style="text-align: center;"><button id="delete_row_btn" class="btn btn-danger btn-sm" style="display: none;"><i class="fa fa-trash-o"></i></button></th>
                 <th class="hide_row"><?php echo $skuFields['sku_id']; ?></th>
                 <th><?php echo $skuFields['sku_code']; ?></th>
                 <th><?php echo $skuFields['description']; ?></th>
@@ -406,7 +406,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     var headers = "transaction";
     var details = "details";
     var print = "print";
-    var total_amount = 0;
+    var total_amount2 = 0;
     var return_receipt_type = <?php echo "'" . ReturnReceipt::RETURN_RECEIPT_LABEL . "'"; ?>;
     var return_to = <?php echo "'" . $destination_arr[0]['value'] . "'"; ?>;
     var return_receipt_label = <?php echo "'" . $return_receipt_label . "'"; ?>;
@@ -587,8 +587,8 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                     data.details.remarks
                 ]);
 
-                total_amount = (parseFloat(total_amount) + parseFloat(data.details.amount));
-                $("#ReturnReceipt_total_amount").val(parseFloat(total_amount).toFixed(2));
+                total_amount2 = (parseFloat(total_amount2) + parseFloat(data.details.amount));
+                $("#ReturnReceipt_total_amount").val(parseFloat(total_amount2).toFixed(2));
 
                 growlAlert(data.type, data.message);
 
@@ -632,29 +632,29 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         $('#btn_print2').html('<i class="fa fa-print"></i>&nbsp; Print');
     }
 
-   function serializeTransactionTable2() {
+    function serializeTransactionTable2() {
 
-      var row_datas = new Array();
-      var aTrs = transaction_table2.fnGetNodes();
-      for (var i = 0; i < aTrs.length; i++) {
-         var row_data = transaction_table2.fnGetData(aTrs[i]);
+        var row_datas = new Array();
+        var aTrs = transaction_table2.fnGetNodes();
+        for (var i = 0; i < aTrs.length; i++) {
+            var row_data = transaction_table2.fnGetData(aTrs[i]);
 
-         row_datas.push({
-            "sku_id": row_data[1],
-            "unit_price": row_data[5],
-            "batch_no": row_data[6],
-            "expiration_date": row_data[7],
-            "quantity_issued": row_data[8],
-            "returned_quantity": row_data[9],
-            "uom_id": row_data[10],
-            "sku_status_id": row_data[12],
-            "amount": row_data[14],
-            "remarks": row_data[15],
-         });
-      }
+            row_datas.push({
+                "sku_id": row_data[1],
+                "unit_price": row_data[5],
+                "batch_no": row_data[6],
+                "expiration_date": row_data[7],
+                "quantity_issued": row_data[8],
+                "returned_quantity": row_data[9],
+                "uom_id": row_data[10],
+                "sku_status_id": row_data[12],
+                "amount": row_data[14],
+                "remarks": row_data[15],
+            });
+        }
 
-      return row_datas;
-   }
+        return row_datas;
+    }
 
     function growlAlert(type, message) {
         $.growl(message, {
@@ -711,5 +711,19 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     $('#' + return_receipt_label + 'selected_outlet').change(function() {
         loadPOIDetailsByID(this.value, return_receipt_label);
     });
+
+    $("#delete_row_btn").click(function() {
+        deleteTransactionRow($(this), transaction_table2, total_amount2, $("#ReturnReceipt_total_amount"));
+    });
+
+    function showDeleteRowBtn() {
+        var atLeastOneIsChecked = $("input[name='transaction_row2[]']").is(":checked");
+        if (atLeastOneIsChecked === true) {
+            $('#delete_row_btn').fadeIn('slow');
+        }
+        if (atLeastOneIsChecked === false) {
+            $('#delete_row_btn').fadeOut('slow');
+        }
+    }
 
 </script>

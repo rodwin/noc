@@ -84,13 +84,25 @@
                 <?php echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('id' => 'transaction_date_dp')))); ?> 
             </div>
 
+            <div class="input-width">
+                <?php
+                echo CHtml::label('Cost per ' . ucwords($inventoryObj->uom->uom_name), 'cost_per_unit');
+                echo $form->textFieldGroup($model, 'cost_per_unit', array(
+                    'widgetOptions' => array('htmlOptions' => array('style' => 'width: 265px;')),
+                    'labelOptions' => array('label' => false)
+                    , 'prepend' => 'P'
+                ));
+                ?>
+            </div>
+
             <?php
-            echo CHtml::label('Cost per ' . ucwords($inventoryObj->uom->uom_name), 'cost_per_unit');
-            echo $form->textFieldGroup($model, 'cost_per_unit', array(
-                'widgetOptions' => array('htmlOptions' => array('style' => 'width: 60%!important;')),
-                'labelOptions' => array('label' => false)
-                , 'prepend' => 'P'
-            ));
+            echo $form->textAreaGroup($model, 'remarks', array(
+                'wrapperHtmlOptions' => array(
+                    'class' => 'span5',
+                ),
+                'widgetOptions' => array(
+                    'htmlOptions' => array('class' => 'input-width', 'style' => 'resize: none;', 'maxlength' => 200),
+            )));
             ?>
 
         </div>

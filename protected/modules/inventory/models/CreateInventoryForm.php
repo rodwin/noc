@@ -79,6 +79,7 @@ class CreateInventoryForm extends CFormModel {
     public $plan_arrival_date;
     public $revised_delivery_date;
     public $po_no;
+    public $remarks;
 
     /**
      * Declares the validation rules.
@@ -90,6 +91,7 @@ class CreateInventoryForm extends CFormModel {
             // username and password are required
             array('created_by,sku_code,company_id,qty,default_uom_id,default_zone_id,transaction_date', 'required'),
             array('unique_tag', 'length', 'max' => 150),
+            array('remarks', 'length', 'max' => 200),
             array('campaign_no, pr_no', 'length', 'max' => 50),
             array('sku_code', 'isValidSku'),
             array('default_uom_id', 'isValidUOM'),
@@ -204,6 +206,7 @@ class CreateInventoryForm extends CFormModel {
             'pr_date' => 'PR Date',
             'plan_arrival_date' => 'Plan Arrival Date',
             'revised_delivery_date' => 'Revised Delivery Date',
+            'remarks' => 'Remarks',
         );
     }
 
@@ -266,7 +269,7 @@ class CreateInventoryForm extends CFormModel {
 
             $inventory->save(false);
 
-            InventoryHistory::model()->createHistory($this->company_id, $inventory->inventory_id, $this->transaction_date, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $this->cost_per_unit, $this->created_by, $this->default_zone_id);
+            InventoryHistory::model()->createHistory($this->company_id, $inventory->inventory_id, $this->transaction_date, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $this->cost_per_unit, $this->created_by, $this->default_zone_id, $this->remarks);
 
             $transaction->commit();
             return true;

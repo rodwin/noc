@@ -208,7 +208,7 @@ class ReceivingInventoryDetail extends CActiveRecord {
         return parent::model($className);
     }
 
-    public function createReceivingTransactionDetails($receiving_inventory_id, $company_id, $sku_id, $uom_id, $sku_status_id, $zone_id, $batch_no, $unit_price, $transaction_date, $expiration_date, $planned_quantity, $quantity_received, $amount, $remarks, $pr_no, $pr_date, $created_by = null, $pr_no, $pr_date, $plan_arrival_date, $po_no) {
+    public function createReceivingTransactionDetails($receiving_inventory_id, $company_id, $sku_id, $uom_id, $sku_status_id, $zone_id, $batch_no, $unit_price, $transaction_date, $expiration_date, $planned_quantity, $quantity_received, $amount, $remarks, $pr_no, $pr_date, $created_by = null, $pr_no, $pr_date, $plan_arrival_date, $po_no, $remarks) {
 
         $new_expiration_date = ($expiration_date != "" ? $expiration_date : null);
         $new_sku_status_id = ($sku_status_id != "" ? $sku_status_id : null);
@@ -230,13 +230,13 @@ class ReceivingInventoryDetail extends CActiveRecord {
         $receiving_transaction_detail->created_by = $created_by;
 
         if ($receiving_transaction_detail->save(false)) {
-            $this->createInventory($company_id, $sku_id, $uom_id, $unit_price, $quantity_received, $zone_id, $transaction_date, $created_by, $new_expiration_date, $batch_no, $receiving_transaction_detail->sku_status_id, $pr_no, $pr_date, $plan_arrival_date, $po_no);
+            $this->createInventory($company_id, $sku_id, $uom_id, $unit_price, $quantity_received, $zone_id, $transaction_date, $created_by, $new_expiration_date, $batch_no, $receiving_transaction_detail->sku_status_id, $pr_no, $pr_date, $plan_arrival_date, $po_no, $remarks);
         } else {
             return $receiving_transaction_detail->getErrors();
         }
     }
 
-    public function createInventory($company_id, $sku_id, $uom_id, $unit_price, $quantity_received, $zone_id, $transaction_date, $created_by, $expiration_date, $reference_no, $sku_status_id, $pr_no, $pr_date, $plan_arrival_date, $po_no) {
+    public function createInventory($company_id, $sku_id, $uom_id, $unit_price, $quantity_received, $zone_id, $transaction_date, $created_by, $expiration_date, $reference_no, $sku_status_id, $pr_no, $pr_date, $plan_arrival_date, $po_no, $remarks) {
 
         $sku = Sku::model()->findByAttributes(array("company_id" => $company_id, "sku_id" => $sku_id));
 
@@ -262,7 +262,7 @@ class ReceivingInventoryDetail extends CActiveRecord {
         $create_inventory->pr_no = $pr_no;
         $create_inventory->pr_date = $new_pr_date;
         $create_inventory->plan_arrival_date = $new_plan_arrival_date;
-//        $create_inventory->revised_delivery_date = $rev_del_date;
+        $create_inventory->remarks = $remarks;
 
         if ($create_inventory->create(false)) {
             return true;

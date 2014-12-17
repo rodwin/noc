@@ -27,6 +27,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     #sku_table tbody tr { cursor: pointer }
 
     .hide_row { display: none; }
+
+    #transaction_table2 td { text-align:center; }
+    #transaction_table2 td + td { text-align: left; }
 </style>
 
 <?php $not_set = "'<center>--</center>'"; ?>
@@ -152,6 +155,25 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             }
         });
 
+    }
+
+    function deleteTransactionRow(delete_row_butt, selected_transaction_table, total_amount_var, total_amount_field) {
+        if (!confirm('Are you sure you want to delete selected item?'))
+            return false;
+
+        var aTrs = selected_transaction_table.fnGetNodes();
+
+        for (var i = 0; i < aTrs.length; i++) {
+            $(aTrs[i]).find('input:checkbox:checked').each(function() {
+                var row_data = selected_transaction_table.fnGetData(aTrs[i]);
+                total_amount_var = (parseFloat(total_amount_var) - parseFloat(row_data[14]));
+                total_amount_field.val(parseFloat(total_amount_var).toFixed(2));
+
+                selected_transaction_table.fnDeleteRow(aTrs[i]);
+            });
+        }
+
+        delete_row_butt.hide();
     }
 
 </script>

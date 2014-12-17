@@ -239,7 +239,7 @@ class ReturnReceiptDetail extends CActiveRecord {
         
         if ($return_receipt_detail->save(false)) {
 
-            ReceivingInventoryDetail::model()->createInventory($return_receipt_detail->company_id, $return_receipt_detail->sku_id, $return_receipt_detail->uom_id, $return_receipt_detail->unit_price, $return_receipt_detail->returned_quantity, $zone_id, $transaction_date, $return_receipt_detail->created_by, $return_receipt_detail->expiration_date, $return_receipt_detail->batch_no, $sku_status_id, $return_receipt_detail->pr_no, $return_receipt_detail->pr_date, $return_receipt_detail->plan_arrival_date, $return_receipt_detail->po_no);
+            ReceivingInventoryDetail::model()->createInventory($return_receipt_detail->company_id, $return_receipt_detail->sku_id, $return_receipt_detail->uom_id, $return_receipt_detail->unit_price, $return_receipt_detail->returned_quantity, $zone_id, $transaction_date, $return_receipt_detail->created_by, $return_receipt_detail->expiration_date, $return_receipt_detail->batch_no, $sku_status_id, $return_receipt_detail->pr_no, $return_receipt_detail->pr_date, $return_receipt_detail->plan_arrival_date, $return_receipt_detail->po_no, $return_receipt_detail->remarks);
         } else {
             return $return_receipt_detail->getErrors();
         }
