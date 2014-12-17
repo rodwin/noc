@@ -394,7 +394,7 @@ class Survey extends CFormModel {
             $command->bindParam(':bws', $data['Survey']['bws'], PDO::PARAM_INT);
             $command->bindParam(':hospital', $data['Survey']['hospital'], PDO::PARAM_STR);
             $command->bindParam(':date', $data['Survey']['date'], PDO::PARAM_STR);
-            $command->bindParam(':rater', $data['Survey']['rater'], PDO::PARAM_STR);
+            $command->bindParam(':rater', $code, PDO::PARAM_STR);
             $command->bindParam(':ph', $data['Survey']['ph'], PDO::PARAM_STR);
             $command->bindParam(':added_by', $team_id, PDO::PARAM_INT);
             $command->bindParam(':question', $data['question'][$key], PDO::PARAM_STR);
