@@ -119,7 +119,7 @@ $this->breadcrumbs=array(
                               </td>
                           
                               <td>
-                                   <?php echo $form->textField($model,'rater',array('size'=>30,'maxlength'=>50, 'readonly'=>'readonly')); ?>
+                                   <?php echo $form->textField($model,'rater',array('size'=>30,'maxlength'=>50, 'readonly'=>'readonly','value'=>Yii::app()->user->userObj->user_name)); ?>
                                    <?php echo $form->error($model,'rater'); ?>
                               </td>
                          </tr>
@@ -179,7 +179,6 @@ $('#bws_survey').change(function() {
             dataType: "json",
             success: function(data) {
                 document.getElementById('name_bws').innerHTML = data.firstname+' '+data.lastname;
-                document.getElementById('Survey_rater').value = data.firstname+' '+data.lastname;
 //                document.getElementById('S').innerHTML = data.firstname+' '+data.lastname;
             },
             error: function(data) {
