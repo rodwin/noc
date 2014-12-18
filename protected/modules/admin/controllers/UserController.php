@@ -203,7 +203,12 @@ class UserController extends Controller {
                         . '</body>'
                         . '</html>');
 
-                Globals::sendMail(Yii::app()->name . ' User Name and Password', $content, 'text/html', Yii::app()->params['swiftMailer']['username'], Yii::app()->params['swiftMailer']['accountName'], $user->email, ucwords($user->first_name) . " " . ucwords($user->last_name));
+                $sendTo[] = array(
+                    'address' => $user->email,
+                    'name' => ucwords($user->first_name) . " " . ucwords($user->last_name),
+                );
+
+                Globals::sendMail(Yii::app()->name . ' User Name and Password', $content, 'text/html', Yii::app()->params['swiftMailer']['username'], Yii::app()->params['swiftMailer']['accountName'], $sendTo);
 
                 Yii::app()->user->setFlash('success', "Successfully created");
                 $this->redirect(array('view', 'id' => $model->user_id));
@@ -292,7 +297,12 @@ class UserController extends Controller {
                         . '</body>'
                         . '</html>');
 
-                Globals::sendMail(Yii::app()->name . ' User Name and Password', $content, 'text/html', Yii::app()->params['swiftMailer']['username'], Yii::app()->params['swiftMailer']['accountName'], $user->email, ucwords($user->first_name) . " " . ucwords($user->last_name));
+                $sendTo[] = array(
+                    'address' => $user->email,
+                    'name' => ucwords($user->first_name) . " " . ucwords($user->last_name),
+                );
+
+                Globals::sendMail(Yii::app()->name . ' User Name and Password', $content, 'text/html', Yii::app()->params['swiftMailer']['username'], Yii::app()->params['swiftMailer']['accountName'], $sendTo);
 
                 Yii::app()->user->setFlash('success', "Successfully updated");
                 $this->redirect(array('view', 'id' => $model->user_id));

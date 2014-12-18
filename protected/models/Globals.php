@@ -268,16 +268,26 @@ class Globals {
         return $mailer;
     }
 
-    public static function sendMail($message_title, $content, $content_type, $sendFrom, $sendBy, $sendTo, $receiveBy) {
+    public static function sendMail($message_title, $content, $content_type, $sendFrom, $sendBy, $sendTo) {
 
         $mailer = Globals::swiftmailer();
 
         $message = Swift_Message::newInstance($message_title)
                 ->setFrom(array($sendFrom => $sendBy))
-                ->setTo(array($sendTo => $receiveBy))
                 ->setBody($content, $content_type);
 
-        $mailer->send($message);
+        // Send the message
+        $failedRecipients = array();
+        $numSent = 0;
+        foreach ($sendTo as $key => $val) {
+            if (is_int($key)) {
+                $message->setTo(array($val['address'] => $val['name']));
+            } else {
+                
+            }
+
+            $numSent += $mailer->send($message, $failedRecipients);
+        }
     }
 
 }
