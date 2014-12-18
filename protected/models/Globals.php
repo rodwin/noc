@@ -13,7 +13,6 @@
 use Rhumsaa\Uuid\Uuid;
 use Rhumsaa\Uuid\Exception\UnsatisfiedDependencyException;
 
-
 class Globals {
 
     static function generateV4UUID() {
@@ -252,23 +251,33 @@ class Globals {
 
         return $objPHPExcel;
     }
-    
+
     public static function swiftmailer() {
-        
+
         ini_set('include_path', 'vendor/swiftmailer/swiftmailer/lib/swift_required.php');
-        
+
         // Create the Transport
         $transport = Swift_SmtpTransport::newInstance('ssl://smtp.googlemail.com', 465)
-                                ->setUsername(Yii::app()->params['swiftMailer']['username'])
-                                ->setPassword(Yii::app()->params['swiftMailer']['password']);
-        
-//        $transport = Swift_MailTransport::newInstance();
+                ->setUsername(Yii::app()->params['swiftMailer']['username'])
+                ->setPassword(Yii::app()->params['swiftMailer']['password']);
 
+//        $transport = Swift_MailTransport::newInstance();
         // Create the Mailer using your created Transport
         $mailer = Swift_Mailer::newInstance($transport);
-        
+
         return $mailer;
-        
+    }
+
+    public static function sendMail($message_title, $content, $content_type, $sendFrom, $sendBy, $sendTo, $receiveBy) {
+
+        $mailer = Globals::swiftmailer();
+
+        $message = Swift_Message::newInstance($message_title)
+                ->setFrom(array($sendFrom => $sendBy))
+                ->setTo(array($sendTo => $receiveBy))
+                ->setBody($content, $content_type);
+
+        $mailer->send($message);
     }
 
 }
