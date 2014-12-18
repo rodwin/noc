@@ -297,10 +297,10 @@ class IncomingInventoryController extends Controller {
                             $incoming->outgoing_inventory_id = $_POST['IncomingInventory']['outgoing_inventory_id'];
 
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
+                            $saved = $incoming->create($transaction_details);
 
-                            if ($incoming->create($transaction_details)) {
-                                $data['incoming_inv_id'] = Yii::app()->session['incoming_inv_id_create_session'];
-                                unset(Yii::app()->session['incoming_inv_id_create_session']);
+                            if ($saved['success']) {
+                                $data['incoming_inv_id'] = $saved['header_data']->incoming_inventory_id;                                
                                 $data['message'] = 'Successfully created';
                                 $data['success'] = true;
                             } else {
@@ -795,21 +795,21 @@ class IncomingInventoryController extends Controller {
         $data = array();
         $model = new Attachment;
 
-        $incoming_inv_id_attachment_session = Yii::app()->session['incoming_inv_id_attachment_session'];
         $tag_category = Yii::app()->request->getPost('inventorytype', '');
         $tag_to = Yii::app()->request->getPost('tagname', '');
+        $incoming_inv_id_attachment = Yii::app()->request->getPost('saved_incoming_inventory_id', '');
 
         if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
 
             $file = CUploadedFile::getInstance($model, 'file');
-            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . Attachment::INCOMING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $incoming_inv_id_attachment_session;
+            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . Attachment::INCOMING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $incoming_inv_id_attachment;
 
             if (!is_dir($dir)) {
                 mkdir($dir, 0777, true);
             }
 
             $file_name = str_replace(' ', '_', strtolower($file->name));
-            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::INCOMING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $incoming_inv_id_attachment_session . DIRECTORY_SEPARATOR . $file_name;
+            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::INCOMING_TRANSACTION_TYPE . "/" . $incoming_inv_id_attachment . "/" . $file_name;
             $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
             $model->attachment_id = Globals::generateV4UUID();
@@ -817,7 +817,7 @@ class IncomingInventoryController extends Controller {
             $model->company_id = Yii::app()->user->company_id;
             $model->file_name = $file_name;
             $model->url = $url;
-            $model->transaction_id = $incoming_inv_id_attachment_session;
+            $model->transaction_id = $incoming_inv_id_attachment;
             $model->transaction_type = Attachment::INCOMING_TRANSACTION_TYPE;
             $model->created_by = Yii::app()->user->name;
             if ($tag_category != "OTHERS") {

@@ -454,9 +454,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 'maxFileSize' => 5000000,
                 'acceptFileTypes' => 'js:/(\.|\/)(gif|jpe?g|png|pdf|doc|docx|xls|xlsx)$/i',
                 'submit' => "js:function (e, data) {
-              var inputs = data.context.find('.tagValues');
-              data.formData = inputs.serializeArray();
-              return true;
+                    var inputs = data.context.find('.tagValues');
+                    data.formData = inputs.serializeArray();
+                    return true;
            }"
             ),
             'formView' => 'application.modules.inventory.views.incomingInventory._form',
@@ -645,6 +645,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 if (files != "") {
                     file_upload_count = files.length;
+                    $('[id=saved_incoming_inventory_id]').val(data.incoming_inv_id);
 
                     $('#uploading').click();
                 } else {

@@ -230,7 +230,10 @@ class ReceivingInventoryDetail extends CActiveRecord {
         $receiving_transaction_detail->created_by = $created_by;
 
         if ($receiving_transaction_detail->save(false)) {
+
             $this->createInventory($company_id, $sku_id, $uom_id, $unit_price, $quantity_received, $zone_id, $transaction_date, $created_by, $new_expiration_date, $batch_no, $receiving_transaction_detail->sku_status_id, $pr_no, $pr_date, $plan_arrival_date, $po_no, $remarks);
+
+            return $receiving_transaction_detail;
         } else {
             return $receiving_transaction_detail->getErrors();
         }

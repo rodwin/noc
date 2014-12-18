@@ -222,7 +222,7 @@ class ReceivingInventoryController extends Controller {
             array('label' => "Delete " . ReceivingInventory::RECEIVING_LABEL . ' Inventory', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->receiving_inventory_id), 'confirm' => 'Are you sure you want to delete this item?')),
             array('label' => "Manage " . ReceivingInventory::RECEIVING_LABEL . ' Inventory', 'url' => array('admin')),
         );
-        
+
         $c = new CDbCriteria;
         $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.supplier_id = '" . $model->supplier_id . "'";
         $supplier = Supplier::model()->find($c);
@@ -342,10 +342,10 @@ class ReceivingInventoryController extends Controller {
                         } else {
 
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
+                            $saved = $receiving->create($transaction_details);
 
-                            if ($receiving->create($transaction_details)) {
-                                $data['receiving_inv_id'] = Yii::app()->session['receiving_inv_id_create_session'];
-                                unset(Yii::app()->session['receiving_inv_id_create_session']);
+                            if ($saved['success']) {
+                                $data['receiving_inv_id'] = $saved['header_data']->receiving_inventory_id;
                                 $data['message'] = 'Successfully created';
                                 $data['success'] = true;
                             } else {
@@ -698,30 +698,29 @@ class ReceivingInventoryController extends Controller {
 
         $data = array();
         $model = new Attachment;
-
-        $receiving_inv_id_attachment_session = Yii::app()->session['receiving_inv_id_attachment_session'];
 //        dito start
         $tag_category = Yii::app()->request->getPost('inventorytype', '');
         $tag_to = Yii::app()->request->getPost('tagname', '');
+        $receiving_inv_id_attachment = Yii::app()->request->getPost('saved_receiving_inventory_id', '');
 //       dito end
         if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
 
             $file = CUploadedFile::getInstance($model, 'file');
-            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . Attachment::RECEIVING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $receiving_inv_id_attachment_session;
+            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . Attachment::RECEIVING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $receiving_inv_id_attachment;
 
             if (!is_dir($dir)) {
                 mkdir($dir, 0777, true);
             }
 
             $file_name = str_replace(' ', '_', strtolower($file->name));
-            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::RECEIVING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $receiving_inv_id_attachment_session . DIRECTORY_SEPARATOR . $file_name;
+            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::RECEIVING_TRANSACTION_TYPE . "/" . $receiving_inv_id_attachment . "/" . $file_name;
             $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
             $model->attachment_id = Globals::generateV4UUID();
             $model->company_id = Yii::app()->user->company_id;
             $model->file_name = $file_name;
             $model->url = $url;
-            $model->transaction_id = $receiving_inv_id_attachment_session;
+            $model->transaction_id = $receiving_inv_id_attachment;
             $model->transaction_type = Attachment::RECEIVING_TRANSACTION_TYPE;
             $model->created_by = Yii::app()->user->name;
 //            dito start

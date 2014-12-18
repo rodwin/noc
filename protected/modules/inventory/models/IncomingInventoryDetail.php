@@ -394,6 +394,8 @@ class IncomingInventoryDetail extends CActiveRecord {
             }
 
             ReceivingInventoryDetail::model()->createInventory($incoming_transaction_detail->company_id, $incoming_transaction_detail->sku_id, $incoming_transaction_detail->uom_id, $incoming_transaction_detail->unit_price, $incoming_transaction_detail->quantity_received, $zone_id, $transaction_date, $incoming_transaction_detail->created_by, $incoming_transaction_detail->expiration_date, $incoming_transaction_detail->batch_no, $incoming_transaction_detail->sku_status_id, $incoming_transaction_detail->pr_no, $incoming_transaction_detail->pr_date, $incoming_transaction_detail->plan_arrival_date, $incoming_transaction_detail->po_no, $incoming_transaction_detail->remarks);
+            
+            return $incoming_transaction_detail;
         } else {
             return $incoming_transaction_detail->getErrors();
         }

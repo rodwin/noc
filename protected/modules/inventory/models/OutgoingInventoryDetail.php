@@ -327,6 +327,8 @@ class OutgoingInventoryDetail extends CActiveRecord {
 
         if ($outgoing_transaction_detail->save(false)) {
             $this->decreaseInventory($inventory_id, $outgoing_transaction_detail->quantity_issued, $transaction_date, $outgoing_transaction_detail->unit_price, $outgoing_transaction_detail->created_by, $outgoing_transaction_detail->campaign_no, $outgoing_transaction_detail->pr_no, $outgoing_transaction_detail->pr_date, $outgoing_transaction_detail->plan_arrival_date, $outgoing_transaction_detail->revised_delivery_date);
+            
+            return $outgoing_transaction_detail;
         } else {
             return $outgoing_transaction_detail->getErrors();
         }
@@ -412,7 +414,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
 
             if ($new_qty_value != "") {
 
-                $saved_inv = ReceivingInventoryDetail::model()->createInventory($company_id, $outgoing_inv_detail->sku_id, $outgoing_inv_detail->uom_id, $outgoing_inv_detail->unit_price, $new_qty_value, $source_zone_id, date("Y-m-d", strtotime($updated_date)), $updated_by, $outgoing_inv_detail->expiration_date, $outgoing_inv_detail->batch_no, $status_id, $outgoing_inv_detail->pr_no, $outgoing_inv_detail->pr_date, $outgoing_inv_detail->plan_arrival_date, $outgoing_inv_detail->po_no);
+                $saved_inv = ReceivingInventoryDetail::model()->createInventory($company_id, $outgoing_inv_detail->sku_id, $outgoing_inv_detail->uom_id, $outgoing_inv_detail->unit_price, $new_qty_value, $source_zone_id, date("Y-m-d", strtotime($updated_date)), $updated_by, $outgoing_inv_detail->expiration_date, $outgoing_inv_detail->batch_no, $status_id, $outgoing_inv_detail->pr_no, $outgoing_inv_detail->pr_date, $outgoing_inv_detail->plan_arrival_date, $outgoing_inv_detail->po_no, $outgoing_inv_detail->remarks);
 
                 if ($saved_inv) {
 
@@ -442,7 +444,9 @@ class OutgoingInventoryDetail extends CActiveRecord {
 
         if ($outgoing_inv_detail->save(false)) {
             
+            return $outgoing_inv_detail;
         } else {
+            
             return $outgoing_inv_detail->getErrors();
         }
     }

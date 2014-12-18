@@ -8,18 +8,19 @@
     <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
     {% if (file.error) {  %}
     <td class="error" colspan="2"><span class="label label-danger">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
-    {% } else if (o.files.valid && !i) { files.push(file); ctr = files.length ; console.log(ctr);%}
+    {% } else if (o.files.valid && !i) { files.push(file); ctr = files.length ; %}
     <td>
     <div class="progress progress-success progress-striped active"><div class="bar" style="width:0%;"></div></div>
     </td>
     
      <td>
-         <select class="form-control tagValues" name="inventorytype" id="inventory_type" onchange="selectchange(this);">
+        <input id="saved_outgoing_inventory_id" type="hidden" name="saved_outgoing_inventory_id" class="tagValues" />          
+        <select class="form-control tagValues" name="inventorytype" id="inventory_type" onchange="selectchange(this);">
             <option>PO No.</option>
             <option>DR No.</option>
             <option>RRA No.</option>
             <option>OTHERS</option>
-         </select>
+        </select>
       </td>
       
       <td>

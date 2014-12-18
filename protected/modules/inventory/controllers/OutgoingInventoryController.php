@@ -364,12 +364,12 @@ class OutgoingInventoryController extends Controller {
                         } else {
 
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
-
-                            if ($outgoing->create($transaction_details)) {
-                                $data['outgoing_inv_id'] = Yii::app()->session['outgoing_inv_id_create_session'];
-                                $id = Yii::app()->session['outgoing_inv_id_create_session'];
+                            $saved = $outgoing->create($transaction_details);
+                            
+                            if ($saved['success']) {
+                                $id = $saved['header_data']->outgoing_inventory_id;
+                                $data['outgoing_inv_id'] = $id;
                                 $this->actionSendDR($id, $outgoing->dr_no, $outgoing->destination_zone_id, Yii::app()->dateFormatter->formatDateTime(time(), 'short'), Yii::app()->dateFormatter->formatDateTime(time(), 'short'), 'create');
-                                unset(Yii::app()->session['outgoing_inv_id_create_session']);
                                 $data['message'] = 'Successfully created';
                                 $data['success'] = true;
                             } else {
@@ -617,10 +617,10 @@ class OutgoingInventoryController extends Controller {
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
                             $outgoing_inv_ids_to_be_delete = isset($_POST['outgoing_inv_ids']) ? $_POST['outgoing_inv_ids'] : "";
                             $deletedTransactionRowData = isset($_POST['deletedTransactionRowData']) ? $_POST['deletedTransactionRowData'] : array();
-
-                            if ($outgoing->updateTransaction($outgoing, $outgoing_inv_ids_to_be_delete, $transaction_details, $deletedTransactionRowData)) {
-                                $data['outgoing_inv_id'] = Yii::app()->session['outgoing_inv_id_update_session'];
-                                unset(Yii::app()->session['outgoing_inv_id_update_session']);
+                            $updated = $outgoing->updateTransaction($outgoing, $outgoing_inv_ids_to_be_delete, $transaction_details, $deletedTransactionRowData);
+                            
+                            if ($updated['success']) {
+                                $data['outgoing_inv_id'] = $updated['header_data']->outgoing_inventory_id;
                                 $data['message'] = 'Successfully updated';
                                 $data['success'] = true;
                             } else {
@@ -858,27 +858,28 @@ class OutgoingInventoryController extends Controller {
         $data = array();
         $model = new Attachment;
 
-        $outgoing_inv_id_attachment_session = Yii::app()->session['outgoing_inv_id_attachment_session'];
         $tag_category = Yii::app()->request->getPost('inventorytype', '');
         $tag_to = Yii::app()->request->getPost('tagname', '');
+        $outgoing_inv_id_attachment = Yii::app()->request->getPost('saved_outgoing_inventory_id', '');
+        
         if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
 
             $file = CUploadedFile::getInstance($model, 'file');
-            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . Attachment::OUTGOING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $outgoing_inv_id_attachment_session;
+            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . Attachment::OUTGOING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $outgoing_inv_id_attachment;
 
             if (!is_dir($dir)) {
                 mkdir($dir, 0777, true);
             }
 
             $file_name = str_replace(' ', '_', strtolower($file->name));
-            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::OUTGOING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $outgoing_inv_id_attachment_session . DIRECTORY_SEPARATOR . $file_name;
+            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::OUTGOING_TRANSACTION_TYPE . "/" . $outgoing_inv_id_attachment . "/" . $file_name;
             $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
             $model->attachment_id = Globals::generateV4UUID();
             $model->company_id = Yii::app()->user->company_id;
             $model->file_name = $file_name;
             $model->url = $url;
-            $model->transaction_id = $outgoing_inv_id_attachment_session;
+            $model->transaction_id = $outgoing_inv_id_attachment;
             $model->transaction_type = Attachment::OUTGOING_TRANSACTION_TYPE;
             $model->created_by = Yii::app()->user->name;
             if ($tag_category != "OTHERS") {

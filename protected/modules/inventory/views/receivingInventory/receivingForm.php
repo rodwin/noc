@@ -454,7 +454,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th><?php echo $receivingDetailFields['amount']; ?></th>
-                        <!--<th class=""><?php // echo $receivingDetailFields['inventory_on_hand'];                      ?></th>-->
+                        <!--<th class=""><?php // echo $receivingDetailFields['inventory_on_hand'];                       ?></th>-->
                         <th class="hide_row"><?php echo $receivingDetailFields['remarks']; ?></th>
                     </tr>                                    
                 </thead>
@@ -492,9 +492,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 'maxFileSize' => 5000000,
                 'acceptFileTypes' => 'js:/(\.|\/)(gif|jpe?g|png|pdf|doc|docx|xls|xlsx)$/i',
                 'submit' => "js:function (e, data) {
-              var inputs = data.context.find('.tagValues');
-              data.formData = inputs.serializeArray();
-              return true;
+                    var inputs = data.context.find('.tagValues');
+                    data.formData = inputs.serializeArray();
+                    return true;
            }"
             ),
             'formView' => 'application.modules.inventory.views.receivingInventory._form',
@@ -651,8 +651,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             $element.data("title", "")
                     .removeClass("error")
                     .tooltip("destroy");
-
-            //            $(e[i]).removeClass('error');
         }
 
         if (data.success === true) {
@@ -665,6 +663,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 if (files != "") {
                     file_upload_count = files.length;
+                    $('[id=saved_receiving_inventory_id]').val(data.receiving_inv_id);
 
                     $('#uploading').click();
                 } else {
