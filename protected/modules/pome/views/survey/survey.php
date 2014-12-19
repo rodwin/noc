@@ -147,6 +147,7 @@ $this->breadcrumbs=array(
                                       <option value="0.5">0.5</option>
                                       <option value="0.25">0.25</option>
                                       <option value="0.75">0.75</option>
+                                      <option value="0">0</option>
                                     </select>
 <!--                                  <input type="textbox" name ="answer[]" maxlength='2' onkeypress="javascript: return acceptValidNumbersOnly(this,event);"</td>-->
                               <input type="hidden" name ="question[]" value="<?php echo $v?>" ></td>
