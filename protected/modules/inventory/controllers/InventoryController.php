@@ -727,7 +727,7 @@ class InventoryController extends Controller {
             $status = Inventory::model()->status($val1->status);
 
             $row['transaction_type'] = '<a href="#" title="Click to view" data-toggle="tooltip"><b>' . strtoupper(CustomerItem::CUSTOMER_ITEM_LABEL) . '</b></a>';
-            $row['ra_no'] = $val->rra_no;
+            $row['ra_no'] = $val1->rra_no;
             $row['ra_date'] = date("d-M", strtotime($val1->rra_date));
             $row['dr_date'] = date("d-M", strtotime($val1->dr_date));
             $row['delivery_date'] = date("d-M", strtotime($val1->transaction_date));
@@ -1022,8 +1022,8 @@ class InventoryController extends Controller {
                             )
                         );
 
-                        Globals::queue(json_encode($data));
-//                        Inventory::model()->processBatchUpload($batch_upload->id, Yii::app()->user->company_id);
+//                        Globals::queue(json_encode($data));
+                        Inventory::model()->processBatchUpload($batch_upload->id, Yii::app()->user->company_id);
 
                         Yii::app()->user->setFlash('success', "Successfully uploaded data. Please wait for the checking to finish!");
                     } else {
