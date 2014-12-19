@@ -751,11 +751,11 @@ class Inventory extends CActiveRecord {
                                 if ($model->save(false)) {
 
                                     if ($increase === true) {
-                                        InventoryHistory::model()->createHistory($model->company_id, $model->inventory_id, $model->transaction_date, $new_qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $model->cost_per_unit, $model->created_by, $model->zone_id);
+                                        InventoryHistory::model()->createHistory($model->company_id, $model->inventory_id, $model->transaction_date, $new_qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $model->cost_per_unit, $model->created_by, $model->zone_id, "");
                                     } else if ($decrease === true) {
-                                        InventoryHistory::model()->createHistory($model->company_id, $model->inventory_id, $model->transaction_date, "-" . $new_qty, $qty, Inventory::INVENTORY_ACTION_TYPE_DECREASE, $model->cost_per_unit, $model->created_by, $model->zone_id);
+                                        InventoryHistory::model()->createHistory($model->company_id, $model->inventory_id, $model->transaction_date, "-" . $new_qty, $qty, Inventory::INVENTORY_ACTION_TYPE_DECREASE, $model->cost_per_unit, $model->created_by, $model->zone_id, "");
                                     } else {
-                                        InventoryHistory::model()->createHistory($model->company_id, $model->inventory_id, $model->transaction_date, $new_qty, 0, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $model->cost_per_unit, $model->created_by, $model->zone_id);
+                                        InventoryHistory::model()->createHistory($model->company_id, $model->inventory_id, $model->transaction_date, $new_qty, 0, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $model->cost_per_unit, $model->created_by, $model->zone_id, "");
                                     }
                                 }
 
@@ -785,7 +785,7 @@ class Inventory extends CActiveRecord {
                             try {
                                 if ($model->save(false)) {
 
-                                    InventoryHistory::model()->createHistory($model->company_id, $model->inventory_id, $model->transaction_date, $model->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $model->cost_per_unit, $model->created_by, $model->zone_id);
+                                    InventoryHistory::model()->createHistory($model->company_id, $model->inventory_id, $model->transaction_date, $model->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $model->cost_per_unit, $model->created_by, $model->zone_id, "");
                                 }
 
                                 $ret['success'] ++;
