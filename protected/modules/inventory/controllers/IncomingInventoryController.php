@@ -300,9 +300,16 @@ class IncomingInventoryController extends Controller {
                             $saved = $incoming->create($transaction_details);
 
                             if ($saved['success']) {
-                                $data['incoming_inv_id'] = $saved['header_data']->incoming_inventory_id;                                
+                                $data['incoming_inv_id'] = $saved['header_data']->incoming_inventory_id;
                                 $data['message'] = 'Successfully created';
                                 $data['success'] = true;
+
+                                $sendTo[] = array(
+                                    'address' => 'jttorate@in1go.com.ph',
+                                    'name' => 'jttorate',
+                                );
+
+                                $this->generateRecipientDetails($sendTo, $saved['header_data'], $saved['detail_data']);
                             } else {
                                 $data['message'] = 'Unable to process';
                                 $data['success'] = false;
@@ -1353,6 +1360,77 @@ class IncomingInventoryController extends Controller {
 
         echo json_encode($output);
         Yii::app()->end();
+    }
+
+    public function generateRecipientDetails($sendTo, $header_data, $detail_data) {
+
+        $recipient = array();
+        foreach ($sendTo as $k => $v) {
+            array_push($recipient, $v);
+        }
+
+        $header = array();
+        $details = array();
+
+        $header['ra_no'] = $header_data->rra_no != "" ? strtoupper($header_data->rra_no) : "<i>(RA No not set)</i>";
+        $header['dr_no'] = strtoupper($header_data->dr_no);
+        $header['plan_delivery_date'] = $header_data->plan_delivery_date != "" ? strtoupper(date('M d Y', strtotime($header_data->plan_delivery_date))) : "";
+        $header['delivery_date'] = $header_data->transaction_date != "" ? strtoupper(date('M d Y', strtotime($header_data->transaction_date))) : "";
+        $header['dr_date'] = $header_data->dr_date != "" ? strtoupper(date('M d Y', strtotime($header_data->dr_date))) : "";
+        $header['remarks'] = $header_data->remarks;
+
+        $pr_no_arr = array();
+        $pr_nos = "";
+        foreach ($detail_data as $k1 => $v1) {
+            $row = array();
+            $row['mm_code'] = $v1->sku->sku_code;
+            $row['mm_desc'] = $v1->sku->description;
+            $row['planned_qty'] = $v1->planned_quantity;
+            $row['actual_qty'] = $v1->quantity_received;
+            $row['status'] = $v1->status;
+
+            if ($v1->pr_no != "") {
+                if (!in_array($v1->pr_no, $pr_no_arr)) {
+                    array_push($pr_no_arr, $v1->pr_no);
+                    $pr_nos .= strtoupper($v1->pr_no) . ", ";
+                }
+            }
+
+            $details[] = $row;
+        }
+
+        $header['pr_nos'] = $pr_nos != "" ? substr(trim($pr_nos), 0, -1) : "<i>(PR No not set)</i>";
+
+        $this->sendTransactionMail($sendTo, $header, $details);
+    }
+
+    public function sendTransactionMail($sendTo, $header, $details) {
+
+        $content = '<html>'
+                . '<body>'
+                . ''
+                . '<p>*** This is an automatically generated email, please do not reply  ***</p><br/>'
+                . '<p>Merchandsing Materials delivered last ' . $header['dr_date'] . ' with ' . $header['dr_no'] . ' in reference to ' . $header['pr_nos'] . ' and ' . $header['ra_no'] . ' has been received.</p><br/>'
+                . '<table style="font-size: 12px;" class="table-condensed">'
+                . '<tr><td style="padding-right: 30px;"><b>DR NO:</b></td><td style="text-align: right;">' . $header['dr_no'] . '</td></tr>'
+                . '<tr><td style="padding-right: 30px;"><b>PLAN DELIVERY DATE:</b></td><td style="text-align: right;">' . $header['plan_delivery_date'] . '</td></tr>'
+                . '<tr><td style="padding-right: 30px;"><b>DELIVERY DATE:</b></td><td style="text-align: right;">' . $header['delivery_date'] . '</td></tr>'
+                . '<tr><td style="padding-right: 30px;"><b>REMARKS:</b></td><td style="text-align: right;">' . $header['remarks'] . '</td></tr>'
+                . '</table><br/>'
+                . ''
+                . '<table border="1" style="font-size: 12px;">'
+                . '<tr><th style="padding: 5px;"><b>' . Sku::SKU_LABEL . ' CODE</b></th><th style="padding: 5px;"><b>' . Sku::SKU_LABEL . ' DESCRIPTION</b></th><th style="padding: 5px;"><b>PLANNED QTY</b></th><th style="padding: 5px;"><b>ACTUAL QTY</b></th><th style="padding: 5px;"><b>STATUS</b></th></tr>';
+
+        foreach ($details as $k => $v) {
+            $content .= "<tr><td style='padding: 5px;'>" . $v['mm_code'] . "</td><td style='padding: 5px;'>" . $v['mm_desc'] . "</td><td style='padding: 5px;'>" . $v['planned_qty'] . "</td><td style='padding: 5px;'>" . $v['actual_qty'] . "</td><td style='padding: 5px;'>" . $v['status'] . "</td></tr>";
+        }
+
+        $content .= '</table>'
+                . ''
+                . '</body>'
+                . '</html>';
+
+        Globals::sendMail('Inbound Receipt', $content, 'text/html', Yii::app()->params['swiftMailer']['username'], Yii::app()->params['swiftMailer']['accountName'], $sendTo);
     }
 
 }

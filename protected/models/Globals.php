@@ -287,6 +287,11 @@ class Globals {
             }
 
             $numSent += $mailer->send($message, $failedRecipients);
+
+//            if (!$mailer->send($message, $failures)) {
+//                echo "Failures:";
+//                print_r($failures);
+//            }
         }
     }
 

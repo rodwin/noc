@@ -56,10 +56,10 @@ class ReceivingInventory extends CActiveRecord {
             array('zone_id', 'isValidZone'),
             array('supplier_id', 'isValidSupplier'),
             array('dr_no', 'uniqueDRNo'),
-            array('plan_delivery_date, revised_delivery_date, plan_arrival_date, created_date, updated_date, dr_date', 'safe'),
+            array('plan_delivery_date, revised_delivery_date, plan_arrival_date, created_date, updated_date, dr_date, recipients', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('receiving_inventory_id, company_id, campaign_no, pr_no, pr_date, dr_no, dr_date, requestor, supplier_id, sales_office_id, zone_id, plan_delivery_date, revised_delivery_date, plan_arrival_date, transaction_date, delivery_remarks, total_amount, created_date, created_by, updated_date, updated_by, po_no, po_date, rra_no, rra_date', 'safe', 'on' => 'search'),
+            array('receiving_inventory_id, company_id, campaign_no, pr_no, pr_date, dr_no, dr_date, requestor, supplier_id, sales_office_id, zone_id, plan_delivery_date, revised_delivery_date, plan_arrival_date, transaction_date, delivery_remarks, total_amount, created_date, created_by, updated_date, updated_by, po_no, po_date, rra_no, rra_date, recipients', 'safe', 'on' => 'search'),
         );
     }
 
@@ -167,6 +167,7 @@ class ReceivingInventory extends CActiveRecord {
             'po_date' => 'PO Date',
             'rra_no' => 'RA No',
             'rra_date' => 'RA Date',
+            'recipients' => 'Recipients',
         );
     }
 
@@ -213,6 +214,7 @@ class ReceivingInventory extends CActiveRecord {
         $criteria->compare('po_date', $this->po_date, true);
         $criteria->compare('rra_no', $this->rra_no, true);
         $criteria->compare('rra_date', $this->rra_date, true);
+        $criteria->compare('recipients', $this->recipients, true);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -409,6 +411,7 @@ class ReceivingInventory extends CActiveRecord {
                 'po_date' => $this->po_date,
                 'rra_no' => $this->rra_no,
                 'rra_date' => $this->rra_date,
+                'recipients' => $this->recipients,
             );
 
             $receiving_inventory->attributes = $receiving_inventory_data;
@@ -429,6 +432,7 @@ class ReceivingInventory extends CActiveRecord {
                 }
             }
         } catch (Exception $exc) {
+            pr($exc);
             Yii::log($exc->getTraceAsString(), 'error');
         }
 
@@ -455,6 +459,75 @@ class ReceivingInventory extends CActiveRecord {
         }
 
         return $status;
+    }
+
+    public function validateEmails($model, $emails) {
+
+        $data = array();
+
+        if (count($emails) > 0) {
+
+            foreach ($emails as $k => $v) {
+
+                if (trim($v['value']) != "") {
+                    if (!filter_var($v['value'], FILTER_VALIDATE_EMAIL)) {
+                        $data[$v['id']][] = "Email is invalid.";
+                    }
+                } else {
+                    $data[$v['id']][] = "Email not set.";
+                }
+            }
+        } else {
+
+            $data['Emails'][] = "Email Required.";
+        }
+
+        return $data;
+    }
+
+    public function validateRecipients($model, $recipients) {
+
+        $data = array();
+
+        if (count($recipients) > 0) {
+
+            foreach ($recipients as $k => $v) {
+
+                if (trim($v['value']) == "") {
+                    $data[$v['id']][] = "Recipient name required.";
+                }
+            }
+        } else {
+
+            $data['Recipients'][] = "Recipient Required.";
+        }
+
+        return $data;
+    }
+
+    public function mergeRecipientAndEmails($emails, $recipients) {
+
+        $data = array();
+        $emails_arr = array();
+        $recipients_arr = array();
+
+        foreach ($recipients as $k => $v) {
+            $recipients_arr[] = array(
+                'name' => ucwords($v['value'])
+            );
+        }
+
+        foreach ($emails as $k1 => $v1) {
+            $emails_arr[] = array(
+                'address' => $v1['value']
+            );
+        }
+
+        foreach ($emails_arr as $k => $v) {
+            $data[$k] = array_merge($emails_arr[$k], $recipients_arr[$k]);
+        }
+
+        return $data;
     }
 
 }

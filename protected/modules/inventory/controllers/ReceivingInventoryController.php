@@ -326,10 +326,17 @@ class ReceivingInventoryController extends Controller {
                     unset($receiving->created_date);
 
                     $validatedReceiving = CActiveForm::validate($receiving);
+                    $emails = isset($_POST['emails']) ? $_POST['emails'] : array();
+                    $recipients = isset($_POST['recipients']) ? $_POST['recipients'] : array();
+                    $validatedEmails = ReceivingInventory::model()->validateEmails($receiving, $emails);
+                    $validatedRecipients = ReceivingInventory::model()->validateRecipients($receiving, $recipients);
 
-                    if ($validatedReceiving != '[]') {
+                    $validatedModel_arr = (array) json_decode($validatedReceiving);
+                    $model_errors = json_encode(array_merge($validatedModel_arr, $validatedEmails, $validatedRecipients));
 
-                        $data['error'] = $validatedReceiving;
+                    if ($model_errors != '[]') {
+
+                        $data['error'] = $model_errors;
                         $data['message'] = 'Unable to process';
                         $data['success'] = false;
                         $data["type"] = "danger";
@@ -342,12 +349,21 @@ class ReceivingInventoryController extends Controller {
                         } else {
 
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
+
+                            $recipients_address['emails'] = CJSON::encode($emails);
+                            $recipients_address['recipients'] = CJSON::encode($recipients);
+                            $recipient_email_address = ReceivingInventory::model()->mergeRecipientAndEmails($emails, $recipients);
+
+                            $receiving->recipients = CJSON::encode($recipient_email_address);
+                            
                             $saved = $receiving->create($transaction_details);
 
                             if ($saved['success']) {
                                 $data['receiving_inv_id'] = $saved['header_data']->receiving_inventory_id;
                                 $data['message'] = 'Successfully created';
                                 $data['success'] = true;
+                                
+                                $this->generateRecipientDetails(CJSON::decode($saved['header_data']->recipients), $saved['header_data'], $saved['detail_data']);
                             } else {
                                 $data['message'] = 'Unable to process';
                                 $data['success'] = false;
@@ -1201,6 +1217,67 @@ class ReceivingInventoryController extends Controller {
 
         echo json_encode($output);
         Yii::app()->end();
+    }
+
+    public function generateRecipientDetails($sendTo, $header_data, $detail_data) {
+
+        $recipient = array();
+        foreach ($sendTo as $k => $v) {
+            array_push($recipient, $v);
+        }
+
+        $header = array();
+        $details = array();
+
+        $header['supplier_name'] = $header_data->supplier->supplier_name;
+        $header['pr_no'] = $header_data->pr_no != "" ? strtoupper($header_data->pr_no) : "<i>(PR No not set)</i>";
+        $header['po_no'] = $header_data->po_no != "" ? strtoupper($header_data->po_no) : "<i>(Not set)</i>";
+        $header['dr_no'] = strtoupper($header_data->dr_no);
+        $header['plan_delivery_date'] = $header_data->plan_delivery_date != "" ? strtoupper(date('M d Y', strtotime($header_data->plan_delivery_date))) : "";
+        $header['delivery_date'] = $header_data->transaction_date != "" ? strtoupper(date('M d Y', strtotime($header_data->transaction_date))) : "";
+        $header['remarks'] = $header_data->delivery_remarks;
+
+        foreach ($detail_data as $k1 => $v1) {
+            $row = array();
+            $row['mm_code'] = $v1->sku->sku_code;
+            $row['mm_desc'] = $v1->sku->description;
+            $row['planned_qty'] = $v1->planned_quantity;
+            $row['actual_qty'] = $v1->quantity_received;
+
+            $details[] = $row;
+        }
+
+        $this->sendTransactionMail($sendTo, $header, $details);
+    }
+
+    public function sendTransactionMail($sendTo, $header, $details) {
+
+        $content = '<html>'
+                . '<body>'
+                . ''
+                . '<p>*** This is an automatically generated email, please do not reply  ***</p><br/>'
+                . '<p>Merchandising Materials has been received in reference to ' . $header['pr_no'] . ' from ' . $header['supplier_name'] . '</p><br/>'
+                . '<table style="font-size: 12px;" class="table-condensed">'
+                . '<tr><td style="padding-right: 30px;"><b>PO NO:</b></td><td style="text-align: right;">' . $header['po_no'] . '</td></tr>'
+                . '<tr><td style="padding-right: 30px;"><b>DR NO:</b></td><td style="text-align: right;">' . $header['dr_no'] . '</td></tr>'
+                . '<tr><td style="padding-right: 30px;"><b>PLAN DELIVERY DATE:</b></td><td style="text-align: right;">' . $header['plan_delivery_date'] . '</td></tr>'
+                . '<tr><td style="padding-right: 30px;"><b>DELIVERY DATE:</b></td><td style="text-align: right;">' . $header['delivery_date'] . '</td></tr>'
+                . '<tr><td style="padding-right: 30px;"><b>REMARKS:</b></td><td style="text-align: right;">' . $header['remarks'] . '</td></tr>'
+                . '</table><br/>'
+                . ''
+                . '<table border="1" style="font-size: 12px;">'
+                . '<tr><th style="padding: 5px;"><b>' . Sku::SKU_LABEL . ' CODE</b></th><th style="padding: 5px;"><b>' . Sku::SKU_LABEL . ' DESCRIPTION</b></th><th style="padding: 5px;"><b>PLANNED QTY</b></th><th style="padding: 5px;"><b>ACTUAL QTY</b></th></tr>';
+
+        foreach ($details as $k => $v) {
+            $content .= "<tr><td style='padding: 5px;'>" . $v['mm_code'] . "</td><td style='padding: 5px;'>" . $v['mm_desc'] . "</td><td style='padding: 5px;'>" . $v['planned_qty'] . "</td><td style='padding: 5px;'>" . $v['actual_qty'] . "</td></tr>";
+        }
+
+        $content .= '</table>'
+                . ''
+                . '</body>'
+                . '</html>';
+
+        Globals::sendMail('Merchandsing Materials Received', $content, 'text/html', Yii::app()->params['swiftMailer']['username'], Yii::app()->params['swiftMailer']['accountName'], $sendTo);
     }
 
 }
