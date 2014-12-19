@@ -1520,7 +1520,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             if (recipients.length != 0) {
                 $.each(recipients, function(i, v) {
                     var y = i + 2;
-                    $(wrapper).append('<div style="margin: 3px;"><input type="text" id="recipient_name' + y + '" class="form-control input-sm" name="recipients[]" style="width: 180px;" placeholder="Recipient Name" value="' + v.name + '" /><input type="text" id="recipient_email' + y + '" class="form-control input-sm" name="emails[]" style="width: 200px;" placeholder="Email" value="' + v.address + '" /><button class="remove_field btn btn-default btn-flat btn-sm">x</a></div>');
+                    $(wrapper).append('<div style="margin: 3px;"><input type="text" id="recipient_name' + y + '" class="form-control input-sm ignore" name="recipients[]" style="width: 180px;" placeholder="Recipient Name" value="' + v.name + '" /><input type="text" id="recipient_email' + y + '" class="form-control input-sm ignore" name="emails[]" style="width: 200px;" placeholder="Email" value="' + v.address + '" /><button class="remove_field btn btn-default btn-flat btn-sm">x</a></div>');
                     emailTxtboxEmpty(wrapper, y);
                     x = y;
                 });
@@ -1531,7 +1531,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             e.preventDefault();
 //            if (x < max_fields) { //max input box allowed
             x++; //text box increment
-            $(wrapper).append('<div style="margin: 3px;"><input type="text" id="recipient_name' + x + '" class="form-control input-sm" name="recipients[]" style="width: 180px;" placeholder="Recipient Name" /><input type="text" id="recipient_email' + x + '" class="form-control input-sm" name="emails[]" style="width: 200px;" placeholder="Email" /><button class="remove_field btn btn-default btn-flat btn-sm">x</a></div>'); //add input box
+            $(wrapper).append('<div style="margin: 3px;"><input type="text" id="recipient_name' + x + '" class="form-control input-sm ignore" name="recipients[]" style="width: 180px;" placeholder="Recipient Name" /><input type="text" id="recipient_email' + x + '" class="form-control input-sm ignore" name="emails[]" style="width: 200px;" placeholder="Email" /><button class="remove_field btn btn-default btn-flat btn-sm">x</a></div>'); //add input box
             emailTxtboxEmpty(wrapper, x);
 //            }
         });
