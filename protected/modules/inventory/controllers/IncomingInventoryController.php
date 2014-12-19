@@ -279,10 +279,17 @@ class IncomingInventoryController extends Controller {
                     unset($incoming->created_date);
 
                     $validatedIncoming = CActiveForm::validate($incoming);
+                    $emails = isset($_POST['emails']) ? $_POST['emails'] : array();
+                    $recipients = isset($_POST['recipients']) ? $_POST['recipients'] : array();
+                    $validatedEmails = ReceivingInventory::model()->validateEmails($incoming, $emails);
+                    $validatedRecipients = ReceivingInventory::model()->validateRecipients($incoming, $recipients);
 
-                    if ($validatedIncoming != '[]') {
+                    $validatedModel_arr = (array) json_decode($validatedIncoming);
+                    $model_errors = json_encode(array_merge($validatedModel_arr, $validatedEmails, $validatedRecipients));
 
-                        $data['error'] = $validatedIncoming;
+                    if ($model_errors != '[]') {
+
+                        $data['error'] = $model_errors;
                         $data['message'] = 'Unable to process';
                         $data['success'] = false;
                         $data["type"] = "danger";
@@ -297,6 +304,13 @@ class IncomingInventoryController extends Controller {
                             $incoming->outgoing_inventory_id = $_POST['IncomingInventory']['outgoing_inventory_id'];
 
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
+                            
+                            $recipients_address['emails'] = CJSON::encode($emails);
+                            $recipients_address['recipients'] = CJSON::encode($recipients);
+                            $recipient_email_address = ReceivingInventory::model()->mergeRecipientAndEmails($emails, $recipients);
+
+                            $incoming->recipients = CJSON::encode($recipient_email_address);
+                            
                             $saved = $incoming->create($transaction_details);
 
                             if ($saved['success']) {
@@ -304,12 +318,7 @@ class IncomingInventoryController extends Controller {
                                 $data['message'] = 'Successfully created';
                                 $data['success'] = true;
 
-                                $sendTo[] = array(
-                                    'address' => 'jttorate@in1go.com.ph',
-                                    'name' => 'jttorate',
-                                );
-
-                                $this->generateRecipientDetails($sendTo, $saved['header_data'], $saved['detail_data']);
+                                $this->generateRecipientDetails(CJSON::decode($saved['header_data']->recipients), $saved['header_data'], $saved['detail_data']);
                             } else {
                                 $data['message'] = 'Unable to process';
                                 $data['success'] = false;

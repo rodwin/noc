@@ -105,6 +105,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
     .status-label { color: #fff; font-weight: bold; font-size: 12px; text-align: center; }
 
+    .border-red { border: 2px solid red!important; }
 </style>  
 
 <div class="box box-primary">
@@ -428,6 +429,16 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             <?php echo $form->textFieldGroup($incoming, 'total_amount', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5 pull-right', 'value' => 0, 'readonly' => true)), 'labelOptions' => array('label' => false))); ?>
         </div>
 
+        <div class="pull-left col-md-5 well well-sm" style='margin-top: 10px;'>
+            <div class="input-group input_fields_wrap">
+                <div id="added_textbox_email"><span id="email_not_set_id" class="email_not_set"><i>Recipient Email not set.</i></span></div>
+            </div>
+            <div class="clearfix" style="margin-top: 3px;">
+                <button id="addEmailRecipient" class="btn btn-info btn-flat btn-sm add_field_button pull-right" type="button">Add Field</button>
+
+            </div>
+        </div>
+
     </div>
 
     <div class="box-footer clearfix">
@@ -589,9 +600,32 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
     }
 
+    var emails_empty = false;
     function send(form) {
 
-        var data = $("#incoming-inventory-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable()});
+        var emails = [];
+        var recipient = [];
+        $('input[name="emails[]"]').each(function() {
+            emails.push({
+                "id": $(this).attr('id'),
+                "name": $(this).attr('name'),
+                "value": $(this).val()
+            });
+        });
+
+        $('input[name="recipients[]"]').each(function() {
+            recipient.push({
+                "id": $(this).attr('id'),
+                "name": $(this).attr('name'),
+                "value": $(this).val()
+            });
+        });
+
+        if (emails.length == 0) {
+            emails_empty = true;
+        }
+
+        var data = $("#incoming-inventory-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable()}) + '&' + $.param({"emails": emails}) + '&' + $.param({"recipients": recipient});
 
         if ($("#btn_save, #btn_add_item, #btn_print").is("[disabled=disabled]")) {
             return false;
@@ -751,6 +785,16 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             $("#btn_save, #btn_add_item").attr('disabled', false);
             $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
             $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
+
+            if (emails_empty === true) {
+                $("#email_not_set_id").data("title", "Recipient Email Required")
+                        .addClass("text-red")
+                        .tooltip();
+
+                $("#addEmailRecipient").data("title", "Please add atleast one")
+                        .addClass("border-red")
+                        .tooltip();
+            }
 
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
@@ -1142,6 +1186,60 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/incomingInventory') . '"' ?> + "/view&id=" + success_incoming_inv_id;
 
         growlAlert(success_type, success_message);
+    }
+
+    $(function() {
+        var max_fields = 10; //maximum input boxes allowed
+        var wrapper = $("#added_textbox_email"); //Fields wrapper
+        var add_button = $(".add_field_button"); //Add button ID
+        var x = 1; //initlal text box count
+
+<?php if (!$incoming->isNewRecord) { ?>
+            var recipients = <?php echo $incoming->recipients; ?>;
+
+            if (recipients.length != 0) {
+                $.each(recipients, function(i, v) {
+                    var y = i + 2;
+                    $(wrapper).append('<div style="margin: 3px;"><input type="text" id="recipient_name' + y + '" class="form-control input-sm" name="recipients[]" style="width: 180px;" placeholder="Recipient Name" value="' + v.name + '" /><input type="text" id="recipient_email' + y + '" class="form-control input-sm" name="emails[]" style="width: 200px;" placeholder="Email" value="' + v.address + '" /><button class="remove_field btn btn-default btn-flat btn-sm">x</a></div>');
+                    emailTxtboxEmpty(wrapper, y);
+                    x = y;
+                });
+            }
+<?php } ?>
+
+        $(add_button).click(function(e) { //on add input button click
+            e.preventDefault();
+//            if (x < max_fields) { //max input box allowed
+            x++; //text box increment
+            $(wrapper).append('<div style="margin: 3px;"><input type="text" id="recipient_name' + x + '" class="form-control input-sm" name="recipients[]" style="width: 180px;" placeholder="Recipient Name" /><input type="text" id="recipient_email' + x + '" class="form-control input-sm" name="emails[]" style="width: 200px;" placeholder="Email" /><button class="remove_field btn btn-default btn-flat btn-sm">x</a></div>'); //add input box
+            emailTxtboxEmpty(wrapper, x);
+//            }
+        });
+
+        $(wrapper).on("click", ".remove_field", function(e) { //user click on remove text
+            e.preventDefault();
+            $(this).parent('div').remove();
+            x--;
+            emailTxtboxEmpty(wrapper, x);
+        })
+    });
+
+    function emailTxtboxEmpty(wrapper, ctr) {
+
+        if (ctr == 1) {
+            $(wrapper).append('<span id="email_not_set_id" class="email_not_set"><i>Recipient Email not set.</i></span>');
+        } else {
+            $("#email_not_set_id").remove();
+
+            emails_empty = false;
+            $("#email_not_set_id").data("title", "")
+                    .removeClass("text-red")
+                    .tooltip("destroy");
+
+            $("#addEmailRecipient").data("title", "")
+                    .removeClass("border-red")
+                    .tooltip("destroy");
+        }
     }
 
 </script>
