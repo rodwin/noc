@@ -455,7 +455,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th><?php echo $receivingDetailFields['amount']; ?></th>
-                        <!--<th class=""><?php // echo $receivingDetailFields['inventory_on_hand'];                                   ?></th>-->
+                        <!--<th class=""><?php // echo $receivingDetailFields['inventory_on_hand'];                                    ?></th>-->
                         <th class="hide_row"><?php echo $receivingDetailFields['remarks']; ?></th>
                     </tr>                                    
                 </thead>
@@ -631,7 +631,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 "value": $(this).val()
             });
         });
-        
+
         $('input[name="recipients[]"]').each(function() {
             recipient.push({
                 "id": $(this).attr('id'),
@@ -1066,11 +1066,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         var x = 1; //initlal text box count
         $(add_button).click(function(e) { //on add input button click
             e.preventDefault();
-            if (x < max_fields) { //max input box allowed
-                x++; //text box increment
-                $(wrapper).append('<div style="margin: 3px;"><input type="text" id="recipient_name' + x + '" class="form-control input-sm" name="recipients[]" style="width: 180px;" placeholder="Recipient Name" /><input type="text" id="recipient_email' + x + '" class="form-control input-sm" name="emails[]" style="width: 200px;" placeholder="Email" /><button class="remove_field btn btn-default btn-flat btn-sm">x</a></div>'); //add input box
-                emailTxtboxEmpty(wrapper, x);
-            }
+//            if (x < max_fields) { //max input box allowed
+            x++; //text box increment
+            $(wrapper).append('<div style="margin: 3px;"><input type="text" id="recipient_name' + x + '" class="form-control input-sm" name="recipients[]" style="width: 180px;" placeholder="Recipient Name" /><input type="text" id="recipient_email' + x + '" class="form-control input-sm" name="emails[]" style="width: 200px;" placeholder="Email" /><button class="remove_field btn btn-default btn-flat btn-sm">x</a></div>'); //add input box
+            emailTxtboxEmpty(wrapper, x);
+//            }
         });
 
         $(wrapper).on("click", ".remove_field", function(e) { //user click on remove text

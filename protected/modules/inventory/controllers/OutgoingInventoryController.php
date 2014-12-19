@@ -348,10 +348,17 @@ class OutgoingInventoryController extends Controller {
                     unset($outgoing->created_date);
 
                     $validatedOutgoing = CActiveForm::validate($outgoing);
+                    $emails = isset($_POST['emails']) ? $_POST['emails'] : array();
+                    $recipients = isset($_POST['recipients']) ? $_POST['recipients'] : array();
+                    $validatedEmails = ReceivingInventory::model()->validateEmails($outgoing, $emails);
+                    $validatedRecipients = ReceivingInventory::model()->validateRecipients($outgoing, $recipients);
 
-                    if ($validatedOutgoing != '[]') {
+                    $validatedModel_arr = (array) json_decode($validatedOutgoing);
+                    $model_errors = json_encode(array_merge($validatedModel_arr, $validatedEmails, $validatedRecipients));
 
-                        $data['error'] = $validatedOutgoing;
+                    if ($model_errors != '[]') {
+
+                        $data['error'] = $model_errors;
                         $data['message'] = 'Unable to process';
                         $data['success'] = false;
                         $data["type"] = "danger";
@@ -364,6 +371,13 @@ class OutgoingInventoryController extends Controller {
                         } else {
 
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
+
+                            $recipients_address['emails'] = CJSON::encode($emails);
+                            $recipients_address['recipients'] = CJSON::encode($recipients);
+                            $recipient_email_address = ReceivingInventory::model()->mergeRecipientAndEmails($emails, $recipients);
+
+                            $outgoing->recipients = CJSON::encode($recipient_email_address);
+
                             $saved = $outgoing->create($transaction_details);
 
                             if ($saved['success']) {
@@ -373,12 +387,7 @@ class OutgoingInventoryController extends Controller {
                                 $data['message'] = 'Successfully created';
                                 $data['success'] = true;
 
-                                $sendTo[] = array(
-                                    'address' => 'jttorate@in1go.com.ph',
-                                    'name' => 'jttorate',
-                                );
-
-                                $this->generateRecipientDetails($sendTo, $saved['header_data'], $saved['detail_data']);
+                                $this->generateRecipientDetails(CJSON::decode($saved['header_data']->recipients), $saved['header_data'], $saved['detail_data']);
                             } else {
                                 $data['message'] = 'Unable to process';
                                 $data['success'] = false;
@@ -606,10 +615,18 @@ class OutgoingInventoryController extends Controller {
                     $outgoing->updated_date = date('Y-m-d H:i:s');
 
                     $validatedOutgoing = CActiveForm::validate($outgoing);
+                    $emails = isset($_POST['emails']) ? $_POST['emails'] : array();
+                    $recipients = isset($_POST['recipients']) ? $_POST['recipients'] : array();
+                    $validatedEmails = ReceivingInventory::model()->validateEmails($outgoing, $emails);
+                    $validatedRecipients = ReceivingInventory::model()->validateRecipients($outgoing, $recipients);
 
-                    if ($validatedOutgoing != '[]') {
+                    $validatedModel_arr = (array) json_decode($validatedOutgoing);
+                    $model_errors = json_encode(array_merge($validatedModel_arr, $validatedEmails, $validatedRecipients));
 
-                        $data['error'] = $validatedOutgoing;
+
+                    if ($model_errors != '[]') {
+
+                        $data['error'] = $model_errors;
                         $data['message'] = 'Unable to process';
                         $data['success'] = false;
                         $data["type"] = "danger";
@@ -624,12 +641,21 @@ class OutgoingInventoryController extends Controller {
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
                             $outgoing_inv_ids_to_be_delete = isset($_POST['outgoing_inv_ids']) ? $_POST['outgoing_inv_ids'] : "";
                             $deletedTransactionRowData = isset($_POST['deletedTransactionRowData']) ? $_POST['deletedTransactionRowData'] : array();
+                                                        
+                            $recipients_address['emails'] = CJSON::encode($emails);
+                            $recipients_address['recipients'] = CJSON::encode($recipients);
+                            $recipient_email_address = ReceivingInventory::model()->mergeRecipientAndEmails($emails, $recipients);
+
+                            $outgoing->recipients = CJSON::encode($recipient_email_address);
+                            
                             $updated = $outgoing->updateTransaction($outgoing, $outgoing_inv_ids_to_be_delete, $transaction_details, $deletedTransactionRowData);
 
                             if ($updated['success']) {
                                 $data['outgoing_inv_id'] = $updated['header_data']->outgoing_inventory_id;
                                 $data['message'] = 'Successfully updated';
                                 $data['success'] = true;
+                                
+                                $this->generateRecipientDetails(CJSON::decode($updated['header_data']->recipients), $updated['header_data'], $updated['detail_data']);
                             } else {
                                 $data['message'] = 'Unable to process';
                                 $data['success'] = false;
@@ -652,6 +678,7 @@ class OutgoingInventoryController extends Controller {
             'uom' => $uom,
             'sku_status' => $sku_status,
             'zone_list' => $zone_list,
+            'recipients' => CJSON::decode($outgoing->recipients),
         ));
     }
 
