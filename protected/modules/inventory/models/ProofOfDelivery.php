@@ -269,7 +269,11 @@ class ProofOfDelivery extends CActiveRecord {
         $pod->created_by = $customer_header_data->created_by;
         $pod->customer_item_id = $customer_header_data->customer_item_id;
 
-        $pod->create($transaction_details);
+        if ($pod->create($transaction_details)) {
+            
+        } else {
+            return $pod->getErrors();
+        }
     }
 
     public function create($transaction_details, $validate = true) {
@@ -305,15 +309,14 @@ class ProofOfDelivery extends CActiveRecord {
                 if ($proofOfDelivery->save(false)) {
 
                     for ($i = 0; $i < count($transaction_details); $i++) {
-                        ProofOfDeliveryDetail::model()->createPODTransactionDetails($proofOfDelivery->pod_id, $proofOfDelivery->company_id, $transaction_details->inventory_id, $transaction_details->batch_no, $transaction_details->sku_id, $transaction_details->source_zone_id, $transaction_details->unit_price, $transaction_details->expiration_date, $transaction_details->planned_quantity, $transaction_details->quantity_issued, $transaction_details->amount, $transaction_details->return_date, $transaction_details->remarks, $proofOfDelivery->created_by, $transaction_details->uom_id, $transaction_details->sku_status_id, $proofOfDelivery->transaction_date, $transaction_details->customer_item_detail_id);
+                        ProofOfDeliveryDetail::model()->createPODTransactionDetails($proofOfDelivery->pod_id, $proofOfDelivery->company_id, $transaction_details[$i]->inventory_id, $transaction_details[$i]->batch_no, $transaction_details[$i]->sku_id, $transaction_details[$i]->source_zone_id, $transaction_details[$i]->unit_price, $transaction_details[$i]->expiration_date, $transaction_details[$i]->planned_quantity, $transaction_details[$i]->quantity_issued, $transaction_details[$i]->amount, $transaction_details[$i]->return_date, $transaction_details[$i]->remarks, $proofOfDelivery->created_by, $transaction_details[$i]->uom_id, $transaction_details[$i]->sku_status_id, $proofOfDelivery->transaction_date, $transaction_details[$i]->customer_item_detail_id);
                     }
+
+                    return true;
                 }
-                return true;
             } else {
                 return false;
             }
-
-            return true;
         } catch (Exception $exc) {
             Yii::log($exc->getTraceAsString(), 'error');
             return false;
@@ -336,7 +339,11 @@ class ProofOfDelivery extends CActiveRecord {
         $pod->updated_by = $customer_header_data->updated_by;
         $pod->updated_date = $customer_header_data->updated_date;
 
-        $pod->updateTransaction($pod, $customer_item_detail_ids_to_be_delete, $transaction_details);
+        if ($pod->updateTransaction($pod, $customer_item_detail_ids_to_be_delete, $transaction_details)) {
+            
+        } else {
+            return $pod->getErrors();
+        }
     }
 
     public function updateTransaction($proofOfDelivery, $customer_item_detail_ids_to_be_delete, $transaction_details, $validate = true) {
@@ -370,7 +377,7 @@ class ProofOfDelivery extends CActiveRecord {
                 if ($proofOfDelivery->save(false)) {
 
                     for ($i = 0; $i < count($transaction_details); $i++) {
-                        ProofOfDeliveryDetail::model()->updatePODTransactionDetails($proofOfDelivery->pod_id, $transaction_details->customer_item_detail_id, $proofOfDelivery->company_id, $transaction_details->inventory_id, $transaction_details->quantity_issued, $transaction_details->amount, $proofOfDelivery->updated_by, $proofOfDelivery->updated_date);
+                        ProofOfDeliveryDetail::model()->updatePODTransactionDetails($proofOfDelivery->pod_id, $transaction_details[$i]->customer_item_detail_id, $proofOfDelivery->company_id, $transaction_details[$i]->inventory_id, $transaction_details[$i]->quantity_issued, $transaction_details[$i]->amount, $proofOfDelivery->updated_by, $proofOfDelivery->updated_date);
                     }
                 }
                 return true;
