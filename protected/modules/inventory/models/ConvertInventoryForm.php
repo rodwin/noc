@@ -10,6 +10,7 @@ class ConvertInventoryForm extends CFormModel {
     public $equivalent_qty;
     public $new_uom_id;
     public $inventoryObj = null;
+    public $remarks;
 
     /**
      * Declares the validation rules.
@@ -21,6 +22,7 @@ class ConvertInventoryForm extends CFormModel {
             // username and password are required
             array('created_by, qty, transaction_date, equivalent_qty', 'required'),
             array('new_uom_id', 'required', 'message' => 'Unit of Measure is required.'),
+            array('remarks', 'length', 'max' => 200),
             array('inventory_id', 'isValidInventoryId'),
             array('transaction_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('qty, equivalent_qty', 'numerical', 'integerOnly' => true, 'max' => 9999999, 'min' => 0),
@@ -61,6 +63,7 @@ class ConvertInventoryForm extends CFormModel {
             'transaction_date' => 'Transaction Date',
             'cost_per_unit' => 'Cost per Unit',
             'equivalent_qty' => 'Enter Number',
+            'remarks' => 'Remarks',
         );
     }
 
@@ -98,7 +101,7 @@ class ConvertInventoryForm extends CFormModel {
             if ($inventory) {
                 $item_exist = true;
                 $inv_qty = $this->equivalent_qty + $inventory->qty;
-                InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->equivalent_qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_CONVERT, $inventory->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id);
+                InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->equivalent_qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_CONVERT, $inventory->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id, $this->remarks);
             } else {
                 $inventory = new Inventory();
                 $inv_qty = $this->equivalent_qty;
@@ -121,11 +124,11 @@ class ConvertInventoryForm extends CFormModel {
             if ($inventory->save(false)) {
 
                 if ($item_exist == false) {
-                    InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->equivalent_qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_CONVERT, $inventory->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id);
+                    InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->equivalent_qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_CONVERT, $inventory->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id, $this->remarks);
                 }
             }
 
-            InventoryHistory::model()->createHistory($this->inventoryObj->company_id, $this->inventoryObj->inventory_id, $this->transaction_date, "-" . $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_CONVERT, $this->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id);
+            InventoryHistory::model()->createHistory($this->inventoryObj->company_id, $this->inventoryObj->inventory_id, $this->transaction_date, "-" . $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_CONVERT, $this->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id, $this->remarks);
 
             $transaction->commit();
 

@@ -364,14 +364,21 @@ class OutgoingInventoryController extends Controller {
                         } else {
 
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
+                            $saved = $outgoing->create($transaction_details);
 
-                            if ($outgoing->create($transaction_details)) {
-                                $data['outgoing_inv_id'] = Yii::app()->session['outgoing_inv_id_create_session'];
-                                $id = Yii::app()->session['outgoing_inv_id_create_session'];
+                            if ($saved['success']) {
+                                $id = $saved['header_data']->outgoing_inventory_id;
+                                $data['outgoing_inv_id'] = $id;
                                 $this->actionSendDR($id, $outgoing->dr_no, $outgoing->destination_zone_id, Yii::app()->dateFormatter->formatDateTime(time(), 'short'), Yii::app()->dateFormatter->formatDateTime(time(), 'short'), 'create');
-                                unset(Yii::app()->session['outgoing_inv_id_create_session']);
                                 $data['message'] = 'Successfully created';
                                 $data['success'] = true;
+
+                                $sendTo[] = array(
+                                    'address' => 'jttorate@in1go.com.ph',
+                                    'name' => 'jttorate',
+                                );
+
+                                $this->generateRecipientDetails($sendTo, $saved['header_data'], $saved['detail_data']);
                             } else {
                                 $data['message'] = 'Unable to process';
                                 $data['success'] = false;
@@ -617,10 +624,10 @@ class OutgoingInventoryController extends Controller {
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
                             $outgoing_inv_ids_to_be_delete = isset($_POST['outgoing_inv_ids']) ? $_POST['outgoing_inv_ids'] : "";
                             $deletedTransactionRowData = isset($_POST['deletedTransactionRowData']) ? $_POST['deletedTransactionRowData'] : array();
+                            $updated = $outgoing->updateTransaction($outgoing, $outgoing_inv_ids_to_be_delete, $transaction_details, $deletedTransactionRowData);
 
-                            if ($outgoing->updateTransaction($outgoing, $outgoing_inv_ids_to_be_delete, $transaction_details, $deletedTransactionRowData)) {
-                                $data['outgoing_inv_id'] = Yii::app()->session['outgoing_inv_id_update_session'];
-                                unset(Yii::app()->session['outgoing_inv_id_update_session']);
+                            if ($updated['success']) {
+                                $data['outgoing_inv_id'] = $updated['header_data']->outgoing_inventory_id;
                                 $data['message'] = 'Successfully updated';
                                 $data['success'] = true;
                             } else {
@@ -858,27 +865,28 @@ class OutgoingInventoryController extends Controller {
         $data = array();
         $model = new Attachment;
 
-        $outgoing_inv_id_attachment_session = Yii::app()->session['outgoing_inv_id_attachment_session'];
         $tag_category = Yii::app()->request->getPost('inventorytype', '');
         $tag_to = Yii::app()->request->getPost('tagname', '');
+        $outgoing_inv_id_attachment = Yii::app()->request->getPost('saved_outgoing_inventory_id', '');
+
         if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
 
             $file = CUploadedFile::getInstance($model, 'file');
-            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . Attachment::OUTGOING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $outgoing_inv_id_attachment_session;
+            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . Attachment::OUTGOING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $outgoing_inv_id_attachment;
 
             if (!is_dir($dir)) {
                 mkdir($dir, 0777, true);
             }
 
             $file_name = str_replace(' ', '_', strtolower($file->name));
-            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::OUTGOING_TRANSACTION_TYPE . DIRECTORY_SEPARATOR . $outgoing_inv_id_attachment_session . DIRECTORY_SEPARATOR . $file_name;
+            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::OUTGOING_TRANSACTION_TYPE . "/" . $outgoing_inv_id_attachment . "/" . $file_name;
             $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
             $model->attachment_id = Globals::generateV4UUID();
             $model->company_id = Yii::app()->user->company_id;
             $model->file_name = $file_name;
             $model->url = $url;
-            $model->transaction_id = $outgoing_inv_id_attachment_session;
+            $model->transaction_id = $outgoing_inv_id_attachment;
             $model->transaction_type = Attachment::OUTGOING_TRANSACTION_TYPE;
             $model->created_by = Yii::app()->user->name;
             if ($tag_category != "OTHERS") {
@@ -1811,5 +1819,74 @@ class OutgoingInventoryController extends Controller {
         }
     }
 
-    ////end of sending of dr report
+    public function generateRecipientDetails($sendTo, $header_data, $detail_data) {
+
+        $recipient = array();
+        foreach ($sendTo as $k => $v) {
+            array_push($recipient, $v);
+        }
+
+        $header = array();
+        $details = array();
+
+        $header['ra_no'] = $header_data->rra_no != "" ? strtoupper($header_data->rra_no) : "<i>(RA No not set)</i>";
+        $header['dr_no'] = strtoupper($header_data->dr_no);
+        $header['plan_delivery_date'] = $header_data->plan_delivery_date != "" ? strtoupper(date('M d Y', strtotime($header_data->plan_delivery_date))) : "";
+        $header['delivery_date'] = $header_data->transaction_date != "" ? strtoupper(date('M d Y', strtotime($header_data->transaction_date))) : "";
+        $header['remarks'] = $header_data->remarks;
+
+        $pr_no_arr = array();
+        $pr_nos = "";
+        foreach ($detail_data as $k1 => $v1) {
+            $row = array();
+            $row['mm_code'] = $v1->sku->sku_code;
+            $row['mm_desc'] = $v1->sku->description;
+            $row['planned_qty'] = $v1->planned_quantity;
+            $row['actual_qty'] = $v1->quantity_issued;
+
+            if ($v1->pr_no != "") {
+                if (!in_array($v1->pr_no, $pr_no_arr)) {
+                    array_push($pr_no_arr, $v1->pr_no);
+                    $pr_nos .= strtoupper($v1->pr_no) . ", ";
+                }
+            }
+
+            $details[] = $row;
+        }
+
+        $header['pr_nos'] = $pr_nos != "" ? substr(trim($pr_nos), 0, -1) : "<i>(PR No not set)</i>";
+
+        $this->sendTransactionMail($sendTo, $header, $details);
+    }
+
+    public function sendTransactionMail($sendTo, $header, $details) {
+
+        $content = '<html>'
+                . '<body>'
+                . ''
+                . '<p>*** This is an automatically generated email, please do not reply  ***</p><br/>'
+                . '<p>Email Alert:</p>'
+                . '<p>An In-Transit delivery from (Warehouse / Salesoffice) in reference to ' . $header['ra_no'] . ' from ' . $header['pr_nos'] . '</p><br/>'
+                . '<table style="font-size: 12px;" class="table-condensed">'
+                . '<tr><td style="padding-right: 30px;"><b>DR NO:</b></td><td style="text-align: right;">' . $header['dr_no'] . '</td></tr>'
+                . '<tr><td style="padding-right: 30px;"><b>PLAN DELIVERY DATE:</b></td><td style="text-align: right;">' . $header['plan_delivery_date'] . '</td></tr>'
+                . '<tr><td style="padding-right: 30px;"><b>DELIVERY DATE:</b></td><td style="text-align: right;">' . $header['delivery_date'] . '</td></tr>'
+                . '<tr><td style="padding-right: 30px;"><b>REMARKS:</b></td><td style="text-align: right;">' . $header['remarks'] . '</td></tr>'
+                . '</table><br/>'
+                . ''
+                . '<table border="1" style="font-size: 12px;">'
+                . '<tr><th style="padding: 5px;"><b>' . Sku::SKU_LABEL . ' CODE</b></th><th style="padding: 5px;"><b>' . Sku::SKU_LABEL . ' DESCRIPTION</b></th><th style="padding: 5px;"><b>PLANNED QTY</b></th><th style="padding: 5px;"><b>ACTUAL QTY</b></th></tr>';
+
+        foreach ($details as $k => $v) {
+            $content .= "<tr><td style='padding: 5px;'>" . $v['mm_code'] . "</td><td style='padding: 5px;'>" . $v['mm_desc'] . "</td><td style='padding: 5px;'>" . $v['planned_qty'] . "</td><td style='padding: 5px;'>" . $v['actual_qty'] . "</td></tr>";
+        }
+
+        $content .= '</table>'
+                . ''
+                . '</body>'
+                . '</html>';
+
+        Globals::sendMail('Outbound Transaction Alert', $content, 'text/html', Yii::app()->params['swiftMailer']['username'], Yii::app()->params['swiftMailer']['accountName'], $sendTo);
+    }
+
 }

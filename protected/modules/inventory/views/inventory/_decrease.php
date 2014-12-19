@@ -81,12 +81,22 @@
 
             <div class="form-group">
                 <?php echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('id' => 'transaction_date_dp')))); ?> 
+
+                <?php
+                echo $form->textAreaGroup($model, 'remarks', array(
+                    'wrapperHtmlOptions' => array(
+                        'class' => 'span5',
+                    ),
+                    'widgetOptions' => array(
+                        'htmlOptions' => array('class' => 'input-width', 'style' => 'resize: none;', 'maxlength' => 200),
+                )));
+                ?>
             </div>
 
         </div>
 
         <div class="modal-footer clearfix" style="padding-top: 10px; padding-bottom: 10px;">
-            
+
             <div class="pull-left"> 
                 <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-check"></i> Save', array('name' => 'save', 'class' => 'btn btn-primary', 'id' => 'btn_decrease')); ?>
                 <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-mail-reply"></i> Reset', array('class' => 'btn btn-primary', 'id' => 'btn_decrease_form_reset')); ?>

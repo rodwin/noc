@@ -354,7 +354,7 @@ class CustomerItemDetail extends CActiveRecord {
 
             if ($new_qty_value != "") {
 
-                $saved_inv = ReceivingInventoryDetail::model()->createInventory($company_id, $customer_item_detail->sku_id, $customer_item_detail->uom_id, $customer_item_detail->unit_price, $new_qty_value, $source_zone_id, date("Y-m-d", strtotime($updated_date)), $updated_by, $customer_item_detail->expiration_date, $customer_item_detail->batch_no, $status_id, $customer_item_detail->pr_no, $customer_item_detail->pr_date, $customer_item_detail->plan_arrival_date, $customer_item_detail->po_no);
+                $saved_inv = ReceivingInventoryDetail::model()->createInventory($company_id, $customer_item_detail->sku_id, $customer_item_detail->uom_id, $customer_item_detail->unit_price, $new_qty_value, $source_zone_id, date("Y-m-d", strtotime($updated_date)), $updated_by, $customer_item_detail->expiration_date, $customer_item_detail->batch_no, $status_id, $customer_item_detail->pr_no, $customer_item_detail->pr_date, $customer_item_detail->plan_arrival_date, $customer_item_detail->po_no, $customer_item_detail->remarks);
 
                 if ($saved_inv) {
 
@@ -383,8 +383,10 @@ class CustomerItemDetail extends CActiveRecord {
         $customer_item_detail->updated_by = $updated_by;
 
         if ($customer_item_detail->save(false)) {
+            
             return $customer_item_detail;
         } else {
+            
             return $customer_item_detail->getErrors();
         }
     }

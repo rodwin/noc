@@ -9,6 +9,7 @@ class UpdateStatusInventoryForm extends CFormModel {
     public $created_by;
     public $status_id;
     public $inventoryObj = null;
+    public $remarks;
 
     /**
      * Declares the validation rules.
@@ -19,6 +20,7 @@ class UpdateStatusInventoryForm extends CFormModel {
         return array(
             // username and password are required
             array('created_by, qty, transaction_date', 'required'),
+            array('remarks', 'length', 'max' => 200),
             array('inventory_id', 'isValidInventoryId'),
             array('status_id', 'isValidStatus'),
             array('transaction_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
@@ -78,6 +80,7 @@ class UpdateStatusInventoryForm extends CFormModel {
             'transaction_date' => 'Transaction Date',
             'cost_per_unit' => 'Cost per Unit',
             'status_id' => 'Status',
+            'remarks' => 'Remarks',
         );
     }
 
@@ -144,7 +147,7 @@ class UpdateStatusInventoryForm extends CFormModel {
                 $inventory = $inv[$key];
                 $item_exist = true;
                 $inv_qty = $this->qty + $inventory->qty;
-                InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_UPDATE, $inventory->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id);
+                InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_UPDATE, $inventory->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id, $this->remarks);
             } else {
                 $inventory = new Inventory();
                 $inv_qty = $this->qty;
@@ -167,17 +170,17 @@ class UpdateStatusInventoryForm extends CFormModel {
             if ($inventory->save(false)) {
 
                 if ($item_exist == false) {
-                    InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_UPDATE, $inventory->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id);
+                    InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_UPDATE, $inventory->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id, $this->remarks);
                 }
             }
 
-            InventoryHistory::model()->createHistory($this->inventoryObj->company_id, $this->inventoryObj->inventory_id, $this->transaction_date, "-" . $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_UPDATE, $this->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id);
+            InventoryHistory::model()->createHistory($this->inventoryObj->company_id, $this->inventoryObj->inventory_id, $this->transaction_date, "-" . $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_UPDATE, $this->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id, $this->remarks);
 
             $transaction->commit();
 
             return true;
         } catch (Exception $exc) {
-            
+
             Yii::log($exc->getTraceAsString(), 'error');
             $transaction->rollBack();
             return false;

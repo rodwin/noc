@@ -35,7 +35,7 @@ $this->breadcrumbs = array(
                         <th><?php echo $headers['created_by']; ?></th>
                         <th><?php echo $headers['cost_unit']; ?></th>
                         <th><?php echo $headers['ave_cost_per_unit']; ?></th>
-                        <th></th>
+                        <th><?php echo $headers['remarks']; ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -50,7 +50,7 @@ $this->breadcrumbs = array(
                             <td><?php echo $value->created_by; ?></td>
                             <td><?php echo $value->cost_unit; ?></td>
                             <td><?php echo $value->ave_cost_per_unit; ?></td>
-                            <td></td>
+                            <td><?php echo $value->remarks; ?></td>
                         </tr>  
                     <?php } ?>
                 </tbody>

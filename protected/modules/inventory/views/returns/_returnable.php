@@ -1,27 +1,9 @@
 
-<?php
-$baseUrl = Yii::app()->theme->baseUrl;
-$cs = Yii::app()->getClientScript();
-$cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.js', CClientScript::POS_END);
-$cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.date.extensions.js', CClientScript::POS_END);
-$cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.extensions.js', CClientScript::POS_END);
-?>
-
-<script src="<?php echo Yii::app()->baseUrl; ?>/js/jquery.validate.js" type="text/javascript"></script>
+<?php $returnable_label = str_replace(" ", "_", Returnable::RETURNABLE) . "_"; ?>
 
 <style type="text/css">
-    #input_label label { margin-bottom: 20px; padding: 5px; }
-
-    .span5  { width: 200px; }
-
-    .autofill_text { height: 30px; margin-top: 20px; margin-bottom: 20px; width: 200px; }
-
-    .hide_col { display: none; }
-    
-    .x-scroll { overflow-x: scroll; } 
+    .<?php echo $returnable_label; ?>autofill_text { height: 30px; margin-top: 20px; margin-bottom: 20px; width: 200px; }
 </style>
-
-<?php $not_set = "'<center>--</center>'"; ?>
 
 <?php
 $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
@@ -37,20 +19,20 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     <div class="col-md-6">
         <div id="input_label" class="pull-left col-md-5">
 
-            <?php echo $form->labelEx($model, 'rr_no'); ?><br/>
-            <?php echo $form->labelEx($model, 'return_from'); ?>
+            <?php echo $form->labelEx($returnable, 'return_receipt_no'); ?><br/>
+            <?php echo $form->labelEx($returnable, 'receive_return_from'); ?>
 
         </div>
 
         <div class="pull-right col-md-7">
 
-            <?php echo $form->textFieldGroup($model, 'return_receipt_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+            <?php echo $form->textFieldGroup($returnable, 'return_receipt_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
             <?php
             echo $form->select2Group(
-                    $model, 'receive_return_from', array(
+                    $returnable, 'receive_return_from', array(
                 'wrapperHtmlOptions' => array(
-                    'class' => '', 'id' => 'Returns_receive_return_from',
+                    'class' => '', 'id' => 'Returnable_receive_return_from',
                 ),
                 'widgetOptions' => array(
                     'data' => $return_from_list,
@@ -64,87 +46,84 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         <div class="clearfix"></div>
 
         <div class="well clearfix" style="padding-left: 0px!important; padding-right: 0px!important;">
-            <div id="selected_return_from"><i class="text-muted"><center>Not Set</center></i></div>
+            <div id="<?php echo $returnable_label; ?>selected_return_from"><i class="text-muted"><center>Not Set</center></i></div>
 
-            <div id="outlet_fields" class="return_source" style="display: none;">
+            <div id="<?php echo $returnable_label; ?>outlet_fields" class="return_source" style="display: none;">
                 <div id="input_label" class="pull-left col-md-5">
-                    <?php echo $form->label($model, "Outlet"); ?><br/>
-                    <?php echo $form->label($model, "Outlet Code"); ?><br/>
-                    <?php echo $form->label($model, "Address"); ?>
+                    <?php echo $form->label($returnable, "Outlet"); ?><br/>
+                    <?php echo $form->label($returnable, "Outlet Code"); ?><br/>
+                    <?php echo $form->label($returnable, "Address"); ?>
                 </div>
 
                 <div class="pull-right col-md-7">
                     <?php
                     $this->widget(
                             'booster.widgets.TbSelect2', array(
-                        'name' => 'selected_outlet',
+                        'name' => $returnable_label . 'selected_outlet',
                         'data' => $poi_list,
                         'htmlOptions' => array(
-                            'id' => 'selected_outlet',
-                            'class' => 'span5 return_from_select2',
+                            'class' => 'span5 ' . $returnable_label . 'return_from_select',
                             'prompt' => '--'
                         ),
                     ));
                     ?>
 
-                    <div id="poi_primary_code" class="autofill_text span5"><?php echo $not_set; ?></div>
-                    <div id="poi_address1" class="autofill_text span5" style="height: auto;"><?php echo $not_set; ?></div>
+                    <div id="<?php echo $returnable_label; ?>poi_primary_code" class="<?php echo $returnable_label; ?>autofill_text span5"><?php echo $not_set; ?></div>
+                    <div id="<?php echo $returnable_label; ?>poi_address1" class="<?php echo $returnable_label; ?>autofill_text span5" style="height: auto;"><?php echo $not_set; ?></div>
                 </div>
 
             </div>
 
-            <div id="salesoffice_fields" class="return_source" style="display: none;">
+            <div id="<?php echo $returnable_label; ?>salesoffice_fields" class="return_source" style="display: none;">
                 <div id="input_label" class="pull-left col-md-5">
-                    <?php echo $form->label($model, "Salesoffice"); ?><br/>
-                    <?php echo $form->label($model, "Salesoffice Code"); ?><br/>
-                    <?php echo $form->label($model, "Address"); ?>
+                    <?php echo $form->label($returnable, "Salesoffice"); ?><br/>
+                    <?php echo $form->label($returnable, "Salesoffice Code"); ?><br/>
+                    <?php echo $form->label($returnable, "Address"); ?>
                 </div>
 
                 <div class="pull-right col-md-7">
                     <?php
                     $this->widget(
                             'booster.widgets.TbSelect2', array(
-                        'name' => 'selected_salesoffice',
+                        'name' => $returnable_label . 'selected_salesoffice',
                         'data' => $salesoffice_list,
                         'htmlOptions' => array(
-                            'id' => 'selected_salesoffice',
-                            'class' => 'span5 return_from_select2',
+                            'class' => 'span5 ' . $returnable_label . 'return_from_select',
                             'prompt' => '--'
                         ),
                     ));
                     ?>
 
-                    <div id="salesoffice_code" class="autofill_text span5"><?php echo $not_set; ?></div>
-                    <div id="salesoffice_address1" class="autofill_text span5" style="height: auto;"><?php echo $not_set; ?></div>
+                    <div id="<?php echo $returnable_label; ?>salesoffice_code" class="<?php echo $returnable_label; ?>autofill_text span5"><?php echo $not_set; ?></div>
+                    <div id="<?php echo $returnable_label; ?>salesoffice_address1" class="<?php echo $returnable_label; ?>autofill_text span5" style="height: auto;"><?php echo $not_set; ?></div>
                 </div>
 
             </div>
 
-            <div id="employee_fields" class="return_source" style="display: none;">
+            <div id="<?php echo $returnable_label; ?>employee_fields" class="return_source" style="display: none;">
                 <div id="input_label" class="pull-left col-md-5">
-                    <?php echo $form->label($model, "Salesman"); ?><br/>
-                    <?php echo $form->label($model, "Salesman Code"); ?><br/>
-                    <?php echo $form->label($model, "Default Zone"); ?><br/>
-                    <?php echo $form->label($model, "Address"); ?>
+                    <?php echo $form->label($returnable, "Salesman"); ?><br/>
+                    <?php echo $form->label($returnable, "Salesman Code"); ?><br/>
+                    <?php echo $form->label($returnable, "Default Zone"); ?><br/>
+                    <?php echo $form->label($returnable, "Address"); ?>
                 </div>
 
                 <div class="pull-right col-md-7">
                     <?php
                     $this->widget(
                             'booster.widgets.TbSelect2', array(
-                        'name' => 'selected_salesman',
+                        'name' => $returnable_label . 'selected_salesman',
                         'data' => $employee,
                         'htmlOptions' => array(
-                            'id' => 'selected_salesman',
-                            'class' => 'span5 return_from_select2',
+                            'class' => 'span5 ' . $returnable_label . 'return_from_select',
                             'prompt' => '--'
                         ),
                     ));
                     ?>
 
-                    <div id="employee_code" class="autofill_text span5"><?php echo $not_set; ?></div>
-                    <div id="employee_address1" class="autofill_text span5" style="height: auto;"><?php echo $not_set; ?></div>
-                    <div id="employee_default_zone" class="autofill_text span5" style="height: auto;"><?php echo $not_set; ?></div>
+                    <div id="<?php echo $returnable_label; ?>employee_code" class="<?php echo $returnable_label; ?>autofill_text span5"><?php echo $not_set; ?></div>
+                    <div id="<?php echo $returnable_label; ?>employee_address1" class="<?php echo $returnable_label; ?>autofill_text span5" style="height: auto;"><?php echo $not_set; ?></div>
+                    <div id="<?php echo $returnable_label; ?>employee_default_zone" class="<?php echo $returnable_label; ?>autofill_text span5" style="height: auto;"><?php echo $not_set; ?></div>
                 </div>
 
             </div>
@@ -156,24 +135,24 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     <div class="col-md-6">
         <div id="input_label" class="pull-left col-md-5">
 
-            <?php echo $form->labelEx($model, 'transaction_date'); ?><br/>
-            <?php echo $form->labelEx($model, 'reference_dr_no'); ?><br/>
-            <?php echo $form->labelEx($model, 'return_to_id'); ?><br/>
-            <?php echo $form->labelEx($model, 'remarks'); ?>
+            <?php echo $form->labelEx($returnable, 'transaction_date'); ?><br/>
+            <?php echo $form->labelEx($returnable, 'reference_dr_no'); ?><br/>
+            <?php echo $form->labelEx($returnable, 'destination_zone_id'); ?><br/>
+            <?php echo $form->labelEx($returnable, 'remarks'); ?>
 
         </div>
 
         <div class="pull-right col-md-7">
 
-            <?php echo $form->textFieldGroup($model, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'value' => date("Y-m-d"), 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
+            <?php echo $form->textFieldGroup($returnable, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'value' => date("Y-m-d"), 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-            <?php echo $form->textFieldGroup($model, 'reference_dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'placeholder' => '--')), 'labelOptions' => array('label' => false))); ?>
+            <?php echo $form->textFieldGroup($returnable, 'reference_dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'placeholder' => '--')), 'labelOptions' => array('label' => false))); ?>
 
             <?php
             echo $form->select2Group(
-                    $model, 'return_to_id', array(
+                    $returnable, 'destination_zone_id', array(
                 'wrapperHtmlOptions' => array(
-                    'class' => '', 'id' => 'Returns_return_to_id',
+                    'class' => '', 'id' => 'Returnable_destination_zone_id',
                 ),
                 'widgetOptions' => array(
                     'data' => $zone_list,
@@ -184,7 +163,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             ?>
 
             <?php
-            echo $form->textAreaGroup($model, 'remarks', array(
+            echo $form->textAreaGroup($returnable, 'remarks', array(
                 'wrapperHtmlOptions' => array(
                     'class' => 'span5',
                 ),
@@ -235,14 +214,13 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 </div>
 
 <div class="pull-right col-md-4 row" style="margin-bottom: 10px; margin-top: 10px;">
-    <?php echo $form->labelEx($model, 'total_amount', array("class" => "pull-left")); ?>
-    <?php echo $form->textFieldGroup($model, 'total_amount', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5 pull-right', 'value' => 0, 'readonly' => true)), 'labelOptions' => array('label' => false))); ?>
+    <?php echo $form->labelEx($returnable, 'total_amount', array("class" => "pull-left")); ?>
+    <?php echo $form->textFieldGroup($returnable, 'total_amount', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5 pull-right', 'value' => 0, 'readonly' => true)), 'labelOptions' => array('label' => false))); ?>
 </div>
 
 <div class="clearfix row">
     <div class="col-xs-12">
         <button id="btn_print" class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
-<!--            <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload RRA / DR</button>-->
         <button id="btn_save" class="btn btn-success pull-right" style=""><i class="glyphicon glyphicon-ok"></i> Save</button>  
     </div>
 </div>
@@ -258,8 +236,8 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     var headers = "transaction";
     var print = "print";
     var total_amount = 0;
-    var return_type = <?php echo "'" . Returns::RETURNABLE . "'"; ?>;
-    var return_to = <?php echo "'" . $destination_arr[0]['value'] . "'"; ?>;
+    var returnable_label = <?php echo "'" . $returnable_label . "'"; ?>;
+    var return_type = <?php echo "'" . Returnable::RETURNABLE . "'"; ?>;
     $(function() {
 
         $("[data-mask]").inputmask();
@@ -293,27 +271,27 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             }
         });
 
-        $('#Returns_reference_dr_no').select2({data: []});
+        $('#Returnable_reference_dr_no').select2({data: []});
     });
 
 <?php $source_arr = Returns::model()->getListReturnFrom(); ?>
 
-    $('#Returns_receive_return_from').change(function() {
+    $('#Returnable_receive_return_from').change(function() {
 
         var value = this.value;
 
-        $("#selected_return_from, .return_source").hide();
-        $(".autofill_text").html(<?php echo $not_set; ?>);
-        $(".return_from_select2").select2("val", "");
+        $("#" + returnable_label + "selected_return_from, .return_source").hide();
+        $("." + returnable_label + "autofill_text").html(<?php echo $not_set; ?>);
+        $("." + returnable_label + "return_from_select").select2("val", "");
 
         if (value == <?php echo "'" . $source_arr[0]['value'] . "'"; ?>) {
-            $("#salesoffice_fields").show();
+            $("#" + returnable_label + "salesoffice_fields").show();
         } else if (value == <?php echo "'" . $source_arr[1]['value'] . "'"; ?>) {
-            $("#employee_fields").show();
+            $("#" + returnable_label + "employee_fields").show();
         } else if (value == <?php echo "'" . $source_arr[2]['value'] . "'"; ?>) {
-            $("#outlet_fields").show();
+            $("#" + returnable_label + "outlet_fields").show();
         } else {
-            $("#selected_return_from").show();
+            $("#" + returnable_label + "selected_return_from").show();
         }
 
         loadReferenceDRNos(value);
@@ -323,7 +301,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     var source_from;
     function loadReferenceDRNos(source) {
 
-        $("#Returns_reference_dr_no").select2("val", "");
+        $("#Returnable_reference_dr_no").select2("val", "");
 
         $.ajax({
             type: 'POST',
@@ -333,7 +311,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
                 source_from = source;
 
-                $('#Returns_reference_dr_no').select2({
+                $('#Returnable_reference_dr_no').select2({
                     placeholder: "--",
                     data: function() {
                         return {results: data};
@@ -347,7 +325,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
     }
 
-    $("#Returns_reference_dr_no").change(function() {
+    $("#Returnable_reference_dr_no").change(function() {
 
         if (source_from == "undefined") {
             return false;
@@ -358,19 +336,19 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             url: '<?php echo Yii::app()->createUrl($this->module->id . '/returns/infraLoadDetailsByDRNo'); ?>' + "&source=" + source_from + '&dr_no=' + this.value,
             dataType: "json",
             success: function(data) {
-                
+
                 var oSettings = transaction_table.fnSettings();
                 var iTotalRecords = oSettings.fnRecordsTotal();
                 for (var i = 0; i <= iTotalRecords; i++) {
                     transaction_table.fnDeleteRow(0, null, true);
                 }
-                
+
                 if (source_from == <?php echo "'" . $source_arr[0]['value'] . "'"; ?>) {
-                    loadSODetailByID(data.id);
+                    loadSODetailByID(data.id, returnable_label);
                 } else if (source_from == <?php echo "'" . $source_arr[1]['value'] . "'"; ?>) {
-                    loadSalesmanDetailByID(data.id);
+                    loadSalesmanDetailByID(data.id, returnable_label);
                 } else if (source_from == <?php echo "'" . $source_arr[2]['value'] . "'"; ?>) {
-                    loadPOIDetailsByID(data.id);
+                    loadPOIDetailsByID(data.id, returnable_label);
                 }
 
                 if (data.transaction_details.length > 0) {
@@ -501,81 +479,21 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         return row_datas;
     }
 
-    $('#selected_salesoffice').change(function() {
-        loadSODetailByID(this.value);
+    $('#' + returnable_label + 'selected_salesoffice').change(function() {
+        loadSODetailByID(this.value, returnable_label);
     });
 
-    function loadSODetailByID(sales_office_id) {
-        $(".autofill_text").html(<?php echo $not_set; ?>);
-        $("#selected_salesoffice").select2("val", "");
-
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo Yii::app()->createUrl('/library/salesoffice/getSODetailsByID'); ?>' + '&sales_office_id=' + sales_office_id,
-            dataType: "json",
-            success: function(data) {
-                $("#selected_salesoffice").select2("val", data.so_detail.sales_office_id);
-                $("#salesoffice_code").html(data.so_detail.sales_office_code);
-                $("#salesoffice_address1").html(data.so_detail.sales_office_address1);
-            },
-            error: function(data) {
-                alert("Error occured: Please try again.");
-            }
-        });
-    }
-
-    $('#selected_salesman').change(function() {
-        loadSalesmanDetailByID(this.value);
+    $('#' + returnable_label + 'selected_salesman').change(function() {
+        loadSalesmanDetailByID(this.value, returnable_label);
     });
 
-    function loadSalesmanDetailByID(employee_id) {
-        $(".autofill_text").html(<?php echo $not_set; ?>);
-        $("#selected_salesman").select2("val", "");
-
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo Yii::app()->createUrl('/library/employee/loadEmployeeDetailsByID'); ?>' + '&employee_id=' + employee_id,
-            dataType: "json",
-            success: function(data) {
-                $("#selected_salesman").select2("val", data.employee_id);
-                $("#employee_code").html(data.employee_code);
-                $("#employee_address1").html(data.address1);
-                $("#employee_default_zone").html(data.default_zone_name);
-            },
-            error: function(data) {
-                alert("Error occured: Please try again.");
-            }
-        });
-
-    }
-
-    $('#selected_outlet').change(function() {
-        loadPOIDetailsByID(this.value);
+    $('#' + returnable_label + 'selected_outlet').change(function() {
+        loadPOIDetailsByID(this.value, returnable_label);
     });
-
-    function loadPOIDetailsByID(poi_id) {
-        $(".autofill_text").html(<?php echo $not_set; ?>);
-        $("#selected_outlet").select2("val", "");
-        
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo Yii::app()->createUrl('/library/poi/getPOIDetails'); ?>' + '&poi_id=' + poi_id,
-            dataType: "json",
-            success: function(data) {
-                $("#selected_outlet").select2("val", data.poi_id);
-                $("#poi_primary_code").html(data.primary_code);
-                $("#poi_address1").html(data.address1);
-            },
-            error: function(data) {
-                alert("Error occured: Please try again.");
-            }
-        });
-
-    }
 
     function send(form) {
 
-        var data = $("#returnable-form").serialize() + "&form=" + form + "&return_type=" + return_type + "&return_to=" + return_to + "&" + $.param({"transaction_details": serializeTransactionTable()});
+        var data = $("#returnable-form").serialize() + "&form=" + form + "&return_type=" + return_type + "&" + $.param({"transaction_details": serializeTransactionTable()});
 
         if ($("#btn_save, #btn_print").is("[disabled=disabled]")) {
             return false;
@@ -673,17 +591,6 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         growlAlert(success_type, success_message);
     }
 
-    function onlyNumbers(txt, event, point) {
-
-        var charCode = (event.which) ? event.which : event.keyCode;
-
-        if ((charCode >= 48 && charCode <= 57) || (point === true && charCode == 46)) {
-            return true;
-        }
-
-        return false;
-    }
-
     $("#btn_save").click(function() {
         if (!confirm('Are you sure you want to submit?'))
             return false;
@@ -691,7 +598,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     });
 
     $(function() {
-        $('#Returns_transaction_date').datepicker({
+        $('#Returnable_transaction_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'});
