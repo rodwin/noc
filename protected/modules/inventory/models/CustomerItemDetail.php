@@ -271,7 +271,7 @@ class CustomerItemDetail extends CActiveRecord {
 
         if ($customer_item_transaction_detail->save(false)) {
 
-            $this->decreaseInventory($customer_item_transaction_detail->inventory_id, $customer_item_transaction_detail->quantity_issued, $transaction_date, $customer_item_transaction_detail->unit_price, $customer_item_transaction_detail->created_by);
+            $this->decreaseInventory($customer_item_transaction_detail->inventory_id, $customer_item_transaction_detail->quantity_issued, $transaction_date, $customer_item_transaction_detail->unit_price, $customer_item_transaction_detail->created_by, $customer_item_transaction_detail->remarks);
 
             return $customer_item_transaction_detail;
         } else {
@@ -279,7 +279,7 @@ class CustomerItemDetail extends CActiveRecord {
         }
     }
 
-    public function decreaseInventory($inventory_id, $quantity_issued, $transaction_date, $cost_per_unit, $created_by) {
+    public function decreaseInventory($inventory_id, $quantity_issued, $transaction_date, $cost_per_unit, $created_by, $remarks) {
 
         $inventory = Inventory::model()->findByPk($inventory_id);
 
@@ -288,6 +288,7 @@ class CustomerItemDetail extends CActiveRecord {
         $decrease_inventory->transaction_date = $transaction_date;
         $decrease_inventory->cost_per_unit = $cost_per_unit;
         $decrease_inventory->created_by = $created_by;
+        $decrease_inventory->remarks = $remarks;
         $decrease_inventory->inventoryObj = $inventory;
 
         if ($decrease_inventory->decrease(false)) {
