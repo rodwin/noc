@@ -179,10 +179,10 @@ class OutgoingInventory extends CActiveRecord {
             array('destination_zone_id', 'isValidZone'),
             array('dr_no', 'uniqueDRNo'),
             array('rra_date, transaction_date, plan_delivery_date, dr_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
-            array('plan_delivery_date, transaction_date, created_date, updated_date, dr_date', 'safe'),
+            array('plan_delivery_date, transaction_date, created_date, updated_date, dr_date, recipients', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('outgoing_inventory_id, company_id, rra_no, dr_no, dr_date, source_zone_id, destination_zone_id, contact_person, contact_no, address, plan_delivery_date, transaction_date, status, remarks, total_amount, closed, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('outgoing_inventory_id, company_id, rra_no, dr_no, dr_date, source_zone_id, destination_zone_id, contact_person, contact_no, address, plan_delivery_date, transaction_date, status, remarks, total_amount, closed, created_date, created_by, updated_date, updated_by, recipients', 'safe', 'on' => 'search'),
         );
     }
 
@@ -270,6 +270,7 @@ class OutgoingInventory extends CActiveRecord {
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
             'updated_by' => 'Updated By',
+            'recipients' => 'Recipients',
         );
     }
 
@@ -317,6 +318,7 @@ class OutgoingInventory extends CActiveRecord {
         $criteria->compare('created_by', $this->created_by, true);
         $criteria->compare('updated_date', $this->updated_date, true);
         $criteria->compare('updated_by', $this->updated_by, true);
+        $criteria->compare('recipients', $this->recipients, true);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -463,6 +465,7 @@ class OutgoingInventory extends CActiveRecord {
                 'remarks' => $this->remarks,
                 'total_amount' => $this->total_amount,
                 'created_by' => $this->created_by,
+                'recipients' => $this->recipients,
             );
 
             $outgoing_inventory->attributes = $outgoing_inventory_data;
@@ -522,6 +525,7 @@ class OutgoingInventory extends CActiveRecord {
                 'total_amount' => $this->total_amount,
                 'updated_by' => $this->updated_by,
                 'updated_date' => $this->updated_date,
+                'recipients' => $this->recipients,
             );
 
             $outgoing_inventory->attributes = $outgoing_inventory_data;

@@ -347,10 +347,10 @@ class CustomerItem extends CActiveRecord {
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         $customer_item_detail = CustomerItemDetail::model()->createCustomerItemTransactionDetails($customer_item->customer_item_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $customer_item->transaction_date);
 
-                        ProofOfDelivery::model()->customerData($customer_item, $customer_item_detail);
-
                         $customer_item_details[] = $customer_item_detail;
                     }
+
+                    ProofOfDelivery::model()->customerData($customer_item, $customer_item_details);
 
                     $data['success'] = true;
                     $data['header_data'] = $customer_item;
@@ -403,12 +403,15 @@ class CustomerItem extends CActiveRecord {
                 if ($customer_item->save(false)) {
 
                     $customer_item_details = array();
+                    $update = true;
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         if (trim($transaction_details[$i]['customer_item_detail_id']) != "") {
-                            $customer_item_detail = CustomerItemDetail::model()->updateCustomerItemTransactionDetails($customer_item->customer_item_id, $transaction_details[$i]['customer_item_detail_id'], $customer_item->company_id, $transaction_details[$i]['qty_for_new_inventory'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['amount'], $customer_item->updated_by, $customer_item->updated_date);
 
-                            ProofOfDelivery::model()->updateCustomerData($customer_item, $customer_item_detail_ids_to_be_delete, $customer_item_detail);
+                            $customer_item_detail = CustomerItemDetail::model()->updateCustomerItemTransactionDetails($customer_item->customer_item_id, $transaction_details[$i]['customer_item_detail_id'], $customer_item->company_id, $transaction_details[$i]['qty_for_new_inventory'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['amount'], $customer_item->updated_by, $customer_item->updated_date);
                         } else {
+
+                            $update = false;
+
                             $customer_item_detail = CustomerItemDetail::model()->createCustomerItemTransactionDetails($customer_item->customer_item_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->updated_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], date("Y-m-d", strtotime($customer_item->updated_date)));
                             $pod = ProofOfDelivery::model()->findByAttributes(array("company_id" => $customer_item->company_id, "customer_item_id" => $customer_item->customer_item_id));
 
@@ -416,6 +419,13 @@ class CustomerItem extends CActiveRecord {
                         }
 
                         $customer_item_details[] = $customer_item_detail;
+                    }
+
+                    if ($update === true) {
+
+                        ProofOfDelivery::model()->updateCustomerData($customer_item, $customer_item_detail_ids_to_be_delete, $customer_item_details);
+                    } else {
+                        
                     }
 
                     if (count($deletedTransactionRowData) > 0) {

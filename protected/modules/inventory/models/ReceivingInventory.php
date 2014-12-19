@@ -513,13 +513,13 @@ class ReceivingInventory extends CActiveRecord {
 
         foreach ($recipients as $k => $v) {
             $recipients_arr[] = array(
-                'name' => ucwords($v['value'])
+                'name' => ucwords(trim($v['value']))
             );
         }
 
         foreach ($emails as $k1 => $v1) {
             $emails_arr[] = array(
-                'address' => $v1['value']
+                'address' => trim($v1['value'])
             );
         }
 

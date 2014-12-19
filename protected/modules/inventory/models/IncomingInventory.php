@@ -47,10 +47,10 @@ class IncomingInventory extends CActiveRecord {
             array('destination_zone_id', 'isValidZone'),
             array('dr_no', 'uniqueDRNo'),
             array('transaction_date, plan_delivery_date, rra_date, dr_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
-            array('dr_date, transaction_date, updated_date', 'safe'),
+            array('dr_date, transaction_date, updated_date, recipients', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('incoming_inventory_id, company_id, dr_no, dr_date, rra_date, source_zone_id, destination_zone_id, transaction_date, plan_delivery_date, status, total_amount, created_date, created_by, updated_date, updated_by, rra_no', 'safe', 'on' => 'search'),
+            array('incoming_inventory_id, company_id, dr_no, dr_date, rra_date, source_zone_id, destination_zone_id, transaction_date, plan_delivery_date, status, total_amount, created_date, created_by, updated_date, updated_by, rra_no, recipients', 'safe', 'on' => 'search'),
         );
     }
 
@@ -130,6 +130,7 @@ class IncomingInventory extends CActiveRecord {
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
             'updated_by' => 'Updated By',
+            'recipients' => 'Recipients',
         );
     }
 
@@ -170,6 +171,7 @@ class IncomingInventory extends CActiveRecord {
         $criteria->compare('created_by', $this->created_by, true);
         $criteria->compare('updated_date', $this->updated_date, true);
         $criteria->compare('updated_by', $this->updated_by, true);
+        $criteria->compare('recipients', $this->recipients, true);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -321,6 +323,7 @@ class IncomingInventory extends CActiveRecord {
                 'remarks' => $this->remarks,
                 'total_amount' => $this->total_amount,
                 'created_by' => $this->created_by,
+                'recipients' => $this->recipients,
             );
 
             $incoming_inventory->attributes = $incoming_inventory_data;

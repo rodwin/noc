@@ -279,10 +279,17 @@ class IncomingInventoryController extends Controller {
                     unset($incoming->created_date);
 
                     $validatedIncoming = CActiveForm::validate($incoming);
+                    $emails = isset($_POST['emails']) ? $_POST['emails'] : array();
+                    $recipients = isset($_POST['recipients']) ? $_POST['recipients'] : array();
+                    $validatedEmails = ReceivingInventory::model()->validateEmails($incoming, $emails);
+                    $validatedRecipients = ReceivingInventory::model()->validateRecipients($incoming, $recipients);
 
-                    if ($validatedIncoming != '[]') {
+                    $validatedModel_arr = (array) json_decode($validatedIncoming);
+                    $model_errors = json_encode(array_merge($validatedModel_arr, $validatedEmails, $validatedRecipients));
 
-                        $data['error'] = $validatedIncoming;
+                    if ($model_errors != '[]') {
+
+                        $data['error'] = $model_errors;
                         $data['message'] = 'Unable to process';
                         $data['success'] = false;
                         $data["type"] = "danger";
@@ -297,6 +304,13 @@ class IncomingInventoryController extends Controller {
                             $incoming->outgoing_inventory_id = $_POST['IncomingInventory']['outgoing_inventory_id'];
 
                             $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
+
+                            $recipients_address['emails'] = CJSON::encode($emails);
+                            $recipients_address['recipients'] = CJSON::encode($recipients);
+                            $recipient_email_address = ReceivingInventory::model()->mergeRecipientAndEmails($emails, $recipients);
+
+                            $incoming->recipients = CJSON::encode($recipient_email_address);
+
                             $saved = $incoming->create($transaction_details);
 
                             if ($saved['success']) {
@@ -304,12 +318,7 @@ class IncomingInventoryController extends Controller {
                                 $data['message'] = 'Successfully created';
                                 $data['success'] = true;
 
-                                $sendTo[] = array(
-                                    'address' => 'jttorate@in1go.com.ph',
-                                    'name' => 'jttorate',
-                                );
-
-                                $this->generateRecipientDetails($sendTo, $saved['header_data'], $saved['detail_data']);
+                                $this->generateRecipientDetails(CJSON::decode($saved['header_data']->recipients), $saved['header_data'], $saved['detail_data']);
                             } else {
                                 $data['message'] = 'Unable to process';
                                 $data['success'] = false;
@@ -963,9 +972,11 @@ class IncomingInventoryController extends Controller {
             }
 
             if ($value) {
-                if (!in_array($value->pr_no, $pr_no_arr)) {
-                    array_push($pr_no_arr, $value->pr_no);
-                    $pr_nos .= $value->pr_no . ",";
+                if ($value->pr_no != "") {
+                    if (!in_array($value->pr_no, $pr_no_arr)) {
+                        array_push($pr_no_arr, $value->pr_no);
+                        $pr_nos .= $value->pr_no . ", ";
+                    }
                 }
             }
 
@@ -1014,7 +1025,7 @@ class IncomingInventoryController extends Controller {
         $headers['transaction_date'] = $incoming_inv['transaction_date'];
         $headers['plan_delivery_date'] = $incoming_inv['plan_delivery_date'];
 
-        $headers['pr_no'] = substr($pr_nos, 0, -1);
+        $headers['pr_no'] = substr(trim($pr_nos), 0, -1);
         $headers['rra_no'] = $incoming_inv['rra_no'];
         $headers['rra_date'] = $incoming_inv['rra_date'];
         $headers['dr_no'] = $incoming_inv['dr_no'];
@@ -1281,9 +1292,11 @@ class IncomingInventoryController extends Controller {
         foreach ($incoming_inv_detail as $key => $val) {
             $row = array();
 
-            if (!in_array($val->pr_no, $pr_no_arr)) {
-                array_push($pr_no_arr, $val->pr_no);
-                $pr_nos .= $val->pr_no . ",";
+            if ($val->pr_no != "") {
+                if (!in_array($val->pr_no, $pr_no_arr)) {
+                    array_push($pr_no_arr, $val->pr_no);
+                    $pr_nos .= $val->pr_no . ", ";
+                }
             }
 
             $source_zone_id = $val->source_zone_id;
@@ -1331,7 +1344,7 @@ class IncomingInventoryController extends Controller {
         $headers['transaction_date'] = $incoming_inv->transaction_date;
         $headers['plan_delivery_date'] = $incoming_inv->plan_delivery_date;
 
-        $headers['pr_no'] = substr($pr_nos, 0, -1);
+        $headers['pr_no'] = substr(trim($pr_nos), 0, -1);
         $headers['rra_no'] = $incoming_inv->rra_no;
         $headers['rra_date'] = $incoming_inv->rra_date;
         $headers['dr_no'] = $incoming_inv->dr_no;
