@@ -13,7 +13,6 @@
 use Rhumsaa\Uuid\Uuid;
 use Rhumsaa\Uuid\Exception\UnsatisfiedDependencyException;
 
-
 class Globals {
 
     static function generateV4UUID() {
@@ -156,6 +155,7 @@ class Globals {
             return FALSE;
         }
 
+        $found_header = FALSE;
         $return = false;
         $handle = fopen($file, "r");
         if ($head !== FALSE) {
@@ -250,6 +250,49 @@ class Globals {
         $objPHPExcel = new PHPExcel();
 
         return $objPHPExcel;
+    }
+
+    public static function swiftmailer() {
+
+        ini_set('include_path', 'vendor/swiftmailer/swiftmailer/lib/swift_required.php');
+
+        // Create the Transport
+        $transport = Swift_SmtpTransport::newInstance('ssl://smtp.googlemail.com', 465)
+                ->setUsername(Yii::app()->params['swiftMailer']['username'])
+                ->setPassword(Yii::app()->params['swiftMailer']['password']);
+
+//        $transport = Swift_MailTransport::newInstance();
+        // Create the Mailer using your created Transport
+        $mailer = Swift_Mailer::newInstance($transport);
+
+        return $mailer;
+    }
+
+    public static function sendMail($message_title, $content, $content_type, $sendFrom, $sendBy, $sendTo) {
+
+        $mailer = Globals::swiftmailer();
+
+        $message = Swift_Message::newInstance($message_title)
+                ->setFrom(array($sendFrom => $sendBy))
+                ->setBody($content, $content_type);
+
+        // Send the message
+        $failedRecipients = array();
+        $numSent = 0;
+        foreach ($sendTo as $key => $val) {
+            if (is_int($key)) {
+                $message->setTo(array($val['address'] => $val['name']));
+            } else {
+                
+            }
+
+            $numSent += $mailer->send($message, $failedRecipients);
+
+//            if (!$mailer->send($message, $failures)) {
+//                echo "Failures:";
+//                print_r($failures);
+//            }
+        }
     }
 
 }

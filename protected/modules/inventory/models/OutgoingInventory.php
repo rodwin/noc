@@ -30,121 +30,122 @@
  * @property OutgoingInventoryDetail[] $outgoingInventoryDetails
  */
 class OutgoingInventory extends CActiveRecord {
-   ////start of variables for soap
-   /**
-    * @var integer outgoing_inventory_id
-    * @soap
-    */
-   public $outgoing_inventory_id;
 
-   /**
-    * @var string company_id
-    * @soap
-    */
-   public $company_id;
+    ////start of variables for soap
+    /**
+     * @var integer outgoing_inventory_id
+     * @soap
+     */
+    public $outgoing_inventory_id;
 
-   /**
-    * @var string rra_no
-    * @soap
-    */
-   public $rra_no;
+    /**
+     * @var string company_id
+     * @soap
+     */
+    public $company_id;
 
-   /**
-    * @var string rra_name
-    * @soap
-    */
-   public $rra_name;
+    /**
+     * @var string rra_no
+     * @soap
+     */
+    public $rra_no;
 
-   /**
-    * @var string destination_zone_id
-    * @soap
-    */
-   public $destination_zone_id;
+    /**
+     * @var string rra_name
+     * @soap
+     */
+    public $rra_name;
 
-   /**
-    * @var string contact_person
-    * @soap
-    */
-   public $contact_person;
+    /**
+     * @var string destination_zone_id
+     * @soap
+     */
+    public $destination_zone_id;
 
-   /**
-    * @var string contact_no
-    * @soap
-    */
-   public $contact_no;
+    /**
+     * @var string contact_person
+     * @soap
+     */
+    public $contact_person;
 
-   /**
-    * @var string address
-    * @soap
-    */
-   public $address;
+    /**
+     * @var string contact_no
+     * @soap
+     */
+    public $contact_no;
 
-   /**
-    * @var string campaign_no
-    * @soap
-    */
-   public $campaign_no;
+    /**
+     * @var string address
+     * @soap
+     */
+    public $address;
 
-   /**
-    * @var string pr_no
-    * @soap
-    */
-   public $pr_no;
+    /**
+     * @var string campaign_no
+     * @soap
+     */
+    public $campaign_no;
 
-   /**
-    * @var string $pr_date
-    * @soap
-    */
-   public $pr_date;
+    /**
+     * @var string pr_no
+     * @soap
+     */
+    public $pr_no;
 
-   /**
-    * @var string plan_delivery_date
-    * @soap
-    */
-   public $plan_delivery_date;
+    /**
+     * @var string $pr_date
+     * @soap
+     */
+    public $pr_date;
 
-   /**
-    * @var string revised_delivery_date
-    * @soap
-    */
-   public $revised_delivery_date;
+    /**
+     * @var string plan_delivery_date
+     * @soap
+     */
+    public $plan_delivery_date;
 
-   /**
-    * @var string actual_delivery_date
-    * @soap
-    */
-   public $actual_delivery_date;
+    /**
+     * @var string revised_delivery_date
+     * @soap
+     */
+    public $revised_delivery_date;
 
-   /**
-    * @var string plan_arrival_date
-    * @soap
-    */
-   public $plan_arrival_date;
+    /**
+     * @var string actual_delivery_date
+     * @soap
+     */
+    public $actual_delivery_date;
 
-   /**
-    * @var string transaction_date
-    * @soap
-    */
-   public $transaction_date;
+    /**
+     * @var string plan_arrival_date
+     * @soap
+     */
+    public $plan_arrival_date;
 
-   /**
-    * @var string total_amount
-    * @soap
-    */
-   public $total_amount;
+    /**
+     * @var string transaction_date
+     * @soap
+     */
+    public $transaction_date;
 
-   /**
-    * @var string status
-    * @soap
-    */
-   public $status;
+    /**
+     * @var string total_amount
+     * @soap
+     */
+    public $total_amount;
 
-   /**
-    * @var OutgoingInventoryDetail[] outgoing_inventory_detail_obj
-    * @soap
-    */
-   public $outgoing_inventory_detail_obj;
-   ////end of variables for soap
+    /**
+     * @var string status
+     * @soap
+     */
+    public $status;
+
+    /**
+     * @var OutgoingInventoryDetail[] outgoing_inventory_detail_obj
+     * @soap
+     */
+    public $outgoing_inventory_detail_obj;
+    ////end of variables for soap
 
     public $search_string;
     public $total_quantity;
@@ -178,10 +179,10 @@ class OutgoingInventory extends CActiveRecord {
             array('destination_zone_id', 'isValidZone'),
             array('dr_no', 'uniqueDRNo'),
             array('rra_date, transaction_date, plan_delivery_date, dr_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
-            array('plan_delivery_date, transaction_date, created_date, updated_date, dr_date', 'safe'),
+            array('plan_delivery_date, transaction_date, created_date, updated_date, dr_date, recipients', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('outgoing_inventory_id, company_id, rra_no, dr_no, dr_date, source_zone_id, destination_zone_id, contact_person, contact_no, address, plan_delivery_date, transaction_date, status, remarks, total_amount, closed, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('outgoing_inventory_id, company_id, rra_no, dr_no, dr_date, source_zone_id, destination_zone_id, contact_person, contact_no, address, plan_delivery_date, transaction_date, status, remarks, total_amount, closed, created_date, created_by, updated_date, updated_by, recipients', 'safe', 'on' => 'search'),
         );
     }
 
@@ -260,7 +261,7 @@ class OutgoingInventory extends CActiveRecord {
 //            'revised_delivery_date' => 'Revised Delivery Date',
 //            'actual_delivery_date' => 'Actual Delivery Date',
 //            'plan_arrival_date' => 'Plan Arrival Date',
-            'transaction_date' => 'Transaction Date',
+            'transaction_date' => 'Date',
             'status' => 'Status',
             'remarks' => 'Remarks',
             'total_amount' => 'Total Amount',
@@ -269,6 +270,7 @@ class OutgoingInventory extends CActiveRecord {
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
             'updated_by' => 'Updated By',
+            'recipients' => 'Recipients',
         );
     }
 
@@ -316,6 +318,7 @@ class OutgoingInventory extends CActiveRecord {
         $criteria->compare('created_by', $this->created_by, true);
         $criteria->compare('updated_date', $this->updated_date, true);
         $criteria->compare('updated_by', $this->updated_by, true);
+        $criteria->compare('recipients', $this->recipients, true);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -374,9 +377,11 @@ class OutgoingInventory extends CActiveRecord {
         $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
         $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
 
-        if (count($zones) > 0) {
-            foreach ($zones as $key => $val) {
-                $zone_arr[] = $key;
+        if (!empty($zones)) {
+            if (count($zones) > 0) {
+                foreach ($zones as $key => $val) {
+                    $zone_arr[] = $key;
+                }
             }
         }
 
@@ -410,7 +415,7 @@ class OutgoingInventory extends CActiveRecord {
         $criteria->offset = $offset;
         $criteria->with = array("zone");
         $criteria->addInCondition('t.outgoing_inventory_id', $outgoing_inv_id_arr);
-        
+
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
             'pagination' => false,
@@ -435,6 +440,9 @@ class OutgoingInventory extends CActiveRecord {
             }
         }
 
+        $data = array();
+        $data['success'] = false;
+
         $outgoing_inventory = new OutgoingInventory;
 
         try {
@@ -457,40 +465,43 @@ class OutgoingInventory extends CActiveRecord {
                 'remarks' => $this->remarks,
                 'total_amount' => $this->total_amount,
                 'created_by' => $this->created_by,
+                'recipients' => $this->recipients,
             );
 
             $outgoing_inventory->attributes = $outgoing_inventory_data;
 
             if (count($transaction_details) > 0) {
                 if ($outgoing_inventory->save(false)) {
-                    Yii::app()->session['outgoing_inv_id_create_session'] = $outgoing_inventory->outgoing_inventory_id;
 
-                    unset(Yii::app()->session['outgoing_inv_id_attachment_session']);
-                    Yii::app()->session['outgoing_inv_id_attachment_session'] = $outgoing_inventory->outgoing_inventory_id;
+                    $outgoing_details = array();
                     for ($i = 0; $i < count($transaction_details); $i++) {
-                        OutgoingInventoryDetail::model()->createOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $outgoing_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $outgoing_inventory->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $outgoing_inventory->transaction_date);
+                        $outgoing_inv_detail = OutgoingInventoryDetail::model()->createOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $outgoing_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $outgoing_inventory->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $outgoing_inventory->transaction_date);
+
+                        $outgoing_details[] = $outgoing_inv_detail;
                     }
+
+                    $data['success'] = true;
+                    $data['header_data'] = $outgoing_inventory;
+                    $data['detail_data'] = $outgoing_details;
                 }
-
-//                return true;
-            } else {
-                return false;
             }
-
-            return true;
         } catch (Exception $exc) {
             Yii::log($exc->getTraceAsString(), 'error');
-            return false;
         }
+
+        return $data;
     }
 
-    public function updateTransaction($model, $outgoing_inv_ids_to_be_delete, $transaction_details, $validate = true) {
+    public function updateTransaction($model, $outgoing_inv_ids_to_be_delete, $transaction_details, $deletedTransactionRowData, $validate = true) {
 
         if ($validate) {
             if (!$this->validate()) {
                 return false;
             }
         }
+
+        $data = array();
+        $data['success'] = false;
 
         $outgoing_inventory = $model;
 
@@ -512,57 +523,72 @@ class OutgoingInventory extends CActiveRecord {
                 'status' => OutgoingInventory::OUTGOING_PENDING_STATUS,
                 'remarks' => $this->remarks,
                 'total_amount' => $this->total_amount,
-                'created_by' => $this->created_by,
+                'updated_by' => $this->updated_by,
+                'updated_date' => $this->updated_date,
+                'recipients' => $this->recipients,
             );
 
             $outgoing_inventory->attributes = $outgoing_inventory_data;
 
             if (count($transaction_details) > 0) {
                 if ($outgoing_inventory->save(false)) {
-                    Yii::app()->session['outgoing_inv_id_update_session'] = $outgoing_inventory->outgoing_inventory_id;
 
-                    unset(Yii::app()->session['outgoing_inv_id_attachment_session']);
-                    Yii::app()->session['outgoing_inv_id_attachment_session'] = $outgoing_inventory->outgoing_inventory_id;
+                    $outgoing_details = array();
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         if (trim($transaction_details[$i]['outgoing_inv_detail_id']) != "") {
-                            OutgoingInventoryDetail::model()->updateOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $transaction_details[$i]['outgoing_inv_detail_id'], $outgoing_inventory->company_id, $transaction_details[$i]['qty_for_new_inventory'], $transaction_details[$i]['quantity_issued'], $outgoing_inventory->destination_zone_id, $outgoing_inventory->transaction_date, $transaction_details[$i]['amount']);
+
+                            $outgoing_inv_detail = OutgoingInventoryDetail::model()->updateOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $transaction_details[$i]['outgoing_inv_detail_id'], $outgoing_inventory->company_id, $transaction_details[$i]['qty_for_new_inventory'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['amount'], $outgoing_inventory->updated_by, $outgoing_inventory->updated_date);
                         } else {
-                            OutgoingInventoryDetail::model()->createOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $outgoing_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $outgoing_inventory->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $outgoing_inventory->transaction_date);
+
+                            $outgoing_inv_detail = OutgoingInventoryDetail::model()->createOutgoingTransactionDetails($outgoing_inventory->outgoing_inventory_id, $outgoing_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $outgoing_inventory->updated_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], date("Y-m-d", strtotime($outgoing_inventory->updated_date)));
+                        }
+
+                        $outgoing_details[] = $outgoing_inv_detail;
+                    }
+
+                    if (count($deletedTransactionRowData) > 0) {
+                        for ($x = 0; $x < count($deletedTransactionRowData); $x++) {
+
+                            $outgoing_inv_detail = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => $outgoing_inventory->company_id, "outgoing_inventory_detail_id" => $deletedTransactionRowData[$x]['outgoing_inv_detail_id']));
+
+                            ReceivingInventoryDetail::model()->createInventory($outgoing_inventory->company_id, $deletedTransactionRowData[$x]['sku_id'], $deletedTransactionRowData[$x]['uom_id'], $deletedTransactionRowData[$x]['unit_price'], $deletedTransactionRowData[$x]['quantity_issued'], $deletedTransactionRowData[$x]['source_zone_id'], date("Y-m-d", strtotime($outgoing_inventory->updated_date)), $outgoing_inventory->updated_by, $deletedTransactionRowData[$x]['expiration_date'], $deletedTransactionRowData[$x]['batch_no'], $deletedTransactionRowData[$x]['sku_status_id'], $outgoing_inv_detail->pr_no, $outgoing_inv_detail->pr_date, $outgoing_inv_detail->plan_arrival_date, $outgoing_inv_detail->po_no, $deletedTransactionRowData[$x]['remarks']);
+
+                            if ((count($deletedTransactionRowData) - 1) == $x) {
+                                for ($y = 0; $y < count($outgoing_inv_ids_to_be_delete); $y++) {
+
+                                    OutgoingInventoryDetail::model()->deleteAll("company_id = '" . $outgoing_inventory->company_id . "' AND outgoing_inventory_detail_id = " . $outgoing_inv_ids_to_be_delete[$y]);
+                                }
+                            }
                         }
                     }
 
-                    if ($outgoing_inv_ids_to_be_delete != "") {
-                        OutgoingInventoryDetail::model()->deleteAll("company_id = '" . $outgoing_inventory->company_id . "' AND outgoing_inventory_detail_id = (" . $outgoing_inv_ids_to_be_delete . ")");
-                    }
+                    $data['success'] = true;
+                    $data['header_data'] = $outgoing_inventory;
+                    $data['detail_data'] = $outgoing_details;
                 }
-
-//                return true;
-            } else {
-                return false;
             }
-
-            return true;
         } catch (Exception $exc) {
             Yii::log($exc->getTraceAsString(), 'error');
-            return false;
         }
+        
+        return $data;
     }
-     ///// start of retriving of data for outgoing in webservice
-   public function retrieveOutgoing($dr_no, $employee_code, $sales_office_code) {
-      $cdbcriteria = new CDbCriteria();
-      $cdbcriteria->with = array('outgoingInventoryDetails', 'outgoingInventoryDetails.sku', 'outgoingInventoryDetails.sku.brand', 'zone');
+
+    ///// start of retriving of data for outgoing in webservice
+    public function retrieveOutgoing($dr_no, $employee_code, $sales_office_code) {
+        $cdbcriteria = new CDbCriteria();
+        $cdbcriteria->with = array('outgoingInventoryDetails', 'outgoingInventoryDetails.sku', 'outgoingInventoryDetails.sku.brand', 'zone');
 //      $cdbcriteria->compare('t.company_id', $company_id);
-      $cdbcriteria->join = "INNER JOIN zone a ON a.zone_id = t.destination_zone_id";
-      $cdbcriteria->join .= " INNER JOIN sales_office b ON b.sales_office_id = a.sales_office_id";
-      $cdbcriteria->join .= " INNER JOIN employee c ON c.sales_office_id = b.sales_office_id";
-      $cdbcriteria->condition = "c.employee_code = '" . $employee_code . "'";
-      $cdbcriteria->condition .= " AND b.sales_office_code = '" . $sales_office_code . "'";
-      $cdbcriteria->compare('t.dr_no', $dr_no); //pre($cdbcriteria);
-      $val = OutgoingInventory::model()->find($cdbcriteria);
-      // pre($val);
-      return $val;
-   }
+        $cdbcriteria->join = "INNER JOIN zone a ON a.zone_id = t.destination_zone_id";
+        $cdbcriteria->join .= " INNER JOIN sales_office b ON b.sales_office_id = a.sales_office_id";
+        $cdbcriteria->join .= " INNER JOIN employee c ON c.sales_office_id = b.sales_office_id";
+        $cdbcriteria->condition = "c.employee_code = '" . $employee_code . "'";
+        $cdbcriteria->condition .= " AND b.sales_office_code = '" . $sales_office_code . "'";
+        $cdbcriteria->compare('t.dr_no', $dr_no); //pre($cdbcriteria);
+        $val = OutgoingInventory::model()->find($cdbcriteria);
+        // pre($val);
+        return $val;
+    }
 
-   ///// end of retriving of data for outgoing in webservice
-
+    ///// end of retriving of data for outgoing in webservice
 }

@@ -348,10 +348,135 @@
              
     }
     
+    function redrawSurvey()
+    {
+             
+        var chartqa= new Highcharts.Chart({
+        
+             chart: {
+                        type: 'column',
+                        renderTo: 'tlqa'
+                    },
+                    title: {
+                        text: 'QA Checklist'
+                    },
+                    xAxis: {
+                        categories: labels_code
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: 'QA Checklist'
+                        },
+                        stackLabels: {
+                            enabled: true,
+                            style: {
+                                fontWeight: 'bold',
+                                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                            }
+                        }
+                    },
+                
+                tooltip: {
+                    formatter: function () {
+                        return '<b>' + this.x + '</b><br/>' +
+                            this.series.name + ': ' + this.y + '<br/>' +
+                            'Actual Score: ' + this.point.mydata;
+                    }
+                },
+                    plotOptions: {
+                        column: {
+                            stacking: 'normal',
+                            dataLabels: {
+                                enabled: true,
+                                color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
+                                style: {
+                                    textShadow: '0 0 3px black, 0 0 3px black'
+                                }
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Total Score',
+                         data:score_target
+
+                    }, {
+                        name: 'Actual Score',
+                        data:score_actual
+
+                    }]
+      });
+    
+      var labels_code= new Array();
+      var score_actual = new Array();
+      var score_target = new Array();
+      var team_ph =  document.getElementById('tl_ph');
+      var team_leader_qa =  document.getElementById('tl_leader');
+      var month_tl =  document.getElementById('tl_month');
+//      var brand_tl =  document.getElementById('tl_brand');
+      var year_tl =  document.getElementById('tl_year');
+        $.ajax({
+            'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TlQa'); ?>",
+            'type':'GET',
+            'dataType': 'json',
+            'data':'teamlead='+team_leader_qa.value+'&ph='+team_ph.value+'&month='+month_tl.value+'&year='+year_tl.value,
+            beforeSend: function(){
+//                $("#detail_table_loader_ttl_national").show();  
+//                $("#TotalNational").hide(); 
+                  chartqa.showLoading();
+             },
+            'success':function(data) {
+             
+               for(var i = 0; i < data.length; i++){
+                    labels_code.push(data[i].bws);
+
+ 
+                    var test = data[i].total / data[i].score * 100;
+                    var remaining = data[i].score - data[i].total;
+
+       
+                    if(test >= 100)
+                    {
+                        color = 'green';
+                    }else if(test >= 90 && test <99)
+                    {
+                        color = 'yellow';
+                    }else{
+                        color = 'red';
+                    }
+                   
+                    score_target.push({y: remaining, color: 'gray',mydata:test});
+                    score_actual.push({y: parseFloat(data[i].total), color: color,mydata:test});
+//                    target_actual_total_jfm.push({y: data[i].actual_reach, color: color,mydatac:data[i].target_reach});
+                   
+   
+               }
+//             $("#detail_table_loader_ttl_national").hide();  
+//             $("#TotalNational").show();  
+
+               chartqa.xAxis[0].setCategories(labels_code)
+               chartqa.series[0].setData(score_target)
+               chartqa.series[1].setData(score_actual)
+               chartqa.hideLoading();
+            
+               
+              
+               
+            },
+            error: function(jqXHR, exception) {
+//                $("#detail_table_loader_ttl_national").hide();  
+//                $("#TotalNational").show();
+               chartqa.hideLoading();
+               alert('An error occured: '+ exception);
+            }
+         }); 
+    }
+    
 $('#tl_agency').change(function() {
     
     redrawattendancetl(); 
     redrawtlreach(); 
+    redrawSurvey(); 
 
     
 });
@@ -359,12 +484,14 @@ $('#tl_month').change(function() {
     
     redrawattendancetl(); 
     redrawtlreach(); 
+    redrawSurvey();
 
 });
 $('#tl_brand').change(function() {
     
     redrawattendancetl();
     redrawtlreach();
+    redrawSurvey();
  
     
 });
@@ -372,6 +499,7 @@ $('#tl_leader').change(function() {
     
     redrawattendancetl();
     redrawtlreach();
+    redrawSurvey();
 
     
 });
@@ -379,6 +507,7 @@ $('#tl_ph').change(function() {
     
   
     redrawtlreach();
+    redrawSurvey();
 
     
 });
@@ -386,6 +515,7 @@ $('#tl_year').change(function() {
     
    redrawattendancetl();
     redrawtlreach();
+    redrawSurvey();
 
     
 });

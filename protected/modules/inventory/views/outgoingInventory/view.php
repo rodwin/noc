@@ -18,6 +18,8 @@ $this->breadcrumbs = array(
     .first_col_right_table { width: 150px; } 
 
     .text_bold { font-weight: bold; }
+    
+    sup { font-weight: bold; }
 </style>
 
 <?php $skuFields = Sku::model()->attributeLabels(); ?>
@@ -26,104 +28,103 @@ $this->breadcrumbs = array(
 
 <?php $not_set = "<i class='text-muted'>Not Set</i>"; ?>
 
-<div class="content invoice" style="width: 100%;">
-    <div class="row">
+<div class="row panel panel-default">
 
-        <div class="col-sm-6">
+    <div class="col-sm-6">
 
-            <h5 class="control-label text-primary text_bold">From</h5>
-            <table class="table table-bordered table-condensed">
-                <tr>
-                    <td colspan="2"><strong class="source_name"><i class="text-muted">Not Set</i></strong></td>
-                </tr>
-                <tr>
-                    <td class="first_col_left_table"><strong>Address:</strong></td><td><span class="source_address"></span></td>
-                </tr>
-                <tr>
-                    <td><strong>Contact Person:</strong></td><td><span class="source_contact_person"></span></td>
-                </tr>
-                <tr>
-                    <td><strong>Contact Number:</strong></td><td><span class="source_contact_no"></span></td>
-                </tr>
-            </table>
+        <h5 class="control-label text-primary text_bold">From</h5>
+        <table class="table table-bordered table-condensed">
+            <tr>
+                <td colspan="2"><strong><?php echo $source['source_zone_name_so_name']; ?></strong></td>
+            </tr>
+            <tr>
+                <td class="first_col_left_table"><strong>Address:</strong></td><td><?php echo $source['address']; ?></td>
+            </tr>
+            <tr>
+                <td><strong>Contact Person:</strong></td><td><?php echo $source['contact_person']; ?></td>
+            </tr>
+            <tr>
+                <td><strong>Contact Number:</strong></td><td><?php echo $source['contact_no']; ?></td>
+            </tr>
+        </table>
 
-            <h5 class="control-label text-primary text_bold">To</h5>
-            <table class="table table-bordered table-condensed">
-                <tr>
-                    <td colspan="2"><strong><?php echo $destination['zone_name']; ?></strong> <i class="text-muted">(<?php echo $destination['destination_sales_office_name']; ?>)</i></td>
-                </tr>
-                <tr>
-                    <td class="first_col_left_table"><strong>Address:</strong></td><td><?php echo $destination['address']; ?></td>
-                </tr>
-                <tr>
-                    <td><strong>Contact Person:</strong></td><td><?php echo $destination['contact_person']; ?></td>
-                </tr>
-                <tr>
-                    <td><strong>Contact Number:</strong></td><td><?php echo $destination['contact_no']; ?></td>
-                </tr>
-            </table>
+        <h5 class="control-label text-primary text_bold">To</h5>
+        <table class="table table-bordered table-condensed">
+            <tr>
+                <td colspan="2"><strong><?php echo $destination['zone_name']; ?></strong> <i class="text-muted">(<?php echo $destination['destination_sales_office_name']; ?>)</i></td>
+            </tr>
+            <tr>
+                <td class="first_col_left_table"><strong>Address:</strong></td><td><?php echo $destination['address']; ?></td>
+            </tr>
+            <tr>
+                <td><strong>Contact Person:</strong></td><td><?php echo $destination['contact_person']; ?></td>
+            </tr>
+            <tr>
+                <td><strong>Contact Number:</strong></td><td><?php echo $destination['contact_no']; ?></td>
+            </tr>
+        </table>
 
-        </div>
+    </div>
 
-        <div class="col-sm-6">
-            <table class="table table-bordered table-condensed">
-                <tr>
-                    <td class="first_col_right_table"><strong><?php echo $outgoingFields['transaction_date']; ?>:</strong></td>
-                    <td><?php echo $model->transaction_date; ?></td>
-                </tr>
-            </table>
+    <div class="col-sm-6"><br/>
+        <table class="table table-bordered table-condensed">
+            <tr>
+                <td class="first_col_right_table"><strong><?php echo $outgoingFields['transaction_date']; ?>:</strong></td>
+                <td><?php echo $model->transaction_date; ?></td>
+            </tr>
+        </table>
 
-            <table class="table table-bordered table-condensed">
-                <tr>
-                    <td class="first_col_right_table"><strong><?php echo $outgoingFields['plan_delivery_date']; ?>:</strong></td>
-                    <td><?php echo $model->plan_delivery_date != "" ? $model->plan_delivery_date : $not_set; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $outgoingDetailFields['pr_no']; ?>:</strong></td>
-                    <td><?php echo $pr_nos != "" ? $pr_nos : $not_set; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $outgoingDetailFields['po_no']; ?>:</strong></td>
-                    <td><?php echo $po_nos != "" ? $po_nos : $not_set; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $outgoingFields['rra_no']; ?>:</strong></td>
-                    <td><?php echo $model->rra_no != "" ? $model->rra_no : $not_set; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $outgoingFields['rra_date']; ?>:</strong></td>
-                    <td><?php echo $model->rra_date != "" ? $model->rra_date : $not_set; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $outgoingFields['dr_no']; ?>:</strong></td>
-                    <td><?php echo $model->dr_no; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $outgoingFields['dr_date']; ?>:</strong></td>
-                    <td><?php echo $model->dr_date; ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php echo $outgoingDetailFields['status']; ?>:</strong></td>
-                    <td><?php echo Inventory::model()->status($model->status); ?></td>
-                </tr>
-            </table>
+        <table class="table table-bordered table-condensed">
+            <tr>
+                <td class="first_col_right_table"><strong><?php echo $outgoingFields['plan_delivery_date']; ?>:</strong></td>
+                <td><?php echo $model->plan_delivery_date != "" ? $model->plan_delivery_date : $not_set; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $outgoingDetailFields['pr_no']; ?>:</strong></td>
+                <td><?php echo $pr_nos != "" ? $pr_nos : $not_set; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $outgoingDetailFields['po_no']; ?>:</strong></td>
+                <td><?php echo $po_nos != "" ? $po_nos : $not_set; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $outgoingFields['rra_no']; ?>:</strong></td>
+                <td><?php echo $model->rra_no != "" ? $model->rra_no : $not_set; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $outgoingFields['rra_date']; ?>:</strong></td>
+                <td><?php echo $model->rra_date != "" ? $model->rra_date : $not_set; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $outgoingFields['dr_no']; ?>:</strong></td>
+                <td><?php echo $model->dr_no; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $outgoingFields['dr_date']; ?>:</strong></td>
+                <td><?php echo $model->dr_date; ?></td>
+            </tr>
+            <tr>
+                <td><strong><?php echo $outgoingDetailFields['status']; ?>:</strong></td>
+                <td><?php echo Inventory::model()->status($model->status); ?></td>
+            </tr>
+        </table>
 
-            <table class="table table-bordered table-condensed">
-                <tr>
-                    <td><strong><?php echo $outgoingDetailFields['remarks']; ?>:</strong></td>
-                </tr>
-                <tr>
-                    <td><?php echo $model->remarks != "" ? $model->remarks : $not_set; ?></td>
-                </tr>
-            </table>
-        </div>
+        <table class="table table-bordered table-condensed">
+            <tr>
+                <td><strong><?php echo $outgoingDetailFields['remarks']; ?>:</strong></td>
+            </tr>
+            <tr>
+                <td><?php echo $model->remarks != "" ? $model->remarks : $not_set; ?></td>
+            </tr>
+        </table>
+    </div>
 
-        <br/>
+    <br/>
 
-        <div class="col-xs-12">
-            <div class="table-responsive">
-                <h5 class="control-label text-primary text_bold">Item Details</h5>
-
+    <div class="col-xs-12">
+        <div class="table-responsive">
+            <h5 class="control-label text-primary text_bold">Item Details</h5>
+            <div  style="overflow-x: scroll;">
                 <table id="outgoing-inv-detail_table" class="table table-bordered">
                     <thead>
                         <tr>
@@ -134,7 +135,7 @@ $this->breadcrumbs = array(
                             <th><?php echo $outgoingDetailFields['uom_id']; ?></th>
                             <th><?php echo $outgoingDetailFields['unit_price']; ?></th>
                             <th><?php echo $outgoingDetailFields['batch_no']; ?></th>
-                            <th><?php echo $outgoingDetailFields['expiration_date']; ?></th>
+                            <th><?php echo $outgoingDetailFields['return_date']; ?></th>
                             <th><?php echo $outgoingDetailFields['planned_quantity']; ?></th>
                             <th><?php echo $outgoingDetailFields['quantity_issued']; ?></th>
                             <th><?php echo $outgoingDetailFields['amount']; ?></th>
@@ -142,22 +143,22 @@ $this->breadcrumbs = array(
                             <th><?php echo $outgoingDetailFields['status']; ?></th>
                         </tr>                                    
                     </thead>
-                </table>                            
+                </table> 
             </div>
-        </div>
-
-        <div class="col-md12">
-
-            <div class="col-md-6 pull-right">
-                <p class="lead big text-right">Total Amount: &nbsp;&nbsp; &#x20B1; <?php echo number_format($model->total_amount, 2, '.', ','); ?></p>
-            </div>
-
-            <div class="col-md-6 pull-left">
-                <button id="btn_print" class="btn btn-default"><i class="fa fa-print"></i> Print</button>
-            </div>
-        </div>
-
+        </div><br/>
     </div>
+
+    <div class="col-md12">
+
+        <div class="col-md-6 pull-right">
+            <p class="lead big text-right">Total Amount: &nbsp;&nbsp; &#x20B1; <?php echo number_format($model->total_amount, 2, '.', ','); ?></p>
+        </div>
+
+        <div class="col-md-6 pull-left">
+            <button id="btn_print" class="btn btn-default"><i class="fa fa-print"></i> Print</button>
+        </div>
+    </div>
+
 </div>
 
 
@@ -182,7 +183,7 @@ $this->breadcrumbs = array(
                 {"name": "uom_name", "data": "uom_name"},
                 {"name": "unit_price", "data": "unit_price"},
                 {"name": "batch_no", "data": "batch_no"},
-                {"name": "expiration_date", "data": "expiration_date"},
+                {"name": "return_date", "data": "return_date"},
                 {"name": "planned_quantity", "data": "planned_quantity"},
                 {"name": "quantity_issued", "data": "quantity_issued"},
                 {"name": "amount", "data": "amount"},

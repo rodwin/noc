@@ -464,7 +464,7 @@ class Pome extends CFormModel {
            $ph = 'PH1';
        }
        
-       $sql = "SELECT c.id,a.id as route_id ,sum(b.reach) as reach,c.code
+       $sql = "SELECT c.id,a.id as route_id ,sum(b.reach) as reach,SUBSTRING(c.code,6,13)  as code
                 FROM [pg_mapping].[dbo].[pome_route] a
                 inner join [pg_mapping].[dbo].[pome_route_details] b on b.route_id = a.id
                 inner join [pg_mapping].[dbo].[pome_pps] c on c.id = a.pps_id
@@ -636,7 +636,7 @@ class Pome extends CFormModel {
         $from = date($year.'-'.$month.'-01');
 
       
-        $sql ="SELECT d.id,d.pps_id,a.code
+        $sql ="SELECT d.id,d.pps_id, SUBSTRING(a.code, 6,13)  as code
                 FROM  [pg_mapping].[dbo].[pome_route] d               
                 inner join [pg_mapping].[dbo].[pome_pps] a on a.id = d.pps_id
                 where d.date between '$from' and '$to'  and a.parent_leader = $team_lead  and a.team_leader =0   $brand and a.agency_id =$agency
@@ -675,7 +675,7 @@ class Pome extends CFormModel {
            $brand= '';
        }
        
-       $sql = "SELECT count(d.id) as par,a.code
+       $sql = "SELECT count(d.id) as par,SUBSTRING(a.code,6,13)  as code
                 FROM  [pg_mapping].[dbo].[pome_route] d               
                 inner join [pg_mapping].[dbo].[pome_pps] a on a.id = d.pps_id
                 where d.date between '$from' and '$to' and a.agency_id =  6  and a.parent_leader = $teamlead  $brand $agency
@@ -767,5 +767,47 @@ class Pome extends CFormModel {
 
           return $data;
     }
+    
+    public function getBwsPerTl($team_lead)
+    {
+        $sql = "SELECT SUBSTRING(code, 6,13)  as code,id
+                FROM [pg_mapping].[dbo].[pome_pps]
+                where parent_leader =$team_lead and team_leader = 0
+                order by code";
+//        pr($sql);
+          $command = Yii::app()->db3->createCommand($sql);
+          $data = $command->queryAll();
+          return $data;
+    }
+        
+    public function getTotalSurvey($str,$ph,$month,$year)
+    {
+        if(strlen($str) == 0){
+            $str = 0;
+        }else{
+            $str = $str;
+        }
+        $date1 = date($year.'-'.$month.'-01');
+        $to = date($year.'-m-t',strtotime($date1));
+
+        $from = date($year.'-'.$month.'-01');
+
+          $sql ="SELECT code,avg(answer) as answer from (
+                    SELECT SUBSTRING(b.code, 6,13) as code,a.hospital,a.date_checked,sum(CONVERT(float,a.answer)) as answer
+                    FROM [pg_mapping].[dbo].[pome_qachecklist] a
+                    inner join [pg_mapping].[dbo].[pome_pps] b on b.id = a.pps_id
+                    where b.id in ($str) and a.date_checked between '$from' and '$to' and a.ph_class = '$ph'
+                    group by  b.code,a.date_checked,a.hospital
+                    ) as w
+                    group by  code
+                ";
+
+          $command = Yii::app()->db3->createCommand($sql);
+          $data = $command->queryAll();
+          return $data;
+            
+    }
+    
+ 
 
 }

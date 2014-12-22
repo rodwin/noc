@@ -55,12 +55,16 @@ class Inventory extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, sku_id, qty', 'required'),
+            array('company_id, sku_id, qty, uom_id, zone_id, transaction_date', 'required'),
             array('qty', 'numerical', 'integerOnly' => true),
             array('company_id, sku_id, uom_id, zone_id, sku_status_id, created_by, updated_by, campaign_no, pr_no, po_no', 'length', 'max' => 50),
             array('reference_no', 'length', 'max' => 250),
             array('cost_per_unit', 'length', 'max' => 18),
             array('cost_per_unit', 'match', 'pattern' => '/^[0-9]{1,9}(\.[0-9]{0,2})?$/'),
+            array('sku_id', 'isValidSKU'),
+            array('uom_id', 'isValidUOM'),
+            array('zone_id', 'isValidZone'),
+            array('sku_status_id', 'isValidSKUStatus'),
             array('transaction_date,expiration_date, updated_date, expiration_date, pr_date, plan_arrival_date, revised_delivery_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
@@ -68,7 +72,63 @@ class Inventory extends CActiveRecord {
         );
     }
 
+    public function isValidSKUStatus($attribute) {
+        if ($this->$attribute == null) {
+            return;
+        }
+        $model = SkuStatus::model()->findByPk($this->$attribute);
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'Status ' . $this->$attribute . ' is invalid');
+        }
+
+        return;
+    }
+
+    public function isValidZone($attribute) {
+        if ($this->$attribute == null) {
+            return;
+        }
+        $model = Zone::model()->findByPk($this->$attribute);
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'Zone ' . $this->$attribute . ' is invalid');
+        }
+
+        return;
+    }
+
+    public function isValidSKU($attribute) {
+        if ($this->$attribute == null) {
+            return;
+        }
+        $model = SKU::model()->findByPk($this->$attribute);
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'MM ' . $this->$attribute . ' is invalid');
+        }
+
+        return;
+    }
+
+    public function isValidUOM($attribute) {
+        if ($this->$attribute == null) {
+            return;
+        }
+        $model = Uom::model()->findByPk($this->$attribute);
+
+        if (!Validator::isResultSetWithRows($model)) {
+            $this->addError($attribute, 'UOM ' . $this->$attribute . ' is invalid');
+        }
+
+        return;
+    }
+
     public function beforeValidate() {
+
+        if ($this->qty == "") {
+            $this->qty = 0;
+        }
 
         if ($this->cost_per_unit == "") {
             $this->cost_per_unit = null;
@@ -121,18 +181,11 @@ class Inventory extends CActiveRecord {
             'inventory_id' => 'Inventory',
             'company_id' => 'Company',
             'sku_id' => Sku::SKU_LABEL,
-            'sku_code' => 'Code',
-            'sku_name' => 'Name',
             'cost_per_unit' => 'Cost Per Unit',
             'qty' => 'Qty',
             'uom_id' => 'Uom',
-            'uom_name' => 'Uom',
             'zone_id' => 'Zone',
-            'zone_name' => 'Zone',
-            'sku_status_id' => 'Status',
-            'sku_status_name' => 'Status',
-            'brand_name' => 'Brand',
-            'sales_office_name' => 'Sales Office',
+            'sku_status_id' => 'MM Status',
             'created_date' => 'Created Date',
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
@@ -320,15 +373,17 @@ class Inventory extends CActiveRecord {
         $criteria->with = array('sku', 'sku.brand', 'skuStatus', 'uom', 'zone', 'zone.salesOffice');
         $criteria->limit = $limit;
         $criteria->offset = $offset;
-        
-        $arr = array();        
+
+        $arr = array();
         $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
         $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
-        
-        foreach ($zones as $key => $val) {
-            $arr[] = $key;
+
+        if (!empty($zones)) {
+            foreach ($zones as $key => $val) {
+                $arr[] = $key;
+            }
         }
-        
+
         $criteria->addInCondition('t.zone_id', $arr);
 
         return new CActiveDataProvider($this, array(
@@ -551,6 +606,249 @@ class Inventory extends CActiveRecord {
         }
 
         return $status;
+    }
+
+    public function requiredHeaders() {
+
+        $headers = $this->attributeLabels();
+        unset($headers['inventory_id']);
+        unset($headers['company_id']);
+        unset($headers['campaign_no']);
+        unset($headers['revised_delivery_date']);
+        unset($headers['created_date']);
+        unset($headers['created_by']);
+        unset($headers['updated_date']);
+        unset($headers['updated_by']);
+
+        return $headers;
+    }
+
+    public function generateTemplate() {
+
+        header('Content-Type: application/excel');
+        header('Content-Disposition: attachment; filename="inventory.csv"');
+
+        $fp = fopen('php://output', 'w');
+        $cols = "";
+
+        $headers = $this->requiredHeaders();
+        foreach ($headers as $k => $v) {
+            $cols .= $v . ',';
+        }
+
+        fputcsv($fp, explode(',', $cols));
+        fclose($fp);
+        exit();
+    }
+
+    public function processBatchUpload($id, $company_id) {
+
+        $BatchUploadModel = BatchUpload::model()->findByPk($id);
+
+        if ($BatchUploadModel === null) {
+            throw new CException('The requested model does not exist.');
+        }
+
+        $ret = array();
+
+        $rows = Globals::parseCSV($BatchUploadModel->file, true, true, ',');
+
+        $ret['success'] = 0;
+        $ret['fail'] = 0;
+        $ret['inserted'] = 0;
+        $ret['updated'] = 0;
+        $ret['message'] = "";
+        $incomplete_field = 0;
+        $message = "";
+
+        $required_headers = Inventory::model()->requiredHeaders();
+
+        if ($rows && count($rows) > 0) {
+
+            foreach ($required_headers as $key => $value) {
+                if (!isset($rows[0][$value])) {
+                    $incomplete_field++;
+                    $message .= $value . ',';
+                }
+            }
+
+            if ($incomplete_field > 0) {
+
+                $ret['message'] = "Could not find the following column(s): " . substr($message, 0, -1);
+                $BatchUploadModel->error_message = $ret['message'];
+                $BatchUploadModel->status = BatchUpload::STATUS_ERROR;
+            } else {
+
+                foreach ($rows as $key => $val) {
+
+                    $sku = Sku::model()->find(array("condition" => "company_id = '" . $company_id . "' AND TRIM(sku_code) = '" . trim($val[$required_headers['sku_id']]) . "'"));
+                    $uom = Uom::model()->find(array("condition" => "company_id = '" . $company_id . "' AND TRIM(uom_name) = '" . trim($val[$required_headers['uom_id']]) . "'"));
+                    $zone = Zone::model()->find(array("condition" => "company_id = '" . $company_id . "' AND TRIM(zone_name) = '" . trim($val[$required_headers['zone_id']]) . "'"));
+                    $sku_status = SkuStatus::model()->find(array("condition" => "company_id = '" . $company_id . "' AND TRIM(status_name) = '" . trim($val[$required_headers['sku_status_id']]) . "'"));
+
+                    $data = array(
+                        'company_id' => $company_id,
+                        'sku_id' => isset($sku->sku_id) ? $sku->sku_id : trim($val[$required_headers['sku_id']]),
+                        'cost_per_unit' => trim($val[$required_headers['cost_per_unit']]),
+                        'uom_id' => isset($uom->uom_id) ? $uom->uom_id : trim($val[$required_headers['uom_id']]),
+                        'zone_id' => isset($zone->zone_id) ? $zone->zone_id : trim($val[$required_headers['zone_id']]),
+                        'sku_status_id' => isset($sku_status->sku_status_id) ? $sku_status->sku_status_id : trim($val[$required_headers['sku_status_id']]),
+                        'transaction_date' => date("Y-m-d"),
+                        'expiration_date' => trim($val[$required_headers['expiration_date']]) != "" ? trim($val[$required_headers['expiration_date']]) : null,
+                        'reference_no' => trim($val[$required_headers['reference_no']]),
+                        'pr_no' => trim($val[$required_headers['pr_no']]),
+                        'pr_date' => trim($val[$required_headers['pr_date']]) != "" ? trim($val[$required_headers['pr_date']]) : null,
+                        'plan_arrival_date' => trim($val[$required_headers['plan_arrival_date']]) != "" ? trim($val[$required_headers['plan_arrival_date']]) : null,
+                        'po_no' => trim($val[$required_headers['po_no']]),
+                    );
+
+                    $inventoryObj = Inventory::model()->findByAttributes(
+                            array(
+                                'company_id' => $company_id,
+                                'sku_id' => isset($sku->sku_id) ? $sku->sku_id : null,
+                                'uom_id' => isset($uom->uom_id) ? $uom->uom_id : null,
+                                'zone_id' => isset($zone->zone_id) ? $zone->zone_id : null,
+                                'sku_status_id' => isset($sku_status->sku_status_id) ? $sku_status->sku_status_id : null,
+                                'expiration_date' => trim($val[$required_headers['expiration_date']]) != "" ? trim($val[$required_headers['expiration_date']]) : null,
+                                'po_no' => trim($val[$required_headers['po_no']]),
+                                'pr_no' => trim($val[$required_headers['pr_no']]),
+                                'pr_date' => trim($val[$required_headers['pr_date']]) != "" ? trim($val[$required_headers['pr_date']]) : null,
+                                'plan_arrival_date' => trim($val[$required_headers['plan_arrival_date']]) != "" ? trim($val[$required_headers['plan_arrival_date']]) : null,
+                            )
+                    );
+
+                    if ($val[$required_headers['qty']] != "") {
+                        $qty = trim($val[$required_headers['qty']]);
+                    } else {
+                        $qty = 0;
+                    }
+
+                    if ($inventoryObj) {
+
+                        $increase = false;
+                        $decrease = false;
+
+                        if ($inventoryObj->qty > $qty) {
+                            $new_qty = ($inventoryObj->qty - $qty);
+                            $decrease = true;
+                        } else if ($inventoryObj->qty < $qty) {
+                            $new_qty = ($qty - $inventoryObj->qty);
+                            $increase = true;
+                        } else {
+                            $new_qty = $inventoryObj->qty;
+                        }
+
+                        $model = $inventoryObj;
+
+                        $model->qty = $qty;
+                        $model->attributes = $data;
+                        $model->updated_date = date('Y-m-d H:i:s');
+                        $model->updated_by = $BatchUploadModel->created_by;
+
+                        $model->validate();
+                        if ($model->validate()) {
+                            try {
+                                if ($model->save(false)) {
+
+                                    if ($increase === true) {
+                                        InventoryHistory::model()->createHistory($model->company_id, $model->inventory_id, $model->transaction_date, $new_qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $model->cost_per_unit, $model->created_by, $model->zone_id, "");
+                                    } else if ($decrease === true) {
+                                        InventoryHistory::model()->createHistory($model->company_id, $model->inventory_id, $model->transaction_date, "-" . $new_qty, $qty, Inventory::INVENTORY_ACTION_TYPE_DECREASE, $model->cost_per_unit, $model->created_by, $model->zone_id, "");
+                                    } else {
+                                        InventoryHistory::model()->createHistory($model->company_id, $model->inventory_id, $model->transaction_date, $new_qty, 0, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $model->cost_per_unit, $model->created_by, $model->zone_id, "");
+                                    }
+                                }
+
+                                $ret['success'] ++;
+                                $ret['updated'] ++;
+                            } catch (Exception $exc) {
+                                $ret['fail'] ++;
+                                $this->saveBatchUploadDetail($BatchUploadModel->id, "Row " . ($key + 2) . ": " . $exc->errorInfo[2], $company_id);
+                            }
+                        } else {
+                            $ret['fail'] ++;
+                            $errors = Globals::getSingleLineErrorMessage($model->getErrors());
+
+                            $this->saveBatchUploadDetail($BatchUploadModel->id, "Row " . ($key + 2) . ": " . $errors, $company_id);
+                        }
+                    } else {
+
+                        $data['created_by'] = $BatchUploadModel->created_by;
+
+                        $model = new Inventory;
+                        $model->qty = $qty;
+                        $model->created_by = $BatchUploadModel->created_by;
+                        $model->attributes = $data;
+
+                        $model->validate();
+                        if ($model->validate()) {
+                            try {
+                                if ($model->save(false)) {
+
+                                    InventoryHistory::model()->createHistory($model->company_id, $model->inventory_id, $model->transaction_date, $model->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $model->cost_per_unit, $model->created_by, $model->zone_id, "");
+                                }
+
+                                $ret['success'] ++;
+                                $ret['inserted'] ++;
+                            } catch (Exception $exc) {
+                                $ret['fail'] ++;
+                                $this->saveBatchUploadDetail($BatchUploadModel->id, "Row " . ($key + 2) . ": " . $exc->errorInfo[2], $company_id);
+                            }
+                        } else {
+                            $ret['fail'] ++;
+                            $errors = Globals::getSingleLineErrorMessage($model->getErrors());
+
+                            $this->saveBatchUploadDetail($BatchUploadModel->id, "Row " . ($key + 2) . ": " . $errors, $company_id);
+                        }
+                    }
+                }
+
+                if ($ret['fail'] > 0) {
+                    $BatchUploadModel->status = BatchUpload::STATUS_WARNING;
+                } else {
+                    $BatchUploadModel->status = BatchUpload::STATUS_DONE;
+                }
+            }
+        } else {
+            $ret['message'] = "No data to process";
+            $BatchUploadModel->error_message = $ret['message'];
+            $BatchUploadModel->status = BatchUpload::STATUS_ERROR;
+        }
+
+        $BatchUploadModel->failed_rows = $ret['fail'];
+        $BatchUploadModel->total_rows = bcadd($ret['success'], $ret['fail']);
+        $BatchUploadModel->ended_date = date('Y-m-d H:i:s');
+        return $BatchUploadModel->save();
+    }
+
+    public function saveBatchUploadDetail($batch_id, $message, $company_id) {
+
+        $model = new BatchUploadDetail;
+        $model->company_id = $company_id;
+        $model->batch_upload_id = $batch_id;
+        $model->message = $message;
+        return $model->save();
+    }
+    
+    public function checkIfAllInventoryCriteriaExist($company_id, $sku_id, $uom_id, $zone_id, $sku_status_id, $expiration_date, $po_no, $pr_no, $pr_date, $plan_arrival_date) {
+        
+        $inventory = Inventory::model()->findByAttributes(
+                array(
+                    'company_id' => $company_id,
+                    'sku_id' => $sku_id,
+                    'uom_id' => $uom_id,
+                    'zone_id' => $zone_id,
+                    'sku_status_id' => $sku_status_id,
+                    'expiration_date' => $expiration_date,
+                    'po_no' => $po_no,
+                    'pr_no' => $pr_no,
+                    'pr_date' => $pr_date,
+                    'plan_arrival_date' => $plan_arrival_date,
+                )
+        );
+        
+        return $inventory;
+        
     }
 
 }

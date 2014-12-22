@@ -20,31 +20,30 @@
  * @property Sku[] $skus
  */
 class Brand extends CActiveRecord {
-    
+
     /**
      * @var string brand_id
      * @soap
      */
     public $brand_id;
-    
+
     /**
      * @var string brand_code
      * @soap
      */
     public $brand_code;
-    
+
     /**
      * @var string brand_name
      * @soap
      */
     public $brand_name;
-    
+
     /**
      * @var string company_id
      * @soap
      */
     public $company_id;
-    
     public $search_string;
 
     /**
@@ -193,15 +192,17 @@ class Brand extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
         $criteria->with = array('brandCategory', 'company', 'skus');
-        
-        $arr = array();        
+
+        $arr = array();
         $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
         $brands = CJSON::decode(isset($unserialize['brand']) ? $unserialize['brand'] : "");
-        
-        foreach ($brands as $key => $val) {
-            $arr[] = $key;
+
+        if (!empty($brands)) {
+            foreach ($brands as $key => $val) {
+                $arr[] = $key;
+            }
         }
-        
+
         $criteria->addInCondition('t.brand_id', $arr);
 
         return new CActiveDataProvider($this, array(

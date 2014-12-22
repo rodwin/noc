@@ -10,6 +10,7 @@ class MoveInventoryForm extends CFormModel {
     public $zone_id;
     public $status_id;
     public $inventoryObj = null;
+    public $remarks;
 
     /**
      * Declares the validation rules.
@@ -20,6 +21,7 @@ class MoveInventoryForm extends CFormModel {
         return array(
             // username and password are required
             array('created_by, qty, transaction_date, zone_id', 'required'),
+            array('remarks', 'length', 'max' => 200),
             array('inventory_id', 'isValidInventoryId'),
             array('zone_id', 'isValidZone'),
             array('status_id', 'isValidStatus'),
@@ -91,6 +93,7 @@ class MoveInventoryForm extends CFormModel {
             'cost_per_unit' => 'Cost per Unit',
             'zone_id' => 'Zone',
             'status_id' => 'Update Status to:',
+            'remarks' => 'Remarks',
         );
     }
 
@@ -128,7 +131,7 @@ class MoveInventoryForm extends CFormModel {
             if ($inventory) {
                 $item_exist = true;
                 $inv_qty = $this->qty + $inventory->qty;
-                InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_MOVE, $inventory->cost_per_unit, $this->created_by, $this->zone_id);
+                InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_MOVE, $inventory->cost_per_unit, $this->created_by, $this->zone_id, $this->remarks);
             } else {
                 $inventory = new Inventory();
                 $inv_qty = $this->qty;
@@ -151,11 +154,11 @@ class MoveInventoryForm extends CFormModel {
             if ($inventory->save(false)) {
                 
                 if ($item_exist == false) {
-                    InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_MOVE, $inventory->cost_per_unit, $this->created_by, $this->zone_id);
+                    InventoryHistory::model()->createHistory($inventory->company_id, $inventory->inventory_id, $inventory->transaction_date, $this->qty, $inv_qty, Inventory::INVENTORY_ACTION_TYPE_MOVE, $inventory->cost_per_unit, $this->created_by, $this->zone_id, $this->remarks);
                 }
             }
 
-            InventoryHistory::model()->createHistory($this->inventoryObj->company_id, $this->inventoryObj->inventory_id, $this->transaction_date, "-" . $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_MOVE, $this->cost_per_unit, $this->created_by, $this->zone_id);
+            InventoryHistory::model()->createHistory($this->inventoryObj->company_id, $this->inventoryObj->inventory_id, $this->transaction_date, "-" . $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_MOVE, $this->cost_per_unit, $this->created_by, $this->zone_id, $this->remarks);
 
             $transaction->commit();
 

@@ -251,8 +251,8 @@ $this->breadcrumbs = array(
                         customer_item_table.fnMultiFilter();
                     }
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;
@@ -273,8 +273,8 @@ $this->breadcrumbs = array(
 
                     loadCustomItemDetails(customerItem_id);
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;
@@ -294,6 +294,28 @@ $this->breadcrumbs = array(
                     });
 
                     loadAttachmentPreview(customerItem_id);
+                },
+                error: function(status, exception) {
+                    alert(status.responseText);
+                }
+            });
+            return false;
+        });
+
+        jQuery(document).on('click', 'a.download_attachment', function() {
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'json',
+                'success': function(data) {
+                    if (data.success === true) {
+                        window.location.href = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/outgoingInventory') . '"' ?> + "/loadAttachmentDownload&name=" + data.name + "&src=" + data.src;
+                    }
+
+                    $.growl(data.message, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: data.type
+                    });
                 },
                 error: function(jqXHR, exception) {
                     alert('An error occured: ' + exception);

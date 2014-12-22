@@ -43,7 +43,7 @@ $this->breadcrumbs = array(
                 <th><?php echo $fields['rra_no']; ?></th>
                 <th><?php echo $fields['rra_date']; ?></th>
                 <th><?php echo $fields['destination_zone_id']; ?></th>
-                <!--<th><?php // echo $fields['pr_no'];         ?></th>-->
+                <!--<th><?php // echo $fields['pr_no'];                  ?></th>-->
                 <th><?php echo $fields['status']; ?></th>
                 <th><?php echo $fields['contact_person']; ?></th>
                 <th><?php echo $fields['total_amount']; ?></th>
@@ -83,7 +83,7 @@ $this->breadcrumbs = array(
                 <table id="outgoing-inventory-details_table" class="table table-bordered">
                     <thead>
                         <tr>
-                            <th><?php echo $outgoingInvFields['campaign_no']; ?></th>
+                            <th><?php echo $outgoingInvFields['po_no']; ?></th>
                             <th><?php echo $outgoingInvFields['pr_no']; ?></th>
                             <th><?php echo $skuFields['sku_code']; ?></th>
                             <th><?php echo $skuFields['description']; ?></th>
@@ -265,8 +265,8 @@ $this->breadcrumbs = array(
                     loadOutgoingInvDetails(outgoing_inventory_id);
                     loadAttachmentPreview(outgoing_inventory_id);
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;
@@ -287,8 +287,8 @@ $this->breadcrumbs = array(
 
                     loadOutgoingInvDetails(outgoing_inventory_id);
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;
@@ -309,8 +309,8 @@ $this->breadcrumbs = array(
 
                     loadAttachmentPreview(outgoing_inventory_id);
                 },
-                error: function(jqXHR, exception) {
-                    alert('An error occured: ' + exception);
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;
@@ -326,6 +326,28 @@ $this->breadcrumbs = array(
                 outgoing_attachments_table.abort();
             }
 
+        });
+
+        jQuery(document).on('click', 'a.download_attachment', function() {
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'json',
+                'success': function(data) {
+                    if (data.success === true) {
+                        window.location.href = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/outgoingInventory') . '"' ?> + "/loadAttachmentDownload&name=" + data.name + "&src=" + data.src;
+                    }
+
+                    $.growl(data.message, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: data.type
+                    });
+                },
+                error: function(jqXHR, exception) {
+                    alert('An error occured: ' + exception);
+                }
+            });
+            return false;
         });
     });
 

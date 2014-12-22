@@ -42,6 +42,7 @@ class InventoryHistory extends CActiveRecord {
         return array(
             array('inventory_id, quantity_change, running_total, sort_no', 'numerical', 'integerOnly' => true),
             array('company_id, action, created_by, updated_by, destination_zone_id', 'length', 'max' => 50),
+            array('remarks', 'length', 'max' => 200),
             array('cost_unit', 'length', 'max' => 18),
             array('ave_cost_per_unit', 'length', 'max' => 19),
             array('created_date, updated_date', 'safe'),
@@ -88,6 +89,7 @@ class InventoryHistory extends CActiveRecord {
             'updated_by' => 'Updated By',
             'transaction_date' => 'Transaction Date',
             'sort_no' => 'Sort No',
+            'remarks' => 'Remarks',
         );
     }
 
@@ -122,6 +124,7 @@ class InventoryHistory extends CActiveRecord {
         $criteria->compare('updated_date', $this->updated_date, true);
         $criteria->compare('updated_by', $this->updated_by, true);
         $criteria->compare('sort_no', $this->sort_no, true);
+        $criteria->compare('remarks', $this->remarks, true);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -164,7 +167,6 @@ class InventoryHistory extends CActiveRecord {
         $criteria = new CDbCriteria;
         $criteria->compare('company_id', Yii::app()->user->company_id);
 //        $criteria->compare('inventory_history_id', $columns[0]['search']['value']);
-
         $criteria->compare('inventory_id', $columns[0]['search']['value']);
         $criteria->compare('quantity_change', $columns[1]['search']['value']);
         $criteria->compare('running_total', $columns[2]['search']['value']);
@@ -191,7 +193,7 @@ class InventoryHistory extends CActiveRecord {
         return parent::model($className);
     }
 
-    public function createHistory($company_id, $inventory_id, $transaction_date, $quantity_change, $running_total, $action, $cost_unit = 0, $created_by = null, $zone_id) {
+    public function createHistory($company_id, $inventory_id, $transaction_date, $quantity_change, $running_total, $action, $cost_unit = 0, $created_by = null, $zone_id, $remarks) {
 
         $c = new CDbCriteria;
         $c->condition = "company_id = '" . $company_id . "' AND inventory_id = '" . $inventory_id . "'";
@@ -214,6 +216,7 @@ class InventoryHistory extends CActiveRecord {
         $inventory_history->transaction_date = $transaction_date;
         $inventory_history->destination_zone_id = $zone_id;
         $inventory_history->sort_no = $sort_no;
+        $inventory_history->remarks = $remarks;
         /*
          * compute this!
          */
@@ -268,7 +271,8 @@ class InventoryHistory extends CActiveRecord {
 
     public function deleteHistoryByInvID($inventory_id) {
 
-        $sql = "DELETE FROM noc.inventory_history WHERE inventory_id = :inventory_id";
+        $sql = "DELETE FROM noc.inventory_history
+                        WHERE inventory_id = :inventory_id";
 
         $command = Yii::app()->db->createCommand($sql);
         $command->bindParam(':inventory_id', $inventory_id, PDO::PARAM_STR);

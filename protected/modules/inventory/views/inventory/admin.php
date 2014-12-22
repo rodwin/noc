@@ -21,6 +21,8 @@
     .text-apply { color: #CC9900; }
 
     #hide_textbox input {display:none;}
+
+    .input-width { width: 300px; }
 </style>
 
 <link href="<?php echo Yii::app()->theme->baseUrl; ?>/css/daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css" />
@@ -65,7 +67,7 @@ return false;
     <ul class="dropdown-menu" role="menu">
         <li><a href="#">Download All Records</a></li>
         <li><a href="#">Download All Filtered Records</a></li>
-        <li><a href="#">Upload</a></li>
+        <li><a href="<?php echo Yii::app()->createUrl($this->module->id . '/inventory/upload'); ?>">Upload</a></li>
     </ul>
 </div>
 
@@ -99,8 +101,8 @@ return false;
                 <th><?php echo $invFields['plan_arrival_date']; ?></th>
                 <th><?php echo $invFields['reference_no']; ?></th>
                 <th><?php echo $invFields['expiration_date']; ?></th>
-                <th><?php echo $invFields['brand_name']; ?></th>
-                <th><?php echo $invFields['sales_office_name']; ?></th>
+                <th><?php echo $skuFields['brand_id']; ?></th>
+                <th>Salesoffice</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -205,9 +207,11 @@ return false;
             $(this).html('<input type="text" class="form-control input-sm" onclick="" placeholder="" colPos="' + i + '" />');
             i++;
         });
+
         $("#inventory_table thead input").keyup(function() {
             table.fnFilter(this.value, $(this).attr("colPos"));
         });
+
         transaction_table = $('#transaction_table').dataTable({
             "filter": false,
             "dom": 't',
@@ -302,6 +306,16 @@ return false;
                 }
             });
             return false;
+        });
+
+        $('#inventory_table tbody').on('click', 'tr', function() {
+            if ($(this).hasClass('success')) {
+                $(this).removeClass('success');
+            }
+            else {
+                table.$('tr.success').removeClass('success');
+                $(this).addClass('success');
+            }
         });
 
     });

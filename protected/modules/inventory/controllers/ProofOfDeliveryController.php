@@ -434,6 +434,9 @@ class ProofOfDeliveryController extends Controller {
 
             if ($pod) {
                 $pod->status = $pod_status;
+                $pod->transaction_date = date("Y-m-d");
+                $pod->updated_by = Yii::app()->user->name;
+                $pod->updated_date = date('Y-m-d H:i:s');
 
                 if ($pod->save()) {
 
@@ -528,6 +531,7 @@ class ProofOfDeliveryController extends Controller {
             $pod = ProofOfDelivery::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "pod_id" => $pod_id));
 
             if ($pod) {
+                $pod->transaction_date = date("Y-m-d");
                 $pod->updated_by = Yii::app()->user->name;
                 $pod->updated_date = date('Y-m-d H:i:s');
                 $pod->verified = $pod_verified;
@@ -665,7 +669,7 @@ class ProofOfDeliveryController extends Controller {
                 $base = $arr[count($arr) - 1];
                 $url = str_replace(Yii::app()->getBaseUrl(true), "", $pod_attachment->url);
                 $delete_link = '../' . $base . $url;
-                
+
                 if (file_exists($delete_link)) {
                     unlink($delete_link);
                 }
@@ -694,10 +698,12 @@ class ProofOfDeliveryController extends Controller {
         $arr = explode("/", $base);
         $base = $arr[count($arr) - 1];
         $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
+        $src = '../' . $base . $url;
 
-        if (file_exists('../' . $base . $url)) {
+        if (file_exists($src)) {
+            ob_clean();
 
-            Yii::app()->getRequest()->sendFile($name, file_get_contents('../' . $base . $url));
+            Yii::app()->getRequest()->sendFile($name, file_get_contents($src));
         } else {
 
             throw new CHttpException(500, "Could not download file.");

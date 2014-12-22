@@ -1,6 +1,8 @@
 <?php
 $main_menu = array(
     array('label' => 'Dashboard', 'url' => array(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['dashboard']), 'icon' => 'fa fa-dashboard', 'visible' => Yii::app()->user->checkAccess(Yii::app()->user->auth_company_dashboard, array('company_id' => Yii::app()->user->company_id))),
+    array('label' => 'Dashboard', 'url' => array('pome/tl'), 'icon' => 'fa fa-dashboard', 'visible' => Yii::app()->user->checkAccess('Pome Dashboard TL', array('company_id' => Yii::app()->user->company_id))),
+    array('label' => 'Edac', 'url' => array('pome/survey'), 'icon' => 'fa fa-book', 'visible' => Yii::app()->user->checkAccess('Survey', array('company_id' => Yii::app()->user->company_id))),
     array('label' => 'Dashboard', 'url' => array('dtd'), 'icon' => 'fa fa-dashboard', 'visible' => Yii::app()->user->checkAccess('DTD Dashboard', array('company_id' => Yii::app()->user->company_id))),
     array('label' => 'Location Viewer', 'url' => array('locationviewer'), 'icon' => 'fa fa-map-marker', 'visible' => Yii::app()->user->checkAccess('Location Viewer', array('company_id' => Yii::app()->user->company_id))),
     array('label' => 'Inventory', 'url' => '#', 'icon' => 'fa fa-list-alt', 'visible' => true, 'items' => array(
@@ -10,6 +12,7 @@ $main_menu = array(
             array('label' => OutgoingInventory::OUTGOING_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('inventory/outgoingInventory/admin'), 'visible' => Yii::app()->user->checkAccess('Manage Outbound', array('company_id' => Yii::app()->user->company_id))),
             array('label' => CustomerItem::CUSTOMER_ITEM_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('inventory/customerItem/admin'), 'visible' => Yii::app()->user->checkAccess('Manage Outgoing', array('company_id' => Yii::app()->user->company_id))),
             array('label' => ProofOfDelivery::PROOF_OF_DELIVERY_LABEL, 'icon' => 'fa fa-angle-double-right', 'url' => array('inventory/proofOfDelivery/admin'), 'visible' => Yii::app()->user->checkAccess('Manage Proof Of Delivery', array('company_id' => Yii::app()->user->company_id))),
+            array('label' => 'Returns', 'icon' => 'fa fa-angle-double-right', 'url' => array('inventory/returns/admin'), 'visible' => Yii::app()->user->checkAccess('Manage Returns', array('company_id' => Yii::app()->user->company_id))),
     )),
     array('label' => 'Library', 'url' => '#', 'icon' => 'fa fa-book', 'visible' => true, 'items' => array(
             array('label' => 'Supplier', 'icon' => 'fa fa-angle-double-right', 'url' => array('library/supplier/admin'), 'visible' => Yii::app()->user->checkAccess('Manage Supplier', array('company_id' => Yii::app()->user->company_id))),

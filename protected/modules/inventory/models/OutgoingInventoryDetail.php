@@ -62,7 +62,6 @@ class OutgoingInventoryDetail extends CActiveRecord {
      * @soap
      */
     public $amount;
-    
     public $inventory_on_hand;
 
     /**
@@ -76,12 +75,18 @@ class OutgoingInventoryDetail extends CActiveRecord {
      * @soap
      */
     public $remarks;
-    
+
     /**
      * @var string po_no
      * @soap
      */
     public $po_no;
+
+    /**
+     * @var string uom_id
+     * @soap
+     */
+    public $uom_id;
 
     /**
      * @var Sku[] sku_obj
@@ -227,8 +232,8 @@ class OutgoingInventoryDetail extends CActiveRecord {
         $criteria->compare('po_no', $this->po_no, true);
 
         return new CActiveDataProvider($this, array(
-                    'criteria' => $criteria,
-                ));
+            'criteria' => $criteria,
+        ));
     }
 
     public function data($col, $order_dir, $limit, $offset, $columns) {
@@ -278,9 +283,9 @@ class OutgoingInventoryDetail extends CActiveRecord {
         $criteria->offset = $offset;
 
         return new CActiveDataProvider($this, array(
-                    'criteria' => $criteria,
-                    'pagination' => false,
-                ));
+            'criteria' => $criteria,
+            'pagination' => false,
+        ));
     }
 
     /**
@@ -327,13 +332,15 @@ class OutgoingInventoryDetail extends CActiveRecord {
         $outgoing_transaction_detail->revised_delivery_date = $inventory->revised_delivery_date;
 
         if ($outgoing_transaction_detail->save(false)) {
-            $this->decreaseInventory($inventory_id, $outgoing_transaction_detail->quantity_issued, $transaction_date, $outgoing_transaction_detail->unit_price, $outgoing_transaction_detail->created_by, $outgoing_transaction_detail->campaign_no, $outgoing_transaction_detail->pr_no, $outgoing_transaction_detail->pr_date, $outgoing_transaction_detail->plan_arrival_date, $outgoing_transaction_detail->revised_delivery_date);
+            $this->decreaseInventory($inventory_id, $outgoing_transaction_detail->quantity_issued, $transaction_date, $outgoing_transaction_detail->unit_price, $outgoing_transaction_detail->created_by, $outgoing_transaction_detail->remarks);
+            
+            return $outgoing_transaction_detail;
         } else {
             return $outgoing_transaction_detail->getErrors();
         }
     }
 
-    public function decreaseInventory($inventory_id, $quantity_issued, $transaction_date, $cost_per_unit, $created_by) {
+    public function decreaseInventory($inventory_id, $quantity_issued, $transaction_date, $cost_per_unit, $created_by, $remarks) {
 
         $inventory = Inventory::model()->findByPk($inventory_id);
 
@@ -342,6 +349,7 @@ class OutgoingInventoryDetail extends CActiveRecord {
         $decrease_inventory->transaction_date = $transaction_date;
         $decrease_inventory->cost_per_unit = $cost_per_unit;
         $decrease_inventory->created_by = $created_by;
+        $decrease_inventory->remarks = $remarks;
         $decrease_inventory->inventoryObj = $inventory;
 
         if ($decrease_inventory->decrease(false)) {
@@ -356,11 +364,26 @@ class OutgoingInventoryDetail extends CActiveRecord {
         return $outgoing_inventory_details;
     }
 
-    public function updateOutgoingTransactionDetails($outgoing_inventory_id, $outgoing_inventory_detail_id, $company_id, $qty_for_new_inventory, $quantity_issued, $destination_zone_id, $transaction_date, $amount) {
+    public function updateOutgoingTransactionDetails($outgoing_inventory_id, $outgoing_inventory_detail_id, $company_id, $qty_for_new_inventory, $quantity_issued, $source_zone_id, $amount, $updated_by, $updated_date) {
 
         $outgoing_inv_detail = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => $company_id, "outgoing_inventory_id" => $outgoing_inventory_id, "outgoing_inventory_detail_id" => $outgoing_inventory_detail_id));
 
-        $inventory = Inventory::model()->findByAttributes(array("company_id" => $company_id, "inventory_id" => $outgoing_inv_detail->inventory_id));
+        $status_id = ($outgoing_inv_detail->sku_status_id != "" ? $outgoing_inv_detail->sku_status_id : null);
+
+        $inventory = Inventory::model()->findByAttributes(
+                array(
+                    'company_id' => $outgoing_inv_detail->company_id,
+                    'sku_id' => $outgoing_inv_detail->sku_id,
+                    'uom_id' => $outgoing_inv_detail->uom_id,
+                    'zone_id' => $outgoing_inv_detail->source_zone_id,
+                    'sku_status_id' => $status_id,
+                    'expiration_date' => $outgoing_inv_detail->expiration_date,
+                    'po_no' => $outgoing_inv_detail->po_no,
+                    'pr_no' => $outgoing_inv_detail->pr_no,
+                    'pr_date' => $outgoing_inv_detail->pr_date,
+                    'plan_arrival_date' => $outgoing_inv_detail->plan_arrival_date,
+                )
+        );
 
         $new_qty_value = trim($qty_for_new_inventory);
         $qty_issued = $outgoing_inv_detail->quantity_issued;
@@ -377,8 +400,8 @@ class OutgoingInventoryDetail extends CActiveRecord {
                     $decrease_inv = new DecreaseInventoryForm();
                     $decrease_inv->inventoryObj = $inventory;
                     $decrease_inv->qty = $new_qty;
-                    $decrease_inv->transaction_date = date("Y-m-d");
-                    $decrease_inv->created_by = $outgoing_inv_detail->created_by;
+                    $decrease_inv->transaction_date = date("Y-m-d", strtotime($updated_date));
+                    $decrease_inv->created_by = $updated_by;
 
                     $decrease_inv->decrease(false);
                 }
@@ -389,44 +412,48 @@ class OutgoingInventoryDetail extends CActiveRecord {
                 $increase_inv = new IncreaseInventoryForm();
                 $increase_inv->inventoryObj = $inventory;
                 $increase_inv->qty = $new_inv_qty;
-                $increase_inv->transaction_date = date("Y-m-d");
-                $increase_inv->created_by = $outgoing_inv_detail->created_by;
+                $increase_inv->transaction_date = date("Y-m-d", strtotime($updated_date));
+                $increase_inv->created_by = $updated_by;
 
                 $increase_inv->increase(false);
             }
         } else {
 
-            $status_id = ($outgoing_inv_detail->sku_status_id != "" ? $outgoing_inv_detail->sku_status_id : null);
-            $saved_inv = ReceivingInventoryDetail::model()->createInventory($company_id, $outgoing_inv_detail->sku_id, $outgoing_inv_detail->uom_id, $outgoing_inv_detail->unit_price, $new_qty_value, $destination_zone_id, $transaction_date, $outgoing_inv_detail->created_by, $outgoing_inv_detail->expiration_date, $outgoing_inv_detail->batch_no, $status_id, $outgoing_inv_detail->pr_no, $outgoing_inv_detail->pr_date, $outgoing_inv_detail->plan_arrival_date, $outgoing_inv_detail->po_no);
+            if ($new_qty_value != "") {
 
-            if ($saved_inv) {
+                $saved_inv = ReceivingInventoryDetail::model()->createInventory($company_id, $outgoing_inv_detail->sku_id, $outgoing_inv_detail->uom_id, $outgoing_inv_detail->unit_price, $new_qty_value, $source_zone_id, date("Y-m-d", strtotime($updated_date)), $updated_by, $outgoing_inv_detail->expiration_date, $outgoing_inv_detail->batch_no, $status_id, $outgoing_inv_detail->pr_no, $outgoing_inv_detail->pr_date, $outgoing_inv_detail->plan_arrival_date, $outgoing_inv_detail->po_no, $outgoing_inv_detail->remarks);
 
-                $inv = Inventory::model()->findByAttributes(array(
-                    'sku_id' => $outgoing_inv_detail->sku_id,
-                    'company_id' => $outgoing_inv_detail->company_id,
-                    'uom_id' => $outgoing_inv_detail->uom_id,
-                    'zone_id' => $destination_zone_id,
-                    'sku_status_id' => $status_id,
-                    'expiration_date' => $outgoing_inv_detail->expiration_date,
-                    'reference_no' => $outgoing_inv_detail->batch_no,
-                    'po_no' => $outgoing_inv_detail->po_no,
-                    'pr_no' => $outgoing_inv_detail->pr_no,
-                    'pr_date' => $outgoing_inv_detail->pr_date,
-                    'plan_arrival_date' => $outgoing_inv_detail->plan_arrival_date,
-                        ));
+                if ($saved_inv) {
 
-                $outgoing_inv_detail->inventory_id = $inv->inventory_id;
+                    $inv = Inventory::model()->findByAttributes(array(
+                        'sku_id' => $outgoing_inv_detail->sku_id,
+                        'company_id' => $outgoing_inv_detail->company_id,
+                        'uom_id' => $outgoing_inv_detail->uom_id,
+                        'zone_id' => $source_zone_id,
+                        'sku_status_id' => $status_id,
+                        'expiration_date' => $outgoing_inv_detail->expiration_date,
+                        'reference_no' => $outgoing_inv_detail->batch_no,
+                        'po_no' => $outgoing_inv_detail->po_no,
+                        'pr_no' => $outgoing_inv_detail->pr_no,
+                        'pr_date' => $outgoing_inv_detail->pr_date,
+                        'plan_arrival_date' => $outgoing_inv_detail->plan_arrival_date,
+                    ));
+
+                    $outgoing_inv_detail->inventory_id = $inv->inventory_id;
+                }
             }
         }
 
         $outgoing_inv_detail->amount = $amount;
         $outgoing_inv_detail->quantity_issued = $quantity_issued;
-        $outgoing_inv_detail->updated_date = date("Y-m-d");
-        $outgoing_inv_detail->updated_by = Yii::app()->user->name;
+        $outgoing_inv_detail->updated_date = $updated_date;
+        $outgoing_inv_detail->updated_by = $updated_by;
 
         if ($outgoing_inv_detail->save(false)) {
             
+            return $outgoing_inv_detail;
         } else {
+            
             return $outgoing_inv_detail->getErrors();
         }
     }

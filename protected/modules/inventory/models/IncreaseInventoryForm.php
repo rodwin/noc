@@ -8,7 +8,8 @@ class IncreaseInventoryForm extends CFormModel {
     public $inventory_id;
     public $created_by;
     public $inventoryObj = null;
-    
+    public $remarks;
+
     /**
      * Declares the validation rules.
      * The rules state that username and password are required,
@@ -20,6 +21,7 @@ class IncreaseInventoryForm extends CFormModel {
             array('created_by,qty,transaction_date', 'required'),
             array('inventory_id', 'isValidInventoryId'),
             array('cost_per_unit', 'length', 'max' => 18),
+            array('remarks', 'length', 'max' => 200),
             array('cost_per_unit', 'match', 'pattern' => '/^[0-9]{1,9}(\.[0-9]{0,3})?$/'),
             array('transaction_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('qty', 'numerical', 'integerOnly' => true, 'max' => 9999999, 'min' => 0),
@@ -65,6 +67,7 @@ class IncreaseInventoryForm extends CFormModel {
             'sku_status_id' => 'Status',
             'unique_tag' => 'Unique Tag',
             'unique_date' => 'Unique Date',
+            'remarks' => 'Remarks',
         );
     }
 
@@ -84,13 +87,12 @@ class IncreaseInventoryForm extends CFormModel {
             $this->inventoryObj->qty = $qty;
             $this->inventoryObj->save(false);
 
-            InventoryHistory::model()->createHistory($this->inventoryObj->company_id, $this->inventoryObj->inventory_id, $this->transaction_date, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $this->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id);
+            InventoryHistory::model()->createHistory($this->inventoryObj->company_id, $this->inventoryObj->inventory_id, $this->transaction_date, $this->qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $this->cost_per_unit, $this->created_by, $this->inventoryObj->zone_id, $this->remarks);
 
             $transaction->commit();
 
             return true;
         } catch (Exception $exc) {
-           pr($exc);
             Yii::log($exc->getTraceAsString(), 'error');
             $transaction->rollBack();
             return false;

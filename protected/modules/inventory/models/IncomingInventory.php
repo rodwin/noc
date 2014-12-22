@@ -45,11 +45,12 @@ class IncomingInventory extends CActiveRecord {
             array('total_amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
             array('destination_zone_id', 'isValidZone'),
+            array('dr_no', 'uniqueDRNo'),
             array('transaction_date, plan_delivery_date, rra_date, dr_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
-            array('dr_date, transaction_date, updated_date', 'safe'),
+            array('dr_date, transaction_date, updated_date, recipients', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('incoming_inventory_id, company_id, dr_no, dr_date, rra_date, source_zone_id, destination_zone_id, transaction_date, plan_delivery_date, status, total_amount, created_date, created_by, updated_date, updated_by, rra_no', 'safe', 'on' => 'search'),
+            array('incoming_inventory_id, company_id, dr_no, dr_date, rra_date, source_zone_id, destination_zone_id, transaction_date, plan_delivery_date, status, total_amount, created_date, created_by, updated_date, updated_by, rra_no, recipients', 'safe', 'on' => 'search'),
         );
     }
 
@@ -60,6 +61,15 @@ class IncomingInventory extends CActiveRecord {
             $this->addError($attribute, 'Zone is invalid.');
         }
 
+        return;
+    }
+
+    public function uniqueDRNo($attribute, $params) {
+
+        $model = IncomingInventory::model()->findByAttributes(array('company_id' => $this->company_id, 'dr_no' => $this->$attribute));
+        if ($model && $model->incoming_inventory_id != $this->incoming_inventory_id) {
+            $this->addError($attribute, 'DR Number selected already taken');
+        }
         return;
     }
 
@@ -109,7 +119,7 @@ class IncomingInventory extends CActiveRecord {
             'rra_no' => 'RA No',
             'source_zone_id' => 'Source Zone',
             'destination_zone_id' => 'Destination Zone',
-            'transaction_date' => 'Transaction Date',
+            'transaction_date' => 'Date',
             'plan_delivery_date' => 'Plan Delivery Date',
 //            'revised_delivery_date' => 'Revised Delivery Date',
 //            'plan_arrival_date' => 'Plan Arrival Date',
@@ -120,6 +130,7 @@ class IncomingInventory extends CActiveRecord {
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
             'updated_by' => 'Updated By',
+            'recipients' => 'Recipients',
         );
     }
 
@@ -160,6 +171,7 @@ class IncomingInventory extends CActiveRecord {
         $criteria->compare('created_by', $this->created_by, true);
         $criteria->compare('updated_date', $this->updated_date, true);
         $criteria->compare('updated_by', $this->updated_by, true);
+        $criteria->compare('recipients', $this->recipients, true);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -232,17 +244,19 @@ class IncomingInventory extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
         $criteria->with = array("zone");
-        
-        $arr = array();        
+
+        $arr = array();
         $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
         $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
-        
-        foreach ($zones as $key => $val) {
-            $arr[] = $key;
+
+        if (!empty($zones)) {
+            foreach ($zones as $key => $val) {
+                $arr[] = $key;
+            }
         }
-        
+
         $criteria->addInCondition('t.destination_zone_id', $arr);
-        
+
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
             'pagination' => false,
@@ -266,6 +280,9 @@ class IncomingInventory extends CActiveRecord {
                 return false;
             }
         }
+
+        $data = array();
+        $data['success'] = false;
 
         $item_status = array();
         $incoming_status = "";
@@ -306,6 +323,7 @@ class IncomingInventory extends CActiveRecord {
                 'remarks' => $this->remarks,
                 'total_amount' => $this->total_amount,
                 'created_by' => $this->created_by,
+                'recipients' => $this->recipients,
             );
 
             $incoming_inventory->attributes = $incoming_inventory_data;
@@ -319,25 +337,23 @@ class IncomingInventory extends CActiveRecord {
 //                        OutgoingInventory::model()->updateAll(array('status' => $incoming_inventory->status, 'updated_by' => $this->created_by, 'updated_date' => date('Y-m-d H:i:s')), 'outgoing_inventory_id = ' . $this->outgoing_inventory_id . ' AND company_id = "' . $incoming_inventory->company_id . '"');
 //                    }
 
-                    Yii::app()->session['incoming_inv_id_create_session'] = $incoming_inventory->incoming_inventory_id;
-
-                    unset(Yii::app()->session['incoming_inv_id_attachment_session']);
-                    Yii::app()->session['incoming_inv_id_attachment_session'] = $incoming_inventory->incoming_inventory_id;
+                    $incoming_details = array();
                     for ($i = 0; $i < count($transaction_details); $i++) {
-                        IncomingInventoryDetail::model()->createIncomingTransactionDetails($incoming_inventory->incoming_inventory_id, $incoming_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_received'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $incoming_inventory->created_by, $transaction_details[$i]['status'], $transaction_details[$i]['outgoing_inventory_detail_id'], $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $incoming_inventory->destination_zone_id, $incoming_inventory->transaction_date);
+                        $incoming_inv_detail = IncomingInventoryDetail::model()->createIncomingTransactionDetails($incoming_inventory->incoming_inventory_id, $incoming_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_received'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $incoming_inventory->created_by, $transaction_details[$i]['status'], $transaction_details[$i]['outgoing_inventory_detail_id'], $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $incoming_inventory->destination_zone_id, $incoming_inventory->transaction_date);
+
+                        $incoming_details[] = $incoming_inv_detail;
                     }
 
-                    return true;
-                } else {
-                    return false;
+                    $data['success'] = true;
+                    $data['header_data'] = $incoming_inventory;
+                    $data['detail_data'] = $incoming_details;
                 }
             }
-
-            return true;
         } catch (Exception $exc) {
             Yii::log($exc->getTraceAsString(), 'error');
-            return false;
         }
+
+        return $data;
     }
 
 }
