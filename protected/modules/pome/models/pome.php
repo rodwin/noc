@@ -695,13 +695,13 @@ class Pome extends CFormModel {
         $current_date = date('Y-m-d');
         $given_date = date('Y-m-d',strtotime($to));
 
-
         if($given_date > $current_date){
 
                 $to = date($year.'-m-d');
 
         }else{
              $to = $to;
+             
         }
                   
        if($brand != 0){
@@ -717,7 +717,7 @@ class Pome extends CFormModel {
                     group by d.date,a.id
                     order by d.date
                 ";
-
+//pr($sql);
           $command = Yii::app()->db3->createCommand($sql);
           $data = $command->queryAll();
 

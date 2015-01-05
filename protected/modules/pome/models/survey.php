@@ -207,6 +207,7 @@ class Survey extends CFormModel {
                 where team_leader = 0 and agency_id = 6 $team
                 order by code";
 //        pr($sql);
+        
       $command = Yii::app()->db3->createCommand($sql);
       $data = $command->queryAll();
 
@@ -226,11 +227,20 @@ class Survey extends CFormModel {
 
         return $data;
     }
-    public function getHospitalByPh($ph)
+    public function getHospitalByPh($ph,$bws)
     {
+        if($bws== ''){
+            $bws = 0;
+        }else{
+            $bws = $bws;
+        }
+         $date = date('Y-m-d');
          $sql = "SELECT outlet_code+'('+ outlet_name+')' as outlet_code,outlet_id
-                FROM [pg_mapping].[dbo].[outlets]
-                where storetype_id = 27 and class ='$ph'";
+                FROM [pg_mapping].[dbo].[outlets] a
+                inner join [pg_mapping].[dbo].[pome_route_details] b on b.hospital_id = a.outlet_id
+                inner join [pg_mapping].[dbo].[pome_route] c on c.id = b.route_id
+                where storetype_id = 27 and class ='$ph' and c.date = '$date' and c.pps_id = $bws
+                order by outlet_code";
          
         $command = Yii::app()->db3->createCommand($sql);
         $data = $command->queryAll();
