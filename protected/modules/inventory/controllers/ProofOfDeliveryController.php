@@ -392,6 +392,7 @@ class ProofOfDeliveryController extends Controller {
             $pod_status = "";
 
             $output['success'] = false;
+            $output['message'] = "Unable to save";
 
             foreach ($pod_details_arr as $k => $v) {
 
@@ -411,11 +412,16 @@ class ProofOfDeliveryController extends Controller {
 
                         $customer_item_detail = CustomerItemDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "customer_item_detail_id" => $pod_detail->customer_item_detail_id));
 
-                        $customer_item_detail->status = $pod_detail->status;
-                        $customer_item_detail->remarks = $pod_detail->remarks;
-                        $customer_item_detail->updated_by = Yii::app()->user->name;
-                        $customer_item_detail->updated_date = date('Y-m-d H:i:s');
-                        $customer_item_detail->save(false);
+                        if ($customer_item_detail) {                             
+                            $customer_item_detail->status = $pod_detail->status;
+                            $customer_item_detail->remarks = $pod_detail->remarks;
+                            $customer_item_detail->updated_by = Yii::app()->user->name;
+                            $customer_item_detail->updated_date = date('Y-m-d H:i:s');
+                            if ($customer_item_detail->save()) {
+                                $output['success'] = true;
+                                $output['message'] = "Successfully updated";
+                            }
+                        }  
                     }
                 }
             }
@@ -441,12 +447,16 @@ class ProofOfDeliveryController extends Controller {
                 if ($pod->save()) {
 
                     $customer_item = CustomerItem::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "customer_item_id" => $pod->customer_item_id));
-                    $customer_item->status = $pod_status;
-                    $customer_item->updated_by = Yii::app()->user->name;
-                    $customer_item->updated_date = date('Y-m-d H:i:s');
-                    $customer_item->save(false);
-
-                    $output['success'] = true;
+                    
+                    if ($customer_item) {
+                        $customer_item->status = $pod_status;
+                        $customer_item->updated_by = Yii::app()->user->name;
+                        $customer_item->updated_date = date('Y-m-d H:i:s');
+                        if ($customer_item->save()) {
+                            $output['success'] = true;
+                            $output['message'] = "Successfully updated";
+                        }
+                    }
                 }
             }
         }
