@@ -1864,14 +1864,21 @@ class OutgoingInventoryController extends Controller {
         $header = array();
         $details = array();
 
-        $header['ra_no'] = $header_data->rra_no != "" ? strtoupper($header_data->rra_no) : "<i>(RA No not set)</i>";
+        $header['ra_no'] = $header_data->rra_no != "" ? "RA NO " . strtoupper($header_data->rra_no) : "<i>(RA No not set)</i>";
         $header['dr_no'] = strtoupper($header_data->dr_no);
         $header['plan_delivery_date'] = $header_data->plan_delivery_date != "" ? strtoupper(date('M d Y', strtotime($header_data->plan_delivery_date))) : "";
         $header['delivery_date'] = $header_data->transaction_date != "" ? strtoupper(date('M d Y', strtotime($header_data->transaction_date))) : "";
         $header['remarks'] = $header_data->remarks;
+        
+        $user_details = User::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "user_name" => $header_data->created_by));
+        $user = User::model()->userDetailsByID(isset($user_details) ? $user_details->user_id : "", Yii::app()->user->company_id);
+        $header['sent_by'] = isset($user) ? $user->first_name." ".$user->last_name : "";
 
         $pr_no_arr = array();
         $pr_nos = "";
+        $source_zones_arr = array();
+        $source_sales_office_arr = array();
+        $source_sales_offices = "";
         foreach ($detail_data as $k1 => $v1) {
             $row = array();
             $row['mm_code'] = $v1->sku->sku_code;
@@ -1886,10 +1893,26 @@ class OutgoingInventoryController extends Controller {
                 }
             }
 
+            if (!in_array($v1->source_zone_id, $source_zones_arr)) {
+                array_push($source_zones_arr, $v1->source_zone_id);
+
+                $out_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $v1->source_zone_id));
+                if ($out_source_zone) {
+                    if (!in_array($out_source_zone->sales_office_id, $source_sales_office_arr)) {
+                        array_push($source_sales_office_arr, $out_source_zone->sales_office_id);
+                        
+                        $sales_office = SalesOffice::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sales_office_id" => $out_source_zone->sales_office_id));
+                                            
+                        $source_sales_offices .= isset($sales_office->sales_office_name) ? $sales_office->sales_office_name . ", " : "";
+                    }
+                }
+            }
+
             $details[] = $row;
         }
-
-        $header['pr_nos'] = $pr_nos != "" ? substr(trim($pr_nos), 0, -1) : "<i>(PR No not set)</i>";
+        
+        $header['source_sales_office_name'] = $source_sales_offices != "" ? substr(trim($source_sales_offices), 0, -1) : "";    
+        $header['pr_nos'] = $pr_nos != "" ? "PR NO " . substr(trim($pr_nos), 0, -1) : "<i>(PR No not set)</i>";
 
         $this->sendTransactionMail($sendTo, $header, $details);
     }
@@ -1901,11 +1924,12 @@ class OutgoingInventoryController extends Controller {
                 . ''
                 . '<p>*** This is an automatically generated email, please do not reply  ***</p><br/>'
                 . '<p>Email Alert:</p>'
-                . '<p>An In-Transit delivery from (Warehouse / Salesoffice) in reference to ' . $header['ra_no'] . ' from ' . $header['pr_nos'] . '</p><br/>'
+                . '<p>An In-Transit delivery from ' . $header['source_sales_office_name'] . ' in reference to ' . $header['ra_no'] . ' from ' . $header['pr_nos'] . '</p><br/>'
                 . '<table style="font-size: 12px;" class="table-condensed">'
                 . '<tr><td style="padding-right: 30px;"><b>DR NO:</b></td><td style="text-align: right;">' . $header['dr_no'] . '</td></tr>'
                 . '<tr><td style="padding-right: 30px;"><b>PLAN DELIVERY DATE:</b></td><td style="text-align: right;">' . $header['plan_delivery_date'] . '</td></tr>'
                 . '<tr><td style="padding-right: 30px;"><b>DELIVERY DATE:</b></td><td style="text-align: right;">' . $header['delivery_date'] . '</td></tr>'
+                . '<tr><td style="padding-right: 30px;"><b>SENT BY:</b></td><td style="text-align: right;">' . $header['sent_by'] . '</td></tr>'
                 . '<tr><td style="padding-right: 30px;"><b>REMARKS:</b></td><td style="text-align: right;">' . $header['remarks'] . '</td></tr>'
                 . '</table><br/>'
                 . ''

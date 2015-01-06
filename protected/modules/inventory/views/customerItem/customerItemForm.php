@@ -438,7 +438,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             'labelOptions' => array('label' => false)));
                         ?>
 
-                        <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-plus-circle"></i> Add Item', array('name' => 'add_item', 'class' => 'btn btn-primary btn-sm span5', 'id' => 'btn_add_item')); ?>
+                        <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-plus-circle"></i> Add Item', array('name' => 'add_item', 'class' => 'btn btn-primary btn-sm span5 submit_butt', 'id' => 'btn_add_item')); ?>
 
                     </div>
                 </div>
@@ -491,9 +491,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="row no-print">
             <div class="col-xs-12">
-                <button id="btn_print" class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
-                <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload DR</button>
-                <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>
+                <button id="btn_print" class="btn btn-default submit_butt" onclick=""><i class="fa fa-print"></i> Print</button>
+                <button id="btn-upload" class="btn btn-primary pull-right submit_butt"><i class="fa fa-fw fa-upload"></i> Upload DR</button>
+                <button id="btn_save" class="btn btn-success pull-right submit_butt" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>
             </div>
         </div>
 
@@ -689,7 +689,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         var data = $("#customer-item-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable()});
 
-        if ($("#btn_save, #btn_add_item, #btn_print").is("[disabled=disabled]")) {
+        if ($(".submit_butt").is("[disabled=disabled]")) {
             return false;
         } else {
             $.ajax({
@@ -698,7 +698,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 data: data,
                 dataType: "json",
                 beforeSend: function(data) {
-                    $("#btn_save, #btn_add_item, #btn_print").attr("disabled", "disabled");
+                    $(".submit_butt").attr("disabled", "disabled");
                     if (form == headers) {
                         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
                     } else if (form == print) {
@@ -710,7 +710,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 },
                 error: function(data) {
                     alert("Error occured: Please try again.");
-                    $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
+                    $(".submit_butt").attr('disabled', false);
                     $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
                     $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
                 }
@@ -795,7 +795,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             growlAlert(data.type, data.message);
 
-            $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
+            $(".submit_butt").attr('disabled', false);
             $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
             $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
 
@@ -815,7 +815,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             });
         }
 
-        $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
+        $(".submit_butt").attr('disabled', false);
         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
         $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
     }
@@ -1358,7 +1358,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         var data = $("#customer-item-form").serialize() + "&form=" + form + '&' + $.param({"customer_item_detail_ids": customer_item_detail_ids}) + '&' + $.param({"transaction_details": serializeUpdatedTransactionTable()}) + '&' + $.param({"deletedTransactionRowData": deletedTransactionRowData});
 
-        if ($("#btn_save, #btn_add_item, #btn_print").is("[disabled=disabled]")) {
+        if ($(".submit_butt").is("[disabled=disabled]")) {
             return false;
         } else {
             $.ajax({
@@ -1367,7 +1367,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 data: data,
                 dataType: "json",
                 beforeSend: function(data) {
-                    $("#btn_save, #btn_add_item, #btn_print").attr("disabled", "disabled");
+                    $(".submit_butt").attr("disabled", "disabled");
                     if (form == headers) {
                         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
                     } else if (form == print) {
@@ -1379,7 +1379,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 },
                 error: function(data) {
                     alert("Error occured: Please try again.");
-                    $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
+                    $(".submit_butt").attr('disabled', false);
                     $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
                     $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
                 }
