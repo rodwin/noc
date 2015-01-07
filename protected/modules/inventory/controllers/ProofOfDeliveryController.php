@@ -227,8 +227,9 @@ class ProofOfDeliveryController extends Controller {
         if (Yii::app()->request->isPostRequest) {
             try {
 
-                // delete proof of delivery details by pod_id
-                ProofOfDeliveryDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND pod_id = " . $id);
+                // delete proof of delivery details and attachments by pod_id
+                ProofOfDeliveryAttachment::model()->deleteDetailAndAttachmentByPODID(Yii::app()->user->company_id, $id);
+
                 // we only allow deletion via POST request
                 $this->loadModel($id)->delete();
 
@@ -271,7 +272,13 @@ class ProofOfDeliveryController extends Controller {
         if (Yii::app()->request->isPostRequest) {
             try {
 
-                ProofOfDeliveryDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND pod_detail_id = " . $pod_detail_id);
+                $pod_detail = ProofOfDeliveryDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "pod_detail_id" => $pod_detail_id));
+                if ($pod_detail) {
+                    // delete proof of delivery attachment by pod_id, pod_detail_id
+                    ProofOfDeliveryAttachment::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND pod_id = '" . $pod_detail->pod_id . "' AND pod_detail_id = '" . $pod_detail_id . "'");
+                    // delete proof of delivery details by pod_id, pod_detail_id           
+                    ProofOfDeliveryDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND pod_id = '" . $pod_detail->pod_id . "' AND pod_detail_id = '" . $pod_detail_id . "'");
+                }
 
                 // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
                 if (!isset($_GET['ajax'])) {
@@ -282,7 +289,7 @@ class ProofOfDeliveryController extends Controller {
                     echo "Successfully deleted";
                     exit;
                 }
-            } catch (CDbException $e) {
+            } catch (CDbException $e) {pre($e);
                 if ($e->errorInfo[1] == 1451) {
                     echo "1451";
                     exit;
@@ -412,7 +419,7 @@ class ProofOfDeliveryController extends Controller {
 
                         $customer_item_detail = CustomerItemDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "customer_item_detail_id" => $pod_detail->customer_item_detail_id));
 
-                        if ($customer_item_detail) {                             
+                        if ($customer_item_detail) {
                             $customer_item_detail->status = $pod_detail->status;
                             $customer_item_detail->remarks = $pod_detail->remarks;
                             $customer_item_detail->updated_by = Yii::app()->user->name;
@@ -421,7 +428,7 @@ class ProofOfDeliveryController extends Controller {
                                 $output['success'] = true;
                                 $output['message'] = "Successfully updated";
                             }
-                        }  
+                        }
                     }
                 }
             }
@@ -447,7 +454,7 @@ class ProofOfDeliveryController extends Controller {
                 if ($pod->save()) {
 
                     $customer_item = CustomerItem::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "customer_item_id" => $pod->customer_item_id));
-                    
+
                     if ($customer_item) {
                         $customer_item->status = $pod_status;
                         $customer_item->updated_by = Yii::app()->user->name;
