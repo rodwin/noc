@@ -372,8 +372,21 @@ class Survey extends CFormModel {
         }else{
             $team_id = $data['Survey']['team_id'];
         }
-//        pr($team_id);
-//        exit;
+        
+        
+            $sqla ="SELECT *
+                from [pg_mapping].[dbo].[pome_qachecklist] 
+                where pps_id = ".$data['Survey']['bws']." and hospital =".$data['Survey']['hospital']." and date_checked = '".$data['Survey']['date']."'
+                ";
+
+            $commanda = Yii::app()->db3->createCommand($sqla);
+            $existing = $commanda->queryRow();
+
+            if($existing){
+                $counter = $existing['counter'] + 1;
+            }else{
+                $counter=1;
+            }
         foreach($data['question'] as $key => $val){
                     $sql = "INSERT INTO [pg_mapping].[dbo].[pome_qachecklist]
                             ([pps_id]
@@ -384,6 +397,7 @@ class Survey extends CFormModel {
                             ,[added_by]
                             ,[question]
                             ,[answer]
+                            ,[counter]
  
                             )
                       VALUES
@@ -395,6 +409,7 @@ class Survey extends CFormModel {
                             ,:added_by
                             ,:question
                             ,:answer
+                            ,:counter
                            
             
 
@@ -409,6 +424,7 @@ class Survey extends CFormModel {
             $command->bindParam(':added_by', $team_id, PDO::PARAM_INT);
             $command->bindParam(':question', $data['question'][$key], PDO::PARAM_STR);
             $command->bindParam(':answer', $data['answer'][$key], PDO::PARAM_STR);
+            $command->bindParam(':counter',$counter, PDO::PARAM_INT);
      
 
             $command->execute();
