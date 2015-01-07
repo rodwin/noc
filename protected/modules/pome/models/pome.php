@@ -588,7 +588,7 @@ class Pome extends CFormModel {
            $brand= '';
        }
        
-       $sql = "SELECT a.id,e.id as pps_id,b.reason_code,e.code
+       $sql = "SELECT a.id,e.id as pps_id,b.reason_code,SUBSTRING(e.code, 6,13)  as code
                 FROM [pg_mapping].[dbo].[pome_route] a
                 inner join [pg_mapping].[dbo].[pome_route_transaction] b on b.route_id = a.id
                 inner join [pg_mapping].[dbo].[pome_pps] e on e.id = a.pps_id
@@ -695,13 +695,13 @@ class Pome extends CFormModel {
         $current_date = date('Y-m-d');
         $given_date = date('Y-m-d',strtotime($to));
 
-
         if($given_date > $current_date){
 
                 $to = date($year.'-m-d');
 
         }else{
              $to = $to;
+             
         }
                   
        if($brand != 0){
@@ -717,7 +717,7 @@ class Pome extends CFormModel {
                     group by d.date,a.id
                     order by d.date
                 ";
-
+//pr($sql);
           $command = Yii::app()->db3->createCommand($sql);
           $data = $command->queryAll();
 
@@ -801,7 +801,6 @@ class Pome extends CFormModel {
                     ) as w
                     group by  code
                 ";
-
           $command = Yii::app()->db3->createCommand($sql);
           $data = $command->queryAll();
           return $data;
