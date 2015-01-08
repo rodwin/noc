@@ -186,21 +186,21 @@ class Supplier extends CActiveRecord {
             $sort_column = 'cellphone';
             break;
 
-         case 6:
-            $sort_column = 'region_name';
-            break;
-
-         case 7:
-            $sort_column = 'province_name';
-            break;
-
-         case 8:
-            $sort_column = 'municipal_name';
-            break;
-
-         case 9:
-            $sort_column = 'barangay_name';
-            break;
+//         case 6:
+//            $sort_column = 'region_name';
+//            break;
+//
+//         case 7:
+//            $sort_column = 'province_name';
+//            break;
+//
+//         case 8:
+//            $sort_column = 'municipal_name';
+//            break;
+//
+//         case 9:
+//            $sort_column = 'barangay_name';
+//            break;
       }
 
 
@@ -211,14 +211,14 @@ class Supplier extends CActiveRecord {
 //      $criteria->compare('supplier_id', $columns[0]['search']['value'], true);
       $criteria->compare('supplier_code', $columns[0]['search']['value'], true);
       $criteria->compare('supplier_name', $columns[1]['search']['value'], true);
-//      $criteria->compare('contact_person1', $columns[2]['search']['value'], true);
-//      $criteria->compare('contact_person2', $columns[3]['search']['value'], true);
-//      $criteria->compare('telephone', $columns[4]['search']['value'], true);
-//      $criteria->compare('cellphone', $columns[5]['search']['value'], true);
-      $criteria->compare('region_name', $columns[6]['search']['value'], true);
-      $criteria->compare('province_name', $columns[7]['search']['value'], true);
-      $criteria->compare('municipal_name', $columns[8]['search']['value'], true);
-      $criteria->compare('barangay_name', $columns[9]['search']['value'], true);
+      $criteria->compare('contact_person1', $columns[2]['search']['value'], true);
+      $criteria->compare('contact_person2', $columns[3]['search']['value'], true);
+      $criteria->compare('telephone', $columns[4]['search']['value'], true);
+      $criteria->compare('cellphone', $columns[5]['search']['value'], true);
+//      $criteria->compare('region_name', $columns[6]['search']['value'], true);
+//      $criteria->compare('province_name', $columns[7]['search']['value'], true);
+//      $criteria->compare('municipal_name', $columns[8]['search']['value'], true);
+//      $criteria->compare('barangay_name', $columns[9]['search']['value'], true);
       $criteria->order = "$sort_column $order_dir";
       $criteria->limit = $limit;
       $criteria->offset = $offset;
