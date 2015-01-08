@@ -127,7 +127,7 @@ class SkuController extends Controller {
 
             $sku_image = SkuImage::model()->loadSKULatestTaggedPictureBySKUID(Yii::app()->user->company_id, $value->sku_id);
 
-            $row['image'] = isset($sku_image->url) ? CHtml::image($sku_image->url, "Image", array("width" => 100)) : "";
+            $row['image'] = isset($sku_image->url) ? CHtml::image($sku_image->url, "Image", array("width" => 100)) : CHtml::image('images' . DIRECTORY_SEPARATOR . "no-image-thumb.jpg", "Image", array("width" => 100));
 
 
             $row['links'] = '<a class="view" title="View" data-toggle="tooltip" href="' . $this->createUrl('/library/sku/view', array('id' => $value->sku_id)) . '" data-original-title="View"><i class="fa fa-eye"></i></a>'
