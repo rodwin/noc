@@ -1230,9 +1230,9 @@ class ReceivingInventoryController extends Controller {
         $details = array();
 
         $header['supplier_name'] = $header_data->supplier->supplier_name;
-        $header['pr_no'] = $header_data->pr_no != "" ? "PR NO " . strtoupper($header_data->pr_no) : "<i>(PR NO not set)</i>";
-        $header['po_no'] = $header_data->po_no != "" ? strtoupper($header_data->po_no) : "<i>(Not set)</i>";
-        $header['dr_no'] = strtoupper($header_data->dr_no);
+        $header['pr_no'] = $header_data->pr_no != "" ? "PR " . strtoupper($header_data->pr_no) : "<i>(PR NO not set)</i>";
+        $header['po_no'] = $header_data->po_no != "" ? "PO " . strtoupper($header_data->po_no) : "<i>(Not set)</i>";
+        $header['dr_no'] = "DR " . strtoupper($header_data->dr_no);
         $header['plan_delivery_date'] = $header_data->plan_delivery_date != "" ? strtoupper(date('M d Y', strtotime($header_data->plan_delivery_date))) : "";
         $header['delivery_date'] = $header_data->transaction_date != "" ? strtoupper(date('M d Y', strtotime($header_data->transaction_date))) : "";
         $header['remarks'] = $header_data->delivery_remarks;
@@ -1267,7 +1267,7 @@ class ReceivingInventoryController extends Controller {
                 . '<body>'
                 . ''
                 . '<p>*** This is an automatically generated email, please do not reply  ***</p><br/>'
-                . '<p>Merchandising Materials has been received in reference to ' . $header['pr_no'] . ' from supplier: ' . $header['supplier_name'] . '</p><br/>'
+                . '<p>Merchandising Materials has been received in reference to ' . $header['pr_no'] . ' from Supplier: ' . $header['supplier_name'] . '</p><br/>'
                 . '<table style="font-size: 12px;" class="table-condensed">'
                 . '<tr><td style="padding-right: 30px;"><b>PO NO:</b></td><td style="text-align: right;">' . $header['po_no'] . '</td></tr>'
                 . '<tr><td style="padding-right: 30px;"><b>DR NO:</b></td><td style="text-align: right;">' . $header['dr_no'] . '</td></tr>'

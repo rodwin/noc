@@ -1864,8 +1864,8 @@ class OutgoingInventoryController extends Controller {
         $header = array();
         $details = array();
 
-        $header['ra_no'] = $header_data->rra_no != "" ? "RA NO " . strtoupper($header_data->rra_no) : "<i>(RA No not set)</i>";
-        $header['dr_no'] = strtoupper($header_data->dr_no);
+        $header['ra_no'] = $header_data->rra_no != "" ? "RA " . strtoupper($header_data->rra_no) : "<i>(RA No not set)</i>";
+        $header['dr_no'] = "DR " . strtoupper($header_data->dr_no);
         $header['plan_delivery_date'] = $header_data->plan_delivery_date != "" ? strtoupper(date('M d Y', strtotime($header_data->plan_delivery_date))) : "";
         $header['delivery_date'] = $header_data->transaction_date != "" ? strtoupper(date('M d Y', strtotime($header_data->transaction_date))) : "";
         $header['remarks'] = $header_data->remarks;
@@ -1912,7 +1912,7 @@ class OutgoingInventoryController extends Controller {
         }
         
         $header['source_sales_office_name'] = $source_sales_offices != "" ? substr(trim($source_sales_offices), 0, -1) : "";    
-        $header['pr_nos'] = $pr_nos != "" ? "PR NO " . substr(trim($pr_nos), 0, -1) : "<i>(PR No not set)</i>";
+        $header['pr_nos'] = $pr_nos != "" ? "PR " . substr(trim($pr_nos), 0, -1) : "<i>(PR No not set)</i>";
 
         $this->sendTransactionMail($sendTo, $header, $details);
     }
