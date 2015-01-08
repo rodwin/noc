@@ -350,19 +350,19 @@ class Poi extends CActiveRecord {
                 $sort_column = 't.short_name';
                 break;
 
-//            case 1:
-//                $sort_column = 't.long_name';
-//                break;
-
             case 1:
                 $sort_column = 't.primary_code';
                 break;
 
             case 2:
-                $sort_column = 't.address1';
+                $sort_column = 't.secondary_code';
                 break;
 
             case 3:
+                $sort_column = 't.address1';
+                break;
+
+            case 4:
                 $sort_column = 't.address2';
                 break;
 
@@ -402,10 +402,10 @@ class Poi extends CActiveRecord {
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
 //        $criteria->compare('poi_id', $columns[0]['search']['value'], true);
         $criteria->compare('t.short_name', $columns[0]['search']['value'], true);
-//        $criteria->compare('t.long_name', $columns[1]['search']['value'], true);
         $criteria->compare('t.primary_code', $columns[1]['search']['value'], true);
-        $criteria->compare('t.address1', $columns[2]['search']['value'], true);
-        $criteria->compare('t.address2', $columns[3]['search']['value'], true);
+        $criteria->compare('t.secondary_code', $columns[2]['search']['value'], true);
+        $criteria->compare('t.address1', $columns[3]['search']['value'], true);
+        $criteria->compare('t.address2', $columns[4]['search']['value'], true);
 //        $criteria->compare('t.secondary_code', $columns[3]['search']['value'], true);
 //        $criteria->compare('poiCategory.category_name', $columns[4]['search']['value']);
 //        $criteria->compare('poiSubCategory.sub_category_name', $columns[5]['search']['value']);
