@@ -186,6 +186,14 @@ class Supplier extends CActiveRecord {
             $sort_column = 'cellphone';
             break;
 
+         case 6:
+            $sort_column = 'address1';
+            break;
+
+         case 7:
+            $sort_column = 'address2';
+            break;
+
 //         case 6:
 //            $sort_column = 'region_name';
 //            break;
@@ -205,8 +213,8 @@ class Supplier extends CActiveRecord {
 
 
       $criteria = new CDbCriteria;
-      $criteria->select = "t.*, barangay.barangay_name as barangay_name, municipal.municipal_name as municipal_name, "
-              . "province.province_name as province_name, region.region_name as region_name";
+//      $criteria->select = "t.*, barangay.barangay_name as barangay_name, municipal.municipal_name as municipal_name, "
+//              . "province.province_name as province_name, region.region_name as region_name";
       $criteria->compare('company_id', Yii::app()->user->company_id);
 //      $criteria->compare('supplier_id', $columns[0]['search']['value'], true);
       $criteria->compare('supplier_code', $columns[0]['search']['value'], true);
@@ -215,6 +223,8 @@ class Supplier extends CActiveRecord {
       $criteria->compare('contact_person2', $columns[3]['search']['value'], true);
       $criteria->compare('telephone', $columns[4]['search']['value'], true);
       $criteria->compare('cellphone', $columns[5]['search']['value'], true);
+      $criteria->compare('address1', $columns[6]['search']['value'], true);
+      $criteria->compare('address2', $columns[7]['search']['value'], true);
 //      $criteria->compare('region_name', $columns[6]['search']['value'], true);
 //      $criteria->compare('province_name', $columns[7]['search']['value'], true);
 //      $criteria->compare('municipal_name', $columns[8]['search']['value'], true);
@@ -222,10 +232,10 @@ class Supplier extends CActiveRecord {
       $criteria->order = "$sort_column $order_dir";
       $criteria->limit = $limit;
       $criteria->offset = $offset;
-      $criteria->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay';
-      $criteria->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal';
-      $criteria->join .= ' LEFT JOIN province ON province.province_code = t.province';
-      $criteria->join .= ' LEFT JOIN region ON region.region_code = t.region';
+//      $criteria->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay';
+//      $criteria->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal';
+//      $criteria->join .= ' LEFT JOIN province ON province.province_code = t.province';
+//      $criteria->join .= ' LEFT JOIN region ON region.region_code = t.region';
 
       return new CActiveDataProvider($this, array(
                   'criteria' => $criteria,

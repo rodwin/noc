@@ -97,8 +97,8 @@ class PoiController extends Controller {
 //            $row['sales_region_id'] = $value->sales_region_id;
 //            $row['latitude'] = $value->latitude;
 //            $row['longitude'] = $value->longitude;
-//            $row['address1'] = $value->address1;
-//            $row['address2'] = $value->address2;
+            $row['address1'] = $value->address1;
+            $row['address2'] = $value->address2;
 //            $row['zip'] = $value->zip;
 //            $row['landline'] = $value->landline;
 //            $row['mobile'] = $value->mobile;
