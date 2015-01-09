@@ -147,4 +147,17 @@ class SkuImage extends CActiveRecord {
         return parent::model($className);
     }
 
+    public function loadSKULatestTaggedPictureBySKUID($company_id, $sku_id) {
+
+        $c = new CDbCriteria;
+        $c->condition = "t.company_id = '" . $company_id . "' AND t.sku_id = '" . $sku_id . "'";
+        $c->limit = 1;
+        $c->join = "INNER JOIN images ON images.image_id = t.image_id";
+        $c->order = "t.created_date DESC, images.image_id";
+        $sku_image = SkuImage::model()->find($c);
+        
+        $image_id = isset($sku_image->image_id) ? $sku_image->image_id : "";
+        return Images::model()->findByAttributes(array("company_id" => $company_id, "image_id" => $image_id));
+    }
+
 }

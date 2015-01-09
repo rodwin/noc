@@ -1385,12 +1385,16 @@ class IncomingInventoryController extends Controller {
         $header = array();
         $details = array();
 
-        $header['ra_no'] = $header_data->rra_no != "" ? strtoupper($header_data->rra_no) : "<i>(RA No not set)</i>";
-        $header['dr_no'] = strtoupper($header_data->dr_no);
+        $header['ra_no'] = $header_data->rra_no != "" ? "RA " . strtoupper($header_data->rra_no) : "<i>(RA No not set)</i>";
+        $header['dr_no'] = "DR " . strtoupper($header_data->dr_no);
         $header['plan_delivery_date'] = $header_data->plan_delivery_date != "" ? strtoupper(date('M d Y', strtotime($header_data->plan_delivery_date))) : "";
         $header['delivery_date'] = $header_data->transaction_date != "" ? strtoupper(date('M d Y', strtotime($header_data->transaction_date))) : "";
         $header['dr_date'] = $header_data->dr_date != "" ? strtoupper(date('M d Y', strtotime($header_data->dr_date))) : "";
         $header['remarks'] = $header_data->remarks;
+        
+        $user_details = User::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "user_name" => $header_data->created_by));
+        $user = User::model()->userDetailsByID(isset($user_details) ? $user_details->user_id : "", Yii::app()->user->company_id);
+        $header['received_by'] = isset($user) ? $user->first_name." ".$user->last_name : "";
 
         $pr_no_arr = array();
         $pr_nos = "";
@@ -1412,7 +1416,7 @@ class IncomingInventoryController extends Controller {
             $details[] = $row;
         }
 
-        $header['pr_nos'] = $pr_nos != "" ? substr(trim($pr_nos), 0, -1) : "<i>(PR No not set)</i>";
+        $header['pr_nos'] = $pr_nos != "" ? "PR " . substr(trim($pr_nos), 0, -1) : "<i>(PR No not set)</i>";
 
         $this->sendTransactionMail($sendTo, $header, $details);
     }
@@ -1428,6 +1432,7 @@ class IncomingInventoryController extends Controller {
                 . '<tr><td style="padding-right: 30px;"><b>DR NO:</b></td><td style="text-align: right;">' . $header['dr_no'] . '</td></tr>'
                 . '<tr><td style="padding-right: 30px;"><b>PLAN DELIVERY DATE:</b></td><td style="text-align: right;">' . $header['plan_delivery_date'] . '</td></tr>'
                 . '<tr><td style="padding-right: 30px;"><b>DELIVERY DATE:</b></td><td style="text-align: right;">' . $header['delivery_date'] . '</td></tr>'
+                . '<tr><td style="padding-right: 30px;"><b>RECEIVED BY:</b></td><td style="text-align: right;">' . $header['received_by'] . '</td></tr>'
                 . '<tr><td style="padding-right: 30px;"><b>REMARKS:</b></td><td style="text-align: right;">' . $header['remarks'] . '</td></tr>'
                 . '</table><br/>'
                 . ''

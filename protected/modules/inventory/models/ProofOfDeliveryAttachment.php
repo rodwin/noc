@@ -24,7 +24,7 @@
 class ProofOfDeliveryAttachment extends CActiveRecord {
 
     public $search_string;
-    
+
     CONST POD_TRANSACTION_TYPE = "POD";
 
     /**
@@ -184,6 +184,39 @@ class ProofOfDeliveryAttachment extends CActiveRecord {
      */
     public static function model($className = __CLASS__) {
         return parent::model($className);
+    }
+
+    public function deleteDetailAndAttachmentByPODID($company_id, $pod_id) {
+
+        $pod_detail = ProofOfDeliveryDetail::model()->findAllByAttributes(array("company_id" => $company_id, "pod_id" => $pod_id));
+
+        $pod_detail_ids = "'',";
+        if ($pod_detail) {
+            foreach ($pod_detail as $k => $v) {
+                $pod_detail_ids .= "'" . $v->pod_detail_id . "',";
+            }
+
+            $c = new CDbCriteria;
+            $c->condition = "company_id = '" . $company_id . "' AND pod_id = '" . $pod_id . "' AND pod_detail_id IN (" . substr($pod_detail_ids, 0, -1) . ")";
+            ProofOfDeliveryAttachment::model()->deleteAll($c);
+
+            $c1 = new CDbCriteria;
+            $c1->condition = "company_id = '" . $company_id . "' AND pod_detail_id IN (" . substr($pod_detail_ids, 0, -1) . ")";
+            ProofOfDeliveryDetail::model()->deleteAll($c1);
+        }
+    }
+
+    public function deleteDetailAndAttachmentByCustomerItemDetailID($company_id, $customer_item_detail_id) {
+
+        $pod_detail = ProofOfDeliveryDetail::model()->findAllByAttributes(array("company_id" => $company_id, "custome_item_detail_id" => $customer_item_detail_id));
+
+        if ($pod_detail) {
+
+            $c = new CDbCriteria;
+            $c->condition = "company_id = '" . $company_id . "' AND pod_id = '" . $pod_detail->pod_id . "' AND pod_detail_id = '" . $pod_detail->pod_detail_id . "'";
+            ProofOfDeliveryAttachment::model()->deleteAll($c);
+            ProofOfDeliveryDetail::model()->deleteAll($c);
+        }
     }
 
 }

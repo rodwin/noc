@@ -829,9 +829,11 @@ class InventoryController extends Controller {
 
             $incoming_details = IncomingInventoryDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "incoming_inventory_id" => $v2->incoming_inventory_id));
 
-            if (!in_array($incoming_details->pr_no, $incoming_pr_nos_arr)) {
-                array_push($incoming_pr_nos_arr, $incoming_details->pr_no);
-                $incoming_pr_nos .= $incoming_details->pr_no . ", ";
+            if (trim($incoming_details->pr_no) != "") {
+                if (!in_array($incoming_details->pr_no, $incoming_pr_nos_arr)) {
+                    array_push($incoming_pr_nos_arr, $incoming_details->pr_no);
+                    $incoming_pr_nos .= $incoming_details->pr_no . ", ";
+                }
             }
 
             if (!in_array($incoming_details->source_zone_id, $incoming_source_zones_arr)) {
@@ -843,7 +845,7 @@ class InventoryController extends Controller {
 
             $row['transaction_date'] = date("d-M", strtotime($v2->transaction_date));
             $row['transaction_type'] = strtoupper(IncomingInventory::INCOMING_LABEL);
-            $row['pr_no'] = substr(trim($incoming_pr_nos), 0, -1);
+            $row['pr_no'] = $incoming_pr_nos != "" ? substr(trim($incoming_pr_nos), 0, -1) : "";
             $row['ra_no'] = $v2->rra_no;
             $row['dr_no'] = $v2->dr_no;
             $row['source'] = $incoming_source_zones;
@@ -888,9 +890,11 @@ class InventoryController extends Controller {
 
             $outbound_details = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "outgoing_inventory_id" => $v3->outgoing_inventory_id));
 
-            if (!in_array($outbound_details->pr_no, $outbound_pr_nos_arr)) {
-                array_push($outbound_pr_nos_arr, $outbound_details->pr_no);
-                $outbound_pr_nos .= $outbound_details->pr_no . ", ";
+            if ($outbound_details->pr_no != "") {
+                if (!in_array($outbound_details->pr_no, $outbound_pr_nos_arr)) {
+                    array_push($outbound_pr_nos_arr, $outbound_details->pr_no);
+                    $outbound_pr_nos .= $outbound_details->pr_no . ", ";
+                } 
             }
 
             if (!in_array($outbound_details->source_zone_id, $outbound_source_zones_arr)) {
@@ -902,7 +906,7 @@ class InventoryController extends Controller {
 
             $row['transaction_date'] = date("d-M", strtotime($v3->transaction_date));
             $row['transaction_type'] = strtoupper(OutgoingInventory::OUTGOING_LABEL);
-            $row['pr_no'] = substr(trim($outbound_pr_nos), 0, -1);
+            $row['pr_no'] = $outbound_pr_nos != "" ? substr(trim($outbound_pr_nos), 0, -1) : "";
             $row['ra_no'] = $v3->rra_no;
             $row['dr_no'] = $v3->dr_no;
             $row['destination'] = $outbound_source_zones;
@@ -936,14 +940,16 @@ class InventoryController extends Controller {
 
             $poi = Poi::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "poi_id" => $v4->poi_id));
 
-            if (!in_array($outgoing_details->pr_no, $outgoing_pr_nos_arr)) {
-                array_push($outgoing_pr_nos_arr, $outgoing_details->pr_no);
-                $outgoing_pr_nos .= $outgoing_details->pr_no . ", ";
+            if ($outgoing_details->pr_no != "") {
+                if (!in_array($outgoing_details->pr_no, $outgoing_pr_nos_arr)) {
+                    array_push($outgoing_pr_nos_arr, $outgoing_details->pr_no);
+                    $outgoing_pr_nos .= $outgoing_details->pr_no . ", ";
+                }
             }
 
             $row['transaction_date'] = date("d-M", strtotime($v4->transaction_date));
             $row['transaction_type'] = strtoupper(CustomerItem::CUSTOMER_ITEM_LABEL);
-            $row['pr_no'] = substr(trim($outgoing_pr_nos), 0, -1);
+            $row['pr_no'] = $outgoing_pr_nos != "" ? substr(trim($outgoing_pr_nos), 0, -1) : "";
             $row['ra_no'] = $v4->rra_no;
             $row['dr_no'] = $v4->dr_no;
             $row['destination'] = $poi->short_name;

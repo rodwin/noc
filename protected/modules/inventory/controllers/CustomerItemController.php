@@ -675,7 +675,13 @@ class CustomerItemController extends Controller {
      */
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
-            try {
+            try {                
+
+                // delete proof of delivery and its details and attachments by customer_item_id
+                $pod = ProofOfDelivery::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "customer_item_id" => $id));
+                if ($pod) {
+                    ProofOfDeliveryAttachment::model()->deleteDetailAndAttachmentByPODID(Yii::app()->user->company_id, $pod->pod_id);
+                }
 
                 // delete customer item details by customer_item_id
                 CustomerItemDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND customer_item_id = " . $id);
@@ -712,6 +718,8 @@ class CustomerItemController extends Controller {
         if (Yii::app()->request->isPostRequest) {
             try {
 
+                ProofOfDeliveryAttachment::model()->deleteDetailAndAttachmentByCustomerItemDetailID(Yii::app()->user->company_id, $customer_item_detail_id);
+                
                 CustomerItemDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND customer_item_detail_id = " . $customer_item_detail_id);
 
                 // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser

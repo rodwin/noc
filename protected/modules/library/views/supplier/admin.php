@@ -62,10 +62,12 @@ return false;
             <th><?php echo $fields['contact_person2']; ?></th>
             <th><?php echo $fields['telephone']; ?></th>
             <th><?php echo $fields['cellphone']; ?></th>
-            <th><?php echo $fields['region']; ?></th>
+            <th><?php echo $fields['address1']; ?></th>
+            <th><?php echo $fields['address2']; ?></th>
+<!--            <th><?php echo $fields['region']; ?></th>
             <th><?php echo $fields['province']; ?></th>
             <th><?php echo $fields['municipal']; ?></th>
-            <th><?php echo $fields['barangay']; ?></th>
+            <th><?php echo $fields['barangay']; ?></th>-->
             <th>Actions</th>
 
          </tr>
@@ -84,11 +86,18 @@ return false;
          "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Supplier/data'); ?>",
          "columns": [
             //{ "name": "supplier_id","data": "supplier_id"},
-            { "name": "supplier_code","data": "supplier_code"},{ "name": "supplier_name","data": "supplier_name"},{ "name": "contact_person1","data": "contact_person1"},{ "name": "contact_person2","data": "contact_person2"},{ "name": "telephone","data": "telephone"},{ "name": "cellphone","data": "cellphone"}, 
-            { "name": "region_name","data": "region"},
-            { "name": "province_name","data": "province"},
-            { "name": "municipal_name","data": "municipal"},
-            { "name": "barangay_name","data": "barangay"},
+            { "name": "supplier_code","data": "supplier_code"},
+            { "name": "supplier_name","data": "supplier_name"},
+            { "name": "contact_person1","data": "contact_person1"},
+            { "name": "contact_person2","data": "contact_person2"},
+            { "name": "telephone","data": "telephone"},
+            { "name": "cellphone","data": "cellphone"}, 
+            { "name": "address1","data": "address1"},
+            { "name": "address2","data": "address2"}, 
+//            { "name": "region_name","data": "region"},
+//            { "name": "province_name","data": "province"},
+//            { "name": "municipal_name","data": "municipal"},
+//            { "name": "barangay_name","data": "barangay"},
             
             { "name": "links","data": "links", 'sortable': false}
          ]
