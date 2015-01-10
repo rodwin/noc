@@ -25,7 +25,7 @@ class SupplierController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'data', 'getProvinceByRegionCode', 'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode', 'searchSupplier'),
+                'actions' => array('index', 'data', 'getProvinceByRegionCode', 'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode', 'searchSupplier', 'select2FilterSupplier'),
                 'users' => array('@'),
             ),
             array('allow',
@@ -354,6 +354,32 @@ class SupplierController extends Controller {
             $return[$key]['supplier_id'] = $val->supplier_id;
             $return[$key]['supplier_code'] = $val->supplier_code;
             $return[$key]['supplier_name'] = $val->supplier_name;
+        }
+
+        echo json_encode($return);
+        Yii::app()->end();
+    }
+
+    public function actionSelect2FilterSupplier($value, $pageSize) {
+
+        $c = new CDbCriteria();
+        if ($value != "") {
+            $c->addSearchCondition('t.supplier_code', $value, true, 'OR');
+            $c->addSearchCondition('t.supplier_name', $value, true, 'OR');
+        }
+        $c->limit = $pageSize;
+        $c->compare('t.company_id', Yii::app()->user->company_id);
+        $sku = Supplier::model()->findAll($c);
+
+        $return = array();
+        foreach ($sku as $key => $val) {
+            $row = array();
+            
+            $row['supplier_id'] = $val->supplier_id;
+            $row['supplier_code'] = $val->supplier_code;
+            $row['supplier_name'] = $val->supplier_name;
+            
+            $return["dataItems"][] = $row;
         }
 
         echo json_encode($return);
