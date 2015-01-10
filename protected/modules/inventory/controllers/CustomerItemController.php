@@ -275,7 +275,7 @@ class CustomerItemController extends Controller {
         $sku = new Sku;
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
-        $poi_list = CHtml::listData(Poi::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'short_name ASC')), 'poi_id', 'short_name', 'primary_code');
+//        $poi_list = CHtml::listData(Poi::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'short_name ASC')), 'poi_id', 'short_name', 'primary_code');
         $attachment = new Attachment;
 
         $c = new CDbCriteria;
@@ -401,7 +401,7 @@ class CustomerItemController extends Controller {
             'uom' => $uom,
             'sku_status' => $sku_status,
             'attachment' => $attachment,
-            'poi_list' => $poi_list,
+//            'poi_list' => $poi_list,
             'employee' => $employee,
         ));
     }
