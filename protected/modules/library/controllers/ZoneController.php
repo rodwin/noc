@@ -414,7 +414,7 @@ class ZoneController extends Controller {
         } else {
             $row = array();
             $row['zone_id'] = "";
-            $row['zone_name'] = "";
+            $row['zone_name'] = "--";
 
             $return["dataItems"][] = $row;
         }

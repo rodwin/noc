@@ -723,7 +723,7 @@ class PoiController extends Controller {
         } else {
             $row = array();
             $row['poi_id'] = "";
-            $row['short_name'] = "";
+            $row['short_name'] = "--";
 
             $return["dataItems"][] = $row;
         }

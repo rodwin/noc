@@ -387,7 +387,7 @@ class SupplierController extends Controller {
             $row = array();
             $row['supplier_id'] = "";
             $row['supplier_code'] = "";
-            $row['supplier_name'] = "";
+            $row['supplier_name'] = "--";
 
             $return["dataItems"][] = $row;
         }
