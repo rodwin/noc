@@ -138,8 +138,8 @@ class ProofOfDelivery extends CActiveRecord {
         $criteria->compare('customer_item_id', $this->customer_item_id, true);
 
         return new CActiveDataProvider($this, array(
-            'criteria' => $criteria,
-        ));
+                    'criteria' => $criteria,
+                ));
     }
 
     public function data($col, $order_dir, $limit, $offset, $columns) {
@@ -238,9 +238,9 @@ class ProofOfDelivery extends CActiveRecord {
         $criteria->addInCondition('t.pod_id', $pod_id_arr);
 
         return new CActiveDataProvider($this, array(
-            'criteria' => $criteria,
-            'pagination' => false,
-        ));
+                    'criteria' => $criteria,
+                    'pagination' => false,
+                ));
     }
 
     /**
@@ -327,22 +327,26 @@ class ProofOfDelivery extends CActiveRecord {
 
         $pod = ProofOfDelivery::model()->findByAttributes(array("company_id" => $customer_header_data->company_id, "customer_item_id" => $customer_header_data->customer_item_id));
 
-        $pod->rra_no = $customer_header_data->rra_no;
-        $pod->rra_date = $customer_header_data->rra_date;
-        $pod->dr_no = $customer_header_data->dr_no;
-        $pod->dr_date = $customer_header_data->dr_date;
-        $pod->dr_date = $customer_header_data->dr_date;
-        $pod->source_zone_id = $customer_header_data->source_zone_id;
-        $pod->poi_id = $customer_header_data->poi_id;
-        $pod->status = $customer_header_data->status;
-        $pod->total_amount = $customer_header_data->total_amount;
-        $pod->updated_by = $customer_header_data->updated_by;
-        $pod->updated_date = $customer_header_data->updated_date;
+        if ($pod) {
+            $pod->rra_no = $customer_header_data->rra_no;
+            $pod->rra_date = $customer_header_data->rra_date;
+            $pod->dr_no = $customer_header_data->dr_no;
+            $pod->dr_date = $customer_header_data->dr_date;
+            $pod->dr_date = $customer_header_data->dr_date;
+            $pod->source_zone_id = $customer_header_data->source_zone_id;
+            $pod->poi_id = $customer_header_data->poi_id;
+            $pod->status = $customer_header_data->status;
+            $pod->total_amount = $customer_header_data->total_amount;
+            $pod->updated_by = $customer_header_data->updated_by;
+            $pod->updated_date = $customer_header_data->updated_date;
 
-        if ($pod->updateTransaction($pod, $customer_item_detail_ids_to_be_delete, $transaction_details)) {
-            
+            if ($pod->updateTransaction($pod, $customer_item_detail_ids_to_be_delete, $transaction_details)) {
+                return true;
+            } else {
+                return $pod->getErrors();
+            }
         } else {
-            return $pod->getErrors();
+            return false;
         }
     }
 

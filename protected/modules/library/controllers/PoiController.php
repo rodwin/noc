@@ -703,7 +703,7 @@ class PoiController extends Controller {
         $c = new CDbCriteria();
         if ($value != "") {
             $c->addSearchCondition('t.short_name', $value, true, 'OR');
-            $c->addSearchCondition('t.primary_code', $value, true, 'OR');
+//            $c->addSearchCondition('t.primary_code', $value, true, 'OR');
         }
 //        $c->select = new CDbExpression('t.*, TRIM(barangay.barangay_name) as barangay_name, TRIM(municipal.municipal_name) as municipal_name, TRIM(province.province_name) as province_name, TRIM(region.region_name) as region_name');
         $c->compare('t.company_id', Yii::app()->user->company_id);

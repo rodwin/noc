@@ -25,7 +25,7 @@ class ZoneController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'data', 'search', 'searchByWarehouse', 'getZoneDetails'),
+                'actions' => array('index', 'data', 'search', 'searchByWarehouse', 'getZoneDetails', 'select2FilterZone'),
                 'users' => array('@'),
             ),
             array('allow',
@@ -384,6 +384,41 @@ class ZoneController extends Controller {
         $return['so_address1'] = isset($zone->salesOffice->address1) ? $zone->salesOffice->address1 : '';
         $return['contact_person'] = isset($employee) ? $employee->fullname : '';
         $return['employee_work_contact_no'] = isset($employee) ? $employee->work_phone_number : '';
+
+        echo json_encode($return);
+        Yii::app()->end();
+    }
+
+    public function actionSelect2FilterZone($value, $pageSize) {
+
+        $c = new CDbCriteria();
+        if ($value != "") {
+//            $c->addSearchCondition('t.supplier_code', $value, true, 'OR');
+            $c->addSearchCondition('t.zone_name', $value, true, 'OR');
+        }
+        $c->limit = $pageSize;
+        $c->order = "zone_name";
+        $c->compare('t.company_id', Yii::app()->user->company_id);
+        $zone = Zone::model()->findAll($c);
+
+        $return = array();
+        if (count($zone) > 0) {
+            foreach ($zone as $key => $val) {
+                $row = array();
+
+                $row['zone_id'] = $val->zone_id;
+                $row['zone_name'] = $val->zone_name;
+
+                $return["dataItems"][] = $row;
+            }
+        } else {
+            $row = array();
+            $row['zone_id'] = "";
+            $row['zone_name'] = "";
+
+            $return["dataItems"][] = $row;
+        }
+
 
         echo json_encode($return);
         Yii::app()->end();
