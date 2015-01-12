@@ -1286,6 +1286,7 @@ $(function () {
 
  
                     var test = data[i].total / data[i].score * 100;
+                    var remaining = data[i].score - data[i].total;
 
        
                     if(test >= 100)
@@ -1297,9 +1298,9 @@ $(function () {
                     }else{
                         color = 'red';
                     }
-                   
-                    score_target.push({y: data[i].score, color: 'gray',mydata:test});
-                    score_actual.push({y: data[i].total, color: color,mydata:test});
+                   var act =parseFloat(Math.round(data[i].total * 100) / 100).toFixed(2);
+                    score_target.push({y: parseFloat(Math.round(remaining * 100) / 100), color: 'gray',mydata:parseFloat(act)});
+                    score_actual.push({y: parseFloat(act), color: color,mydata:parseFloat(act)});
 //                    target_actual_total_jfm.push({y: data[i].actual_reach, color: color,mydatac:data[i].target_reach});
                    
    

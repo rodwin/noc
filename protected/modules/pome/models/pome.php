@@ -793,14 +793,15 @@ class Pome extends CFormModel {
         $from = date($year.'-'.$month.'-01');
 
           $sql ="SELECT code,avg(answer) as answer from (
-                    SELECT SUBSTRING(b.code, 6,13) as code,a.hospital,a.date_checked,sum(CONVERT(float,a.answer)) as answer
+                    SELECT SUBSTRING(b.code, 6,13) as code,a.hospital,a.[counter],a.date_checked,sum(CONVERT(float,a.answer)) as answer
                     FROM [pg_mapping].[dbo].[pome_qachecklist] a
                     inner join [pg_mapping].[dbo].[pome_pps] b on b.id = a.pps_id
                     where b.id in ($str) and a.date_checked between '$from' and '$to' and a.ph_class = '$ph'
-                    group by  b.code,a.date_checked,a.hospital
+                    group by  b.code,a.date_checked,a.hospital,a.[counter]
                     ) as w
                     group by  code
                 ";
+//          pr($sql);
           $command = Yii::app()->db3->createCommand($sql);
           $data = $command->queryAll();
           return $data;
