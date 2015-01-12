@@ -444,9 +444,10 @@
                     }else{
                         color = 'red';
                     }
-                   
-                    score_target.push({y: remaining, color: 'gray',mydata:test});
-                    score_actual.push({y: parseFloat(data[i].total), color: color,mydata:test});
+//                     data[i].total.toFixed(1);
+                    var act =parseFloat(Math.round(data[i].total * 100) / 100).toFixed(2);
+                    score_target.push({y: parseFloat(Math.round(remaining * 100) / 100), color: 'gray',mydata:parseFloat(act)});
+                    score_actual.push({y: parseFloat(act), color: color,mydata:parseFloat(act)});
 //                    target_actual_total_jfm.push({y: data[i].actual_reach, color: color,mydatac:data[i].target_reach});
                    
    
