@@ -310,7 +310,7 @@ class ReceivingInventoryController extends Controller {
         $c1->condition = 't.company_id = "' . Yii::app()->user->company_id . '" AND salesOffice.distributor_id = ""';
         $c1->with = array('salesOffice');
         $c1->order = "t.zone_name ASC";
-        $zone_list = CHtml::listData(Zone::model()->findAll(array("condition" => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
+//        $zone_list = CHtml::listData(Zone::model()->findAll(array("condition" => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
 
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
@@ -435,7 +435,7 @@ class ReceivingInventoryController extends Controller {
             'employee' => $employee,
             'sku_status' => $sku_status,
             'attachment' => $attachment,
-            'zone_list' => $zone_list,
+//            'zone_list' => $zone_list,
         ));
     }
 
