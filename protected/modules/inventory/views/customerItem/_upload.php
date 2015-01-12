@@ -35,7 +35,7 @@
     <td colspan="2"></td>
     {% } %}
     <td class="cancel">{% if (!i) { %}
-    <button class="btn btn-warning btn-sm btn-flat" onclick="removebyID('{%=ctr%}');">  <!--onclick="alert('{%=ctr - 1%}');"> -->
+    <button class="btn btn-warning btn-sm btn-flat submit_butt" onclick="removebyID('{%=ctr%}');">  <!--onclick="alert('{%=ctr - 1%}');"> -->
     <i class="glyphicon glyphicon-ban-circle"></i>
     <span>{%=locale.fileupload.cancel%}</span>
     </button>

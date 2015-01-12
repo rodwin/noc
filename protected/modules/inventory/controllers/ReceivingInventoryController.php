@@ -215,6 +215,7 @@ class ReceivingInventoryController extends Controller {
      */
     public function actionView($id) {
         $model = $this->loadModel($id);
+        $attachment = new Attachment;
 
         $this->pageTitle = "View " . ReceivingInventory::RECEIVING_LABEL . ' Inventory';
         $this->menu = array(
@@ -243,6 +244,7 @@ class ReceivingInventoryController extends Controller {
             'model' => $model,
             'supplier' => $supplier,
             'destination' => $destination,
+            'attachment_model' => $attachment,
         ));
     }
 
@@ -308,7 +310,7 @@ class ReceivingInventoryController extends Controller {
         $c1->condition = 't.company_id = "' . Yii::app()->user->company_id . '" AND salesOffice.distributor_id = ""';
         $c1->with = array('salesOffice');
         $c1->order = "t.zone_name ASC";
-        $warehouse_zone_list = CHtml::listData(Zone::model()->findAll($c1), 'zone_id', 'zone_name');
+        $zone_list = CHtml::listData(Zone::model()->findAll(array("condition" => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
 
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
@@ -433,7 +435,7 @@ class ReceivingInventoryController extends Controller {
             'employee' => $employee,
             'sku_status' => $sku_status,
             'attachment' => $attachment,
-            'warehouse_zone_list' => $warehouse_zone_list,
+            'zone_list' => $zone_list,
         ));
     }
 
