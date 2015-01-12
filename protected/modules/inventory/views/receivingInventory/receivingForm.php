@@ -218,7 +218,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         'class' => '', 'id' => 'ReceivingInventory_zone_id',
                     ),
                     'widgetOptions' => array(
-                        'data' => $warehouse_zone_list,
+                        'data' => $zone_list,
                         'options' => array(
                         ),
                         'htmlOptions' => array('class' => 'ignore span5', 'prompt' => '--')),
@@ -457,7 +457,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th><?php echo $receivingDetailFields['amount']; ?></th>
-                        <!--<th class=""><?php // echo $receivingDetailFields['inventory_on_hand'];                                     ?></th>-->
+                        <!--<th class=""><?php // echo $receivingDetailFields['inventory_on_hand'];                                      ?></th>-->
                         <th class="hide_row"><?php echo $receivingDetailFields['remarks']; ?></th>
                     </tr>                                    
                 </thead>
@@ -1104,9 +1104,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     $('#ReceivingInventory_supplier_id').select2({
         placeholder: 'Select a Supplier',
         allowClear: true,
-        quietMillis: 10,
         id: function(data){ return data.supplier_id; },
         ajax: {
+            quietMillis: 5,
             cache: false,
             dataType: 'json',
             type: 'GET',

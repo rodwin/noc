@@ -9,7 +9,7 @@
       {% if (file.error) {  %}
       <td class="error" colspan="2"><span class="label label-danger">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
       {% } else if (o.files.valid && !i) { files.push(file); ctr = files.length ; %}
-      <td>
+      <td id="progress_bar_col">
          <div class="progress progress-success progress-striped active"><div class="bar" style="width:0%;"></div></div>
       </td>
       <td>
@@ -34,7 +34,7 @@
       <td colspan="2"></td>
       {% } %}
       <td class="cancel">{% if (!i) { %}
-         <button class="btn btn-warning btn-sm btn-flat" onclick="removebyID('{%=ctr%}');">  <!--onclick="alert('{%=ctr - 1%}');"> -->
+         <button class="btn btn-warning btn-sm btn-flat submit_butt" onclick="removebyID('{%=ctr%}');">  <!--onclick="alert('{%=ctr - 1%}');"> -->
             <i class="glyphicon glyphicon-ban-circle"></i>
             <span>{%=locale.fileupload.cancel%}</span>
          </button>
