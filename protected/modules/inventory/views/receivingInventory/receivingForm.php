@@ -212,18 +212,20 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->textFieldGroup($receiving, 'plan_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php
-                echo $form->select2Group(
-                        $receiving, 'zone_id', array(
-                    'wrapperHtmlOptions' => array(
-                        'class' => '', 'id' => 'ReceivingInventory_zone_id',
-                    ),
-                    'widgetOptions' => array(
-                        'data' => $zone_list,
-                        'options' => array(
-                        ),
-                        'htmlOptions' => array('class' => 'ignore span5', 'prompt' => '--')),
-                    'labelOptions' => array('label' => false)));
+//                echo $form->select2Group(
+//                        $receiving, 'zone_id', array(
+//                    'wrapperHtmlOptions' => array(
+//                        'class' => '', 'id' => 'ReceivingInventory_zone_id',
+//                    ),
+//                    'widgetOptions' => array(
+//                        'data' => $zone_list,
+//                        'options' => array(
+//                        ),
+//                        'htmlOptions' => array('class' => 'ignore span5', 'prompt' => '--')),
+//                    'labelOptions' => array('label' => false)));
                 ?>
+
+                <?php echo $form->textFieldGroup($receiving, 'zone_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php echo $form->textFieldGroup($receiving, 'plan_arrival_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
@@ -457,7 +459,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th><?php echo $receivingDetailFields['amount']; ?></th>
-                        <!--<th class=""><?php // echo $receivingDetailFields['inventory_on_hand'];                                      ?></th>-->
+                        <!--<th class=""><?php // echo $receivingDetailFields['inventory_on_hand'];                                        ?></th>-->
                         <th class="hide_row"><?php echo $receivingDetailFields['remarks']; ?></th>
                     </tr>                                    
                 </thead>
@@ -1101,33 +1103,63 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
     }
     
-    $('#ReceivingInventory_supplier_id').select2({
-        placeholder: 'Select a Supplier',
-        allowClear: true,
-        id: function(data){ return data.supplier_id; },
-        ajax: {
-            quietMillis: 5,
-            cache: false,
-            dataType: 'json',
-            type: 'GET',
-            url: '<?php echo Yii::app()->createUrl("library/supplier/select2FilterSupplier"); ?>',
-            data: function (value, page) {
-                return {
-                    page: page,
-                    pageSize: 10,
-                    value: value
-                };
+    $(function() {
+    
+        $('#ReceivingInventory_zone_id').select2({
+            placeholder: 'Select a Zone',
+            allowClear: true,
+            id: function(data){ return data.zone_id; },
+            ajax: {
+                quietMillis: 10,
+                cache: false,
+                dataType: 'json',
+                type: 'GET',
+                url: '<?php echo Yii::app()->createUrl("library/zone/select2FilterZone"); ?>',
+                data: function (value, page) {
+                    return {
+                        page: page,
+                        pageSize: 10,
+                        value: value
+                    };
+                },
+                results: function (data, page) {
+                    return { results: data.dataItems }; 
+                }
             },
-            results: function (data, page) {
-                return { results: data.dataItems }; 
-            }
-        },
-        formatResult: FormatResult,
-        formatSelection: FormatSelection,
-        minimumInputLength: 1
+            formatResult: FormatZoneResult,
+            formatSelection: FormatZoneSelection,
+            minimumInputLength: 1
+        });
+    
+        $('#ReceivingInventory_supplier_id').select2({
+            placeholder: 'Select a Supplier',
+            allowClear: true,
+            id: function(data){ return data.supplier_id; },
+            ajax: {
+                quietMillis: 10,
+                cache: false,
+                dataType: 'json',
+                type: 'GET',
+                url: '<?php echo Yii::app()->createUrl("library/supplier/select2FilterSupplier"); ?>',
+                data: function (value, page) {
+                    return {
+                        page: page,
+                        pageSize: 10,
+                        value: value
+                    };
+                },
+                results: function (data, page) {
+                    return { results: data.dataItems }; 
+                }
+            },
+            formatResult: FormatSupplierResult,
+            formatSelection: FormatSupplierSelection,
+            minimumInputLength: 1
+        });
+    
     });
 
-    function FormatResult(item) {
+    function FormatSupplierResult(item) {
         var markup = "";
         if (item.supplier_name !== undefined) {
             markup += "<option value='" + item.supplier_id + "'>" + item.supplier_name + "</option>";
@@ -1135,8 +1167,20 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         return markup;
     }
 
-    function FormatSelection(item) {
+    function FormatSupplierSelection(item) {
         return item.supplier_name;
+    }
+
+    function FormatZoneResult(item) {
+        var markup = "";
+        if (item.zone_name !== undefined) {
+            markup += "<option value='" + item.zone_id + "'>" + item.zone_name + "</option>";
+        }
+        return markup;
+    }
+
+    function FormatZoneSelection(item) {
+        return item.zone_name;
     }
 
 </script>

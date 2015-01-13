@@ -209,8 +209,8 @@ class CustomerItem extends CActiveRecord {
         $criteria->compare('updated_by', $this->updated_by, true);
 
         return new CActiveDataProvider($this, array(
-            'criteria' => $criteria,
-        ));
+                    'criteria' => $criteria,
+                ));
     }
 
     public function data($col, $order_dir, $limit, $offset, $columns) {
@@ -288,9 +288,9 @@ class CustomerItem extends CActiveRecord {
         $criteria->addInCondition('t.customer_item_id', $customer_item_id_arr);
 
         return new CActiveDataProvider($this, array(
-            'criteria' => $criteria,
-            'pagination' => false,
-        ));
+                    'criteria' => $criteria,
+                    'pagination' => false,
+                ));
     }
 
     /**
@@ -423,7 +423,12 @@ class CustomerItem extends CActiveRecord {
 
                     if ($update === true) {
 
-                        ProofOfDelivery::model()->updateCustomerData($customer_item, $customer_item_detail_ids_to_be_delete, $customer_item_details);
+                        $pod_exists = ProofOfDelivery::model()->updateCustomerData($customer_item, $customer_item_detail_ids_to_be_delete, $customer_item_details);
+
+                        if ($pod_exists === false) {
+
+                            ProofOfDelivery::model()->customerData($customer_item, $customer_item_details);
+                        }
                     } else {
                         
                     }

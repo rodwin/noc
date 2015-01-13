@@ -703,33 +703,31 @@ class PoiController extends Controller {
         $c = new CDbCriteria();
         if ($value != "") {
             $c->addSearchCondition('t.short_name', $value, true, 'OR');
-            $c->addSearchCondition('t.primary_code', $value, true, 'OR');
+//            $c->addSearchCondition('t.primary_code', $value, true, 'OR');
         }
-//        $c->select = new CDbExpression('t.*, TRIM(barangay.barangay_name) as barangay_name, TRIM(municipal.municipal_name) as municipal_name, TRIM(province.province_name) as province_name, TRIM(region.region_name) as region_name');
         $c->compare('t.company_id', Yii::app()->user->company_id);
-//        $c->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
-//        $c->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
-//        $c->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
-//        $c->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
-        $c->limit = 10;
+        $c->limit = $pageSize;
         $poi = Poi::model()->findAll($c);
 
         $return = array();
-        foreach ($poi as $key => $val) {
+        if (count($poi) > 0) {
+            foreach ($poi as $key => $val) {
+                $row = array();
+
+                $row['poi_id'] = $val->poi_id;
+                $row['short_name'] = $val->short_name;
+                $row['primary_code'] = $val->primary_code;
+
+                $return["dataItems"][] = $row;
+            }
+        } else {
             $row = array();
+            $row['poi_id'] = "";
+            $row['short_name'] = "--";
 
-//            $poi_address = isset($val->barangay_name) ? $val->barangay_name . ", " : "";
-//            $poi_address .= isset($val->municipal_name) ? $val->municipal_name . ", " : "";
-//            $poi_address .= isset($val->province_name) ? $val->province_name . ", " : "";
-//            $poi_address .= isset($val->region_name) ? $val->region_name : "";
-
-            $row['poi_id'] = $val->poi_id;
-            $row['short_name'] = $val->short_name;
-            $row['primary_code'] = $val->primary_code;
-//            $row['address1'] = $poi_address;
-            
             $return["dataItems"][] = $row;
         }
+
 
         echo json_encode($return);
         Yii::app()->end();
