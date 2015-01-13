@@ -435,10 +435,10 @@
                     var remaining = data[i].score - data[i].total;
 
        
-                    if(test >= 100)
+                    if(test >= 90)
                     {
                         color = 'green';
-                    }else if(test >= 90 && test <99)
+                    }else if(test >= 85 && test <90)
                     {
                         color = 'yellow';
                     }else{
