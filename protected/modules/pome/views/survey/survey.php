@@ -155,17 +155,29 @@ $this->breadcrumbs=array(
                   </div>
               </div>
            
-             <?php echo CHtml::submitButton('Save', array('class' => 'btn btn-primary btn-flat')); ?></div>                              
+             <?php echo CHtml::submitButton('Save', array('class' => 'btn btn-primary btn-flat','id'=>'test_sub')); ?></div>                              
         </div>
-      
+<!--      this.style.visibility=hidden-->
         
       </div>
  
 <?php $this->endWidget(); ?>
 
       <script>
+               function disable()
+{
+     $('#test_sub').attr("disabled", true);
+}
       $(document).ready(function(){
       $('#bws_survey').val('');
+      
+
+        $("form").submit(function() {
+            $(this).submit(function() {
+                return false;
+            });
+            return true;
+        });
       
       $('#bws_survey').change(function() {
     
@@ -242,6 +254,7 @@ $('#ph_survey').change(function() {
 //        });
 //    
 //});
+
 
 function acceptValidNumbersOnly(obj,e) {
 			var key='';
