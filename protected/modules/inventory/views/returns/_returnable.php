@@ -68,7 +68,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 //                    ));
                     ?>
 
-                    <?php echo CHtml::textField($returnable_label . 'selected_outlet', '', array('class' => 'form-control span5 ' . $returnable_label . 'return_from_select', "placeholder" => "Select Outlet")); ?> 
+                    <?php echo CHtml::textField($returnable_label . 'selected_outlet', '', array('class' => 'form-control span5 ignore ' . $returnable_label . 'return_from_select', "placeholder" => "Select Outlet")); ?> 
 
                     <div id="<?php echo $returnable_label; ?>poi_primary_code" class="<?php echo $returnable_label; ?>autofill_text span5"><?php echo $not_set; ?></div>
                     <div id="<?php echo $returnable_label; ?>poi_address1" class="<?php echo $returnable_label; ?>autofill_text span5" style="height: auto;"><?php echo $not_set; ?></div>
@@ -614,7 +614,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         loadSelect2POIDetailsByID(this.value, returnable_label);
     });
 
-    function send(form, dr_no, sku_id) {
+    function sendReturnable(form, dr_no, sku_id) {
 
         var data = $("#returnable-form").serialize() + "&form=" + form + "&return_type=" + return_type + "&" + $.param({"transaction_details": serializeTransactionTable()});
 
@@ -637,8 +637,8 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 success: function(data) {
                     validateForm(data);
                 },
-                error: function(data) {
-                    alert("Error occured: Please try again.");
+                error: function(status, exception) {
+                    alert(status.responseText);
                     $("#btn_save, #btn_print").attr('disabled', false);
                     $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
                     $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
@@ -662,12 +662,10 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         if (data.success === true) {
 
             if (data.form == headers) {
+                
+                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/admin";
 
-                success_type = data.type;
-                success_message = data.message;
-
-                loadToView();
-
+                growlAlert(data.type, data.message);
             } else if (data.form == print && serializeTransactionTable().length > 0) {
                 printPDF(data.print);
             }
@@ -718,7 +716,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     $("#btn_save").click(function() {
         if (!confirm('Are you sure you want to submit?'))
             return false;
-        send(headers, <?php echo "'" . $returnable->reference_dr_no . "', '" . $sku_id . "'"; ?>);
+        sendReturnable(headers, <?php echo "'" . $returnable->reference_dr_no . "', '" . $sku_id . "'"; ?>);
     });
 
     $(function() {
@@ -730,7 +728,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
     $(function() {
 
-        $("#" + <?php echo "'" . $returnable_label . "'"; ?> + "selected_outlet").select2({
+        $('#' + returnable_label + 'selected_outlet').select2({
             placeholder: 'Select a Outlet',
             allowClear: true,
             id: function(data) {
@@ -758,17 +756,5 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             minimumInputLength: 1
         });
     });
-
-    function FormatPOIResult(item) {
-        var markup = "";
-        if (item.short_name !== undefined) {
-            markup += "<option value='" + item.poi_id + "'>" + item.short_name + "</option>";
-        }
-        return markup;
-    }
-
-    function FormatPOISelection(item) {
-        return item.short_name;
-    }
 
 </script>

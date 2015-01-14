@@ -199,4 +199,16 @@ $hide_Returnable = $isReturnable === false ? "display: none;" : "";
         delete_row_butt.hide();
     }
 
+    function FormatPOIResult(item) {
+        var markup = "";
+        if (item.short_name !== undefined) {
+            markup += "<option value='" + item.poi_id + "'>" + item.short_name + "</option>";
+        }
+        return markup;
+    }
+
+    function FormatPOISelection(item) {
+        return item.short_name;
+    }
+
 </script>
