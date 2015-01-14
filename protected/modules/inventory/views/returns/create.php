@@ -158,6 +158,28 @@ $hide_Returnable = $isReturnable === false ? "display: none;" : "";
 
     }
 
+    function loadSelect2POIDetailsByID(poi_id, return_type_label) {
+        $("." + return_type_label + "autofill_text").html(<?php echo $not_set; ?>);
+//        $("#" + return_type_label + "selected_outlet").select2("val", "");
+        $("#" + return_type_label + "selected_outlet").select2('data', {poi_id: "", short_name: ""});
+
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl('/library/poi/getPOIDetails'); ?>' + '&poi_id=' + poi_id,
+            dataType: "json",
+            success: function(data) {
+//                $("#" + return_type_label + "selected_outlet").select2("val", data.poi_id);
+                $("#" + return_type_label + "selected_outlet").select2('data', {poi_id: data.poi_id, short_name: data.short_name});
+                $("#" + return_type_label + "poi_primary_code").html(data.primary_code);
+                $("#" + return_type_label + "poi_address1").html(data.address1);
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+
+    }
+
     function deleteTransactionRow(delete_row_butt, selected_transaction_table, total_amount_var, total_amount_field) {
         if (!confirm('Are you sure you want to delete selected item?'))
             return false;
@@ -175,6 +197,18 @@ $hide_Returnable = $isReturnable === false ? "display: none;" : "";
         }
 
         delete_row_butt.hide();
+    }
+
+    function FormatPOIResult(item) {
+        var markup = "";
+        if (item.short_name !== undefined) {
+            markup += "<option value='" + item.poi_id + "'>" + item.short_name + "</option>";
+        }
+        return markup;
+    }
+
+    function FormatPOISelection(item) {
+        return item.short_name;
     }
 
 </script>

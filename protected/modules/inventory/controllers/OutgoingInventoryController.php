@@ -31,7 +31,7 @@ class OutgoingInventoryController extends Controller {
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('data', 'loadInventoryDetails', 'outgoingInvDetailData', 'afterDeleteTransactionRow', 'invData', 'uploadAttachment', 'preview', 'download', 'searchCampaignNo', 'loadPRNos', 'loadInvByPRNo',
-                    'print', 'loadPDF', 'getDetailsByOutgoingInvID', 'loadItemDetails', 'viewPrint', 'checkInvIfUpdatedActualQtyValid', 'sendDR', 'loadAttachmentDownload'),
+                    'print', 'loadPDF', 'getDetailsByOutgoingInvID', 'loadItemDetails', 'viewPrint', 'checkInvIfUpdatedActualQtyValid', 'sendDR', 'loadAttachmentDownload', 'updateOutgoingInvDetailReturnDate'),
                 'users' => array('@'),
             ),
             array('allow',
@@ -1563,6 +1563,7 @@ class OutgoingInventoryController extends Controller {
             $row['campaign_no'] = $value->campaign_no;
             $row['pr_no'] = $value->pr_no;
             $row['uom_name'] = $uom->uom_name;
+            $row['sku_type'] = $value->sku->type;
 
             $output['data'][] = $row;
         }
@@ -1946,6 +1947,52 @@ class OutgoingInventoryController extends Controller {
                 . '</html>';
 
         Globals::sendMail('Outbound Transaction Alert', $content, 'text/html', Yii::app()->params['swiftMailer']['username'], Yii::app()->params['swiftMailer']['accountName'], $sendTo);
+    }
+
+    public function actionUpdateOutgoingInvDetailReturnDate($return_date, $outgoing_inv_id, $outgoing_inv_detail_id) {
+
+        $data = array();
+        $data['success'] = false;
+        $data["type"] = "success";
+        $data["return_date"] = "";
+        $data["message"] = "Successfully updated";
+
+        $new_return_date = trim($return_date);
+        $outgoing_inventory_detail = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "outgoing_inventory_id" => $outgoing_inv_id, "outgoing_inventory_detail_id" => $outgoing_inv_detail_id));
+            
+        if ($new_return_date == "") {
+
+            $outgoing_inventory_detail->return_date = null;
+        } else {
+
+            $valid_return_date = $this->validateDate($new_return_date);
+
+            if (!$valid_return_date) {
+
+                $data["type"] = "danger";
+                $data["message"] = "Return Date not valid. Please check the format (YYYY-MM-DD)";
+                $outgoing_inventory_detail->return_date = $outgoing_inventory_detail->return_date;
+            } else {
+
+                $outgoing_inventory_detail->return_date = $new_return_date;
+            }
+        }
+
+        if ($outgoing_inventory_detail->save()) {
+
+            $data["return_date"] = $outgoing_inventory_detail->return_date;
+        } else {
+
+            pr($outgoing_inventory_detail->getErrors());
+        }
+
+        echo json_encode($data);
+        Yii::app()->end();
+    }
+
+    function validateDate($date) {
+        $d = DateTime::createFromFormat('Y-m-d', $date);
+        return $d && $d->format('Y-m-d') == $date;
     }
 
 }

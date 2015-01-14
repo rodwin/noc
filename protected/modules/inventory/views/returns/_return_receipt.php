@@ -68,16 +68,18 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
                 <div class="pull-right col-md-7">
                     <?php
-                    $this->widget(
-                            'booster.widgets.TbSelect2', array(
-                        'name' => $return_receipt_label . 'selected_outlet',
-                        'data' => $poi_list,
-                        'htmlOptions' => array(
-                            'class' => 'span5 ignore ' . $return_receipt_label . 'return_from_select',
-                            'prompt' => '--'
-                        ),
-                    ));
+//                    $this->widget(
+//                            'booster.widgets.TbSelect2', array(
+//                        'name' => $return_receipt_label . 'selected_outlet',
+//                        'data' => $poi_list,
+//                        'htmlOptions' => array(
+//                            'class' => 'span5 ignore ' . $return_receipt_label . 'return_from_select',
+//                            'prompt' => '--'
+//                        ),
+//                    ));
                     ?>
+                    
+                    <?php echo CHtml::textField($return_receipt_label . 'selected_outlet', '', array('class' => 'form-control span5 ignore ' . $return_receipt_label . 'return_from_select', "placeholder" => "Select Outlet")); ?> 
 
                     <div id="<?php echo $return_receipt_label; ?>poi_primary_code" class="<?php echo $return_receipt_label; ?>autofill_text span5"><?php echo $not_set; ?></div>
                     <div id="<?php echo $return_receipt_label; ?>poi_address1" class="<?php echo $return_receipt_label; ?>autofill_text span5" style="height: auto;"><?php echo $not_set; ?></div>
@@ -344,7 +346,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                         'labelOptions' => array('label' => false)));
                     ?>
 
-                    <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-plus-circle"></i> Add Item', array('name' => 'add_item', 'maxlength' => 150, 'class' => 'btn btn-primary btn-sm span5', 'id' => 'btn_add_item')); ?>
+                    <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-plus-circle"></i> Add Item', array('name' => 'add_item', 'maxlength' => 150, 'class' => 'btn btn-primary btn-sm span5 submit_butt2', 'id' => 'btn_add_item')); ?>
 
                 </div>
             </div>
@@ -390,8 +392,8 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
 <div class="clearfix row">
     <div class="col-xs-12">
-        <button id="btn_print2" class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
-        <button id="btn_save2" class="btn btn-success pull-right" style=""><i class="glyphicon glyphicon-ok"></i> Save</button>  
+        <button id="btn_print2" class="btn btn-default submit_butt2" onclick=""><i class="fa fa-print"></i> Print</button>
+        <button id="btn_save2" class="btn btn-success pull-right submit_butt2" style=""><i class="glyphicon glyphicon-ok"></i> Save</button>  
     </div>
 </div>
 
@@ -519,9 +521,9 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
     function sendReturnReceipt(form) {
 
-        var data = $("#return-receipt-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable2()});
-
-        if ($("#btn_save2, #btn_add_item, #btn_print2").is("[disabled=disabled]")) {
+        var data = $("#return-receipt-form").serialize() + "&form=" + form + "&return_type=" + return_receipt_type + '&' + $.param({"transaction_details": serializeTransactionTable2()});
+        
+        if ($(".submit_butt2").is("[disabled=disabled]")) {
             return false;
         } else {
             $.ajax({
@@ -530,7 +532,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 data: data,
                 dataType: "json",
                 beforeSend: function(data) {
-                    $("#btn_save2, #btn_add_item, #btn_print2").attr("disabled", "disabled");
+                    $(".submit_butt2").attr("disabled", "disabled");
                     if (form == headers) {
                         $('#btn_save2').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
                     } else if (form == print) {
@@ -540,9 +542,9 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 success: function(data) {
                     validateForm2(data);
                 },
-                error: function(data) {
-                    alert("Error occured: Please try again.");
-                    $("#btn_save2, #btn_add_item, #btn_print2").attr('disabled', false);
+                error: function(status, exception) {
+                    alert(status.responseText);
+                    $(".submit_butt2").attr('disabled', false);
                     $('#btn_save2').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
                     $('#btn_print2').html('<i class="fa fa-print"></i>&nbsp; Print');
                 }
@@ -564,6 +566,8 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         if (data.success === true) {
 
             if (data.form == headers) {
+
+                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/admin";
 
                 growlAlert(data.type, data.message);
             } else if (data.form == details) {
@@ -604,7 +608,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
             growlAlert(data.type, data.message);
 
-            $("#btn_save2, #btn_add_item, #btn_print2").attr('disabled', false);
+            $(".submit_butt2").attr('disabled', false);
             $('#btn_save2').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
             $('#btn_print2').html('<i class="fa fa-print"></i>&nbsp; Print');
 
@@ -627,7 +631,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             });
         }
 
-        $("#btn_save2, #btn_add_item, #btn_print2").attr('disabled', false);
+        $(".submit_butt2").attr('disabled', false);
         $('#btn_save2').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
         $('#btn_print2').html('<i class="fa fa-print"></i>&nbsp; Print');
     }
@@ -709,7 +713,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     });
 
     $('#' + return_receipt_label + 'selected_outlet').change(function() {
-        loadPOIDetailsByID(this.value, return_receipt_label);
+        loadSelect2POIDetailsByID(this.value, return_receipt_label);
     });
 
     $("#delete_row_btn").click(function() {
@@ -725,5 +729,36 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             $('#delete_row_btn').fadeOut('slow');
         }
     }
+
+    $(function() {
+
+        $('#' + return_receipt_label + 'selected_outlet').select2({
+            placeholder: 'Select a Outlet',
+            allowClear: true,
+            id: function(data) {
+                return data.poi_id;
+            },
+            ajax: {
+                quietMillis: 10,
+                cache: false,
+                dataType: 'json',
+                type: 'GET',
+                url: '<?php echo Yii::app()->createUrl("library/poi/select2FilterPOI"); ?>',
+                data: function(value, page) {
+                    return {
+                        page: page,
+                        pageSize: 10,
+                        value: value
+                    };
+                },
+                results: function(data, page) {
+                    return {results: data.dataItems};
+                }
+            },
+            formatResult: FormatPOIResult,
+            formatSelection: FormatPOISelection,
+            minimumInputLength: 1
+        });
+    });
 
 </script>

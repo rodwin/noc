@@ -57,16 +57,18 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
                 <div class="pull-right col-md-7">
                     <?php
-                    $this->widget(
-                            'booster.widgets.TbSelect2', array(
-                        'name' => $returnable_label . 'selected_outlet',
-                        'data' => $poi_list,
-                        'htmlOptions' => array(
-                            'class' => 'span5 ' . $returnable_label . 'return_from_select',
-                            'prompt' => '--'
-                        ),
-                    ));
+//                    $this->widget(
+//                            'booster.widgets.TbSelect2', array(
+//                        'name' => $returnable_label . 'selected_outlet',
+//                        'data' => $poi_list,
+//                        'htmlOptions' => array(
+//                            'class' => 'span5 ' . $returnable_label . 'return_from_select',
+//                            'prompt' => '--'
+//                        ),
+//                    ));
                     ?>
+
+                    <?php echo CHtml::textField($returnable_label . 'selected_outlet', '', array('class' => 'form-control span5 ignore ' . $returnable_label . 'return_from_select', "placeholder" => "Select Outlet")); ?> 
 
                     <div id="<?php echo $returnable_label; ?>poi_primary_code" class="<?php echo $returnable_label; ?>autofill_text span5"><?php echo $not_set; ?></div>
                     <div id="<?php echo $returnable_label; ?>poi_address1" class="<?php echo $returnable_label; ?>autofill_text span5" style="height: auto;"><?php echo $not_set; ?></div>
@@ -348,7 +350,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 } else if (source_from == <?php echo "'" . $source_arr[1]['value'] . "'"; ?>) {
                     loadSalesmanDetailByID(data.id, returnable_label);
                 } else if (source_from == <?php echo "'" . $source_arr[2]['value'] . "'"; ?>) {
-                    loadPOIDetailsByID(data.id, returnable_label);
+                    loadSelect2POIDetailsByID(data.id, returnable_label);
                 }
 
                 if (data.transaction_details.length > 0) {
@@ -471,7 +473,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 if (data.transaction_details.length > 0) {
 
                     $.each(data.transaction_details, function(i, v) {
-                        
+
                         total_amount = (parseFloat(total_amount) + parseFloat(v.amount));
 
                         var addedRow = transaction_table.fnAddData([
@@ -557,7 +559,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                     });
 
                 }
-                
+
                 $("#Returnable_total_amount").val(parseFloat(total_amount).toFixed(2));
 
             },
@@ -609,10 +611,10 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     });
 
     $('#' + returnable_label + 'selected_outlet').change(function() {
-        loadPOIDetailsByID(this.value, returnable_label);
+        loadSelect2POIDetailsByID(this.value, returnable_label);
     });
 
-    function send(form, dr_no, sku_id) {
+    function sendReturnable(form, dr_no, sku_id) {
 
         var data = $("#returnable-form").serialize() + "&form=" + form + "&return_type=" + return_type + "&" + $.param({"transaction_details": serializeTransactionTable()});
 
@@ -635,8 +637,8 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 success: function(data) {
                     validateForm(data);
                 },
-                error: function(data) {
-                    alert("Error occured: Please try again.");
+                error: function(status, exception) {
+                    alert(status.responseText);
                     $("#btn_save, #btn_print").attr('disabled', false);
                     $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
                     $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
@@ -660,12 +662,10 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         if (data.success === true) {
 
             if (data.form == headers) {
+                
+                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/admin";
 
-                success_type = data.type;
-                success_message = data.message;
-
-                loadToView();
-
+                growlAlert(data.type, data.message);
             } else if (data.form == print && serializeTransactionTable().length > 0) {
                 printPDF(data.print);
             }
@@ -677,7 +677,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             $("#btn_save, #btn_print").attr('disabled', false);
             $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
             $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
-
+            
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
                 var element2 = document.getElementById("s2id_" + i);
@@ -716,7 +716,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     $("#btn_save").click(function() {
         if (!confirm('Are you sure you want to submit?'))
             return false;
-        send(headers, <?php echo "'" . $returnable->reference_dr_no . "', '" . $sku_id . "'"; ?>);
+        sendReturnable(headers, <?php echo "'" . $returnable->reference_dr_no . "', '" . $sku_id . "'"; ?>);
     });
 
     $(function() {
@@ -724,6 +724,37 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             timePicker: false,
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'});
+    });
+
+    $(function() {
+
+        $('#' + returnable_label + 'selected_outlet').select2({
+            placeholder: 'Select a Outlet',
+            allowClear: true,
+            id: function(data) {
+                return data.poi_id;
+            },
+            ajax: {
+                quietMillis: 10,
+                cache: false,
+                dataType: 'json',
+                type: 'GET',
+                url: '<?php echo Yii::app()->createUrl("library/poi/select2FilterPOI"); ?>',
+                data: function(value, page) {
+                    return {
+                        page: page,
+                        pageSize: 10,
+                        value: value
+                    };
+                },
+                results: function(data, page) {
+                    return {results: data.dataItems};
+                }
+            },
+            formatResult: FormatPOIResult,
+            formatSelection: FormatPOISelection,
+            minimumInputLength: 1
+        });
     });
 
 </script>

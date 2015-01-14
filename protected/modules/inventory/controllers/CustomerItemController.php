@@ -30,7 +30,7 @@ class CustomerItemController extends Controller {
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('data', 'loadTransactionByDRNo', 'loadInventoryDetails', 'customerItemDetailData', 'uploadAttachment', 'preview', 'download',
-                    'print', 'loadPDF', 'getDetailsByCustomerItemID', 'viewPrint', 'loadItemDetails', 'checkInvIfUpdatedActualQtyValid'),
+                    'print', 'loadPDF', 'getDetailsByCustomerItemID', 'viewPrint', 'loadItemDetails', 'checkInvIfUpdatedActualQtyValid', 'updateCustomerItemDetailReturnDate'),
                 'users' => array('@'),
             ),
             array('allow',
@@ -675,7 +675,7 @@ class CustomerItemController extends Controller {
      */
     public function actionDelete($id) {
         if (Yii::app()->request->isPostRequest) {
-            try {                
+            try {
 
                 // delete proof of delivery and its details and attachments by customer_item_id
                 $pod = ProofOfDelivery::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "customer_item_id" => $id));
@@ -719,7 +719,7 @@ class CustomerItemController extends Controller {
             try {
 
                 ProofOfDeliveryAttachment::model()->deleteDetailAndAttachmentByCustomerItemDetailID(Yii::app()->user->company_id, $customer_item_detail_id);
-                
+
                 CustomerItemDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND customer_item_detail_id = " . $customer_item_detail_id);
 
                 // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
@@ -1504,6 +1504,7 @@ class CustomerItemController extends Controller {
             $row['campaign_no'] = $value->campaign_no;
             $row['pr_no'] = $value->pr_no;
             $row['uom_name'] = $uom->uom_name;
+            $row['sku_type'] = $value->sku->type;
 
             $output['data'][] = $row;
         }
@@ -1635,6 +1636,52 @@ class CustomerItemController extends Controller {
 
         echo json_encode($output);
         Yii::app()->end();
+    }
+
+    public function actionUpdateCustomerItemDetailReturnDate($return_date, $customer_item_id, $customer_item_detail_id) {
+
+        $data = array();
+        $data['success'] = false;
+        $data["type"] = "success";
+        $data["return_date"] = "";
+        $data["message"] = "Successfully updated";
+
+        $new_return_date = trim($return_date);
+        $customer_item_detail = CustomerItemDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "customer_item_id" => $customer_item_id, "customer_item_detail_id" => $customer_item_detail_id));
+
+        if ($new_return_date == "") {
+
+            $customer_item_detail->return_date = null;
+        } else {
+
+            $valid_return_date = $this->validateDate($new_return_date);
+
+            if (!$valid_return_date) {
+
+                $data["type"] = "danger";
+                $data["message"] = "Return Date not valid. Please check the format (YYYY-MM-DD)";
+                $customer_item_detail->return_date = $customer_item_detail->return_date;
+            } else {
+
+                $customer_item_detail->return_date = $new_return_date;
+            }
+        }
+
+        if ($customer_item_detail->save()) {
+
+            $data["return_date"] = $customer_item_detail->return_date;
+        } else {
+
+            pr($customer_item_detail->getErrors());
+        }
+
+        echo json_encode($data);
+        Yii::app()->end();
+    }
+
+    function validateDate($date) {
+        $d = DateTime::createFromFormat('Y-m-d', $date);
+        return $d && $d->format('Y-m-d') == $date;
     }
 
 }

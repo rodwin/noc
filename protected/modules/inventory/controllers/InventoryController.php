@@ -1083,13 +1083,13 @@ class InventoryController extends Controller {
         $c1 = new CDbCriteria;
         $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND t.sku_id NOT IN (SELECT sku_id FROM returnable_detail) AND t.return_date <= CURDATE()";
         $c1->with = array('incomingInventory', 'sku');
-        $incoming = IncomingInventoryDetail::model()->findAll($c1);
+        $incoming_inv_detail = IncomingInventoryDetail::model()->findAll($c1);
 
         $incoming_arr = array();
         $incoming_pr_nos = "";
         $incoming_pr_nos_arr = array();
-        if (count($incoming) > 0) {
-            foreach ($incoming as $k1 => $v1) {
+        if (count($incoming_inv_detail) > 0) {
+            foreach ($incoming_inv_detail as $k1 => $v1) {
                 $row = array();
 
                 if (trim($v1->pr_no) != "") {
@@ -1117,8 +1117,46 @@ class InventoryController extends Controller {
                 $incoming_arr[] = $row;
             }
         }
+        
+        $c2 = new CDbCriteria;
+        $c2->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND t.sku_id NOT IN (SELECT sku_id FROM returnable_detail) AND t.return_date <= CURDATE()";
+        $c2->with = array('customerItem', 'sku');
+        $customer_item_detail = CustomerItemDetail::model()->findAll($c2);
+        
+        $customer_item_arr = array();
+        $customer_item_pr_nos = "";
+        $customer_item_pr_nos_arr = array();
+        if (count($customer_item_detail) > 0) {
+            foreach ($customer_item_detail as $k2 => $v2) {
+                $row = array();
 
-        $output = array_merge($incoming_arr);
+                if (trim($v2->pr_no) != "") {
+                    if (!in_array($v2->pr_no, $customer_item_pr_nos)) {
+                        array_push($customer_item_pr_nos, $v2->pr_no);
+                        $customer_item_pr_nos .= $v2->pr_no . ", ";
+                    }
+                }
+                
+                $status = Returnable::model()->checkReturnDateStatus($v2->return_date);
+
+                $row['transaction_date'] = date("d-M", strtotime($v2->customerItem->transaction_date));
+                $row['transaction_type'] = "RETURN";
+                $row['pr_no'] = $customer_item_pr_nos != "" ? substr(trim($customer_item_pr_nos), 0, -1) : "";;
+                $row['dr_no'] = $v2->customerItem->dr_no;
+                $row['sku_description'] = $v2->sku->description;
+                $row['return_date'] = $v2->return_date;
+                $row['qty'] = $v2->quantity_issued;
+                $row['amount'] = $v2->amount;
+                $row['status'] = $status;
+                $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/returns/createReturnable', array('dr_no' => $v2->customerItem->dr_no, 'sku_id' => $v2->sku_id)) . '">
+                                    <i class="glyphicon glyphicon-eye-open"></i>
+                                </a>';
+
+                $customer_item_arr[] = $row;
+            }
+        }
+
+        $output = array_merge($incoming_arr, $customer_item_arr);
 
         echo json_encode($output);
         Yii::app()->end();
