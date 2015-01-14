@@ -192,6 +192,41 @@ $this->breadcrumbs = array(
             ],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(10)', nRow).addClass("text-right");
+                
+                if (aData.sku_type == <?php echo "'" . Sku::INFRA . "'"; ?>) {
+                    $('td:eq(7)', nRow).addClass("success");
+
+                    $('td:eq(7)', nRow).editable(function(value, settings) {
+                        var pos = outgoing_inv_detail_table.fnGetPosition(this);
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '<?php echo Yii::app()->createUrl($this->module->id . '/OutgoingInventory/updateOutgoingInvDetailReturnDate'); ?>' + '&return_date=' + value + "&outgoing_inv_id=" + aData.outgoing_inventory_id + "&outgoing_inv_detail_id=" + aData.outgoing_inventory_detail_id,
+                            dataType: "json",
+                            beforeSend: function(data) {
+                            },
+                            success: function(data) {
+
+                                outgoing_inv_detail_table.fnUpdate(data.return_date, pos[0], pos[2]);
+
+                                growlAlert(data.type, data.message);
+
+                            },
+                            error: function(data) {
+                                alert("Error occured: Please try again.");
+                            }
+                        });
+
+                    }, {
+                        type: 'text',
+                        placeholder: 'YYYY-MM-DD',
+                        indicator: '',
+                        tooltip: 'Click to edit',
+                        width: "100%",
+                        height: "30px",
+                        onblur: 'submit'
+                    });
+                }
             }
         });
 
@@ -245,6 +280,13 @@ $this->breadcrumbs = array(
             });
         }
 
+    }
+    
+    function growlAlert(type, message) {
+        $.growl(message, {
+            icon: 'glyphicon glyphicon-info-sign',
+            type: type
+        });
     }
 
 </script>

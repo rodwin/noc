@@ -18,7 +18,7 @@ $this->breadcrumbs = array(
     .first_col_right_table { width: 150px; } 
 
     .text_bold { font-weight: bold; }
-    
+
     sup { font-weight: bold; }
 </style>
 
@@ -195,6 +195,41 @@ $this->breadcrumbs = array(
             ],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(10)', nRow).addClass("text-right");
+
+                if (aData.sku_type == <?php echo "'" . Sku::INFRA . "'"; ?>) {
+                    $('td:eq(7)', nRow).addClass("success");
+
+                    $('td:eq(7)', nRow).editable(function(value, settings) {
+                        var pos = customer_item_detail_table.fnGetPosition(this);
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '<?php echo Yii::app()->createUrl($this->module->id . '/CustomerItem/updateCustomerItemDetailReturnDate'); ?>' + '&return_date=' + value + "&customer_item_id=" + aData.customer_item_id + "&customer_item_detail_id=" + aData.customer_item_detail_id,
+                            dataType: "json",
+                            beforeSend: function(data) {
+                            },
+                            success: function(data) {
+
+                                customer_item_detail_table.fnUpdate(data.return_date, pos[0], pos[2]);
+
+                                growlAlert(data.type, data.message);
+
+                            },
+                            error: function(data) {
+                                alert("Error occured: Please try again.");
+                            }
+                        });
+
+                    }, {
+                        type: 'text',
+                        placeholder: 'YYYY-MM-DD',
+                        indicator: '',
+                        tooltip: 'Click to edit',
+                        width: "100%",
+                        height: "30px",
+                        onblur: 'submit'
+                    });
+                }
             }
         });
 
@@ -248,6 +283,13 @@ $this->breadcrumbs = array(
             });
         }
 
+    }
+
+    function growlAlert(type, message) {
+        $.growl(message, {
+            icon: 'glyphicon glyphicon-info-sign',
+            type: type
+        });
     }
 
 </script>
