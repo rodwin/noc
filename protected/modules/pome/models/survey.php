@@ -374,9 +374,10 @@ class Survey extends CFormModel {
         }
         
         
-            $sqla ="SELECT *
+            $sqla ="SELECT top 1 *
                 from [pg_mapping].[dbo].[pome_qachecklist] 
                 where pps_id = ".$data['Survey']['bws']." and hospital =".$data['Survey']['hospital']." and date_checked = '".$data['Survey']['date']."'
+                 order by counter desc
                 ";
 
             $commanda = Yii::app()->db3->createCommand($sqla);
