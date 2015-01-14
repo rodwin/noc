@@ -349,8 +349,10 @@ class ProofOfDelivery extends CActiveRecord {
             $pod->updated_by = $customer_header_data->updated_by;
             $pod->updated_date = $customer_header_data->updated_date;
 
-            if ($pod->updateTransaction($pod, $customer_item_detail_ids_to_be_delete, $transaction_details)) {
-                return true;
+            $data = $pod->updateTransaction($pod, $customer_item_detail_ids_to_be_delete, $transaction_details);
+            
+            if ($data['success']) {
+                return $data;
             } else {
                 return $pod->getErrors();
             }
@@ -366,6 +368,9 @@ class ProofOfDelivery extends CActiveRecord {
                 return false;
             }
         }
+
+        $data = array();
+        $data['success'] = false;
 
         try {
 
@@ -389,20 +394,23 @@ class ProofOfDelivery extends CActiveRecord {
             if (count($transaction_details) > 0) {
                 if ($proofOfDelivery->save(false)) {
 
+                    $pod_details = array();
                     for ($i = 0; $i < count($transaction_details); $i++) {
-                        ProofOfDeliveryDetail::model()->updatePODTransactionDetails($proofOfDelivery->pod_id, $transaction_details[$i]->customer_item_detail_id, $proofOfDelivery->company_id, $transaction_details[$i]->inventory_id, $transaction_details[$i]->quantity_issued, $transaction_details[$i]->amount, $proofOfDelivery->updated_by, $proofOfDelivery->updated_date);
+                        $pod_detail = ProofOfDeliveryDetail::model()->updatePODTransactionDetails($proofOfDelivery->pod_id, $transaction_details[$i]->customer_item_detail_id, $proofOfDelivery->company_id, $transaction_details[$i]->inventory_id, $transaction_details[$i]->quantity_issued, $transaction_details[$i]->amount, $proofOfDelivery->updated_by, $proofOfDelivery->updated_date);
+                                            
+                        $pod_details[] = $pod_detail;
                     }
+                    
+                    $data['success'] = true;
+                    $data['pod_header_data'] = $proofOfDelivery;
+                    $data['pod_detail_data'] = $pod_details;
                 }
-                return true;
-            } else {
-                return false;
             }
-
-            return true;
         } catch (Exception $exc) {
             Yii::log($exc->getTraceAsString(), 'error');
-            return false;
         }
+        
+        return $data;
     }
 
 }
