@@ -30,7 +30,7 @@ class ReturnsController extends Controller {
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('create', 'update', 'data', 'loadReferenceDRNos', 'infraLoadDetailsByDRNo', 'queryInfraDetails', 'getDetailsByReturnInvID', 'createReturnable', 'infraLoadDetailsBySelectedDRNo',
-                    'returnableData', 'getReturnableDetailsByReturnableID', 'preview', 'returnableDelete', 'returnReceiptData', 'getReturnReceiptDetailsByReturnReceiptID', 'returnReceiptDelete'),
+                    'returnableData', 'getReturnableDetailsByReturnableID', 'preview', 'returnableDelete', 'returnReceiptData', 'getReturnReceiptDetailsByReturnReceiptID', 'returnReceiptDelete', 'returnableView', 'getDetailsByReturnableID'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -989,9 +989,9 @@ class ReturnsController extends Controller {
 
         echo json_encode($output);
     }
-    
+
     public function actionGetReturnReceiptDetailsByReturnReceiptID($return_receipt_id) {
-        
+
         $c = new CDbCriteria;
         $c->condition = "company_id = '" . Yii::app()->user->company_id . "' AND return_receipt_id = '" . $return_receipt_id . "'";
         $return_receipt_details = ReturnReceiptDetail::model()->findAll($c);
@@ -1030,7 +1030,6 @@ class ReturnsController extends Controller {
         }
 
         echo json_encode($output);
-        
     }
 
     public function actionReturnReceiptDelete($id) {
@@ -1066,6 +1065,107 @@ class ReturnsController extends Controller {
             }
         } else
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
+    public function actionReturnableView($id) {
+        $model = $this->loadReturnableModel($id);
+
+        $this->pageTitle = "View Returnable";
+        $this->menu = array(
+            array('label' => "Delete Returnable", 'url' => '#', 'linkOptions' => array('submit' => array('returnableDelete', 'id' => $model->returnable_id), 'confirm' => 'Are you sure you want to delete this item?')),
+            array('label' => "Manage Returns", 'url' => array('admin')),
+        );
+
+        $returnable_detail = ReturnableDetail::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "returnable_id" => $model->returnable_id));
+
+        $pr_nos = "";
+        $pr_no_arr = array();
+        $po_nos = "";
+        $po_no_arr = array();
+        foreach ($returnable_detail as $key => $val) {
+
+            if ($val->pr_no != "") {
+                if (!in_array($val->pr_no, $pr_no_arr)) {
+                    array_push($pr_no_arr, $val->pr_no);
+                    $pr_nos .= $val->pr_no . ",";
+                }
+            }
+
+            if ($val->po_no != "") {
+                if (!in_array($val->po_no, $po_no_arr)) {
+                    array_push($po_no_arr, $val->po_no);
+                    $po_nos .= $val->po_no . ",";
+                }
+            }
+        }
+
+        $not_set = "<i class='text-muted'>Not Set</i>";
+
+        $nos = array();
+        $nos['pr_no'] = $pr_nos != "" ? substr($pr_nos, 0, -1) : $not_set;
+        $nos['po_no'] = $po_nos != "" ? substr($po_nos, 0, -1) : $not_set;
+
+        $source = Returnable::model()->getReturnFormDetails(Yii::app()->user->company_id, $model->receive_return_from, $model->receive_return_from_id);
+
+        $c1 = new CDbCriteria;
+        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND zones.zone_id = '" . $model->destination_zone_id . "'";
+        $c1->with = array("zones");
+        $destination_sales_office = SalesOffice::model()->find($c1);
+
+        $destination = array();
+        $destination['zone_name'] = $model->zone->zone_name;
+        $destination['destination_sales_office_name'] = isset($destination_sales_office->sales_office_name) ? $destination_sales_office->sales_office_name : "";
+        $destination['contact_person'] = "";
+        $destination['contact_no'] = "";
+        $destination['address'] = isset($destination_sales_office->address1) ? $destination_sales_office->address1 : "";
+
+
+        $this->render('_view_returnable', array(
+            'model' => $model,
+            'destination' => $destination,
+            'source' => $source,
+            'nos' => $nos,
+        ));
+    }
+
+    public function actionGetDetailsByReturnableID($returnable_id) {
+
+        $c = new CDbCriteria;
+        $c->condition = "company_id = '" . Yii::app()->user->company_id . "' AND returnable_id = '" . $returnable_id . "'";
+        $returnable_details = ReturnableDetail::model()->findAll($c);
+
+        $output = array();
+        foreach ($returnable_details as $key => $value) {
+            $row = array();
+
+            $status = Inventory::model()->status($value->status);
+
+            $uom = Uom::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $value->uom_id));
+
+            $row['returnable_detail_id'] = $value->returnable_detail_id;
+            $row['quantity_issued'] = $value->quantity_issued;
+            $row['batch_no'] = $value->batch_no;
+            $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
+            $row['sku_name'] = isset($value->sku->sku_name) ? $value->sku->sku_name : null;
+            $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
+            $row['sku_category'] = isset($value->sku->type) ? $value->sku->type : null;
+            $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
+            $row['unit_price'] = $value->unit_price;
+            $row['expiration_date'] = $value->expiration_date;
+            $row['quantity_issued'] = $value->quantity_issued;
+            $row['returned_quantity'] = $value->returned_quantity;
+            $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
+            $row['status'] = $status;
+            $row['remarks'] = $value->remarks;
+            $row['po_no'] = $value->po_no;
+            $row['pr_no'] = $value->pr_no;
+            $row['uom_name'] = $uom->uom_name;
+            $row['sku_type'] = $value->sku->type;
+
+            $output['data'][] = $row;
+        }
+
+        echo json_encode($output);
     }
 
 }

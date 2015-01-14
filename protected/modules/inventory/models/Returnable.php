@@ -46,13 +46,13 @@ class Returnable extends CActiveRecord {
         // will receive user inputs.
         return array(
             array('company_id, return_receipt_no, reference_dr_no, receive_return_from, transaction_date, date_returned, destination_zone_id', 'required'),
-            array('company_id, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, destination_zone_id, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, destination_zone_id, created_by, updated_by, status', 'length', 'max' => 50),
             array('remarks', 'length', 'max' => 150),
             array('total_amount', 'length', 'max' => 18),
             array('transaction_date, date_returned, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('returnable_id, company_id, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, transaction_date, date_returned, destination_zone_id, remarks, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('returnable_id, company_id, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, transaction_date, date_returned, destination_zone_id, remarks, total_amount, created_date, created_by, updated_date, updated_by, status', 'safe', 'on' => 'search'),
         );
     }
 
@@ -87,6 +87,7 @@ class Returnable extends CActiveRecord {
             'date_returned' => 'Date Returned',
             'destination_zone_id' => 'Destination Zone',
             'remarks' => 'Remarks',
+            'status' => 'Status',
             'total_amount' => 'Total Amount',
             'created_date' => 'Created Date',
             'created_by' => 'Created By',
@@ -122,6 +123,7 @@ class Returnable extends CActiveRecord {
         $criteria->compare('date_returned', $this->date_returned, true);
         $criteria->compare('destination_zone_id', $this->destination_zone_id, true);
         $criteria->compare('remarks', $this->remarks, true);
+        $criteria->compare('status', $this->status, true);
         $criteria->compare('total_amount', $this->total_amount, true);
         $criteria->compare('created_date', $this->created_date, true);
         $criteria->compare('created_by', $this->created_by, true);
@@ -303,19 +305,19 @@ class Returnable extends CActiveRecord {
         $data = array();
         $data['success'] = false;
 
-        $incoming_status = "";
+        $returnable_status = "";
         foreach ($transaction_details as $v) {
             $item_status[$v['status']][] = $v['status'];
         }
 
         if (array_key_exists(OutgoingInventory::OUTGOING_PENDING_STATUS, $item_status)) {
-            $incoming_status = OutgoingInventory::OUTGOING_PENDING_STATUS;
+            $returnable_status = OutgoingInventory::OUTGOING_PENDING_STATUS;
         } else if (array_key_exists(OutgoingInventory::OUTGOING_INCOMPLETE_STATUS, $item_status)) {
-            $incoming_status = OutgoingInventory::OUTGOING_INCOMPLETE_STATUS;
+            $returnable_status = OutgoingInventory::OUTGOING_INCOMPLETE_STATUS;
         } else if (array_key_exists(OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS, $item_status)) {
-            $incoming_status = OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS;
+            $returnable_status = OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS;
         } else {
-            $incoming_status = OutgoingInventory::OUTGOING_COMPLETE_STATUS;
+            $returnable_status = OutgoingInventory::OUTGOING_COMPLETE_STATUS;
         }
 
         $returnable = new Returnable;
@@ -331,7 +333,7 @@ class Returnable extends CActiveRecord {
                 'destination_zone_id' => $this->destination_zone_id,
                 'transaction_date' => $this->transaction_date,
                 'date_returned' => $this->date_returned,
-                'status' => $incoming_status,
+                'status' => $returnable_status,
                 'remarks' => $this->remarks,
                 'total_amount' => $this->total_amount,
                 'created_by' => $this->created_by,
@@ -395,6 +397,55 @@ class Returnable extends CActiveRecord {
 
             $data['source_header'] = CustomerItem::CUSTOMER_ITEM_LABEL;
             $data['source_details'] = $outgoing;
+        }
+
+        return $data;
+    }
+
+    public function getReturnFormDetails($company_id, $receive_return_from, $receive_return_from_id) {
+
+        $source_arr = Returnable::model()->getListReturnFrom();
+        $data = array();
+
+        if ($receive_return_from == $source_arr[0]['value']) {
+
+            $c1 = new CDbCriteria;
+            $c1->condition = "t.company_id = '" . $company_id . "' AND t.sales_office_id = '" . $receive_return_from_id . "'";
+            $sales_office = Salesoffice::model()->find($c1);
+
+            $data['source_name'] = $sales_office->sales_office_name;
+            $data['source_code'] = $sales_office->sales_office_code;
+            $data['contact_person'] = "";
+            $data['contact_no'] = "";
+            $data['address'] = $sales_office->address1;
+        } else if ($receive_return_from == $source_arr[1]['value']) {
+
+            $c2 = new CDbCriteria;
+            $c2->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
+            $c2->condition = "t.company_id = '" . $company_id . "' AND t.employee_id = '" . $receive_return_from_id . "'";
+            $employee = Employee::model()->find($c2);
+
+            $data['source_name'] = $employee->fullname;
+            $data['source_code'] = $employee->employee_code;
+            $data['contact_person'] = "";
+            $data['contact_no'] = $employee->work_phone_number;
+            $data['address'] = $employee->address1;
+        } else if ($receive_return_from == $source_arr[2]['value']) {
+
+            $c3 = new CDbCriteria;
+            $c3->select = new CDbExpression('t.*, TRIM(barangay.barangay_name) as barangay_name, TRIM(municipal.municipal_name) as municipal_name, TRIM(province.province_name) as province_name, TRIM(region.region_name) as region_name');
+            $c3->condition = "t.company_id = '" . $company_id . "' AND t.poi_id = '" . $receive_return_from_id . "'";
+            $c3->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
+            $c3->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
+            $c3->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
+            $c3->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
+            $poi = Poi::model()->find($c3);
+
+            $data['source_name'] = $poi->short_name;
+            $data['source_code'] = $poi->primary_code;
+            $data['contact_person'] = "";
+            $data['contact_no'] = "";
+            $data['address'] = $poi->address1;
         }
 
         return $data;

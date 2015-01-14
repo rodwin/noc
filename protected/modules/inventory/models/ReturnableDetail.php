@@ -98,14 +98,14 @@ class ReturnableDetail extends CActiveRecord {
             'amount' => 'Amount',
             'status' => 'Status',
             'remarks' => 'Remarks',
-            'pr_no' => 'Pr No',
-            'pr_date' => 'Pr Date',
+            'pr_no' => 'PR No',
+            'pr_date' => 'PR Date',
             'plan_arrival_date' => 'Plan Arrival Date',
             'created_date' => 'Created Date',
             'created_by' => 'Created By',
             'updated_date' => 'Updated Date',
             'updated_by' => 'Updated By',
-            'po_no' => 'Po No',
+            'po_no' => 'PO No',
         );
     }
 
@@ -237,7 +237,7 @@ class ReturnableDetail extends CActiveRecord {
         $returnable_detail->quantity_issued = $transaction_details['quantity_issued'];
         $returnable_detail->returned_quantity = $transaction_details['returned_quantity'] != "" ? $transaction_details['returned_quantity'] : 0;
         $returnable_detail->amount = $transaction_details['amount'];
-        $returnable_detail->status = $sku_status_id;
+        $returnable_detail->status = $transaction_details['status'];
         $returnable_detail->remarks = $transaction_details['remarks'];
         $returnable_detail->created_by = $created_by;
         $returnable_detail->po_no = $transaction_details['po_no'];
