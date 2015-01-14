@@ -30,7 +30,7 @@ class ReturnsController extends Controller {
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('create', 'update', 'data', 'loadReferenceDRNos', 'infraLoadDetailsByDRNo', 'queryInfraDetails', 'getDetailsByReturnInvID', 'createReturnable', 'infraLoadDetailsBySelectedDRNo',
-                    'returnableData', 'getReturnableDetailsByReturnableID', 'preview'),
+                    'returnableData', 'getReturnableDetailsByReturnableID', 'preview', 'returnableDelete'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -800,7 +800,7 @@ class ReturnsController extends Controller {
             $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/returnable/view', array('id' => $value->returnable_id)) . '">
                                 <i class="glyphicon glyphicon-eye-open"></i>
                             </a>
-                            <a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/returnable/delete', array('id' => $value->returnable_id)) . '">
+                            <a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/Returns/returnableDelete', array('id' => $value->returnable_id)) . '">
                                 <i class="glyphicon glyphicon-trash"></i>
                             </a>';
 
@@ -888,6 +888,51 @@ class ReturnsController extends Controller {
         }
 
         echo json_encode($output);
+    }
+    
+    public function loadReturnableModel($id) {
+        $model = Returnable::model()->findByAttributes(array('returnable_id' => $id, 'company_id' => Yii::app()->user->company_id));
+        if ($model === null)
+            throw new CHttpException(404, 'The requested page does not exist.');
+
+        return $model;
+    }
+    
+    public function actionReturnableDelete($id) {        
+        if (Yii::app()->request->isPostRequest) {
+            try {
+
+                // delete returnable details by returnable_id
+                ReturnableDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND returnable_id = " . $id);
+                // delete attachment by returnable_id as transaction_id
+//                $this->deleteAttachmentByOutgoingInvID($id);
+
+                // we only allow deletion via POST request
+                $this->loadReturnableModel($id)->delete();
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    if (!isset($_GET['ajax'])) {
+                        Yii::app()->user->setFlash('danger', "Unable to delete");
+                        $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('view', 'id' => $id));
+                    } else {
+                        echo "1451";
+                        exit;
+                    }
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+        
     }
 
 }
