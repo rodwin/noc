@@ -416,6 +416,40 @@ $this->breadcrumbs = array(
             }
         });
 
+        jQuery(document).on('click', '#return_receipt_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    if (data == "1451") {
+                        $.growl("Unable to delete", {
+                            icon: 'glyphicon glyphicon-warning-sign',
+                            type: 'danger'
+                        });
+
+                        selected_return_receipt_id = "";
+                    } else {
+                        $.growl(data, {
+                            icon: 'glyphicon glyphicon-info-sign',
+                            type: 'success'
+                        });
+
+                        return_receipt_table.fnMultiFilter();
+                    }
+
+                    loadReturnReceiptDetails(selected_return_receipt_id);
+                    loadAttachmentPreview(return_receipt_attachment_table, return_receipt_attachments_table_loaded, selected_return_receipt_id, $("#return_receipt_lower_table_loader"));
+                },
+                error: function(status, exception) {
+                    alert(status.responseText);
+                }
+            });
+            return false;
+        });
+
     });
 
     var returnable_detail_table_loaded;
