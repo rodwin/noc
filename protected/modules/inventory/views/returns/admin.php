@@ -21,8 +21,8 @@ $this->breadcrumbs = array(
 
 <div class="nav-tabs-custom" id ="returns_tabs">
     <ul class="nav nav-tabs">
-        <li class="active"><a href="#returns_tab_1" data-toggle="tab"><?php echo Returnable::RETURNABLE; ?></a></li>
-        <li><a href="#returns_tab_2" data-toggle="tab"><?php echo Returnable::RETURN_RECEIPT; ?></a></li>
+        <li class="active"><a href="#returns_tab_1" data-toggle="tab"><?php echo Returnable::RETURNABLE_LABEL; ?></a></li>
+        <li><a href="#returns_tab_2" data-toggle="tab"><?php echo ReturnReceipt::RETURN_RECEIPT_LABEL; ?></a></li>
         <li><a href="#returns_tab_3" data-toggle="tab"><?php echo Returnable::RETURN_MDSE; ?></a></li>
     </ul>
     <div class="tab-content" id="info">

@@ -27,8 +27,8 @@ class Returnable extends CActiveRecord {
 
     public $search_string;
 
-    const RETURNABLE = "RETURNABLE";
-    const RETURN_RECEIPT = "RETURN RECEIPT";
+    const RETURNABLE_LABEL = "RETURNABLE";
+//    const RETURN_RECEIPT = "RETURN RECEIPT";
     const RETURN_MDSE = "RETURN MDSE";
 
     /**

@@ -1,5 +1,5 @@
 
-<?php $returnable_label = str_replace(" ", "_", Returnable::RETURNABLE) . "_"; ?>
+<?php $returnable_label = str_replace(" ", "_", Returnable::RETURNABLE_LABEL) . "_"; ?>
 
 <style type="text/css">
     .<?php echo $returnable_label; ?>autofill_text { height: 30px; margin-top: 20px; margin-bottom: 20px; width: 200px; }
@@ -239,7 +239,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     var print = "print";
     var total_amount = 0;
     var returnable_label = <?php echo "'" . $returnable_label . "'"; ?>;
-    var return_type = <?php echo "'" . Returnable::RETURNABLE . "'"; ?>;
+    var return_type = <?php echo "'" . Returnable::RETURNABLE_LABEL . "'"; ?>;
     $(function() {
 
         $("[data-mask]").inputmask();
