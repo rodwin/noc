@@ -28,6 +28,8 @@ class Returnable extends CActiveRecord {
     public $search_string;
 
     const RETURNABLE = "RETURNABLE";
+    const RETURN_RECEIPT = "RETURN RECEIPT";
+    const RETURN_MDSE = "RETURN MDSE";
 
     /**
      * @return string the associated database table name
@@ -43,7 +45,7 @@ class Returnable extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, return_receipt_no, receive_return_from, transaction_date, date_returned, destination_zone_id', 'required'),
+            array('company_id, return_receipt_no, reference_dr_no, receive_return_from, transaction_date, date_returned, destination_zone_id', 'required'),
             array('company_id, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, destination_zone_id, created_by, updated_by', 'length', 'max' => 50),
             array('remarks', 'length', 'max' => 150),
             array('total_amount', 'length', 'max' => 18),
@@ -298,6 +300,9 @@ class Returnable extends CActiveRecord {
         }
 
         $item_status = array();
+        $data = array();
+        $data['success'] = false;
+
         $incoming_status = "";
         foreach ($transaction_details as $v) {
             $item_status[$v['status']][] = $v['status'];
@@ -337,27 +342,62 @@ class Returnable extends CActiveRecord {
             if (count($transaction_details) > 0) {
                 if ($returnable->save(false)) {
 
-//                    Yii::app()->session['returns_id_create_session'] = $return->returns_id;
-//                    unset(Yii::app()->session['returns_id_create_session']);
-
+                    $returnable_details = array();
                     for ($i = 0; $i < count($transaction_details); $i++) {
-                        ReturnableDetail::model()->createReturnableTransactionDetails($returnable->returnable_id, $returnable->company_id, $transaction_details[$i], $returnable->destination_zone_id, $returnable->transaction_date, $returnable->created_by);
+                        $returnable_detail = ReturnableDetail::model()->createReturnableTransactionDetails($returnable->returnable_id, $returnable->company_id, $transaction_details[$i], $returnable->destination_zone_id, $returnable->transaction_date, $returnable->created_by);
+
+                        $returnable_details[] = $returnable_detail;
                     }
 
-                    return true;
-                } else {
-                    return false;
+                    $data['success'] = true;
+                    $data['header_data'] = $returnable;
+                    $data['detail_data'] = $returnable_details;
                 }
-            } else {
-                return false;
             }
-
-            return true;
         } catch (Exception $exc) {
-            pr($exc);
             Yii::log($exc->getTraceAsString(), 'error');
-            return false;
         }
+
+        return $data;
+    }
+
+    public function checkReturnDateStatus($date) {
+
+        $status = "";
+        if (date("Y-m-d", strtotime($date)) < date("Y-m-d")) {
+            $status = "OVER DUE";
+        } else if (date("Y-m-d", strtotime($date)) == date("Y-m-d")) {
+            $status = "DUE DATE";
+        }
+
+        return $status;
+    }
+
+    public function queryReturnInfraDetails($dr_no, $sku_id) {
+
+        $c1 = new CDbCriteria;
+        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND sku.sku_id = '" . $sku_id . "' AND incomingInventory.dr_no = '" . $dr_no . "'";
+        $c1->with = array('incomingInventory', 'sku');
+        $incoming = IncomingInventoryDetail::model()->findAll($c1);
+
+        $c2 = new CDbCriteria;
+        $c2->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND sku.sku_id = '" . $sku_id . "' AND customerItem.dr_no = '" . $dr_no . "'";
+        $c2->with = array('customerItem', 'sku');
+        $outgoing = CustomerItemDetail::model()->findAll($c2);
+
+        $data = array();
+
+        if ($incoming) {
+
+            $data['source_header'] = IncomingInventory::INCOMING_LABEL;
+            $data['source_details'] = $incoming;
+        } else {
+
+            $data['source_header'] = CustomerItem::CUSTOMER_ITEM_LABEL;
+            $data['source_details'] = $outgoing;
+        }
+
+        return $data;
     }
 
 }

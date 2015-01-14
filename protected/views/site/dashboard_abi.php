@@ -10,7 +10,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
 <style type="text/css">
 
     #notification_table tbody tr { cursor: pointer }
-    
+
     sup { font-weight: bold; }
 
 </style>
@@ -178,6 +178,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                         <th>Quantity</th>
                         <th>Amount</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
             </table>
@@ -191,7 +192,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
         var chartLineLabel = [];
         var incoming_inbound_table;
         var outgoing_outbound_table;
-        var returnables_table;
+        var returns_table;
         $(function() {
 
             $.ajax({
@@ -227,7 +228,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                 //            preUnits: 'PhP',
                 //            xLabelAngle: 70
                 resize: true
-                //            lineColors: ['#7BB661'],
+                        //            lineColors: ['#7BB661'],
             });
 
             notification_table = $('#notification_table').dataTable({
@@ -298,13 +299,57 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                 }
             });
 
-            returnables_table = $('#returnables_table').dataTable({
+            returns_table = $('#returnables_table').dataTable({
                 "filter": false,
                 "dom": 't',
                 "bSort": false,
                 "processing": false,
                 "serverSide": false,
-                "bAutoWidth": false
+                "bAutoWidth": false,
+                "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                    $('td:eq(9)', nRow).addClass("text-center");
+                }
+            });
+
+//            $('#returnables_table tbody').on('click', 'tr', function() {
+//                if ($(this).hasClass('success')) {
+//                    $(this).removeClass('success');
+//
+//                }
+//                else {
+//                    returns_table.$('tr.success').removeClass('success');
+//                    $(this).addClass('success');
+//
+//                    var row_data = returns_table.fnGetData(this);
+//                    window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl('inventory/returns') . '"' ?> + "/createReturnable&dr_no=" + row_data[4] + "&sku_id=" + row_data[0];
+//
+//                }
+//            });
+
+            $.ajax({
+                dataType: 'json',
+                url: "<?php echo Yii::app()->createUrl('inventory/inventory/loadAllReturns'); ?>"
+            }).done(function(data) {
+
+                if (data.length > 0) {
+                    $.each(data, function(i, v) {
+                        returns_table.fnAddData([
+                            v.transaction_date,
+                            v.transaction_type,
+                            v.pr_no,
+                            v.dr_no,
+                            v.sku_description,
+                            v.return_date,
+                            v.qty,
+                            v.amount,
+                            v.status,
+                            v.links
+                        ]);
+                    });   
+                }
+
+            }).fail(function() {
+                alert("Error occured: Please try again.");
             });
 
         });
