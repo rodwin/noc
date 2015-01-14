@@ -66,6 +66,7 @@ class ReturnReceipt extends CActiveRecord {
         // class name for the relations automatically generated below.
         return array(
             'returnReceiptDetails' => array(self::HAS_MANY, 'ReturnReceiptDetail', 'return_receipt_id'),
+            'zone' => array(self::BELONGS_TO, 'Zone', 'destination_zone_id'),
         );
     }
 

@@ -77,7 +77,7 @@ $this->breadcrumbs = array(
         <table class="table table-bordered table-condensed">
             <tr>
                 <td><strong><?php echo $returnableFields['reference_dr_no']; ?>:</strong></td>
-                <td><?php echo $model->reference_dr_no; ?></td>
+                <td><?php echo $model->reference_dr_no != "" ? $model->reference_dr_no : $not_set; ?></td>
             </tr>
             <tr>
                 <td><strong><?php echo $returnableFields['date_returned']; ?>:</strong></td>
@@ -90,10 +90,6 @@ $this->breadcrumbs = array(
             <tr>
                 <td><strong><?php echo $returnableDetailFields['po_no']; ?>:</strong></td>
                 <td><?php echo $nos['po_no']; ?></td>
-            </tr>
-            <tr>
-                <td><strong><?php echo $returnableDetailFields['status']; ?>:</strong></td>
-                <td><?php echo Inventory::model()->status($model->status); ?></td>
             </tr>
         </table>
 
@@ -127,7 +123,6 @@ $this->breadcrumbs = array(
                             <th><?php echo $returnableDetailFields['returned_quantity']; ?></th>
                             <th><?php echo $returnableDetailFields['amount']; ?></th>
                             <th><?php echo $returnableDetailFields['remarks']; ?></th>
-                            <th><?php echo $returnableDetailFields['status']; ?></th>
                         </tr>                                    
                     </thead>
                 </table> 
@@ -160,7 +155,7 @@ $this->breadcrumbs = array(
             "serverSide": true,
             "bAutoWidth": false,
             "bSort": false,
-            "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Returns/getDetailsByReturnableID', array("returnable_id" => $model->returnable_id)); ?>",
+            "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Returns/getDetailsByReturnReceiptID', array("return_receipt_id" => $model->return_receipt_id)); ?>",
             "columns": [
                 {"name": "sku_code", "data": "sku_code"},
                 {"name": "sku_description", "data": "sku_description"},
@@ -173,7 +168,6 @@ $this->breadcrumbs = array(
                 {"name": "returned_quantity", "data": "returned_quantity"},
                 {"name": "amount", "data": "amount"},
                 {"name": "remarks", "data": "remarks"},
-                {"name": "status", "data": "status"},
             ],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(9)', nRow).addClass("text-right");
