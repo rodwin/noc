@@ -75,6 +75,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     .process_position { text-align: center; position: absolute; }
+    #progress_bar_col { display: none; } 
+
 </style>
 
 <style type="text/css">
@@ -116,7 +118,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             'onsubmit' => "return false;",
             'onkeypress' => " if(event.keyCode == 13) {} "
         ),
-    ));
+            ));
     ?>
 
     <div class="box-body clearfix">
@@ -216,7 +218,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         'class' => '', 'id' => 'ReceivingInventory_zone_id',
                     ),
                     'widgetOptions' => array(
-                        'data' => $warehouse_zone_list,
+                        'data' => $zone_list,
                         'options' => array(
                         ),
                         'htmlOptions' => array('class' => 'ignore span5', 'prompt' => '--')),
@@ -226,20 +228,20 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->textFieldGroup($receiving, 'plan_arrival_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php // echo CHtml::textField('supplier_name', '', array('id' => 'ReceivingInventory_supplier_id', 'class' => 'ignore typeahead form-control span5', 'maxlength' => 50, 'placeholder' => "Supplier")); ?>
-                <?php // echo $form->textFieldGroup($receiving, 'supplier_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'ReceivingInventory_supplier', 'class' => 'ignore span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($receiving, 'supplier_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'ReceivingInventory_supplier_id', 'class' => 'ignore span5')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php
-                echo $form->select2Group(
-                        $receiving, 'supplier_id', array(
-                    'wrapperHtmlOptions' => array(
-                        'class' => '', 'id' => 'ReceivingInventory_supplier_id',
-                    ),
-                    'widgetOptions' => array(
-                        'data' => $supplier_list,
-                        'options' => array(
-                        ),
-                        'htmlOptions' => array('class' => 'ignore span5', 'prompt' => '--')),
-                    'labelOptions' => array('label' => false)));
+//                echo $form->select2Group(
+//                        $receiving, 'supplier_id', array(
+//                    'wrapperHtmlOptions' => array(
+//                        'class' => '', 'id' => 'ReceivingInventory_supplier_id',
+//                    ),
+//                    'widgetOptions' => array(
+//                        'data' => $supplier_list,
+//                        'options' => array(
+//                        ),
+//                        'htmlOptions' => array('class' => 'ignore span5', 'prompt' => '--')),
+//                    'labelOptions' => array('label' => false)));
                 ?>
 
                 <?php
@@ -253,7 +255,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     ),
                     'labelOptions' => array('label' => false)));
                 ?>
-
                 <?php echo $form->textFieldGroup($receiving, 'sales_office_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
 
             </div>
@@ -423,7 +424,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             'labelOptions' => array('label' => false)));
                         ?>
 
-                        <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-plus-circle"></i> Add Item', array('name' => 'add_item', 'maxlength' => 150, 'class' => 'btn btn-primary btn-sm span5', 'id' => 'btn_add_item')); ?>
+                        <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-plus-circle"></i> Add Item', array('name' => 'add_item', 'maxlength' => 150, 'class' => 'btn btn-primary btn-sm span5 submit_butt', 'id' => 'btn_add_item')); ?>
 
                     </div>
                 </div>
@@ -435,7 +436,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <?php $receivingDetailFields = ReceivingInventoryDetail::model()->attributeLabels(); ?>
         <h4 class="control-label text-primary"><b>Transaction Table</b></h4>
-
         <div class="table-responsive">            
             <table id="transaction_table" class="table table-bordered table-hover table-striped">
                 <thead>
@@ -455,7 +455,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th class="hide_row"><?php echo $receivingDetailFields['sku_status_id']; ?></th>
                         <th><?php echo $receivingDetailFields['amount']; ?></th>
-                        <!--<th class=""><?php // echo $receivingDetailFields['inventory_on_hand'];                                    ?></th>-->
+                        <!--<th class=""><?php // echo $receivingDetailFields['inventory_on_hand'];                                      ?></th>-->
                         <th class="hide_row"><?php echo $receivingDetailFields['remarks']; ?></th>
                     </tr>                                    
                 </thead>
@@ -472,8 +472,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <div id="added_textbox_email"><span id="email_not_set_id" class="email_not_set"><i>Recipient Email not set.</i></span></div>
             </div>
             <div class="clearfix" style="margin-top: 3px;">
-                <button id="addEmailRecipient" class="btn btn-info btn-flat btn-sm add_field_button pull-right" type="button">Add Field</button>
-
+                <button id="addEmailRecipient" class="btn btn-info btn-flat btn-sm add_field_button pull-right submit_butt" type="button">Add Field</button>
             </div>
         </div>
 
@@ -483,9 +482,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="row no-print">
             <div class="col-xs-12">
-                <button id="btn_print" class="btn btn-default"><i class="fa fa-print"></i> Print</button>
-                <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload PR / DR</button>
-                <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>  
+                <button id="btn_print" class="btn btn-default submit_butt"><i class="fa fa-print"></i> Print</button>
+                <button id="btn-upload" class="btn btn-primary pull-right submit_butt"><i class="fa fa-fw fa-upload"></i> Upload PR / DR</button>
+                <button id="btn_save" class="btn btn-success pull-right submit_butt" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>  
             </div>
         </div>
 
@@ -522,7 +521,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 'fail' => new CJavaScriptExpression(
                         'function(e, data) { console.log("fail"); }'
                 ),
-        )));
+                )));
         ?>
     </div> <!--dito end-->
 </div>
@@ -603,7 +602,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     function removebyID($id) {
         files.splice($id - 1, 1);
     }
-//   dito start
+    //   dito start
     function selectchange(el) {
 
         var tag_textbox = $(el).closest("tr").find("input[name=tagname]");
@@ -618,7 +617,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
     }
-//dito end
+    //dito end
     var emails_empty = false;
     function send(form) {
 
@@ -645,8 +644,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         var data = $("#receiving-inventory-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable()}) + '&' + $.param({"emails": emails}) + '&' + $.param({"recipients": recipient});
-
-        if ($("#btn_save, #btn_add_item, #btn_print").is("[disabled=disabled]")) {
+        if ($(".submit_butt").is("[disabled=disabled]")) {
             return false;
         } else {
             $.ajax({
@@ -655,7 +653,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 data: data,
                 dataType: "json",
                 beforeSend: function(data) {
-                    $("#btn_save, #btn_add_item, #btn_print").attr("disabled", "disabled");
+                    $(".submit_butt").attr("disabled", "disabled");
                     if (form == headers) {
                         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
                     } else if (form == print) {
@@ -667,7 +665,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 },
                 error: function(data) {
                     alert("Error occured: Please try again.");
-                    $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
+                    $(".submit_butt").attr('disabled', false);
                     $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
                     $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
                 }
@@ -684,8 +682,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             var $element = $(e[i]);
 
             $element.data("title", "")
-                    .removeClass("error")
-                    .tooltip("destroy");
+            .removeClass("error")
+            .tooltip("destroy");
         }
 
         if (data.success === true) {
@@ -748,19 +746,18 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             if (data.form == headers) {
                 growlAlert(data.type, data.message);
             }
-
-            $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
+            $(".submit_butt").attr('disabled', false);
             $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
             $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
 
             if (emails_empty === true) {
                 $("#email_not_set_id").data("title", "Recipient Email Required")
-                        .addClass("text-red")
-                        .tooltip();
+                .addClass("text-red")
+                .tooltip();
 
                 $("#addEmailRecipient").data("title", "Please add atleast one")
-                        .addClass("border-red")
-                        .tooltip();
+                .addClass("border-red")
+                .tooltip();
             }
 
             var error_count = 0;
@@ -770,20 +767,18 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 var $element = $(element);
                 $element.data("title", v)
-                        .addClass("error")
-                        .tooltip();
+                .addClass("error")
+                .tooltip();
 
                 var $element2 = $(element2);
                 $element2.data("title", v)
-                        .addClass("error_border")
-                        .tooltip();
-
+                .addClass("error_border")
+                .tooltip();
                 //                element.classList.add("error");
                 error_count++;
             });
         }
-
-        $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
+        $(".submit_butt").attr('disabled', false);
         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
         $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
     }
@@ -1066,11 +1061,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         var x = 1; //initlal text box count
         $(add_button).click(function(e) { //on add input button click
             e.preventDefault();
-//            if (x < max_fields) { //max input box allowed
+            //            if (x < max_fields) { //max input box allowed
             x++; //text box increment
             $(wrapper).append('<div style="margin: 3px;"><input type="text" id="recipient_name' + x + '" class="form-control input-sm ignore" name="recipients[]" style="width: 180px;" placeholder="Recipient Name" /><input type="text" id="recipient_email' + x + '" class="form-control input-sm ignore" name="emails[]" style="width: 200px;" placeholder="Email" /><button class="remove_field btn btn-default btn-flat btn-sm">x</a></div>'); //add input box
             emailTxtboxEmpty(wrapper, x);
-//            }
+            //            }
         });
 
         $(wrapper).on("click", ".remove_field", function(e) { //user click on remove text
@@ -1090,13 +1085,51 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             emails_empty = false;
             $("#email_not_set_id").data("title", "")
-                    .removeClass("text-red")
-                    .tooltip("destroy");
+            .removeClass("text-red")
+            .tooltip("destroy");
 
             $("#addEmailRecipient").data("title", "")
-                    .removeClass("border-red")
-                    .tooltip("destroy");
+            .removeClass("border-red")
+            .tooltip("destroy");
         }
+    }
+    
+    $('#ReceivingInventory_supplier_id').select2({
+        placeholder: 'Select a Supplier',
+        allowClear: true,
+        id: function(data){ return data.supplier_id; },
+        ajax: {
+            quietMillis: 5,
+            cache: false,
+            dataType: 'json',
+            type: 'GET',
+            url: '<?php echo Yii::app()->createUrl("library/supplier/select2FilterSupplier"); ?>',
+            data: function (value, page) {
+                return {
+                    page: page,
+                    pageSize: 10,
+                    value: value
+                };
+            },
+            results: function (data, page) {
+                return { results: data.dataItems }; 
+            }
+        },
+        formatResult: FormatResult,
+        formatSelection: FormatSelection,
+        minimumInputLength: 1
+    });
+
+    function FormatResult(item) {
+        var markup = "";
+        if (item.supplier_name !== undefined) {
+            markup += "<option value='" + item.supplier_id + "'>" + item.supplier_name + "</option>";
+        }
+        return markup;
+    }
+
+    function FormatSelection(item) {
+        return item.supplier_name;
     }
 
 </script>

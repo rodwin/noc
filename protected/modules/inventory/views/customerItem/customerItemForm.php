@@ -142,21 +142,21 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <?php echo $form->textFieldGroup($customer_item, 'rra_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php
-                echo $form->select2Group(
-                        $customer_item, 'poi_id', array(
-                    'wrapperHtmlOptions' => array(
-                        'class' => '', 'id' => 'CustomerItem_poi_id',
-                    ),
-                    'widgetOptions' => array(
-                        'data' => $poi_list,
-                        'options' => array(
-                        ),
-                        'htmlOptions' => array('class' => 'ignore span5', 'prompt' => '--')),
-                    'labelOptions' => array('label' => false)));
+//                echo $form->select2Group(
+//                        $customer_item, 'poi_id', array(
+//                    'wrapperHtmlOptions' => array(
+//                        'class' => '', 'id' => 'CustomerItem_poi_id',
+//                    ),
+//                    'widgetOptions' => array(
+//                        'data' => $poi_list,
+//                        'options' => array(
+//                        ),
+//                        'htmlOptions' => array('class' => 'ignore span5', 'prompt' => '--')),
+//                    'labelOptions' => array('label' => false)));
                 ?>
 
                 <?php // echo CHtml::textField('poi_id', '', array('id' => 'CustomerItem_poi_id', 'class' => 'ignore typeahead form-control span5', 'placeholder' => "Outlet")); ?>
-                <?php // echo $form->textFieldGroup($customer_item, 'poi_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'CustomerItem_poi', 'class' => 'ignore span5', 'maxlength' => 50, "style" => "display: none;")), 'labelOptions' => array('label' => false))); ?>
+                <?php echo $form->textFieldGroup($customer_item, 'poi_id', array('widgetOptions' => array('htmlOptions' => array('id' => 'CustomerItem_poi_id', 'class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
                 <div id="CustomerItem_poi_primary_code" class="autofill_text"><center>--</center></div>
                 <div id="CustomerItem_poi_address1" class="autofill_text" style="height: auto;"><center>--</center></div>
@@ -438,7 +438,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             'labelOptions' => array('label' => false)));
                         ?>
 
-                        <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-plus-circle"></i> Add Item', array('name' => 'add_item', 'class' => 'btn btn-primary btn-sm span5', 'id' => 'btn_add_item')); ?>
+                        <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-plus-circle"></i> Add Item', array('name' => 'add_item', 'class' => 'btn btn-primary btn-sm span5 submit_butt', 'id' => 'btn_add_item')); ?>
 
                     </div>
                 </div>
@@ -491,9 +491,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <div class="row no-print">
             <div class="col-xs-12">
-                <button id="btn_print" class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
-                <button id="btn-upload" class="btn btn-primary pull-right"><i class="fa fa-fw fa-upload"></i> Upload DR</button>
-                <button id="btn_save" class="btn btn-success pull-right" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>
+                <button id="btn_print" class="btn btn-default submit_butt" onclick=""><i class="fa fa-print"></i> Print</button>
+                <button id="btn-upload" class="btn btn-primary pull-right submit_butt"><i class="fa fa-fw fa-upload"></i> Upload DR</button>
+                <button id="btn_save" class="btn btn-success pull-right submit_butt" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>
             </div>
         </div>
 
@@ -689,7 +689,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         var data = $("#customer-item-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable()});
 
-        if ($("#btn_save, #btn_add_item, #btn_print").is("[disabled=disabled]")) {
+        if ($(".submit_butt").is("[disabled=disabled]")) {
             return false;
         } else {
             $.ajax({
@@ -698,7 +698,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 data: data,
                 dataType: "json",
                 beforeSend: function(data) {
-                    $("#btn_save, #btn_add_item, #btn_print").attr("disabled", "disabled");
+                    $(".submit_butt").attr("disabled", "disabled");
                     if (form == headers) {
                         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
                     } else if (form == print) {
@@ -710,7 +710,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 },
                 error: function(data) {
                     alert("Error occured: Please try again.");
-                    $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
+                    $(".submit_butt").attr('disabled', false);
                     $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
                     $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
                 }
@@ -795,7 +795,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
             growlAlert(data.type, data.message);
 
-            $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
+            $(".submit_butt").attr('disabled', false);
             $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
             $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
 
@@ -815,7 +815,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             });
         }
 
-        $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
+        $(".submit_butt").attr('disabled', false);
         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
         $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
     }
@@ -995,28 +995,28 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         outlet.initialize();
 
-        $('#CustomerItem_poi_id').typeahead(null, {
-            name: 'outlets',
-            displayKey: 'short_name',
-            source: outlet.ttAdapter(),
-            templates: {
-                suggestion: Handlebars.compile([
-                    '<p class="repo-name">{{short_name}}</p>',
-                    '<p class="repo-description">{{primary_code}}</p>'
-                ].join(''))
-            }
+//        $('#CustomerItem_poi_id').typeahead(null, {
+//            name: 'outlets',
+//            displayKey: 'short_name',
+//            source: outlet.ttAdapter(),
+//            templates: {
+//                suggestion: Handlebars.compile([
+//                    '<p class="repo-name">{{short_name}}</p>',
+//                    '<p class="repo-description">{{primary_code}}</p>'
+//                ].join(''))
+//            }
+//
+//        }).on('typeahead:selected', function(obj, datum) {
+//            $("#CustomerItem_poi").val(datum.poi_id);
+//            $("#CustomerItem_poi_primary_code").html(datum.primary_code);
+//            $("#CustomerItem_poi_address1").html(datum.address1);
+//        });
 
-        }).on('typeahead:selected', function(obj, datum) {
-            $("#CustomerItem_poi").val(datum.poi_id);
-            $("#CustomerItem_poi_primary_code").html(datum.primary_code);
-            $("#CustomerItem_poi_address1").html(datum.address1);
-        });
-
-        jQuery('#CustomerItem_poi_id').on('input', function() {
-            var value = $("#CustomerItem_poi_id").val();
-            $("#CustomerItem_poi").val(value);
-            $("#CustomerItem_poi_primary_code, #CustomerItem_poi_address1").html("");
-        });
+//        jQuery('#CustomerItem_poi_id').on('input', function() {
+//            var value = $("#CustomerItem_poi_id").val();
+//            $("#CustomerItem_poi").val(value);
+//            $("#CustomerItem_poi_primary_code, #CustomerItem_poi_address1").html("");
+//        });
 
         var salesman = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('outlet'),
@@ -1358,7 +1358,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         var data = $("#customer-item-form").serialize() + "&form=" + form + '&' + $.param({"customer_item_detail_ids": customer_item_detail_ids}) + '&' + $.param({"transaction_details": serializeUpdatedTransactionTable()}) + '&' + $.param({"deletedTransactionRowData": deletedTransactionRowData});
 
-        if ($("#btn_save, #btn_add_item, #btn_print").is("[disabled=disabled]")) {
+        if ($(".submit_butt").is("[disabled=disabled]")) {
+
             return false;
         } else {
             $.ajax({
@@ -1367,7 +1368,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 data: data,
                 dataType: "json",
                 beforeSend: function(data) {
-                    $("#btn_save, #btn_add_item, #btn_print").attr("disabled", "disabled");
+                    $(".submit_butt").attr("disabled", "disabled");
+
                     if (form == headers) {
                         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
                     } else if (form == print) {
@@ -1379,7 +1381,9 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 },
                 error: function(data) {
                     alert("Error occured: Please try again.");
-                    $("#btn_save, #btn_add_item, #btn_print").attr('disabled', false);
+
+                    $(".submit_butt").attr('disabled', false);
+
                     $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
                     $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
                 }
@@ -1387,5 +1391,44 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
     }
+
+    $('#CustomerItem_poi_id').select2({
+        placeholder: 'Select a Outlet',
+        allowClear: true,
+        quietMillis: 10,
+        id: function(data){ return data.poi_id; },
+        ajax: {
+            cache: false,
+            dataType: 'json',
+            type: 'GET',
+            url: '<?php echo Yii::app()->createUrl("library/poi/select2FilterPOI"); ?>',
+            data: function (value, page) {
+                return {
+                    page: page,
+                    pageSize: 10,
+                    value: value
+                };
+            },
+            results: function (data, page) {
+                return { results: data.dataItems }; 
+            }
+        },
+        formatResult: FormatResult,
+        formatSelection: FormatSelection,
+        minimumInputLength: 1
+    });
+
+    function FormatResult(item) {
+        var markup = "";
+        if (item.short_name !== undefined) {
+            markup += "<option value='" + item.poi_id + "'>" + item.short_name + "</option>";
+        }
+        return markup;
+    }
+
+    function FormatSelection(item) {
+        return item.short_name;
+    }
+
 
 </script>

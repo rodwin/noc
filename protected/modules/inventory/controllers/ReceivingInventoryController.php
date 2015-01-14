@@ -215,6 +215,7 @@ class ReceivingInventoryController extends Controller {
      */
     public function actionView($id) {
         $model = $this->loadModel($id);
+        $attachment = new Attachment;
 
         $this->pageTitle = "View " . ReceivingInventory::RECEIVING_LABEL . ' Inventory';
         $this->menu = array(
@@ -243,6 +244,7 @@ class ReceivingInventoryController extends Controller {
             'model' => $model,
             'supplier' => $supplier,
             'destination' => $destination,
+            'attachment_model' => $attachment,
         ));
     }
 
@@ -308,7 +310,7 @@ class ReceivingInventoryController extends Controller {
         $c1->condition = 't.company_id = "' . Yii::app()->user->company_id . '" AND salesOffice.distributor_id = ""';
         $c1->with = array('salesOffice');
         $c1->order = "t.zone_name ASC";
-        $warehouse_zone_list = CHtml::listData(Zone::model()->findAll($c1), 'zone_id', 'zone_name');
+        $zone_list = CHtml::listData(Zone::model()->findAll(array("condition" => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
 
         if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
@@ -330,12 +332,10 @@ class ReceivingInventoryController extends Controller {
                     $recipients = isset($_POST['recipients']) ? $_POST['recipients'] : array();
                     $validatedEmails = ReceivingInventory::model()->validateEmails($receiving, $emails);
                     $validatedRecipients = ReceivingInventory::model()->validateRecipients($receiving, $recipients);
-
                     $validatedModel_arr = (array) json_decode($validatedReceiving);
                     $model_errors = json_encode(array_merge($validatedModel_arr, $validatedEmails, $validatedRecipients));
 
                     if ($model_errors != '[]') {
-
                         $data['error'] = $model_errors;
                         $data['message'] = 'Unable to process';
                         $data['success'] = false;
@@ -433,7 +433,7 @@ class ReceivingInventoryController extends Controller {
             'employee' => $employee,
             'sku_status' => $sku_status,
             'attachment' => $attachment,
-            'warehouse_zone_list' => $warehouse_zone_list,
+            'zone_list' => $zone_list,
         ));
     }
 
@@ -1230,12 +1230,23 @@ class ReceivingInventoryController extends Controller {
         $details = array();
 
         $header['supplier_name'] = $header_data->supplier->supplier_name;
-        $header['pr_no'] = $header_data->pr_no != "" ? strtoupper($header_data->pr_no) : "<i>(PR No not set)</i>";
-        $header['po_no'] = $header_data->po_no != "" ? strtoupper($header_data->po_no) : "<i>(Not set)</i>";
-        $header['dr_no'] = strtoupper($header_data->dr_no);
+        $header['pr_no'] = $header_data->pr_no != "" ? "PR " . strtoupper($header_data->pr_no) : "<i>(PR NO not set)</i>";
+        $header['po_no'] = $header_data->po_no != "" ? "PO " . strtoupper($header_data->po_no) : "<i>(Not set)</i>";
+        $header['dr_no'] = "DR " . strtoupper($header_data->dr_no);
         $header['plan_delivery_date'] = $header_data->plan_delivery_date != "" ? strtoupper(date('M d Y', strtotime($header_data->plan_delivery_date))) : "";
         $header['delivery_date'] = $header_data->transaction_date != "" ? strtoupper(date('M d Y', strtotime($header_data->transaction_date))) : "";
         $header['remarks'] = $header_data->delivery_remarks;
+        
+        $user_details = User::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "user_name" => $header_data->created_by));
+        $user = User::model()->userDetailsByID(isset($user_details) ? $user_details->user_id : "", Yii::app()->user->company_id);
+        $header['received_by'] = isset($user) ? $user->first_name." ".$user->last_name : "";
+
+        $c = new CDbCriteria;
+        $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.zone_id = '" . $header_data->zone_id . "'";
+        $c->with = array("salesOffice");
+        $zone = Zone::model()->find($c);
+        
+        $header['sales_office_name'] = isset($zone->salesOffice->sales_office_name) ? $zone->salesOffice->sales_office_name : "";
 
         foreach ($detail_data as $k1 => $v1) {
             $row = array();
@@ -1256,12 +1267,14 @@ class ReceivingInventoryController extends Controller {
                 . '<body>'
                 . ''
                 . '<p>*** This is an automatically generated email, please do not reply  ***</p><br/>'
-                . '<p>Merchandising Materials has been received in reference to ' . $header['pr_no'] . ' from ' . $header['supplier_name'] . '</p><br/>'
+                . '<p>Merchandising Materials has been received in reference to ' . $header['pr_no'] . ' from Supplier: ' . $header['supplier_name'] . '</p><br/>'
                 . '<table style="font-size: 12px;" class="table-condensed">'
                 . '<tr><td style="padding-right: 30px;"><b>PO NO:</b></td><td style="text-align: right;">' . $header['po_no'] . '</td></tr>'
                 . '<tr><td style="padding-right: 30px;"><b>DR NO:</b></td><td style="text-align: right;">' . $header['dr_no'] . '</td></tr>'
                 . '<tr><td style="padding-right: 30px;"><b>PLAN DELIVERY DATE:</b></td><td style="text-align: right;">' . $header['plan_delivery_date'] . '</td></tr>'
                 . '<tr><td style="padding-right: 30px;"><b>DELIVERY DATE:</b></td><td style="text-align: right;">' . $header['delivery_date'] . '</td></tr>'
+                . '<tr><td style="padding-right: 30px;"><b>RECEIVED BY:</b></td><td style="text-align: right;">' . $header['received_by'] . '</td></tr>'
+                . '<tr><td style="padding-right: 30px;"><b>SALESOFFICE NAME:</b></td><td style="text-align: right;">' . $header['sales_office_name'] . '</td></tr>'
                 . '<tr><td style="padding-right: 30px;"><b>REMARKS:</b></td><td style="text-align: right;">' . $header['remarks'] . '</td></tr>'
                 . '</table><br/>'
                 . ''
