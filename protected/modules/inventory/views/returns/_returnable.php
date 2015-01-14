@@ -57,16 +57,18 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
                 <div class="pull-right col-md-7">
                     <?php
-                    $this->widget(
-                            'booster.widgets.TbSelect2', array(
-                        'name' => $returnable_label . 'selected_outlet',
-                        'data' => $poi_list,
-                        'htmlOptions' => array(
-                            'class' => 'span5 ' . $returnable_label . 'return_from_select',
-                            'prompt' => '--'
-                        ),
-                    ));
+//                    $this->widget(
+//                            'booster.widgets.TbSelect2', array(
+//                        'name' => $returnable_label . 'selected_outlet',
+//                        'data' => $poi_list,
+//                        'htmlOptions' => array(
+//                            'class' => 'span5 ' . $returnable_label . 'return_from_select',
+//                            'prompt' => '--'
+//                        ),
+//                    ));
                     ?>
+
+                    <?php echo CHtml::textField($returnable_label . 'selected_outlet', '', array('class' => 'form-control span5 ' . $returnable_label . 'return_from_select', "placeholder" => "Select Outlet")); ?> 
 
                     <div id="<?php echo $returnable_label; ?>poi_primary_code" class="<?php echo $returnable_label; ?>autofill_text span5"><?php echo $not_set; ?></div>
                     <div id="<?php echo $returnable_label; ?>poi_address1" class="<?php echo $returnable_label; ?>autofill_text span5" style="height: auto;"><?php echo $not_set; ?></div>
@@ -348,7 +350,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 } else if (source_from == <?php echo "'" . $source_arr[1]['value'] . "'"; ?>) {
                     loadSalesmanDetailByID(data.id, returnable_label);
                 } else if (source_from == <?php echo "'" . $source_arr[2]['value'] . "'"; ?>) {
-                    loadPOIDetailsByID(data.id, returnable_label);
+                    loadSelect2POIDetailsByID(data.id, returnable_label);
                 }
 
                 if (data.transaction_details.length > 0) {
@@ -471,7 +473,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 if (data.transaction_details.length > 0) {
 
                     $.each(data.transaction_details, function(i, v) {
-                        
+
                         total_amount = (parseFloat(total_amount) + parseFloat(v.amount));
 
                         var addedRow = transaction_table.fnAddData([
@@ -557,7 +559,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                     });
 
                 }
-                
+
                 $("#Returnable_total_amount").val(parseFloat(total_amount).toFixed(2));
 
             },
@@ -609,7 +611,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     });
 
     $('#' + returnable_label + 'selected_outlet').change(function() {
-        loadPOIDetailsByID(this.value, returnable_label);
+        loadSelect2POIDetailsByID(this.value, returnable_label);
     });
 
     function send(form, dr_no, sku_id) {
@@ -677,7 +679,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             $("#btn_save, #btn_print").attr('disabled', false);
             $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
             $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
-
+            
             $.each(JSON.parse(data.error), function(i, v) {
                 var element = document.getElementById(i);
                 var element2 = document.getElementById("s2id_" + i);
@@ -725,5 +727,48 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'});
     });
+
+    $(function() {
+
+        $("#" + <?php echo "'" . $returnable_label . "'"; ?> + "selected_outlet").select2({
+            placeholder: 'Select a Outlet',
+            allowClear: true,
+            id: function(data) {
+                return data.poi_id;
+            },
+            ajax: {
+                quietMillis: 10,
+                cache: false,
+                dataType: 'json',
+                type: 'GET',
+                url: '<?php echo Yii::app()->createUrl("library/poi/select2FilterPOI"); ?>',
+                data: function(value, page) {
+                    return {
+                        page: page,
+                        pageSize: 10,
+                        value: value
+                    };
+                },
+                results: function(data, page) {
+                    return {results: data.dataItems};
+                }
+            },
+            formatResult: FormatPOIResult,
+            formatSelection: FormatPOISelection,
+            minimumInputLength: 1
+        });
+    });
+
+    function FormatPOIResult(item) {
+        var markup = "";
+        if (item.short_name !== undefined) {
+            markup += "<option value='" + item.poi_id + "'>" + item.short_name + "</option>";
+        }
+        return markup;
+    }
+
+    function FormatPOISelection(item) {
+        return item.short_name;
+    }
 
 </script>
