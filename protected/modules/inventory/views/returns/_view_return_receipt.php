@@ -85,11 +85,11 @@ $this->breadcrumbs = array(
             </tr>
             <tr>
                 <td><strong><?php echo $returnableDetailFields['pr_no']; ?>:</strong></td>
-                <td><?php echo $nos['pr_no']; ?></td>
+                <td><?php echo $nos['pr_no'] != "" ? $nos['pr_no'] : $not_set; ?></td>
             </tr>
             <tr>
                 <td><strong><?php echo $returnableDetailFields['po_no']; ?>:</strong></td>
-                <td><?php echo $nos['po_no']; ?></td>
+                <td><?php echo $nos['po_no'] != "" ? $nos['po_no'] : $not_set; ?></td>
             </tr>
         </table>
 

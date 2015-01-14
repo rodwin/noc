@@ -793,13 +793,15 @@ class ReturnsController extends Controller {
             $row['destination_zone_id'] = $value->destination_zone_id;
             $row['remarks'] = $value->remarks;
             $row['total_amount'] = "&#x20B1;" . number_format($value->total_amount, 2, '.', ',');
-            ;
             $row['created_date'] = $value->created_date;
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
             $row['updated_by'] = $value->updated_by;
-            $row['source_name'] = "";
-            $row['destination_zone_name'] = "";
+            
+            $source = Returnable::model()->getReturnFormDetails(Yii::app()->user->company_id, $value->receive_return_from, $value->receive_return_from_id);
+            
+            $row['source_name'] = $source['source_name'];
+            $row['destination_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : "";
 
             $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/Returns/returnableView', array('id' => $value->returnable_id)) . '">
                                 <i class="glyphicon glyphicon-eye-open"></i>
@@ -975,8 +977,11 @@ class ReturnsController extends Controller {
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
             $row['updated_by'] = $value->updated_by;
-            $row['source_name'] = "";
-            $row['destination_zone_name'] = "";
+            
+            $source = Returnable::model()->getReturnFormDetails(Yii::app()->user->company_id, $value->receive_return_from, $value->receive_return_from_id);
+            
+            $row['source_name'] = $source['source_name'];
+            $row['destination_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : "";
 
             $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/Returns/returnReceiptView', array('id' => $value->return_receipt_id)) . '">
                                 <i class="glyphicon glyphicon-eye-open"></i>
@@ -1100,11 +1105,9 @@ class ReturnsController extends Controller {
             }
         }
 
-        $not_set = "<i class='text-muted'>Not Set</i>";
-
         $nos = array();
-        $nos['pr_no'] = $pr_nos != "" ? substr($pr_nos, 0, -1) : $not_set;
-        $nos['po_no'] = $po_nos != "" ? substr($po_nos, 0, -1) : $not_set;
+        $nos['pr_no'] = substr($pr_nos, 0, -1);
+        $nos['po_no'] = substr($po_nos, 0, -1);
 
         $source = Returnable::model()->getReturnFormDetails(Yii::app()->user->company_id, $model->receive_return_from, $model->receive_return_from_id);
 
@@ -1201,11 +1204,9 @@ class ReturnsController extends Controller {
             }
         }
 
-        $not_set = "<i class='text-muted'>Not Set</i>";
-
         $nos = array();
-        $nos['pr_no'] = $pr_nos != "" ? substr($pr_nos, 0, -1) : $not_set;
-        $nos['po_no'] = $po_nos != "" ? substr($po_nos, 0, -1) : $not_set;
+        $nos['pr_no'] = substr($pr_nos, 0, -1);
+        $nos['po_no'] = substr($po_nos, 0, -1);
 
         $source = Returnable::model()->getReturnFormDetails(Yii::app()->user->company_id, $model->receive_return_from, $model->receive_return_from_id);
 

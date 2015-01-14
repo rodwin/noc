@@ -413,11 +413,11 @@ class Returnable extends CActiveRecord {
             $c1->condition = "t.company_id = '" . $company_id . "' AND t.sales_office_id = '" . $receive_return_from_id . "'";
             $sales_office = Salesoffice::model()->find($c1);
 
-            $data['source_name'] = $sales_office->sales_office_name;
-            $data['source_code'] = $sales_office->sales_office_code;
+            $data['source_name'] = isset($sales_office->sales_office_name) ? $sales_office->sales_office_name : "";
+            $data['source_code'] = isset($sales_office->sales_office_code) ? $sales_office->sales_office_code : "";
             $data['contact_person'] = "";
             $data['contact_no'] = "";
-            $data['address'] = $sales_office->address1;
+            $data['address'] = isset($sales_office->address1) ? $sales_office->address1 : "";
         } else if ($receive_return_from == $source_arr[1]['value']) {
 
             $c2 = new CDbCriteria;
@@ -425,11 +425,11 @@ class Returnable extends CActiveRecord {
             $c2->condition = "t.company_id = '" . $company_id . "' AND t.employee_id = '" . $receive_return_from_id . "'";
             $employee = Employee::model()->find($c2);
 
-            $data['source_name'] = $employee->fullname;
-            $data['source_code'] = $employee->employee_code;
+            $data['source_name'] = isset($employee->fullname) ? $employee->fullname : "";
+            $data['source_code'] = isset($employee->employee_code) ? $employee->employee_code : "";
             $data['contact_person'] = "";
-            $data['contact_no'] = $employee->work_phone_number;
-            $data['address'] = $employee->address1;
+            $data['contact_no'] = isset($employee->work_phone_number) ? $employee->work_phone_number : "";
+            $data['address'] = isset($employee->address1) ? $employee->address1 : "";
         } else if ($receive_return_from == $source_arr[2]['value']) {
 
             $c3 = new CDbCriteria;
@@ -441,11 +441,11 @@ class Returnable extends CActiveRecord {
             $c3->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
             $poi = Poi::model()->find($c3);
 
-            $data['source_name'] = $poi->short_name;
-            $data['source_code'] = $poi->primary_code;
+            $data['source_name'] = isset($poi->short_name) ? $poi->short_name: "";
+            $data['source_code'] = isset($poi->primary_code) ? $poi->primary_code : "";
             $data['contact_person'] = "";
             $data['contact_no'] = "";
-            $data['address'] = $poi->address1;
+            $data['address'] = isset($poi->address1) ? $poi->address1 : "";
         }
 
         return $data;
