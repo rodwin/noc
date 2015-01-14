@@ -118,7 +118,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             'onsubmit' => "return false;",
             'onkeypress' => " if(event.keyCode == 13) {} "
         ),
-    ));
+            ));
     ?>
 
     <div class="box-body clearfix">
@@ -531,7 +531,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 'fail' => new CJavaScriptExpression(
                         'function(e, data) { console.log("fail"); }'
                 ),
-        )));
+                )));
         ?>
     </div>
 
@@ -727,8 +727,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             var $element = $(e[i]);
 
             $element.data("title", "")
-                    .removeClass("error")
-                    .tooltip("destroy");
+            .removeClass("error")
+            .tooltip("destroy");
         }
 
         if (data.success === true) {
@@ -805,13 +805,13 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 var $element = $(element);
                 $element.data("title", v)
-                        .addClass("error")
-                        .tooltip();
+                .addClass("error")
+                .tooltip();
 
                 var $element2 = $(element2);
                 $element2.data("title", v)
-                        .addClass("error_border")
-                        .tooltip();
+                .addClass("error_border")
+                .tooltip();
             });
         }
 
@@ -995,28 +995,28 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         outlet.initialize();
 
-//        $('#CustomerItem_poi_id').typeahead(null, {
-//            name: 'outlets',
-//            displayKey: 'short_name',
-//            source: outlet.ttAdapter(),
-//            templates: {
-//                suggestion: Handlebars.compile([
-//                    '<p class="repo-name">{{short_name}}</p>',
-//                    '<p class="repo-description">{{primary_code}}</p>'
-//                ].join(''))
-//            }
-//
-//        }).on('typeahead:selected', function(obj, datum) {
-//            $("#CustomerItem_poi").val(datum.poi_id);
-//            $("#CustomerItem_poi_primary_code").html(datum.primary_code);
-//            $("#CustomerItem_poi_address1").html(datum.address1);
-//        });
+        //        $('#CustomerItem_poi_id').typeahead(null, {
+        //            name: 'outlets',
+        //            displayKey: 'short_name',
+        //            source: outlet.ttAdapter(),
+        //            templates: {
+        //                suggestion: Handlebars.compile([
+        //                    '<p class="repo-name">{{short_name}}</p>',
+        //                    '<p class="repo-description">{{primary_code}}</p>'
+        //                ].join(''))
+        //            }
+        //
+        //        }).on('typeahead:selected', function(obj, datum) {
+        //            $("#CustomerItem_poi").val(datum.poi_id);
+        //            $("#CustomerItem_poi_primary_code").html(datum.primary_code);
+        //            $("#CustomerItem_poi_address1").html(datum.address1);
+        //        });
 
-//        jQuery('#CustomerItem_poi_id').on('input', function() {
-//            var value = $("#CustomerItem_poi_id").val();
-//            $("#CustomerItem_poi").val(value);
-//            $("#CustomerItem_poi_primary_code, #CustomerItem_poi_address1").html("");
-//        });
+        //        jQuery('#CustomerItem_poi_id').on('input', function() {
+        //            var value = $("#CustomerItem_poi_id").val();
+        //            $("#CustomerItem_poi").val(value);
+        //            $("#CustomerItem_poi_primary_code, #CustomerItem_poi_address1").html("");
+        //        });
 
         var salesman = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('outlet'),
@@ -1180,6 +1180,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             url: '<?php echo Yii::app()->createUrl('/library/poi/getPOIDetails'); ?>' + '&poi_id=' + poi_id,
             dataType: "json",
             success: function(data) {
+                $("#CustomerItem_poi_id").select2('data', {poi_id: data.poi_id, short_name: data.short_name});                 
                 $("#CustomerItem_poi_primary_code").html(data.primary_code);
                 $("#CustomerItem_poi_address1").html(data.address1);
             },
@@ -1390,35 +1391,37 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             });
         }
 
-    }
-
-    $('#CustomerItem_poi_id').select2({
-        placeholder: 'Select a Outlet',
-        allowClear: true,
-        quietMillis: 10,
-        id: function(data){ return data.poi_id; },
-        ajax: {
-            cache: false,
-            dataType: 'json',
-            type: 'GET',
-            url: '<?php echo Yii::app()->createUrl("library/poi/select2FilterPOI"); ?>',
-            data: function (value, page) {
-                return {
-                    page: page,
-                    pageSize: 10,
-                    value: value
-                };
+    }    
+    $(function() {
+        
+        $('#CustomerItem_poi_id').select2({
+            placeholder: 'Select a Outlet',
+            allowClear: true,
+            id: function(data){ return data.poi_id; },
+            ajax: {
+                quietMillis: 10,
+                cache: false,
+                dataType: 'json',
+                type: 'GET',
+                url: '<?php echo Yii::app()->createUrl("library/poi/select2FilterPOI"); ?>',
+                data: function (value, page) {
+                    return {
+                        page: page,
+                        pageSize: 10,
+                        value: value
+                    };
+                },
+                results: function (data, page) {
+                    return { results: data.dataItems }; 
+                }
             },
-            results: function (data, page) {
-                return { results: data.dataItems }; 
-            }
-        },
-        formatResult: FormatResult,
-        formatSelection: FormatSelection,
-        minimumInputLength: 1
+            formatResult: FormatPOIResult,
+            formatSelection: FormatPOISelection,
+            minimumInputLength: 1
+        });
     });
 
-    function FormatResult(item) {
+    function FormatPOIResult(item) {
         var markup = "";
         if (item.short_name !== undefined) {
             markup += "<option value='" + item.poi_id + "'>" + item.short_name + "</option>";
@@ -1426,7 +1429,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         return markup;
     }
 
-    function FormatSelection(item) {
+    function FormatPOISelection(item) {
         return item.short_name;
     }
 

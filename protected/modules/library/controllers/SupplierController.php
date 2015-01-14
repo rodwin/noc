@@ -359,5 +359,41 @@ class SupplierController extends Controller {
         echo json_encode($return);
         Yii::app()->end();
     }
+    public function actionSelect2FilterSupplier($value, $pageSize) {
+
+        $c = new CDbCriteria();
+        if ($value != "") {
+//            $c->addSearchCondition('t.supplier_code', $value, true, 'OR');
+            $c->addSearchCondition('t.supplier_name', $value, true, 'OR');
+        }
+        $c->limit = $pageSize;
+        $c->order = "supplier_name";
+        $c->compare('t.company_id', Yii::app()->user->company_id);
+        $supplier = Supplier::model()->findAll($c);
+
+        $return = array();
+        if (count($supplier) > 0) {
+            foreach ($supplier as $key => $val) {
+                $row = array();
+
+                $row['supplier_id'] = $val->supplier_id;
+                $row['supplier_code'] = $val->supplier_code;
+                $row['supplier_name'] = $val->supplier_name;
+
+                $return["dataItems"][] = $row;
+            }
+        } else {
+            $row = array();
+            $row['supplier_id'] = "";
+            $row['supplier_code'] = "";
+            $row['supplier_name'] = "--";
+
+            $return["dataItems"][] = $row;
+        }
+
+        echo json_encode($return);
+        Yii::app()->end();
+    }
 
 }
+

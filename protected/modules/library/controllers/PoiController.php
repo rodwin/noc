@@ -698,4 +698,38 @@ class PoiController extends Controller {
         echo json_encode($return);
     }
 
+    public function actionSelect2FilterPOI($value, $pageSize) {
+
+        $c = new CDbCriteria();
+        if ($value != "") {
+            $c->addSearchCondition('t.short_name', $value, true, 'OR');
+//            $c->addSearchCondition('t.primary_code', $value, true, 'OR');
+        }
+        $c->compare('t.company_id', Yii::app()->user->company_id);
+        $c->limit = $pageSize;
+        $poi = Poi::model()->findAll($c);
+
+        $return = array();
+        if (count($poi) > 0) {
+            foreach ($poi as $key => $val) {
+                $row = array();
+
+                $row['poi_id'] = $val->poi_id;
+                $row['short_name'] = $val->short_name;
+                $row['primary_code'] = $val->primary_code;
+
+                $return["dataItems"][] = $row;
+            }
+        } else {
+            $row = array();
+            $row['poi_id'] = "";
+            $row['short_name'] = "--";
+
+            $return["dataItems"][] = $row;
+        }
+
+
+        echo json_encode($return);
+        Yii::app()->end();
+    }
 }
