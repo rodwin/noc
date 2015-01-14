@@ -26,7 +26,7 @@ class InventoryController extends Controller {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
                 'actions' => array('index', 'view', 'trans', 'test', 'increase', 'history', 'decrease', 'convert', 'move', 'updateStatus', 'apply', 'loadTotalInventoryPerMonth',
-                    'loadTotalInventoryPerMonthByBrandCategoryID', 'loadNotifications', 'loadAllTransactionInv', 'generateTemplate', 'uploadDetails'),
+                    'loadTotalInventoryPerMonthByBrandCategoryID', 'loadNotifications', 'loadAllTransactionInv', 'generateTemplate', 'uploadDetails', 'loadAllReturns'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -894,7 +894,7 @@ class InventoryController extends Controller {
                 if (!in_array($outbound_details->pr_no, $outbound_pr_nos_arr)) {
                     array_push($outbound_pr_nos_arr, $outbound_details->pr_no);
                     $outbound_pr_nos .= $outbound_details->pr_no . ", ";
-                } 
+                }
             }
 
             if (!in_array($outbound_details->source_zone_id, $outbound_source_zones_arr)) {
@@ -1076,6 +1076,52 @@ class InventoryController extends Controller {
         $uploads = BatchUploadDetail::model()->findAllByAttributes(array('batch_upload_id' => $id, 'company_id' => Yii::app()->user->company_id));
 
         $this->render('upload_details', array('model' => $model, 'uploads' => $uploads));
+    }
+
+    public function actionLoadAllReturns() {
+
+        $c1 = new CDbCriteria;
+        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND t.sku_id NOT IN (SELECT sku_id FROM returnable_detail) AND t.return_date <= CURDATE()";
+        $c1->with = array('incomingInventory', 'sku');
+        $incoming = IncomingInventoryDetail::model()->findAll($c1);
+
+        $incoming_arr = array();
+        $incoming_pr_nos = "";
+        $incoming_pr_nos_arr = array();
+        if (count($incoming) > 0) {
+            foreach ($incoming as $k1 => $v1) {
+                $row = array();
+
+                if (trim($v1->pr_no) != "") {
+                    if (!in_array($v1->pr_no, $incoming_pr_nos_arr)) {
+                        array_push($incoming_pr_nos_arr, $v1->pr_no);
+                        $incoming_pr_nos .= $v1->pr_no . ", ";
+                    }
+                }
+                
+                $status = Returnable::model()->checkReturnDateStatus($v1->return_date);
+
+                $row['transaction_date'] = date("d-M", strtotime($v1->incomingInventory->transaction_date));
+                $row['transaction_type'] = "RETURN";
+                $row['pr_no'] = $incoming_pr_nos != "" ? substr(trim($incoming_pr_nos), 0, -1) : "";;
+                $row['dr_no'] = $v1->incomingInventory->dr_no;
+                $row['sku_description'] = $v1->sku->description;
+                $row['return_date'] = $v1->return_date;
+                $row['qty'] = $v1->quantity_received;
+                $row['amount'] = $v1->amount;
+                $row['status'] = $status;
+                $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/returns/createReturnable', array('dr_no' => $v1->incomingInventory->dr_no, 'sku_id' => $v1->sku_id)) . '">
+                                    <i class="glyphicon glyphicon-eye-open"></i>
+                                </a>';
+
+                $incoming_arr[] = $row;
+            }
+        }
+
+        $output = array_merge($incoming_arr);
+
+        echo json_encode($output);
+        Yii::app()->end();
     }
 
 }

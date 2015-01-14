@@ -32,13 +32,17 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     #transaction_table2 td + td { text-align: left; }
 </style>
 
-<?php $not_set = "'<center>--</center>'"; ?>
+<?php 
+$not_set = "'<center>--</center>'"; 
+$hide_notReturnable = $isReturnable === true ? "display: none;" : "";
+$hide_Returnable = $isReturnable === false ? "display: none;" : "";
+?>
 
 <div class="nav-tabs-custom" id ="custTabs">
     <ul class="nav nav-tabs">
-        <li class="active"><a href="#tab_1" data-toggle="tab" class="returns_tab_cls"><?php echo Returns::RETURNABLE; ?></a></li>
-        <li><a href="#tab_2" data-toggle="tab" class="returns_tab_cls"><?php echo Returns::RETURN_RECEIPT; ?></a></li>
-        <li><a href="#tab_3" data-toggle="tab" class="returns_tab_cls"><?php echo Returns::RETURN_MDSE; ?></a></li>
+        <li class="active"><a href="#tab_1" data-toggle="tab" class="returns_tab_cls"  style=''><?php echo Returnable::RETURNABLE; ?></a></li>
+        <li><a href="#tab_2" data-toggle="tab" class="returns_tab_cls" style='<?php echo $hide_notReturnable; ?>'><?php echo Returnable::RETURN_RECEIPT; ?></a></li>
+        <li><a href="#tab_3" data-toggle="tab" class="returns_tab_cls" style='<?php echo $hide_notReturnable; ?>'><?php echo Returnable::RETURN_MDSE; ?></a></li>
     </ul>
     <div class="tab-content" id ="info">
         <div class="tab-pane active" id="tab_1">
@@ -51,6 +55,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 'salesoffice_list' => $salesoffice_list,
                 'employee' => $employee,
                 'not_set' => $not_set,
+                'isReturnable' => $isReturnable,
+                'sku_id' => $sku_id
             ));
             ?>
         </div>
@@ -68,6 +74,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 'return_receipt_detail' => $return_receipt_detail,
                 'uom' => $uom,
                 'sku_status' => $sku_status,
+                'isReturnable' => $isReturnable
             ));
             ?>
         </div>
@@ -79,12 +86,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 </div>
 
 <script type="text/javascript">
-
-    var returns_tabs = document.getElementsByClassName('returns_tab_cls');
-
-    returns_tabs.addEventListener('click', function(e) {
-        console.log(e);
-    });
 
     function onlyNumbers(txt, event, point) {
 

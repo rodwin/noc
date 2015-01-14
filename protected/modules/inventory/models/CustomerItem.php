@@ -350,18 +350,18 @@ class CustomerItem extends CActiveRecord {
                         $customer_item_details[] = $customer_item_detail;
                     }
 
-                    ProofOfDelivery::model()->customerData($customer_item, $customer_item_details);
+                    $pod = ProofOfDelivery::model()->customerData($customer_item, $customer_item_details);
 
                     $data['success'] = true;
                     $data['header_data'] = $customer_item;
                     $data['detail_data'] = $customer_item_details;
+                    $data['pod_data'] = $pod;
                 }
             }
         } catch (Exception $exc) {
             Yii::log($exc->getTraceAsString(), 'error');
-            return false;
         }
-
+        
         return $data;
     }
 
@@ -404,6 +404,7 @@ class CustomerItem extends CActiveRecord {
 
                     $customer_item_details = array();
                     $update = true;
+                    $pod_arr = array();
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         if (trim($transaction_details[$i]['customer_item_detail_id']) != "") {
 
@@ -415,7 +416,13 @@ class CustomerItem extends CActiveRecord {
                             $customer_item_detail = CustomerItemDetail::model()->createCustomerItemTransactionDetails($customer_item->customer_item_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->updated_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], date("Y-m-d", strtotime($customer_item->updated_date)));
                             $pod = ProofOfDelivery::model()->findByAttributes(array("company_id" => $customer_item->company_id, "customer_item_id" => $customer_item->customer_item_id));
 
-                            ProofOfDeliveryDetail::model()->createPODTransactionDetails($pod->pod_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->updated_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], date("Y-m-d", strtotime($customer_item->updated_date)), $customer_item_detail->customer_item_detail_id);
+                            $pod_details = array();
+                            $pod_detail = ProofOfDeliveryDetail::model()->createPODTransactionDetails($pod->pod_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->updated_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], date("Y-m-d", strtotime($customer_item->updated_date)), $customer_item_detail->customer_item_detail_id);
+                        
+                            $pod_details[] = $pod_detail;
+                            
+                            $pod_arr['pod_header_data'] = $pod;
+                            $pod_arr['pod_detail_data'] = $pod_details;
                         }
 
                         $customer_item_details[] = $customer_item_detail;
@@ -425,9 +432,11 @@ class CustomerItem extends CActiveRecord {
 
                         $pod_exists = ProofOfDelivery::model()->updateCustomerData($customer_item, $customer_item_detail_ids_to_be_delete, $customer_item_details);
 
+                        $pod_arr = $pod_exists;
+                        
                         if ($pod_exists === false) {
 
-                            ProofOfDelivery::model()->customerData($customer_item, $customer_item_details);
+                            $pod_arr = ProofOfDelivery::model()->customerData($customer_item, $customer_item_details);
                         }
                     } else {
                         
@@ -453,12 +462,13 @@ class CustomerItem extends CActiveRecord {
                     $data['success'] = true;
                     $data['header_data'] = $customer_item;
                     $data['detail_data'] = $customer_item_details;
+                    $data['pod_data'] = $pod_arr;
                 }
             }
         } catch (Exception $exc) {
             Yii::log($exc->getTraceAsString(), 'error');
         }
-
+        
         return $data;
     }
 

@@ -11,7 +11,7 @@ $this->breadcrumbs = array(
 
 <style type="text/css">
 
-    #returns_table tbody tr { cursor: pointer }
+    #returnable_table tbody tr { cursor: pointer }
 
     .hide_row { display: none; }
 
@@ -19,70 +19,31 @@ $this->breadcrumbs = array(
 
 </style>  
 
-<?php $fields = Returns::model()->attributeLabels(); ?>
-<div class="box-body table-responsive">
-    <table id="returns_table" class="table table-bordered">
-        <thead>
-            <tr>
-                <th><?php echo $fields['return_type']; ?></th>
-                <th>RR No./RM No.</th>
-                <th><?php echo $fields['transaction_date']; ?></th>
-                <th><?php echo $fields['receive_return_from']; ?></th>
-                <th><?php echo $fields['receive_return_from_id']; ?></th>
-                <th><?php echo $fields['return_to']; ?></th>
-                <th>Destination Zone/Supplier</th>
-                <th><?php echo $fields['total_amount']; ?></th>
-                <th><?php echo $fields['remarks']; ?></th>
-                <th>Actions</th>
-            </tr>
-        </thead>   
-        <thead>
-            <tr id="filter_row">
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter" id="hide_textbox"></td>  
-            </tr>
-        </thead>   
-    </table>
-</div><br/><br/><br/>
-
-<div class="nav-tabs-custom" id ="custTabs">
+<div class="nav-tabs-custom" id ="returns_tabs">
     <ul class="nav nav-tabs">
-        <li class="active"><a href="#tab_1" data-toggle="tab">Item Details Table</a></li>
-        <li><a href="#tab_2" data-toggle="tab">Documents</a></li>
-        <span id="lower_table_loader" class="pull-right margin"></span>
+        <li class="active"><a href="#returns_tab_1" data-toggle="tab"><?php echo Returnable::RETURNABLE; ?></a></li>
+        <li><a href="#returns_tab_2" data-toggle="tab"><?php echo Returnable::RETURN_RECEIPT; ?></a></li>
+        <li><a href="#returns_tab_3" data-toggle="tab"><?php echo Returnable::RETURN_MDSE; ?></a></li>
     </ul>
-    <div class="tab-content" id ="info">
-        <div class="tab-pane active" id="tab_1">
-            <div id="ajax_loader_details"></div>
-            <?php $skuFields = Sku::model()->attributeLabels(); ?>
-            <?php $returnsDetail = ReturnsDetail::model()->attributeLabels(); ?>
-            <div id="incoming_details" class="box-body table-responsive">
-                <table id="returns-details_table" class="table table-bordered">
+    <div class="tab-content" id="info">
+        <div class="tab-pane active" id="returns_tab_1">
+
+            <?php $returnableFields = Returnable::model()->attributeLabels(); ?>
+            <div class="box-body table-responsive">
+                <table id="returnable_table" class="table table-bordered">
                     <thead>
                         <tr>
-                            <th><?php echo $skuFields['sku_code']; ?></th>
-                            <th><?php echo $skuFields['description']; ?></th>
-                            <th><?php echo $skuFields['brand_id']; ?></th>
-                            <th><?php echo $skuFields['type']; ?></th>
-                            <th><?php echo $skuFields['sub_type']; ?></th>
-                            <th><?php echo $returnsDetail['returned_quantity']; ?></th>
-                            <th><?php echo $returnsDetail['amount']; ?></th>
-                            <th><?php echo $returnsDetail['remarks']; ?></th>
-                            <th>Actions</th>
+                            <th><?php echo $returnableFields['return_receipt_no']; ?></th>
+                            <th><?php echo $returnableFields['transaction_date']; ?></th>
+                            <th><?php echo "Source"; ?></th>
+                            <th><?php echo "Destination Zone"; ?></th>
+                            <th><?php echo $returnableFields['total_amount']; ?></th>
+                            <th><?php echo $returnableFields['remarks']; ?></th>
+                            <th>Actions</th>                
                         </tr>
-                    </thead>
+                    </thead> 
                     <thead>
                         <tr id="filter_row">
-                            <td class="filter"></td>
-                            <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
@@ -93,65 +54,129 @@ $this->breadcrumbs = array(
                         </tr>
                     </thead>
                 </table>
-            </div>
-        </div>
-        <div class="tab-pane" id="tab_2">
+            </div><br/><br/><br/>
 
+            <div class="nav-tabs-custom" id="returnable">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#returnable_tab_1" data-toggle="tab">Item Details Table</a></li>
+                    <li><a href="#returnable_tab_2" data-toggle="tab">Documents</a></li>
+        <span id="returnable_lower_table_loader" class="pull-right margin"></span>
+                </ul>
+                <div class="tab-content" id ="info">
+                    <div class="tab-pane active" id="returnable_tab_1">
+                        <?php $skuFields = Sku::model()->attributeLabels(); ?>
+                        <?php $returnableDetailFields = ReturnableDetail::model()->attributeLabels(); ?>
+                        <div id="returnable_details" class="box-body table-responsive">
+                            <table id="returnable_details_table" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th><?php echo $skuFields['sku_code']; ?></th>
+                                        <th><?php echo $skuFields['description']; ?></th>
+                                        <th><?php echo $skuFields['brand_id']; ?></th>
+                                        <th><?php echo $skuFields['type']; ?></th>
+                                        <th><?php echo $skuFields['sub_type']; ?></th>
+                                        <th><?php echo $returnableDetailFields['returned_quantity']; ?></th>
+                                        <th><?php echo $returnableDetailFields['amount']; ?></th>
+                                        <th><?php echo $returnableDetailFields['remarks']; ?></th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <thead>
+                                    <tr id="filter_row">
+                                        <td class="filter"></td>
+                                        <td class="filter"></td>
+                                        <td class="filter"></td>
+                                        <td class="filter"></td>
+                                        <td class="filter"></td>
+                                        <td class="filter"></td>
+                                        <td class="filter"></td>
+                                        <td class="filter"></td>
+                                        <td class="filter" id="hide_textbox"></td>  
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="returnable_tab_2">
+                        <?php $attachment = Attachment::model()->attributeLabels(); ?>
+            <div id="returnable_attachments" class="box-body table-responsive">
+                <table id="returnable_attachments_table" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th width="90%"><?php echo 'Attachments' ?></th>
+                            <th><?php echo 'Actions' ?></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="tab-pane" id="returns_tab_2">
+            receipt
+        </div>
+        <div class="tab-pane" id="returns_tab_3">
+            msde
         </div>
     </div>
 </div>
 
+
 <script type="text/javascript">
 
-    var returns_table;
-    var returns_detail_table;
-    var selected_returns_id;
+    var returnable_table;
+    var returnable_detail_table;
+    var returnable_attachment_table;
+    var selected_returnable_id;
     $(function() {
-        returns_table = $('#returns_table').dataTable({
+        returnable_table = $('#returnable_table').dataTable({
             "filter": true,
             "dom": 'l<"text-center"r>t<"pull-left"i><"pull-right"p>',
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
-            "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Returns/data'); ?>",
+//            "order": [[7, "asc"]],
+            "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Returns/returnableData'); ?>",
             "columns": [
-                {"name": "return_type", "data": "return_type"},
                 {"name": "return_receipt_no", "data": "return_receipt_no"},
                 {"name": "transaction_date", "data": "transaction_date"},
-                {"name": "receive_return_from", "data": "receive_return_from"},
-                {"name": "receive_return_from_name", "data": "receive_return_from_name"},
-                {"name": "return_to", "data": "return_to"},
-                {"name": "return_to_name", "data": "return_to_name"},
+                {"name": "source_name", "data": "source_name"},
+                {"name": "destination_zone_name", "data": "destination_zone_name"},
                 {"name": "total_amount", "data": "total_amount"},
                 {"name": "remarks", "data": "remarks"},
                 {"name": "links", "data": "links", 'sortable': false}
             ]
         });
 
+        $('#returnable_table tbody').on('click', 'tr', function() {
+            if ($(this).hasClass('success')) {
+                $(this).removeClass('success');
+                loadReturnableDetails(null);
+                loadAttachmentPreview(null);
+                loadAttachmentPreview(returnable_attachment_table, null, $("#returnable_lower_table_loader"));
+            }
+            else {
+                returnable_table.$('tr.success').removeClass('success');
+                $(this).addClass('success');
+                var row_data = returnable_table.fnGetData(this);
+                loadReturnableDetails(row_data.returnable_id);
+                loadAttachmentPreview(returnable_attachment_table, row_data.returnable_id, $("#returnable_lower_table_loader"));
+            }
+        });
+
         var i = 0;
-        $('#returns_table thead tr#filter_row td.filter').each(function() {
+        $('#returnable_table thead tr#filter_row td.filter').each(function() {
             $(this).html('<input type="text" class="form-control input-sm" placeholder="" colPos="' + i + '" />');
             i++;
         });
 
-        $("#returns_table thead input").keyup(function() {
-            returns_table.fnFilter(this.value, $(this).attr("colPos"));
+        $("#returnable_table thead input").keyup(function() {
+            returnable_table.fnFilter(this.value, $(this).attr("colPos"));
         });
 
-        $('#returns_table tbody').on('click', 'tr', function() {
-            if ($(this).hasClass('success')) {
-                $(this).removeClass('success');
-                loadReturnsInvDetails(null);
-            }
-            else {
-                returns_table.$('tr.success').removeClass('success');
-                $(this).addClass('success');
-                var row_data = returns_table.fnGetData(this);
-                loadReturnsInvDetails(row_data.returns_id);
-            }
-        });
-
-        returns_detail_table = $('#returns-details_table').dataTable({
+        returnable_detail_table = $('#returnable_details_table').dataTable({
             "filter": true,
             "dom": '<"text-center"r>t',
             "bSort": false,
@@ -160,18 +185,32 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-
+//                $('td:eq(11)', nRow).addClass("text-center");
+//                $('td:eq(5),td:eq(8)', nRow).addClass("text-right");
             }
         });
-
+        
         var i = 0;
-        $('#returns-details_table thead tr#filter_row td.filter').each(function() {
+        $('#returnable_details_table thead tr#filter_row td.filter').each(function() {
             $(this).html('<input type="text" class="form-control input-sm" placeholder="" colPos="' + i + '" />');
             i++;
         });
 
-        $("#returns-details_table thead input").keyup(function() {
-            returns_detail_table.fnFilter(this.value, $(this).attr("colPos"));
+        $("#returnable_details_table thead input").keyup(function() {
+            returnable_detail_table.fnFilter(this.value, $(this).attr("colPos"));
+        });
+        
+        returnable_attachment_table = $('#returnable_attachments_table').dataTable({
+            "filter": true,
+            "dom": '<"text-center"r>t',
+            "bSort": false,
+            "processing": false,
+            "serverSide": false,
+            "bAutoWidth": false,
+            iDisplayLength: -1,
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+//                $('td:eq(1)', nRow).addClass("text-center");
+            }
         });
 
         jQuery(document).on('click', '#returns_table a.delete', function() {
@@ -197,33 +236,33 @@ $this->breadcrumbs = array(
         });
     });
 
-    var returns_details_table;
-    function loadReturnsInvDetails(returns_id) {
-        selected_returns_id = returns_id;
+    var returnable_detail_table_loaded;
+    function loadReturnableDetails(returnable_id) {
+        selected_returnable_id = returnable_id;
 
-        if (typeof returns_details_table != "undefined") {
-            returns_details_table.abort();
+        if (typeof returnable_detail_table_loaded != "undefined") {
+            returnable_detail_table_loaded.abort();
         }
 
-        returns_details_table = $.ajax({
+        returnable_detail_table_loaded = $.ajax({
             type: 'POST',
-            url: '<?php echo Yii::app()->createUrl($this->module->id . '/Returns/getDetailsByReturnInvID'); ?>' + '&returns_id=' + returns_id,
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/Returns/getReturnableDetailsByReturnableID'); ?>' + '&returnable_id=' + returnable_id,
             dataType: "json",
             beforeSend: function() {
-                $("#lower_table_loader").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
+                $("#returnable_lower_table_loader").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
             },
             success: function(data) {
 
-                var oSettings = returns_detail_table.fnSettings();
+                var oSettings = returnable_detail_table.fnSettings();
                 var iTotalRecords = oSettings.fnRecordsTotal();
                 for (var i = 0; i <= iTotalRecords; i++) {
-                    returns_detail_table.fnDeleteRow(0, null, true);
+                    returnable_detail_table.fnDeleteRow(0, null, true);
                 }
 
-                $("#lower_table_loader").html("");
+                $("#returnable_lower_table_loader").html("");
 
                 $.each(data.data, function(i, v) {
-                    returns_detail_table.fnAddData([
+                    returnable_detail_table.fnAddData([
                         v.sku_code,
                         v.sku_description,
                         v.brand_name,
@@ -233,6 +272,46 @@ $this->breadcrumbs = array(
                         v.amount,
                         v.remarks,
                         v.links
+                    ]);
+                });
+            },
+            error: function(status, exception) {
+                if (exception !== "abort") {
+                    alert("Error occured: Please try again.");
+                }
+            }
+        });
+    }
+
+    var returnable_attachments_table_loaded;
+    function loadAttachmentPreview(table, id, loader_id) {
+
+        if (typeof returnable_attachments_table_loaded != "undefined") {
+            returnable_attachments_table_loaded.abort();
+        }
+
+        returnable_attachments_table_loaded = $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl('/inventory/Returns/preview'); ?>' + '&id=' + id,
+            dataType: "json",
+            beforeSend: function() {
+                loader_id.html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
+            },
+            success: function(data) {
+                var oSettings = table.fnSettings();
+                var iTotalRecords = oSettings.fnRecordsTotal();
+                var rows = 0;
+                for (var i = 0; i <= iTotalRecords; i++) {
+                    table.fnDeleteRow(0, null, true);
+                }
+
+                loader_id.html("");
+
+                $.each(data.data, function(i, v) {
+                    rows++;
+                    table.fnAddData([
+                        v.file_name,
+                        v.links,
                     ]);
                 });
             },

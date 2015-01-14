@@ -710,6 +710,7 @@ class Inventory extends CActiveRecord {
                                 'zone_id' => isset($zone->zone_id) ? $zone->zone_id : null,
                                 'sku_status_id' => isset($sku_status->sku_status_id) ? $sku_status->sku_status_id : null,
                                 'expiration_date' => trim($val[$required_headers['expiration_date']]) != "" ? trim($val[$required_headers['expiration_date']]) : null,
+                                'reference_no' => trim($val[$required_headers['reference_no']]),
                                 'po_no' => trim($val[$required_headers['po_no']]),
                                 'pr_no' => trim($val[$required_headers['pr_no']]),
                                 'pr_date' => trim($val[$required_headers['pr_date']]) != "" ? trim($val[$required_headers['pr_date']]) : null,
@@ -848,6 +849,26 @@ class Inventory extends CActiveRecord {
         );
         
         return $inventory;
+        
+    }
+    
+    public function checkIfReturnableDRNoIsExists($company_id, $dr_no, $sku_id) {
+        
+        $c1 = new CDbCriteria;
+        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND sku.sku_id = '" . $sku_id . "' AND incomingInventory.dr_no = '" . $dr_no . "'";
+        $c1->with = array('incomingInventory', 'sku');
+        $incoming = IncomingInventoryDetail::model()->findAll($c1);
+        
+        $c2 = new CDbCriteria;
+        $c2->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND sku.sku_id = '" . $sku_id . "' AND customerItem.dr_no = '" . $dr_no . "'";
+        $c2->with = array('customerItem', 'sku');
+        $outgoing = CustomerItemDetail::model()->findAll($c2);
+       
+        if ($incoming || $outgoing) {
+            return true;
+        } else {
+            return false;
+        }
         
     }
 

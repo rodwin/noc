@@ -399,7 +399,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
 <script type="text/javascript">
 
-<?php $destination_arr = Returns::model()->getListReturnFrom(); ?>
+<?php $destination_arr = Returnable::model()->getListReturnFrom(); ?>
 
     var transaction_table2;
     var sku_table;
@@ -496,7 +496,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         });
     }
 
-<?php $source_arr = Returns::model()->getListReturnFrom(); ?>
+<?php $source_arr = Returnable::model()->getListReturnFrom(); ?>
 
     $('#ReturnReceipt_receive_return_from').change(function() {
 

@@ -146,7 +146,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
             <?php echo $form->textFieldGroup($returnable, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'value' => date("Y-m-d"), 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-            <?php echo $form->textFieldGroup($returnable, 'reference_dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'placeholder' => '--')), 'labelOptions' => array('label' => false))); ?>
+            <?php echo $form->textFieldGroup($returnable, 'reference_dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'readonly' => $isReturnable)), 'labelOptions' => array('label' => false))); ?>
 
             <?php
             echo $form->select2Group(
@@ -177,7 +177,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 </div>
 
 <?php $skuFields = Sku::model()->attributeLabels(); ?>
-<?php $returnsDetailFields = ReturnsDetail::model()->attributeLabels(); ?>
+<?php $returnsDetailFields = ReturnableDetail::model()->attributeLabels(); ?>
 <h4 class="control-label text-primary"><b>Transaction Table</b></h4>
 
 <div class="table-responsive x-scroll">           
@@ -230,7 +230,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
 <script type="text/javascript">
 
-<?php $destination_arr = Returns::model()->getListReturnFrom(); ?>
+<?php $destination_arr = Returnable::model()->getListReturnFrom(); ?>
 
     var transaction_table;
     var headers = "transaction";
@@ -271,10 +271,10 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             }
         });
 
-        $('#Returnable_reference_dr_no').select2({data: []});
+//        $('#Returnable_reference_dr_no').select2({data: []});
     });
 
-<?php $source_arr = Returns::model()->getListReturnFrom(); ?>
+<?php $source_arr = Returnable::model()->getListReturnFrom(); ?>
 
     $('#Returnable_receive_return_from').change(function() {
 
@@ -294,7 +294,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             $("#" + returnable_label + "selected_return_from").show();
         }
 
-        loadReferenceDRNos(value);
+//        loadReferenceDRNos(value);
 
     });
 
@@ -447,6 +447,127 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
     });
 
+    $(function() {
+<?php if ($isReturnable === true) { ?>
+            loadTransactionDetailByDRNo(<?php echo "'" . $returnable->reference_dr_no . "', '" . $sku_id . "'"; ?>);
+<?php }
+?>
+    });
+
+    function loadTransactionDetailByDRNo(dr_no, sku_id) {
+
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/returns/infraLoadDetailsBySelectedDRNo'); ?>' + '&dr_no=' + dr_no + "&sku_id=" + sku_id,
+            dataType: "json",
+            success: function(data) {
+
+                var oSettings = transaction_table.fnSettings();
+                var iTotalRecords = oSettings.fnRecordsTotal();
+                for (var i = 0; i <= iTotalRecords; i++) {
+                    transaction_table.fnDeleteRow(0, null, true);
+                }
+
+                if (data.transaction_details.length > 0) {
+
+                    $.each(data.transaction_details, function(i, v) {
+                        
+                        total_amount = (parseFloat(total_amount) + parseFloat(v.amount));
+
+                        var addedRow = transaction_table.fnAddData([
+                            v.sku_id,
+                            v.sku_code,
+                            v.sku_description,
+                            v.brand_name,
+                            v.sku_category,
+                            v.sku_sub_category,
+                            v.unit_price,
+                            v.batch_no,
+                            v.expiration_date,
+                            v.quantity_received,
+                            "",
+                            v.uom_id,
+                            v.uom_name,
+                            "",
+                            "",
+                            v.amount,
+                            v.remarks,
+                            v.source_zone_id,
+                            "",
+                            v.status,
+                            v.po_no,
+                            v.pr_no,
+                            v.pr_date,
+                            v.plan_arrival_date,
+                        ]);
+
+                        var nTr = transaction_table.fnSettings().aoData[addedRow[0]].nTr;
+                        $('td:eq(6), td:eq(9)', nTr).addClass("success");
+
+                        $.editable.addInputType('numberOnly', {
+                            element: $.editable.types.text.element,
+                            plugin: function(settings, original) {
+                                $('input', this).bind('keypress', function(event) {
+                                    return onlyNumbers(this, event, false);
+                                });
+                            }
+                        });
+
+                        var oSettings = transaction_table.fnSettings();
+                        $('td:eq(6)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
+                            var pos = transaction_table.fnGetPosition(this);
+                            var rowData = transaction_table.fnGetData(pos);
+                            var planned_qty = parseInt(rowData[9]);
+                            var status_pos_col = 19;
+
+                            if (parseInt(value) == planned_qty) {
+                                transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_COMPLETE_STATUS . "'"; ?>, pos[0], status_pos_col);
+                            } else if (parseInt(value) < planned_qty) {
+                                transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_INCOMPLETE_STATUS . "'"; ?>, pos[0], status_pos_col);
+                            } else if (parseInt(value) > planned_qty) {
+                                transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS . "'"; ?>, pos[0], status_pos_col);
+                            } else {
+                                transaction_table.fnUpdate("", pos[0], status_pos_col);
+                            }
+
+                            transaction_table.fnUpdate(value, pos[0], pos[2]);
+
+                        }, {
+                            type: 'numberOnly',
+                            placeholder: '',
+                            indicator: '',
+                            tooltip: 'Click to edit',
+                            submit: 'Ok',
+                            width: "100%",
+                            height: "30px"
+                        });
+
+                        $('td:eq(9)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
+                            var pos = transaction_table.fnGetPosition(this);
+                            transaction_table.fnUpdate(value, pos[0], pos[2]);
+                        }, {
+                            type: 'textarea',
+                            placeholder: '',
+                            indicator: '',
+                            tooltip: 'Click to edit',
+                            width: "100%",
+                            submit: 'Ok',
+                            height: "50px"
+                        });
+                    });
+
+                }
+                
+                $("#Returnable_total_amount").val(parseFloat(total_amount).toFixed(2));
+
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+
+    }
+
     function serializeTransactionTable() {
 
         var row_datas = new Array();
@@ -491,7 +612,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         loadPOIDetailsByID(this.value, returnable_label);
     });
 
-    function send(form) {
+    function send(form, dr_no, sku_id) {
 
         var data = $("#returnable-form").serialize() + "&form=" + form + "&return_type=" + return_type + "&" + $.param({"transaction_details": serializeTransactionTable()});
 
@@ -500,7 +621,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         } else {
             $.ajax({
                 type: 'POST',
-                url: '<?php echo Yii::app()->createUrl($this->module->id . '/Returns/create'); ?>',
+                url: '<?php echo Yii::app()->createUrl($this->module->id . '/Returns/createReturnable'); ?>' + "&dr_no=" + dr_no + "&sku_id=" + sku_id,
                 data: data,
                 dataType: "json",
                 beforeSend: function(data) {
@@ -523,6 +644,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             });
         }
     }
+
     var success_type, success_message;
     function validateForm(data) {
 
@@ -594,7 +716,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     $("#btn_save").click(function() {
         if (!confirm('Are you sure you want to submit?'))
             return false;
-        send(headers);
+        send(headers, <?php echo "'" . $returnable->reference_dr_no . "', '" . $sku_id . "'"; ?>);
     });
 
     $(function() {
