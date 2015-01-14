@@ -350,18 +350,18 @@ class CustomerItem extends CActiveRecord {
                         $customer_item_details[] = $customer_item_detail;
                     }
 
-                    ProofOfDelivery::model()->customerData($customer_item, $customer_item_details);
+                    $pod = ProofOfDelivery::model()->customerData($customer_item, $customer_item_details);
 
                     $data['success'] = true;
                     $data['header_data'] = $customer_item;
                     $data['detail_data'] = $customer_item_details;
+                    $data['pod_data'] = $pod;
                 }
             }
         } catch (Exception $exc) {
             Yii::log($exc->getTraceAsString(), 'error');
-            return false;
         }
-
+        
         return $data;
     }
 
