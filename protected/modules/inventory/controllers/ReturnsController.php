@@ -31,7 +31,7 @@ class ReturnsController extends Controller {
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('create', 'update', 'data', 'loadReferenceDRNos', 'infraLoadDetailsByDRNo', 'queryInfraDetails', 'getDetailsByReturnInvID', 'createReturnable', 'infraLoadDetailsBySelectedDRNo',
                     'returnableData', 'getReturnableDetailsByReturnableID', 'preview', 'returnableDelete', 'returnReceiptData', 'getReturnReceiptDetailsByReturnReceiptID', 'returnReceiptDelete', 'returnableView', 'getDetailsByReturnableID',
-                    'returnReceiptView', 'getDetailsByReturnReceiptID'),
+                    'returnReceiptView', 'getDetailsByReturnReceiptID', 'returnMdseData', 'getReturnMdseDetailsByReturnMdseID'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -113,7 +113,7 @@ class ReturnsController extends Controller {
                     $validatedReturnMdse = CActiveForm::validate($return_mdse);
 
                     $data = $this->saveReturnMdse($return_mdse, $_POST, $validatedReturnMdse, $data);
-                } 
+                }
             } else if ($_POST['form'] == "details") {
                 $data['form'] = $_POST['form'];
 
@@ -173,7 +173,7 @@ class ReturnsController extends Controller {
                         $data["type"] = "danger";
                         $data['message'] = 'Unable to process';
                     } else {
-                        
+
                         $c = new CDbCriteria;
                         $c->compare('t.company_id', Yii::app()->user->company_id);
                         $c->compare('t.sku_id', $return_mdse_detail->sku_id);
@@ -201,7 +201,7 @@ class ReturnsController extends Controller {
                             'remarks' => isset($return_mdse_detail->remarks) ? $return_mdse_detail->remarks : null,
                             "inventory_id" => isset($return_mdse_detail->inventory_id) ? $return_mdse_detail->inventory_id : null,
                         );
-                    }                    
+                    }
                 }
             }
 
@@ -695,7 +695,7 @@ class ReturnsController extends Controller {
         $return_mdse = new ReturnMdse;
         $return_mdse_detail = new ReturnMdseDetail;
         $sku = new Sku;
-        
+
         $return_from_list = CHtml::listData(Returnable::model()->getListReturnFrom(), 'value', 'title');
         $return_to_list = CHtml::listData(ReturnMdse::model()->getListReturnTo(), 'value', 'title');
         $zone_list = CHtml::listData(Zone::model()->findAll(array("condition" => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
@@ -793,7 +793,7 @@ class ReturnsController extends Controller {
             'sku_id' => $sku_id,
             'return_mdse' => $return_mdse,
             'return_mdse_detail' => $return_mdse_detail,
-            'return_to_list' =>$return_to_list,
+            'return_to_list' => $return_to_list,
             'warehouse_list' => $warehouse_list,
             'sku' => $sku,
         ));
@@ -913,9 +913,9 @@ class ReturnsController extends Controller {
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
             $row['updated_by'] = $value->updated_by;
-            
+
             $source = Returnable::model()->getReturnFormDetails(Yii::app()->user->company_id, $value->receive_return_from, $value->receive_return_from_id);
-            
+
             $row['source_name'] = $source['source_name'];
             $row['destination_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : "";
 
@@ -1093,9 +1093,9 @@ class ReturnsController extends Controller {
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
             $row['updated_by'] = $value->updated_by;
-            
+
             $source = Returnable::model()->getReturnFormDetails(Yii::app()->user->company_id, $value->receive_return_from, $value->receive_return_from_id);
-            
+
             $row['source_name'] = $source['source_name'];
             $row['destination_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : "";
 
@@ -1372,7 +1372,8 @@ class ReturnsController extends Controller {
             $row['expiration_date'] = $value->expiration_date;
             $row['quantity_issued'] = $value->quantity_issued;
             $row['returned_quantity'] = $value->returned_quantity;
-            $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');;
+            $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
+            ;
             $row['remarks'] = $value->remarks;
             $row['po_no'] = $value->po_no;
             $row['pr_no'] = $value->pr_no;
@@ -1382,6 +1383,91 @@ class ReturnsController extends Controller {
         }
 
         echo json_encode($output);
+    }
+
+    public function actionReturnMdseData() {
+
+        ReturnMdse::model()->search_string = $_GET['search']['value'] != "" ? $_GET['search']['value'] : null;
+
+        $dataProvider = ReturnMdse::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'], $_GET['columns']);
+
+        $count = ReturnMdse::model()->countByAttributes(array('company_id' => Yii::app()->user->company_id));
+
+        $output = array(
+            "draw" => intval($_GET['draw']),
+            "recordsTotal" => $count,
+            "recordsFiltered" => $dataProvider->totalItemCount,
+            "data" => array()
+        );
+
+        foreach ($dataProvider->getData() as $key => $value) {
+            $row = array();
+            $row['return_mdse_id'] = $value->return_mdse_id;
+            $row['return_mdse_no'] = $value->return_mdse_no;
+            $row['reference_dr_no'] = $value->reference_dr_no;
+            $row['return_to'] = $value->return_to;
+            $row['return_to_id'] = $value->return_to_id;
+            $row['transaction_date'] = $value->transaction_date;
+            $row['date_returned'] = $value->date_returned;
+            $row['destination_zone_id'] = $value->destination_zone_id;
+            $row['remarks'] = $value->remarks;
+            $row['status'] = $value->status;
+            $row['total_amount'] = $value->total_amount;
+            $row['created_date'] = $value->created_date;
+            $row['created_by'] = $value->created_by;
+            $row['updated_date'] = $value->updated_date;
+            $row['updated_by'] = $value->updated_by;
+
+            $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/Returns/returnMdseView', array('id' => $value->return_mdse_id)) . '">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </a>
+                            <a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/Returns/returnMdseDelete', array('id' => $value->return_mdse_id)) . '">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </a>';
+
+            $output['data'][] = $row;
+        }
+
+        echo json_encode($output);
+    }
+    
+    public function actionGetReturnMdseDetailsByReturnMdseID($return_mdse_id) {
+        
+        $c = new CDbCriteria;
+        $c->condition = "company_id = '" . Yii::app()->user->company_id . "' AND return_mdse_id = '" . $return_mdse_id . "'";
+        $return_mdse_details = ReturnMdseDetail::model()->findAll($c);
+
+        $output = array();
+        foreach ($return_mdse_details as $key => $value) {
+            $row = array();
+
+            $uom = Uom::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $value->uom_id));
+
+            $row['return_mdse_detail_id'] = $value->return_mdse_detail_id;
+            $row['return_mdse_id'] = $value->return_mdse_id;
+            $row['batch_no'] = $value->batch_no;
+            $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
+            $row['sku_name'] = isset($value->sku->sku_name) ? $value->sku->sku_name : null;
+            $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
+            $row['sku_category'] = isset($value->sku->type) ? $value->sku->type : null;
+            $row['sku_sub_category'] = isset($value->sku->sub_type) ? $value->sku->sub_type : null;
+            $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
+            $row['unit_price'] = $value->unit_price;
+            $row['expiration_date'] = $value->expiration_date;
+            $row['returned_quantity'] = $value->quantity_issued;
+            $row['amount'] = "&#x20B1;" . number_format($value->amount, 2, '.', ',');
+            $row['remarks'] = $value->remarks;
+            $row['po_no'] = $value->po_no;
+            $row['pr_no'] = $value->pr_no;
+            $row['uom_name'] = $uom->uom_name;
+
+            $row['links'] = "";
+
+            $output['data'][] = $row;
+        }
+
+        echo json_encode($output);
+        
     }
 
 }
