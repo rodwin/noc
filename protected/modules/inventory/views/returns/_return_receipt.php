@@ -224,7 +224,6 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 <div id="input_label" class="pull-left col-md-5">
 
                     <?php echo $form->labelEx($return_receipt_detail, 'batch_no'); ?><br/>
-                    <?php echo $form->labelEx($return_receipt_detail, 'quantity_issued'); ?><br/>
                     <?php echo $form->labelEx($return_receipt_detail, 'returned_quantity'); ?><br/>
                     <?php echo $form->label($return_receipt_detail, 'Inventory On Hand'); ?>
 
@@ -244,18 +243,6 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                         ),
                         'labelOptions' => array('label' => false)));
                     ?>
-
-                    <div class="span5">
-                        <?php
-                        echo $form->textFieldGroup($return_receipt_detail, 'quantity_issued', array(
-                            'widgetOptions' => array(
-                                'htmlOptions' => array("class" => "span5", "onkeypress" => "return onlyNumbers(this, event, false)")
-                            ),
-                            'labelOptions' => array('label' => false),
-                            'append' => '<b class="sku_uom_selected"></b>'
-                        ));
-                        ?>
-                    </div>
 
                     <div class="span5">
                         <?php
@@ -413,7 +400,6 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     var return_to = <?php echo "'" . $destination_arr[0]['value'] . "'"; ?>;
     var return_receipt_label = <?php echo "'" . $return_receipt_label . "'"; ?>;
     $(function() {
-
         $("[data-mask]").inputmask();
 
         transaction_table2 = $('#transaction_table2').dataTable({
@@ -567,8 +553,8 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
             if (data.form == headers) {
 
-                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/admin";
-
+                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/returnReceiptView&id=" + data.return_receipt_id;
+                
                 growlAlert(data.type, data.message);
             } else if (data.form == details) {
 
@@ -658,13 +644,6 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         }
 
         return row_datas;
-    }
-
-    function growlAlert(type, message) {
-        $.growl(message, {
-            icon: 'glyphicon glyphicon-info-sign',
-            type: type
-        });
     }
 
     $("#ReturnReceiptDetail_returned_quantity").keyup(function(e) {

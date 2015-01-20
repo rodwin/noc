@@ -21,8 +21,8 @@ $this->breadcrumbs = array(
 
 <div class="nav-tabs-custom" id ="returns_tabs">
     <ul class="nav nav-tabs">
-        <li class="active"><a href="#returns_tab_1" data-toggle="tab"><?php echo Returnable::RETURNABLE; ?></a></li>
-        <li><a href="#returns_tab_2" data-toggle="tab"><?php echo Returnable::RETURN_RECEIPT; ?></a></li>
+        <li class="active"><a href="#returns_tab_1" data-toggle="tab"><?php echo Returnable::RETURNABLE_LABEL; ?></a></li>
+        <li><a href="#returns_tab_2" data-toggle="tab"><?php echo ReturnReceipt::RETURN_RECEIPT_LABEL; ?></a></li>
         <li><a href="#returns_tab_3" data-toggle="tab"><?php echo Returnable::RETURN_MDSE; ?></a></li>
     </ul>
     <div class="tab-content" id="info">
@@ -35,7 +35,8 @@ $this->breadcrumbs = array(
                         <tr>
                             <th><?php echo $returnableFields['return_receipt_no']; ?></th>
                             <th><?php echo $returnableFields['transaction_date']; ?></th>
-                            <th><?php echo "Source"; ?></th>
+                            <th><?php echo $returnableFields['receive_return_from'];; ?></th>
+                            <th><?php echo "Source Name"; ?></th>
                             <th><?php echo "Destination Zone"; ?></th>
                             <th><?php echo $returnableFields['total_amount']; ?></th>
                             <th><?php echo $returnableFields['remarks']; ?></th>
@@ -44,6 +45,7 @@ $this->breadcrumbs = array(
                     </thead> 
                     <thead>
                         <tr id="filter_row">
+                            <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
@@ -123,7 +125,8 @@ $this->breadcrumbs = array(
                         <tr>
                             <th><?php echo $returnReceiptFields['return_receipt_no']; ?></th>
                             <th><?php echo $returnReceiptFields['transaction_date']; ?></th>
-                            <th><?php echo "Source"; ?></th>
+                            <th><?php echo $returnReceiptFields['receive_return_from'];; ?></th>
+                            <th><?php echo "Source Name"; ?></th>
                             <th><?php echo "Destination Zone"; ?></th>
                             <th><?php echo $returnReceiptFields['total_amount']; ?></th>
                             <th><?php echo $returnReceiptFields['remarks']; ?></th>
@@ -231,7 +234,8 @@ $this->breadcrumbs = array(
             "columns": [
                 {"name": "return_receipt_no", "data": "return_receipt_no"},
                 {"name": "transaction_date", "data": "transaction_date"},
-                {"name": "source_name", "data": "source_name"},
+                {"name": "receive_return_from", "data": "receive_return_from"},
+                {"name": "source_name", "data": "source_name", 'sortable': false},
                 {"name": "destination_zone_name", "data": "destination_zone_name"},
                 {"name": "total_amount", "data": "total_amount"},
                 {"name": "remarks", "data": "remarks"},
@@ -346,7 +350,8 @@ $this->breadcrumbs = array(
             "columns": [
                 {"name": "return_receipt_no", "data": "return_receipt_no"},
                 {"name": "transaction_date", "data": "transaction_date"},
-                {"name": "source_name", "data": "source_name"},
+                {"name": "receive_return_from", "data": "receive_return_from"},
+                {"name": "source_name", "data": "source_name", 'sortable': false},
                 {"name": "destination_zone_name", "data": "destination_zone_name"},
                 {"name": "total_amount", "data": "total_amount"},
                 {"name": "remarks", "data": "remarks"},

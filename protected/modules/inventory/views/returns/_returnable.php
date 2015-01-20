@@ -1,5 +1,5 @@
 
-<?php $returnable_label = str_replace(" ", "_", Returnable::RETURNABLE) . "_"; ?>
+<?php $returnable_label = str_replace(" ", "_", Returnable::RETURNABLE_LABEL) . "_"; ?>
 
 <style type="text/css">
     .<?php echo $returnable_label; ?>autofill_text { height: 30px; margin-top: 20px; margin-bottom: 20px; width: 200px; }
@@ -239,7 +239,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     var print = "print";
     var total_amount = 0;
     var returnable_label = <?php echo "'" . $returnable_label . "'"; ?>;
-    var return_type = <?php echo "'" . Returnable::RETURNABLE . "'"; ?>;
+    var return_type = <?php echo "'" . Returnable::RETURNABLE_LABEL . "'"; ?>;
     $(function() {
 
         $("[data-mask]").inputmask();
@@ -663,8 +663,8 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
             if (data.form == headers) {
                 
-                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/admin";
-
+                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/returnableView&id=" + data.returnable_id;
+                
                 growlAlert(data.type, data.message);
             } else if (data.form == print && serializeTransactionTable().length > 0) {
                 printPDF(data.print);
@@ -697,13 +697,6 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         $("#btn_save, #btn_print").attr('disabled', false);
         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
         $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
-    }
-
-    function growlAlert(type, message) {
-        $.growl(message, {
-            icon: 'glyphicon glyphicon-info-sign',
-            type: type
-        });
     }
 
     function loadToView() {
