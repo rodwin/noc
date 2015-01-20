@@ -25,7 +25,7 @@ class SupplierController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'data', 'getProvinceByRegionCode', 'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode', 'searchSupplier', 'select2FilterSupplier'),
+                'actions' => array('index', 'data', 'getProvinceByRegionCode', 'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode', 'searchSupplier', 'select2FilterSupplier', 'getSupplierDetailsByID'),
                 'users' => array('@'),
             ),
             array('allow',
@@ -394,6 +394,24 @@ class SupplierController extends Controller {
 
         echo json_encode($return);
         Yii::app()->end();
+    }
+    
+    public function actionGetSupplierDetailsByID($supplier_id) {
+        
+        if ($supplier_id == "") {
+            return false;
+        }
+
+        $supplier = $this->loadModel($supplier_id);
+
+        $return = array();
+        $return['supplier_id'] = $supplier->supplier_id;
+        $return['supplier_code'] = $supplier->supplier_code;
+        $return['supplier_name'] = $supplier->supplier_name;
+        $return['supplier_address1'] = $supplier->address1;
+
+        echo json_encode($return);
+        
     }
 
 }

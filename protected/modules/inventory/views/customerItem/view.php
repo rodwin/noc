@@ -196,7 +196,7 @@ $this->breadcrumbs = array(
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(10)', nRow).addClass("text-right");
 
-                if (aData.sku_type == <?php echo "'" . Sku::INFRA . "'"; ?>) {
+                if ((aData.sku_type).trim() === <?php echo trim("'" . Sku::INFRA . "'"); ?>) {
                     $('td:eq(7)', nRow).addClass("success");
 
                     $('td:eq(7)', nRow).editable(function(value, settings) {
