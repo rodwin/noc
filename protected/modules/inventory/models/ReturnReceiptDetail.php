@@ -49,7 +49,7 @@ class ReturnReceiptDetail extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('return_receipt_id, company_id, sku_id, uom_id, returned_quantity', 'required'),
+            array('company_id, sku_id, uom_id, returned_quantity', 'required'),
             array('return_receipt_id, quantity_issued, returned_quantity', 'numerical', 'integerOnly' => true),
             array('company_id, batch_no, sku_id, uom_id, sku_status_id, status, pr_no, created_by, updated_by, po_no', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),
