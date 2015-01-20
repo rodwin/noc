@@ -357,6 +357,7 @@ class Returnable extends CActiveRecord {
                 }
             }
         } catch (Exception $exc) {
+            pr($exc);
             Yii::log($exc->getTraceAsString(), 'error');
         }
 

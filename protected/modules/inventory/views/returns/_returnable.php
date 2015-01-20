@@ -663,8 +663,8 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
             if (data.form == headers) {
                 
-                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/admin";
-
+                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/returnableView&id=" + data.returnable_id;
+                
                 growlAlert(data.type, data.message);
             } else if (data.form == print && serializeTransactionTable().length > 0) {
                 printPDF(data.print);
@@ -697,13 +697,6 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         $("#btn_save, #btn_print").attr('disabled', false);
         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
         $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
-    }
-
-    function growlAlert(type, message) {
-        $.growl(message, {
-            icon: 'glyphicon glyphicon-info-sign',
-            type: type
-        });
     }
 
     function loadToView() {

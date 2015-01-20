@@ -413,7 +413,6 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     var return_to = <?php echo "'" . $destination_arr[0]['value'] . "'"; ?>;
     var return_receipt_label = <?php echo "'" . $return_receipt_label . "'"; ?>;
     $(function() {
-
         $("[data-mask]").inputmask();
 
         transaction_table2 = $('#transaction_table2').dataTable({
@@ -567,8 +566,8 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
             if (data.form == headers) {
 
-                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/admin";
-
+                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/returnReceiptView&id=" + data.return_receipt_id;
+                
                 growlAlert(data.type, data.message);
             } else if (data.form == details) {
 
@@ -658,13 +657,6 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         }
 
         return row_datas;
-    }
-
-    function growlAlert(type, message) {
-        $.growl(message, {
-            icon: 'glyphicon glyphicon-info-sign',
-            type: type
-        });
     }
 
     $("#ReturnReceiptDetail_returned_quantity").keyup(function(e) {

@@ -55,11 +55,15 @@ class ReturnsController extends Controller {
         $returnable = new Returnable;
         $return_receipt = new ReturnReceipt;
         $return_receipt_detail = new ReturnReceiptDetail;
+        $return_mdse = new ReturnMdse;
+        $return_mdse_detail = new ReturnMdseDetail;
+        $sku = new Sku;
 
         $return_from_list = CHtml::listData(Returnable::model()->getListReturnFrom(), 'value', 'title');
+        $return_to_list = CHtml::listData(ReturnMdse::model()->getListReturnTo(), 'value', 'title');
         $zone_list = CHtml::listData(Zone::model()->findAll(array("condition" => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
-        $poi_list = array();
         $salesoffice_list = CHtml::listData(Salesoffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
+        $warehouse_list = CHtml::listData(Salesoffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '" AND distributor_id = ""', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
 
         $c = new CDbCriteria;
         $c->select = new CDbExpression('t.*, CONCAT(t.first_name, " ", t.last_name) AS fullname');
@@ -98,7 +102,18 @@ class ReturnsController extends Controller {
                     $validatedReturnReceipt = CActiveForm::validate($return_receipt);
 
                     $data = $this->saveReturnReceipt($return_receipt, $_POST, $validatedReturnReceipt, $data);
-                }
+                } else if (isset($_POST['ReturnMdse'])) {
+
+                    $return_mdse->attributes = $_POST['ReturnMdse'];
+                    $return_mdse->company_id = Yii::app()->user->company_id;
+                    $return_mdse->created_by = Yii::app()->user->name;
+                    $return_mdse->date_returned = $return_mdse->transaction_date;
+                    unset($return_mdse->created_date);
+
+                    $validatedReturnMdse = CActiveForm::validate($return_mdse);
+
+                    $data = $this->saveReturnMdse($return_mdse, $_POST, $validatedReturnMdse, $data);
+                } 
             } else if ($_POST['form'] == "details") {
                 $data['form'] = $_POST['form'];
 
@@ -144,6 +159,49 @@ class ReturnsController extends Controller {
                             'remarks' => isset($return_receipt_detail->remarks) ? $return_receipt_detail->remarks : null,
                         );
                     }
+                } else if (isset($_POST['ReturnMdseDetail'])) {
+                    $return_mdse_detail->attributes = $_POST['ReturnMdseDetail'];
+                    $return_mdse_detail->company_id = Yii::app()->user->company_id;
+                    $return_mdse_detail->created_by = Yii::app()->user->name;
+                    unset($return_mdse_detail->created_date);
+
+                    $validatedReturnMdseDetail = CActiveForm::validate($return_mdse_detail);
+
+                    if ($validatedReturnMdseDetail != '[]') {
+
+                        $data['error'] = $validatedReturnMdseDetail;
+                        $data["type"] = "danger";
+                        $data['message'] = 'Unable to process';
+                    } else {
+                        
+                        $c = new CDbCriteria;
+                        $c->compare('t.company_id', Yii::app()->user->company_id);
+                        $c->compare('t.sku_id', $return_mdse_detail->sku_id);
+                        $c->with = array('brand', 'company', 'defaultUom', 'defaultZone');
+                        $sku_details = Sku::model()->find($c);
+
+                        $data['message'] = 'Added Item Successfully';
+                        $data['success'] = true;
+
+                        $data['details'] = array(
+                            "sku_id" => isset($sku_details->sku_id) ? $sku_details->sku_id : null,
+                            "sku_code" => isset($sku_details->sku_code) ? $sku_details->sku_code : null,
+                            "sku_description" => isset($sku_details->description) ? $sku_details->description : null,
+                            'brand_name' => isset($sku_details->brand->brand_name) ? $sku_details->brand->brand_name : null,
+                            'unit_price' => $return_mdse_detail->unit_price != "" ? number_format($return_mdse_detail->unit_price, 2, '.', '') : number_format(0, 2, '.', ''),
+                            'batch_no' => isset($return_mdse_detail->batch_no) ? $return_mdse_detail->batch_no : null,
+                            'expiration_date' => isset($return_mdse_detail->expiration_date) ? $return_mdse_detail->expiration_date : null,
+                            'planned_quantity' => $return_mdse_detail->planned_quantity != "" ? $return_mdse_detail->planned_quantity : 0,
+                            'quantity_issued' => $return_mdse_detail->quantity_issued != "" ? $return_mdse_detail->quantity_issued : 0,
+                            'uom_id' => isset($return_mdse_detail->uom->uom_id) ? $return_mdse_detail->uom->uom_id : null,
+                            'uom_name' => isset($return_mdse_detail->uom->uom_name) ? $return_mdse_detail->uom->uom_name : null,
+                            'sku_status_id' => isset($return_mdse_detail->skuStatus->sku_status_id) ? $return_mdse_detail->skuStatus->sku_status_id : null,
+                            'sku_status_name' => isset($return_mdse_detail->skuStatus->status_name) ? $return_mdse_detail->skuStatus->status_name : null,
+                            'amount' => $return_mdse_detail->amount != "" ? number_format($return_mdse_detail->amount, 2, '.', '') : number_format(0, 2, '.', ''),
+                            'remarks' => isset($return_mdse_detail->remarks) ? $return_mdse_detail->remarks : null,
+                            "inventory_id" => isset($return_mdse_detail->inventory_id) ? $return_mdse_detail->inventory_id : null,
+                        );
+                    }                    
                 }
             }
 
@@ -158,7 +216,6 @@ class ReturnsController extends Controller {
             'returnable' => $returnable,
             'return_from_list' => $return_from_list,
             'zone_list' => $zone_list,
-            'poi_list' => $poi_list,
             'salesoffice_list' => $salesoffice_list,
             'employee' => $employee,
             'return_receipt' => $return_receipt,
@@ -166,7 +223,12 @@ class ReturnsController extends Controller {
             'uom' => $uom,
             'sku_status' => $sku_status,
             'isReturnable' => false,
-            'sku_id' => ""
+            'sku_id' => "",
+            'return_mdse' => $return_mdse,
+            'return_mdse_detail' => $return_mdse_detail,
+            'return_to_list' => $return_to_list,
+            'sku' => $sku,
+            'warehouse_list' => $warehouse_list,
         ));
     }
 
@@ -175,7 +237,7 @@ class ReturnsController extends Controller {
         if ($post['Returnable']['receive_return_from'] != "") {
             $selected_source = $post['Returnable']['receive_return_from'];
 
-            $returnable_label = str_replace(" ", "_", Returnable::RETURNABLE) . "_";
+            $returnable_label = str_replace(" ", "_", Returnable::RETURNABLE_LABEL) . "_";
             $source_id = Returnable::model()->validateReturnFrom($model, $selected_source, $returnable_label);
             $model->receive_return_from_id = $source_id;
         }
@@ -245,6 +307,52 @@ class ReturnsController extends Controller {
                 $transaction_details = isset($post['transaction_details']) ? $post['transaction_details'] : array();
 
                 $saved = $model->createReturnReceipt($transaction_details);
+
+                if ($saved['success']) {
+                    $data['return_receipt_id'] = $saved['header_data']->return_receipt_id;
+                    $data['message'] = 'Successfully created';
+                    $data['success'] = true;
+                } else {
+                    $data['message'] = 'Unable to process';
+                    $data['success'] = false;
+                    $data["type"] = "danger";
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    public function saveReturnMdse($model, $post, $validatedModel, $data) {
+
+        if ($post['ReturnMdse']['return_to'] != "") {
+            $selected_destination = $post['ReturnMdse']['return_to'];
+
+            $return_mdse_label = str_replace(" ", "_", ReturnMdse::RETURN_MDSE_LABEL) . "_";
+            $destination_id = ReturnMdse::model()->validateReturnTo($model, $selected_destination, $return_mdse_label);
+            $model->return_to_id = $destination_id;
+        }
+
+        $validatedModel_arr = (array) json_decode($validatedModel);
+        $model_errors = json_encode(array_merge($validatedModel_arr, $model->getErrors()));
+
+        if ($model_errors != '[]') {
+
+            $data['error'] = $model_errors;
+            $data['message'] = 'Unable to process';
+            $data['success'] = false;
+            $data["type"] = "danger";
+        } else {
+
+            if ($data['form'] == "print") {
+
+                $data['print'] = $post;
+                $data['success'] = true;
+            } else {
+
+                $transaction_details = isset($post['transaction_details']) ? $post['transaction_details'] : array();
+
+                $saved = $model->createReturnMdse($transaction_details);
 
                 if ($saved['success']) {
                     $data['message'] = 'Successfully created';
@@ -584,11 +692,15 @@ class ReturnsController extends Controller {
         $returnable = new Returnable;
         $return_receipt = new ReturnReceipt;
         $return_receipt_detail = new ReturnReceiptDetail;
-
+        $return_mdse = new ReturnMdse;
+        $return_mdse_detail = new ReturnMdseDetail;
+        $sku = new Sku;
+        
         $return_from_list = CHtml::listData(Returnable::model()->getListReturnFrom(), 'value', 'title');
+        $return_to_list = CHtml::listData(ReturnMdse::model()->getListReturnTo(), 'value', 'title');
         $zone_list = CHtml::listData(Zone::model()->findAll(array("condition" => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
-        $poi_list = array();
         $salesoffice_list = CHtml::listData(Salesoffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
+        $warehouse_list = CHtml::listData(Salesoffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '" AND distributor_id = ""', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
 
         $c = new CDbCriteria;
         $c->select = new CDbExpression('t.*, CONCAT(t.first_name, " ", t.last_name) AS fullname');
@@ -618,7 +730,7 @@ class ReturnsController extends Controller {
                     if ($_POST['Returnable']['receive_return_from'] != "") {
                         $selected_source = $_POST['Returnable']['receive_return_from'];
 
-                        $returnable_label = str_replace(" ", "_", Returnable::RETURNABLE) . "_";
+                        $returnable_label = str_replace(" ", "_", Returnable::RETURNABLE_LABEL) . "_";
                         $source_id = Returnable::model()->validateReturnFrom($returnable, $selected_source, $returnable_label);
                         $returnable->receive_return_from_id = $source_id;
                     }
@@ -671,7 +783,6 @@ class ReturnsController extends Controller {
             'returnable' => $returnable,
             'return_from_list' => $return_from_list,
             'zone_list' => $zone_list,
-            'poi_list' => $poi_list,
             'salesoffice_list' => $salesoffice_list,
             'employee' => $employee,
             'return_receipt' => $return_receipt,
@@ -679,7 +790,12 @@ class ReturnsController extends Controller {
             'uom' => $uom,
             'sku_status' => $sku_status,
             'isReturnable' => true,
-            'sku_id' => $sku_id
+            'sku_id' => $sku_id,
+            'return_mdse' => $return_mdse,
+            'return_mdse_detail' => $return_mdse_detail,
+            'return_to_list' =>$return_to_list,
+            'warehouse_list' => $warehouse_list,
+            'sku' => $sku,
         ));
     }
 
