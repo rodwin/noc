@@ -224,7 +224,6 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 <div id="input_label" class="pull-left col-md-5">
 
                     <?php echo $form->labelEx($return_receipt_detail, 'batch_no'); ?><br/>
-                    <?php echo $form->labelEx($return_receipt_detail, 'quantity_issued'); ?><br/>
                     <?php echo $form->labelEx($return_receipt_detail, 'returned_quantity'); ?><br/>
                     <?php echo $form->label($return_receipt_detail, 'Inventory On Hand'); ?>
 
@@ -244,18 +243,6 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                         ),
                         'labelOptions' => array('label' => false)));
                     ?>
-
-                    <div class="span5">
-                        <?php
-                        echo $form->textFieldGroup($return_receipt_detail, 'quantity_issued', array(
-                            'widgetOptions' => array(
-                                'htmlOptions' => array("class" => "span5", "onkeypress" => "return onlyNumbers(this, event, false)")
-                            ),
-                            'labelOptions' => array('label' => false),
-                            'append' => '<b class="sku_uom_selected"></b>'
-                        ));
-                        ?>
-                    </div>
 
                     <div class="span5">
                         <?php

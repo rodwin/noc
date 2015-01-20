@@ -287,7 +287,6 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
                     <?php echo $form->labelEx($return_mdse_detail, 'batch_no'); ?><br/>
                     <?php echo $form->labelEx($return_mdse_detail, 'expiration_date'); ?><br/>
-                    <?php echo $form->labelEx($sku, 'planned_quantity'); ?><br/>
                     <?php echo $form->labelEx($return_mdse_detail, 'quantity_issued'); ?><br/>
                     <?php echo $form->labelEx($return_mdse_detail, 'unit_price'); ?><br/>
                     <?php echo $form->labelEx($return_mdse_detail, 'amount'); ?><br/>
@@ -299,18 +298,6 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                     <?php echo $form->textFieldGroup($return_mdse_detail, 'batch_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
 
                     <?php echo $form->textFieldGroup($return_mdse_detail, 'expiration_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
-
-                    <div class="span5">
-                        <?php
-                        echo $form->textFieldGroup($return_mdse_detail, 'planned_quantity', array(
-                            'widgetOptions' => array(
-                                'htmlOptions' => array("class" => "ignore span5", "onkeypress" => "return onlyNumbers(this, event, false)")
-                            ),
-                            'labelOptions' => array('label' => false),
-                            'append' => '<b class="inventory_uom_selected"></b>'
-                        ));
-                        ?>
-                    </div>
 
                     <div class="span5">
                         <?php

@@ -119,7 +119,6 @@ $this->breadcrumbs = array(
                             <th><?php echo $returnableDetailFields['uom_id']; ?></th>
                             <th><?php echo $returnableDetailFields['unit_price']; ?></th>
                             <th><?php echo $returnableDetailFields['batch_no']; ?></th>
-                            <th><?php echo $returnableDetailFields['quantity_issued']; ?></th>
                             <th><?php echo $returnableDetailFields['returned_quantity']; ?></th>
                             <th><?php echo $returnableDetailFields['amount']; ?></th>
                             <th><?php echo $returnableDetailFields['remarks']; ?></th>
@@ -164,7 +163,6 @@ $this->breadcrumbs = array(
                 {"name": "uom_name", "data": "uom_name"},
                 {"name": "unit_price", "data": "unit_price"},
                 {"name": "batch_no", "data": "batch_no"},
-                {"name": "quantity_issued", "data": "quantity_issued"},
                 {"name": "returned_quantity", "data": "returned_quantity"},
                 {"name": "amount", "data": "amount"},
                 {"name": "remarks", "data": "remarks"},
