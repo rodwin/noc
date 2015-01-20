@@ -1081,7 +1081,11 @@ class InventoryController extends Controller {
     public function actionLoadAllReturns() {
 
         $c1 = new CDbCriteria;
-        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND t.sku_id NOT IN (SELECT sku_id FROM returnable_detail) AND t.return_date <= CURDATE()";
+        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND t.return_date <= CURDATE() AND "
+                . "(incomingInventory.dr_no, sku.sku_id) NOT IN (SELECT a.reference_dr_no, b.sku_id
+			FROM returnable a
+			INNER JOIN returnable_detail b ON b.returnable_id = a.returnable_id
+                        GROUP BY a.reference_dr_no, b.sku_id)";
         $c1->with = array('incomingInventory', 'sku');
         $incoming_inv_detail = IncomingInventoryDetail::model()->findAll($c1);
 
