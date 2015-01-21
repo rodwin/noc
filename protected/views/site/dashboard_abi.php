@@ -176,6 +176,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                         <th>MM Description</th>
                         <th>Return Date</th>
                         <th>Quantity</th>
+                        <th>Remaining Quantity</th>
                         <th>Amount</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -307,7 +308,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                 "serverSide": false,
                 "bAutoWidth": false,
                 "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                    $('td:eq(9)', nRow).addClass("text-center");
+                    $('td:eq(10)', nRow).addClass("text-center");
                 }
             });
 
@@ -341,6 +342,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                             v.sku_description,
                             v.return_date,
                             v.qty,
+                            v.remaining_qty,
                             v.amount,
                             v.status,
                             v.links

@@ -52,10 +52,6 @@ class ReturnsController extends Controller {
         $this->layout = '//layouts/column1';
         $this->pageTitle = 'Returns';
         
-        if (!isset($_GET['param']['returns_form'])) {
-            throw new CHttpException(403, "You are not authorized to perform this action.");
-        }
-        
         $returnable = new Returnable;
         $return_receipt = new ReturnReceipt;
         $return_receipt_detail = new ReturnReceiptDetail;
@@ -234,7 +230,7 @@ class ReturnsController extends Controller {
             'return_to_list' => $return_to_list,
             'sku' => $sku,
             'warehouse_list' => $warehouse_list,
-            'form' => $_GET['param']['returns_form'],
+            'form' => isset($_GET['param']['returns_form']) ? $_GET['param']['returns_form'] : 2,
         ));
     }
 
@@ -692,7 +688,7 @@ class ReturnsController extends Controller {
 
         $exist_dr_no = Inventory::model()->checkIfReturnableDRNoIsExists(Yii::app()->user->company_id, $dr_no, $sku_id);
 
-        if (!$exist_dr_no) {
+        if (!$exist_dr_no['success']) {
             throw new CHttpException(403, "You are not authorized to perform this action.");
         }
 
@@ -702,6 +698,8 @@ class ReturnsController extends Controller {
         $return_mdse = new ReturnMdse;
         $return_mdse_detail = new ReturnMdseDetail;
         $sku = new Sku;
+                
+        $returnable_header_data = Returnable::model()->getReturnableSource(Yii::app()->user->company_id, $dr_no, $exist_dr_no, $returnable);
 
         $return_from_list = CHtml::listData(Returnable::model()->getListReturnFrom(), 'value', 'title');
         $return_to_list = CHtml::listData(ReturnMdse::model()->getListReturnTo(), 'value', 'title');
@@ -803,7 +801,7 @@ class ReturnsController extends Controller {
             'return_to_list' => $return_to_list,
             'warehouse_list' => $warehouse_list,
             'sku' => $sku,
-            'form' => 1
+            'form' => 1,
         ));
     }
 
@@ -812,41 +810,42 @@ class ReturnsController extends Controller {
         $data = array();
         $return = array();
 
-        $infra_details = Returnable::model()->queryReturnInfraDetails($dr_no, $sku_id);
+        $infra_details = Returnable::model()->queryReturnInfraDetails(Yii::app()->user->company_id, $dr_no, $sku_id);
 
         if ($infra_details['source_header'] == IncomingInventory::INCOMING_LABEL) {
 
             foreach ($infra_details['source_details'] as $key => $value) {
                 $row = array();
 
-                $row['incoming_inventory_detail_id'] = $value->incoming_inventory_detail_id;
-                $row['incoming_inventory_id'] = $value->incoming_inventory_id;
-                $row['inventory_id'] = $value->inventory_id;
-                $row['batch_no'] = $value->batch_no;
-                $row['sku_id'] = $value->sku_id;
-                $row['source_zone_id'] = $value->source_zone_id;
-                $row['source_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
-                $row['unit_price'] = $value->unit_price;
-                $row['expiration_date'] = $value->expiration_date;
-                $row['quantity_received'] = $value->quantity_received;
+                $row['incoming_inventory_detail_id'] = $value['incoming_inventory_detail_id'];
+                $row['incoming_inventory_id'] = $value['incoming_inventory_id'];
+                $row['inventory_id'] = $value['inventory_id'];
+                $row['batch_no'] = $value['batch_no'];
+                $row['sku_id'] = $value['sku_id'];
+                $row['source_zone_id'] = $value['source_zone_id'];
+                $row['source_zone_name'] = isset($value['zone_name']) ? $value['zone_name'] : null;
+                $row['unit_price'] = $value['unit_price'];
+                $row['expiration_date'] = $value['expiration_date'];
+                $row['quantity_received'] = $value['quantity_received'];
                 $row['return_quantity'] = "0";
-                $row['amount'] = $value->amount;
-                $row['return_date'] = $value->return_date;
-                $row['remarks'] = $value->remarks;
-                $row['sku_id'] = isset($value->sku->sku_id) ? $value->sku->sku_id : null;
-                $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
-                $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
-                $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
-                $row['sku_category'] = isset($value->sku->type) ? $value->sku->type : null;
-                $row['sku_sub_category'] = isset($value->sku->sub_type) ? $value->sku->sub_type : null;
+                $row['amount'] = $value['amount'];
+                $row['return_date'] = $value['return_date'];
+                $row['remarks'] = $value['remarks'];
+                $row['sku_id'] = isset($value['sku_id']) ? $value['sku_id'] : null;
+                $row['sku_code'] = isset($value['sku_code']) ? $value['sku_code'] : null;
+                $row['sku_description'] = isset($value['description']) ? $value['description'] : null;
+                $row['brand_name'] = isset($value['brand_name']) ? $value['brand_name'] : null;
+                $row['sku_category'] = isset($value['type']) ? $value['type'] : null;
+                $row['sku_sub_category'] = isset($value['sub_type']) ? $value['sub_type'] : null;
                 $row['status'] = "<span></span>";
-                $row['uom_id'] = $value->uom_id;
-                $row['uom_name'] = $value->uom->uom_name;
-                $row['sku_status_id'] = $value->sku_status_id;
-                $row['po_no'] = $value->po_no;
-                $row['pr_no'] = $value->pr_no;
-                $row['pr_date'] = $value->pr_date;
-                $row['plan_arrival_date'] = $value->plan_arrival_date;
+                $row['uom_id'] = $value['uom_id'];
+                $row['uom_name'] = $value['uom_name'];
+                $row['sku_status_id'] = $value['sku_status_id'];
+                $row['po_no'] = $value['po_no'];
+                $row['pr_no'] = $value['pr_no'];
+                $row['pr_date'] = $value['pr_date'];
+                $row['plan_arrival_date'] = $value['plan_arrival_date'];
+                $row['remaining_qty'] = $value['remaining_qty'];
 
                 $return['transaction_details'][] = $row;
             }
@@ -855,33 +854,34 @@ class ReturnsController extends Controller {
             foreach ($infra_details['source_details'] as $key => $value) {
                 $row = array();
 
-                $row['customer_item_id'] = $value->customer_item_id;
-                $row['customer_item_id'] = $value->customer_item_id;
-                $row['inventory_id'] = $value->inventory_id;
-                $row['batch_no'] = $value->batch_no;
-                $row['sku_id'] = $value->sku_id;
-                $row['source_zone_id'] = $value->source_zone_id;
-                $row['source_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
-                $row['unit_price'] = $value->unit_price;
-                $row['expiration_date'] = $value->expiration_date;
-                $row['quantity_received'] = $value->quantity_issued;
+                $row['customer_item_id'] = $value['customer_item_id'];
+                $row['customer_item_id'] = $value['customer_item_id'];
+                $row['inventory_id'] = $value['inventory_id'];
+                $row['batch_no'] = $value['batch_no'];
+                $row['sku_id'] = $value['sku_id'];
+                $row['source_zone_id'] = $value['source_zone_id'];
+                $row['source_zone_name'] = isset($value['zone_name']) ? $value['zone_name'] : null;
+                $row['unit_price'] = $value['unit_price'];
+                $row['expiration_date'] = $value['expiration_date'];
+                $row['quantity_received'] = $value['quantity_issued'];
                 $row['return_quantity'] = "0";
-                $row['amount'] = $value->amount;
-                $row['remarks'] = $value->remarks;
-                $row['sku_id'] = isset($value->sku->sku_id) ? $value->sku->sku_id : null;
-                $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
-                $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
-                $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
-                $row['sku_category'] = isset($value->sku->type) ? $value->sku->type : null;
-                $row['sku_sub_category'] = isset($value->sku->sub_type) ? $value->sku->sub_type : null;
+                $row['amount'] = $value['amount'];
+                $row['remarks'] = $value['remarks'];
+                $row['sku_id'] = isset($value['sku_id']) ? $value['sku_id'] : null;
+                $row['sku_code'] = isset($value['sku_code']) ? $value['sku_code']: null;
+                $row['sku_description'] = isset($value['description']) ? $value['description'] : null;
+                $row['brand_name'] = isset($value['brand_name']) ? $value['brand_name'] : null;
+                $row['sku_category'] = isset($value['type']) ? $value['type'] : null;
+                $row['sku_sub_category'] = isset($value['sub_type']) ? $value['sub_type'] : null;
                 $row['status'] = "<span></span>";
-                $row['uom_id'] = $value->uom_id;
-                $row['uom_name'] = $value->uom->uom_name;
-                $row['sku_status_id'] = $value->sku_status_id;
-                $row['po_no'] = $value->po_no;
-                $row['pr_no'] = $value->pr_no;
-                $row['pr_date'] = $value->pr_date;
-                $row['plan_arrival_date'] = $value->plan_arrival_date;
+                $row['uom_id'] = $value['uom_id'];
+                $row['uom_name'] = $value['uom_name'];
+                $row['sku_status_id'] = $value['sku_status_id'];
+                $row['po_no'] = $value['po_no'];
+                $row['pr_no'] = $value['pr_no'];
+                $row['pr_date'] = $value['pr_date'];
+                $row['plan_arrival_date'] = $value['plan_arrival_date'];
+                $row['remaining_qty'] = $value['remaining_qty'];
 
                 $return['transaction_details'][] = $row;
             }

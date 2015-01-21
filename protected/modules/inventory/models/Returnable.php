@@ -26,6 +26,7 @@
 class Returnable extends CActiveRecord {
 
     public $search_string;
+    public $receive_return_from_div_id;
 
     const RETURNABLE_LABEL = "RETURNABLE";
 //    const RETURN_RECEIPT = "RETURN RECEIPT";
@@ -206,14 +207,6 @@ class Returnable extends CActiveRecord {
         );
     }
 
-    public function getListReturnTo() {
-
-        return array(
-            array('value' => 'SALESOFFICE', 'title' => 'Salesoffice'),
-            array('value' => 'SUPPLIER', 'title' => 'Supplier'),
-        );
-    }
-
     public function validateReturnFrom($model, $key, $return_label) {
 
         $source_arr = Returnable::model()->getListReturnFrom();
@@ -376,31 +369,57 @@ class Returnable extends CActiveRecord {
         return $status;
     }
 
-    public function queryReturnInfraDetails($dr_no, $sku_id) {
+    public function queryReturnInfraDetails($company_id, $dr_no, $sku_id) {
 
-        $c1 = new CDbCriteria;
-        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND sku.sku_id = '" . $sku_id . "' AND incomingInventory.dr_no = '" . $dr_no . "'";
-        $c1->with = array('incomingInventory', 'sku');
-        $incoming = IncomingInventoryDetail::model()->findAll($c1);
+        $sql1 = "SELECT a.*, b.*, c.*, f.brand_name, g.uom_name, (b.quantity_received - SUM(IFNULL(e.returned_quantity,0))) AS remaining_qty
+                    FROM incoming_inventory a
+                    INNER JOIN incoming_inventory_detail b ON b.incoming_inventory_id = a.incoming_inventory_id
+                    INNER JOIN sku c ON c.sku_id = b.sku_id
+                    LEFT JOIN brand f ON f.brand_id = c.brand_id
+                    LEFT JOIN uom g ON g.uom_id = c.default_uom_id
+                    LEFT JOIN returnable d ON d.reference_dr_no = a.dr_no
+                    LEFT JOIN returnable_detail e ON e.returnable_id = d.returnable_id
 
-        $c2 = new CDbCriteria;
-        $c2->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND sku.sku_id = '" . $sku_id . "' AND customerItem.dr_no = '" . $dr_no . "'";
-        $c2->with = array('customerItem', 'sku');
-        $outgoing = CustomerItemDetail::model()->findAll($c2);
+                    WHERE a.company_id = :company_id AND a.dr_no = :dr_no AND c.sku_id = :sku_id
+                    GROUP BY a.dr_no";
+                
+        $command1 = Yii::app()->db->createCommand($sql1);
+        $command1->bindParam(':company_id', $company_id, PDO::PARAM_STR);
+        $command1->bindParam(':dr_no', $dr_no, PDO::PARAM_STR);
+        $command1->bindParam(':sku_id', $sku_id, PDO::PARAM_STR);
+        $data1 = $command1->queryAll();
+                
+        $sql2 = "SELECT a.*, b.*, c.*, f.brand_name, g.uom_name, (b.quantity_issued - SUM(IFNULL(e.returned_quantity,0))) AS remaining_qty
+                    FROM customer_item a
+                    INNER JOIN customer_item_detail b ON b.customer_item_id = a.customer_item_id
+                    INNER JOIN sku c ON c.sku_id = b.sku_id
+                    LEFT JOIN brand f ON f.brand_id = c.brand_id
+                    LEFT JOIN uom g ON g.uom_id = c.default_uom_id
+                    LEFT JOIN returnable d ON d.reference_dr_no = a.dr_no
+                    LEFT JOIN returnable_detail e ON e.returnable_id = d.returnable_id
 
-        $data = array();
+                    WHERE a.company_id = :company_id AND a.dr_no = :dr_no AND c.sku_id = :sku_id
+                    GROUP BY a.dr_no";
+                
+        $command2 = Yii::app()->db->createCommand($sql2);
+        $command2->bindParam(':company_id', $company_id, PDO::PARAM_STR);
+        $command2->bindParam(':dr_no', $dr_no, PDO::PARAM_STR);
+        $command2->bindParam(':sku_id', $sku_id, PDO::PARAM_STR);
+        $data2 = $command2->queryAll();
 
-        if ($incoming) {
+        $new_data = array();
+        
+        if (count($data1) > 0) {
 
-            $data['source_header'] = IncomingInventory::INCOMING_LABEL;
-            $data['source_details'] = $incoming;
+            $new_data['source_header'] = IncomingInventory::INCOMING_LABEL;
+            $new_data['source_details'] = $data1;
         } else {
 
-            $data['source_header'] = CustomerItem::CUSTOMER_ITEM_LABEL;
-            $data['source_details'] = $outgoing;
+            $new_data['source_header'] = CustomerItem::CUSTOMER_ITEM_LABEL;
+            $new_data['source_details'] = $data2;
         }
 
-        return $data;
+        return $new_data;
     }
 
     public function getReturnFormDetails($company_id, $receive_return_from, $receive_return_from_id) {
@@ -449,6 +468,63 @@ class Returnable extends CActiveRecord {
             $data['address'] = isset($poi->address1) ? $poi->address1 : "";
         }
 
+        return $data;
+    }
+
+    public function getReturnableSource($company_id, $dr_no, $source, $model) {
+
+        $data = array();
+        
+        if ($source['source'] == IncomingInventory::INCOMING_LABEL) {
+
+            $c = new CDbCriteria;
+            $c->condition = "incomingInventory.company_id = '" . Yii::app()->user->company_id . "' AND incomingInventory.dr_no = '" . $dr_no . "'";
+            $c->with = array('incomingInventory', 'sku');
+            $incoming_inv_detail = IncomingInventoryDetail::model()->find($c);
+            
+            $model->destination_zone_id = $incoming_inv_detail->source_zone_id;
+        } else {
+            
+            $c1 = new CDbCriteria;
+            $c1->condition = "customerItem.company_id = '" . Yii::app()->user->company_id . "' AND customerItem.dr_no = '" . $dr_no . "'";
+            $c1->with = array('customerItem', 'sku');
+            $customer_item_detail = CustomerItemDetail::model()->find($c1);
+            
+            $model->destination_zone_id = $customer_item_detail->source_zone_id;
+        }
+        
+        $c2 = new CDbCriteria;
+        $c2->condition = "t.company_id = '" . $company_id . "' AND t.default_zone_id = '" . $source['source_id'] . "'";
+        $employee = Employee::model()->find($c2);
+        
+        $c3 = new CDbCriteria;
+        $c3->condition = "t.company_id = '" . $company_id . "' AND t.zone_id = '" . $source['source_id'] . "'";
+        $c3->with = array('salesOffice');
+        $zone = Zone::model()->find($c3);
+        
+        $c4 = new CDbCriteria;
+        $c4->condition = "company_id = '" . $company_id . "' AND t.poi_id = '" . $source['source_id'] . "'";
+        $poi = Poi::model()->find($c4);
+        
+        $source_arr = Returnable::model()->getListReturnFrom();
+        
+        if ($employee) {
+            
+            $model->receive_return_from = $source_arr[1]['value'];
+            $model->receive_return_from_id = $employee->employee_id;
+            $model->receive_return_from_div_id = $source_arr[1]['id'];
+        } else if ($zone) {
+            
+            $model->receive_return_from = $source_arr[0]['value'];
+            $model->receive_return_from_id = $zone->salesOffice->sales_office_id;
+            $model->receive_return_from_div_id = $source_arr[0]['id'];
+        } else if ($poi) {
+            
+            $model->receive_return_from = $source_arr[2]['value'];
+            $model->receive_return_from_id = $poi->poi_id;
+            $model->receive_return_from_div_id = $source_arr[2]['id'];
+        }
+        
         return $data;
     }
 

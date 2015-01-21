@@ -857,18 +857,99 @@ class Inventory extends CActiveRecord {
         $c1 = new CDbCriteria;
         $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND sku.sku_id = '" . $sku_id . "' AND incomingInventory.dr_no = '" . $dr_no . "'";
         $c1->with = array('incomingInventory', 'sku');
-        $incoming = IncomingInventoryDetail::model()->findAll($c1);
+        $incoming_detail = IncomingInventoryDetail::model()->find($c1);
         
         $c2 = new CDbCriteria;
         $c2->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND sku.sku_id = '" . $sku_id . "' AND customerItem.dr_no = '" . $dr_no . "'";
         $c2->with = array('customerItem', 'sku');
-        $outgoing = CustomerItemDetail::model()->findAll($c2);
+        $outgoing_detail = CustomerItemDetail::model()->find($c2);
        
-        if ($incoming || $outgoing) {
-            return true;
+        $data = array();
+        $data['success'] = true;
+        
+        if ($incoming_detail) {
+            $data['source'] = IncomingInventory::INCOMING_LABEL;
+            $data['source_id'] = $incoming_detail->incomingInventory->destination_zone_id;
+        } else if ($outgoing_detail) {
+            $data['source'] = CustomerItem::CUSTOMER_ITEM_LABEL;
+            $data['source_id'] = $outgoing_detail->customerItem->poi_id;
         } else {
-            return false;
+            $data['success'] = false;
         }
+        
+        return $data;
+        
+    }
+    
+    public function getInventoryObjByCriteria($company_id, $sku_id, $uom_id, $zone_id, $sku_status_id, $expiration_date, $reference_no, $po_no, $pr_no, $pr_date, $plan_arrival_date) {
+        
+        $inventoryObj = Inventory::model()->findByAttributes(
+                array(
+                    'company_id' => $company_id,
+                    'sku_id' => $sku_id,
+                    'uom_id' => $uom_id,
+                    'zone_id' => $zone_id,
+                    'sku_status_id' => (trim($sku_status_id) != "" ? $sku_status_id : null),
+                    'expiration_date' => (trim($expiration_date) != "" ? $expiration_date : null),
+                    'reference_no' => $reference_no,
+                    'po_no' => $po_no,
+                    'pr_no' => $pr_no,
+                    'pr_date' => (trim($pr_date) != "" ? $pr_date : null),
+                    'plan_arrival_date' => (trim($plan_arrival_date) != "" ? $plan_arrival_date : null),
+                )
+        );
+        
+        return $inventoryObj;
+        
+    }
+    
+    public function getAllRemainingIncomingReturns($company_id) {
+        
+        $sql = "SELECT b.*, a.*, c.*, (b.quantity_received - SUM(IFNULL(e.returned_quantity,0))) AS remaining_qty
+	
+                FROM incoming_inventory a
+                INNER JOIN incoming_inventory_detail b ON b.incoming_inventory_id = a.incoming_inventory_id
+                INNER JOIN sku c ON c.sku_id = b.sku_id
+                LEFT JOIN returnable d ON d.reference_dr_no = a.dr_no
+                LEFT JOIN returnable_detail e ON e.returnable_id = d.returnable_id
+                WHERE c.type LIKE '%" . Sku::INFRA . "%' AND (a.dr_no, c.sku_id, b.quantity_received) NOT IN (SELECT a.reference_dr_no, b.sku_id, IFNULL(b.returned_quantity,0) AS remaining_qty
+                                FROM returnable a
+                                INNER JOIN returnable_detail b ON b.returnable_id = a.returnable_id
+                                GROUP BY a.reference_dr_no, b.sku_id)
+                AND b.return_date <= CURDATE() AND a.company_id = :company_id
+                GROUP BY a.dr_no
+                HAVING remaining_qty != 0";
+        
+        $command = Yii::app()->db->createCommand($sql);
+        $command->bindParam(':company_id', $company_id, PDO::PARAM_STR);
+        $data = $command->queryAll();
+            
+        return $data;
+        
+    }
+    
+    public function getAllRemainingOutgoingReturns($company_id) {
+        
+        $sql = "SELECT b.*, a.*, c.*, (b.quantity_issued - SUM(IFNULL(e.returned_quantity,0))) AS remaining_qty
+	
+                FROM customer_item a
+                INNER JOIN customer_item_detail b ON b.customer_item_id = a.customer_item_id
+                INNER JOIN sku c ON c.sku_id = b.sku_id
+                LEFT JOIN returnable d ON d.reference_dr_no = a.dr_no
+                LEFT JOIN returnable_detail e ON e.returnable_id = d.returnable_id
+                WHERE c.type LIKE '%" . Sku::INFRA . "%' AND (a.dr_no, c.sku_id, b.quantity_issued) NOT IN (SELECT a.reference_dr_no, b.sku_id, IFNULL(b.returned_quantity,0) AS remaining_qty
+                                FROM returnable a
+                                INNER JOIN returnable_detail b ON b.returnable_id = a.returnable_id
+                                GROUP BY a.reference_dr_no, b.sku_id)
+                AND b.return_date <= CURDATE() AND a.company_id = :company_id
+                GROUP BY a.dr_no
+                HAVING remaining_qty != 0";
+        
+        $command = Yii::app()->db->createCommand($sql);
+        $command->bindParam(':company_id', $company_id, PDO::PARAM_STR);
+        $data = $command->queryAll();
+            
+        return $data;
         
     }
 

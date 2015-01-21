@@ -219,21 +219,16 @@ class ReturnableDetail extends CActiveRecord {
 
     public function createReturnableTransactionDetails($returnable_id, $company_id, $transaction_details, $zone_id, $transaction_date, $created_by) {
 
-        $exp_date = ($transaction_details['expiration_date'] != "" ? $transaction_details['expiration_date'] : null);
-        $sku_status_id = ($transaction_details['sku_status_id'] != "" ? $transaction_details['sku_status_id'] : null);
-        $plan_arrival_date = ($transaction_details['plan_arrival_date'] != "" ? $transaction_details['plan_arrival_date'] : null);
-        $pr_date = ($transaction_details['pr_date'] != "" ? $transaction_details['pr_date'] : null);
-        
         $returnable_detail = new ReturnableDetail;
         $returnable_detail->returnable_id = $returnable_id;
         $returnable_detail->company_id = $company_id;
         $returnable_detail->batch_no = $transaction_details['batch_no'];
         $returnable_detail->sku_id = $transaction_details['sku_id'];
         $returnable_detail->uom_id = $transaction_details['uom_id'];
-        $returnable_detail->sku_status_id = $transaction_details['sku_status_id'];
+        $returnable_detail->sku_status_id = (trim($transaction_details['sku_status_id']) != "" ? $transaction_details['sku_status_id'] : null);
         $returnable_detail->source_zone_id = $transaction_details['source_zone_id'];
         $returnable_detail->unit_price = $transaction_details['unit_price'] != "" ? $transaction_details['unit_price'] : "";
-        $returnable_detail->expiration_date = $exp_date;
+        $returnable_detail->expiration_date = (trim($transaction_details['expiration_date']) != "" ? $transaction_details['expiration_date'] : null);
         $returnable_detail->quantity_issued = $transaction_details['quantity_issued'];
         $returnable_detail->returned_quantity = $transaction_details['returned_quantity'] != "" ? $transaction_details['returned_quantity'] : 0;
         $returnable_detail->amount = $transaction_details['amount'];
@@ -242,12 +237,12 @@ class ReturnableDetail extends CActiveRecord {
         $returnable_detail->created_by = $created_by;
         $returnable_detail->po_no = $transaction_details['po_no'];
         $returnable_detail->pr_no = $transaction_details['pr_no'];
-        $returnable_detail->pr_date = $pr_date;
-        $returnable_detail->plan_arrival_date = $plan_arrival_date;
+        $returnable_detail->pr_date = (trim($transaction_details['pr_date']) != "" ? $transaction_details['pr_date'] : null);
+        $returnable_detail->plan_arrival_date = (trim($transaction_details['plan_arrival_date']) != "" ? $transaction_details['plan_arrival_date'] : null);
 
         if ($returnable_detail->save(false)) {
 
-            ReceivingInventoryDetail::model()->createInventory($returnable_detail->company_id, $returnable_detail->sku_id, $returnable_detail->uom_id, $returnable_detail->unit_price, $returnable_detail->returned_quantity, $zone_id, $transaction_date, $returnable_detail->created_by, $returnable_detail->expiration_date, $returnable_detail->batch_no, $sku_status_id, $returnable_detail->pr_no, $returnable_detail->pr_date, $returnable_detail->plan_arrival_date, $returnable_detail->po_no, $returnable_detail->remarks);
+            ReceivingInventoryDetail::model()->createInventory($returnable_detail->company_id, $returnable_detail->sku_id, $returnable_detail->uom_id, $returnable_detail->unit_price, $returnable_detail->returned_quantity, $zone_id, $transaction_date, $returnable_detail->created_by, $returnable_detail->expiration_date, $returnable_detail->batch_no, $returnable_detail->sku_status_id, $returnable_detail->pr_no, $returnable_detail->pr_date, $returnable_detail->plan_arrival_date, $returnable_detail->po_no, $returnable_detail->remarks);
         
             return $returnable_detail;
         } else {
