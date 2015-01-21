@@ -5,7 +5,7 @@ $this->breadcrumbs = array(
 );
 ?>
 
-<?php echo CHtml::link('Create', array('Returns/create'), array('class' => 'btn btn-primary btn-flat')); ?>
+<?php echo CHtml::link('Create', array('Returns/create', 'param' => array('returns_form' => 2)), array('class' => 'btn btn-primary btn-flat')); ?>
 <br/>
 <br/>
 
@@ -35,10 +35,7 @@ $this->breadcrumbs = array(
                         <tr>
                             <th><?php echo $returnableFields['return_receipt_no']; ?></th>
                             <th><?php echo $returnableFields['transaction_date']; ?></th>
-                            <th><?php
-                                echo $returnableFields['receive_return_from'];
-                                ;
-                                ?></th>
+                            <th><?php echo $returnableFields['receive_return_from']; ?></th>
                             <th><?php echo "Source Name"; ?></th>
                             <th><?php echo "Destination Zone"; ?></th>
                             <th><?php echo $returnableFields['total_amount']; ?></th>
@@ -383,7 +380,7 @@ $this->breadcrumbs = array(
         $("#returnable_details_table thead input").keyup(function() {
             returnable_detail_table.fnFilter(this.value, $(this).attr("colPos"));
         });
-        
+
         returnable_attachment_table = $('#returnable_attachments_table').dataTable({
             "filter": true,
             "dom": '<"text-center"r>t',
@@ -586,7 +583,7 @@ $this->breadcrumbs = array(
         $("#return-mdse_table thead input").keyup(function() {
             return_mdse_table.fnFilter(this.value, $(this).attr("colPos"));
         });
-        
+
         return_mdse_detail_table = $('#return_mdse_details_table').dataTable({
             "filter": true,
             "dom": '<"text-center"r>t',
@@ -597,7 +594,7 @@ $this->breadcrumbs = array(
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
             }
         });
-        
+
         var i = 0;
         $('#return_mdse_details_table thead tr#filter_row td.filter').each(function() {
             $(this).html('<input type="text" class="form-control input-sm" placeholder="" colPos="' + i + '" />');
@@ -616,7 +613,8 @@ $this->breadcrumbs = array(
             "serverSide": false,
             "bAutoWidth": false,
             iDisplayLength: -1,
-            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {}
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+            }
         });
 
     });

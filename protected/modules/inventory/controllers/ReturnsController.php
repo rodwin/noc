@@ -51,7 +51,11 @@ class ReturnsController extends Controller {
     public function actionCreate() {
         $this->layout = '//layouts/column1';
         $this->pageTitle = 'Returns';
-
+        
+        if (!isset($_GET['param']['returns_form'])) {
+            throw new CHttpException(403, "You are not authorized to perform this action.");
+        }
+        
         $returnable = new Returnable;
         $return_receipt = new ReturnReceipt;
         $return_receipt_detail = new ReturnReceiptDetail;
@@ -230,6 +234,7 @@ class ReturnsController extends Controller {
             'return_to_list' => $return_to_list,
             'sku' => $sku,
             'warehouse_list' => $warehouse_list,
+            'form' => $_GET['param']['returns_form'],
         ));
     }
 
@@ -798,6 +803,7 @@ class ReturnsController extends Controller {
             'return_to_list' => $return_to_list,
             'warehouse_list' => $warehouse_list,
             'sku' => $sku,
+            'form' => 1
         ));
     }
 
@@ -1303,7 +1309,7 @@ class ReturnsController extends Controller {
 
         $this->pageTitle = "View Return Receipt";
         $this->menu = array(
-            array('label' => "Create Return Receipt", 'url' => array('create')),
+            array('label' => "Create Return Receipt", 'url' => array('create', 'param' => array('returns_form' => 2))),
             array('label' => "Delete Return Receipt", 'url' => '#', 'linkOptions' => array('submit' => array('returnReceiptDelete', 'id' => $model->return_receipt_id), 'confirm' => 'Are you sure you want to delete this item?')),
             array('label' => "Manage Returns", 'url' => array('admin')),
         );
@@ -1485,7 +1491,7 @@ class ReturnsController extends Controller {
 
         $this->pageTitle = "View Return Mdse";
         $this->menu = array(
-            array('label' => "Create Return Mdse", 'url' => array('create')),
+            array('label' => "Create Return Mdse", 'url' => array('create', 'param' => array('returns_form' => 3))),
             array('label' => "Delete Return Mdse", 'url' => '#', 'linkOptions' => array('submit' => array('returnableDelete', 'id' => $model->return_mdse_id), 'confirm' => 'Are you sure you want to delete this item?')),
             array('label' => "Manage Returns", 'url' => array('admin')),
         );

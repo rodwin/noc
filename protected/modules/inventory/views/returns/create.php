@@ -40,9 +40,9 @@ $hide_Returnable = $isReturnable === false ? "display: none;" : "";
 
 <div class="nav-tabs-custom" id ="custTabs">
     <ul class="nav nav-tabs">
-        <li class="active"><a href="#tab_1" data-toggle="tab" class="returns_tab_cls"  style=''><?php echo Returnable::RETURNABLE_LABEL; ?></a></li>
-        <li><a href="#tab_2" data-toggle="tab" class="returns_tab_cls" style='<?php echo $hide_notReturnable; ?>'><?php echo ReturnReceipt::RETURN_RECEIPT_LABEL; ?></a></li>
-        <li><a href="#tab_3" data-toggle="tab" class="returns_tab_cls" style='<?php echo $hide_notReturnable; ?>'><?php echo Returnable::RETURN_MDSE; ?></a></li>
+        <li class="<?php echo $form == 1 ? "active" : ""; ?>"><a href="#tab_1" data-toggle="tab" class="returns_tab_cls"  style=''><?php echo Returnable::RETURNABLE_LABEL; ?></a></li>
+        <li class="<?php echo $form == 2 ? "active" : ""; ?>"><a href="#tab_2" data-toggle="tab" class="returns_tab_cls" style='<?php echo $hide_notReturnable; ?>'><?php echo ReturnReceipt::RETURN_RECEIPT_LABEL; ?></a></li>
+        <li class="<?php echo $form == 3 ? "active" : ""; ?>"><a href="#tab_3" data-toggle="tab" class="returns_tab_cls" style='<?php echo $hide_notReturnable; ?>'><?php echo Returnable::RETURN_MDSE; ?></a></li>
     </ul>
     <div class="tab-content" id ="info">
         <div class="tab-pane active" id="tab_1">
