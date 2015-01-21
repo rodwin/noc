@@ -40,12 +40,12 @@ $hide_Returnable = $isReturnable === false ? "display: none;" : "";
 
 <div class="nav-tabs-custom" id ="custTabs">
     <ul class="nav nav-tabs">
-        <li class="active"><a href="#tab_1" data-toggle="tab" class="returns_tab_cls"  style=''><?php echo Returnable::RETURNABLE_LABEL; ?></a></li>
-        <li><a href="#tab_2" data-toggle="tab" class="returns_tab_cls" style='<?php echo $hide_notReturnable; ?>'><?php echo ReturnReceipt::RETURN_RECEIPT_LABEL; ?></a></li>
-        <li><a href="#tab_3" data-toggle="tab" class="returns_tab_cls" style='<?php echo $hide_notReturnable; ?>'><?php echo Returnable::RETURN_MDSE; ?></a></li>
+        <li class="<?php echo $form == 1 ? "active" : ""; ?>"><a href="#tab_1" data-toggle="tab" class="returns_tab_cls"  style=''><?php echo Returnable::RETURNABLE_LABEL; ?></a></li>
+        <li class="<?php echo $form == 2 ? "active" : ""; ?>"><a href="#tab_2" data-toggle="tab" class="returns_tab_cls" style='<?php echo $hide_notReturnable; ?>'><?php echo ReturnReceipt::RETURN_RECEIPT_LABEL; ?></a></li>
+        <li class="<?php echo $form == 3 ? "active" : ""; ?>"><a href="#tab_3" data-toggle="tab" class="returns_tab_cls" style='<?php echo $hide_notReturnable; ?>'><?php echo Returnable::RETURN_MDSE; ?></a></li>
     </ul>
     <div class="tab-content" id ="info">
-        <div class="tab-pane active" id="tab_1">
+        <div class="tab-pane <?php echo $form == 1 ? "active" : ""; ?>" id="tab_1">
             <?php
             $this->renderPartial("_returnable", array(
                 'returnable' => $returnable,
@@ -55,12 +55,12 @@ $hide_Returnable = $isReturnable === false ? "display: none;" : "";
                 'employee' => $employee,
                 'not_set' => $not_set,
                 'isReturnable' => $isReturnable,
-                'sku_id' => $sku_id
+                'sku_id' => $sku_id,
             ));
             ?>
         </div>
 
-        <div class="tab-pane" id="tab_2">
+        <div class="tab-pane <?php echo $form == 2 ? "active" : ""; ?>" id="tab_2">
             <?php
             $this->renderPartial("_return_receipt", array(
                 'return_receipt' => $return_receipt,
@@ -77,7 +77,7 @@ $hide_Returnable = $isReturnable === false ? "display: none;" : "";
             ?>
         </div>
 
-        <div class="tab-pane" id="tab_3">
+        <div class="tab-pane <?php echo $form == 3 ? "active" : ""; ?>" id="tab_3">
             <?php
             $this->renderPartial("_return_mdse", array(
                 'return_mdse' => $return_mdse,
@@ -115,12 +115,12 @@ $hide_Returnable = $isReturnable === false ? "display: none;" : "";
             url: '<?php echo Yii::app()->createUrl('/library/salesoffice/getSODetailsByID'); ?>' + '&sales_office_id=' + sales_office_id,
             dataType: "json",
             success: function(data) {
-                console.log(data.so_detail.sales_office_id);
                 $("#" + return_type_label + "selected_salesoffice").select2("val", data.so_detail.sales_office_id);
                 $("#" + return_type_label + "salesoffice_code").html(data.so_detail.sales_office_code);
                 $("#" + return_type_label + "salesoffice_address1").html(data.so_detail.sales_office_address1);
             },
             error: function(data) {
+                console.log(data);
                 alert("Error occured: Please try again.");
             }
         });

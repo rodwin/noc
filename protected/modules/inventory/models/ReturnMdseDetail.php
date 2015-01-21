@@ -14,10 +14,8 @@
  * @property string $source_zone_id
  * @property string $unit_price
  * @property string $expiration_date
- * @property integer $quantity_issued
- * @property integer $planned_quantity
+ * @property integer $returned_quantity
  * @property string $amount
- * @property string $status
  * @property string $remarks
  * @property string $pr_no
  * @property string $pr_date
@@ -50,15 +48,15 @@ class ReturnMdseDetail extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, sku_id, uom_id, quantity_issued, amount', 'required'),
-            array('return_mdse_id, quantity_issued, planned_quantity, inventory_id', 'numerical', 'integerOnly' => true),
-            array('company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, status, pr_no, created_by, updated_by, po_no', 'length', 'max' => 50),
+            array('company_id, sku_id, uom_id, returned_quantity, amount', 'required'),
+            array('return_mdse_id, returned_quantity, inventory_id', 'numerical', 'integerOnly' => true),
+            array('company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, pr_no, created_by, updated_by, po_no', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
             array('expiration_date, pr_date, plan_arrival_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('return_mdse_detail_id, return_mdse_id, company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, unit_price, expiration_date, quantity_issued, planned_quantity, amount, status, remarks, pr_no, pr_date, plan_arrival_date, created_date, created_by, updated_date, updated_by, po_no, inventory_id', 'safe', 'on' => 'search'),
+            array('return_mdse_detail_id, return_mdse_id, company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, unit_price, expiration_date, returned_quantity, amount, remarks, pr_no, pr_date, plan_arrival_date, created_date, created_by, updated_date, updated_by, po_no, inventory_id', 'safe', 'on' => 'search'),
         );
     }
 
@@ -95,10 +93,8 @@ class ReturnMdseDetail extends CActiveRecord {
             'source_zone_id' => 'Source Zone',
             'unit_price' => 'Unit Price',
             'expiration_date' => 'Expiration Date',
-            'quantity_issued' => 'Quantity Issued',
-            'planned_quantity' => 'Planned Quantity',
+            'returned_quantity' => 'Returned Quantity',
             'amount' => 'Amount',
-            'status' => 'Status',
             'remarks' => 'Remarks',
             'pr_no' => 'Pr No',
             'pr_date' => 'Pr Date',
@@ -139,10 +135,8 @@ class ReturnMdseDetail extends CActiveRecord {
         $criteria->compare('source_zone_id', $this->source_zone_id, true);
         $criteria->compare('unit_price', $this->unit_price, true);
         $criteria->compare('expiration_date', $this->expiration_date, true);
-        $criteria->compare('quantity_issued', $this->quantity_issued);
-        $criteria->compare('planned_quantity', $this->planned_quantity);
+        $criteria->compare('returned_quantity', $this->returned_quantity);
         $criteria->compare('amount', $this->amount, true);
-        $criteria->compare('status', $this->status, true);
         $criteria->compare('remarks', $this->remarks, true);
         $criteria->compare('pr_no', $this->pr_no, true);
         $criteria->compare('pr_date', $this->pr_date, true);
@@ -223,22 +217,20 @@ class ReturnMdseDetail extends CActiveRecord {
 
     public function createReturnMdseTransactionDetails($return_mdse_id, $company_id, $transaction_details, $transaction_date, $created_by) {
 
-        $exp_date = ($transaction_details['expiration_date'] != "" ? $transaction_details['expiration_date'] : null);
-        $unit_price = ($transaction_details['unit_price'] != "" ? $transaction_details['unit_price'] : 0);
-        
         $inventory = Inventory::model()->findByAttributes(array("inventory_id" => $transaction_details['inventory_id'], "company_id" => $company_id));
         
         $retur_mdse_detail = new ReturnMdseDetail;
         $retur_mdse_detail->return_mdse_id = $return_mdse_id;
         $retur_mdse_detail->company_id = $company_id;
+        $retur_mdse_detail->inventory_id = $transaction_details['inventory_id'];
         $retur_mdse_detail->batch_no = $transaction_details['batch_no'];
         $retur_mdse_detail->sku_id = $transaction_details['sku_id'];
         $retur_mdse_detail->uom_id = $transaction_details['uom_id'];
-        $retur_mdse_detail->sku_status_id = $transaction_details['sku_status_id'];
+        $retur_mdse_detail->sku_status_id = (trim($transaction_details['sku_status_id']) != "" ? $transaction_details['sku_status_id'] : null);
         $retur_mdse_detail->source_zone_id = $transaction_details['source_zone_id'];
-        $retur_mdse_detail->unit_price = $unit_price;
-        $retur_mdse_detail->expiration_date = $exp_date;
-        $retur_mdse_detail->quantity_issued = $transaction_details['quantity_issued'];
+        $retur_mdse_detail->unit_price = (trim($transaction_details['unit_price']) != "" ? $transaction_details['unit_price'] : 0);
+        $retur_mdse_detail->expiration_date = (trim($transaction_details['expiration_date']) != "" ? $transaction_details['expiration_date'] : null);
+        $retur_mdse_detail->returned_quantity = $transaction_details['returned_quantity'];
         $retur_mdse_detail->amount = $transaction_details['amount'];
         $retur_mdse_detail->remarks = $transaction_details['remarks'];
         $retur_mdse_detail->created_by = $created_by;
@@ -248,7 +240,7 @@ class ReturnMdseDetail extends CActiveRecord {
         $retur_mdse_detail->plan_arrival_date = $inventory->plan_arrival_date;
 
         if ($retur_mdse_detail->save(false)) {
-            OutgoingInventoryDetail::model()->decreaseInventory($inventory->inventory_id, $retur_mdse_detail->quantity_issued, $transaction_date, $retur_mdse_detail->unit_price, $retur_mdse_detail->created_by, $retur_mdse_detail->remarks);
+            OutgoingInventoryDetail::model()->decreaseInventory($inventory->inventory_id, $retur_mdse_detail->returned_quantity, $transaction_date, $retur_mdse_detail->unit_price, $retur_mdse_detail->created_by, $retur_mdse_detail->remarks);
             
             return $retur_mdse_detail;
         } else {

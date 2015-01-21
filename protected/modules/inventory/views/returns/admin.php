@@ -5,13 +5,13 @@ $this->breadcrumbs = array(
 );
 ?>
 
-<?php echo CHtml::link('Create', array('Returns/create'), array('class' => 'btn btn-primary btn-flat')); ?>
+<?php echo CHtml::link('Create', array('Returns/create', 'param' => array('returns_form' => 2)), array('class' => 'btn btn-primary btn-flat')); ?>
 <br/>
 <br/>
 
 <style type="text/css">
 
-    #returnable_table tbody tr, #return_receipt_table tbody tr { cursor: pointer }
+    #returnable_table tbody tr, #return_receipt_table tbody tr, #return-mdse_table tbody tr { cursor: pointer }
 
     .hide_row { display: none; }
 
@@ -35,7 +35,7 @@ $this->breadcrumbs = array(
                         <tr>
                             <th><?php echo $returnableFields['return_receipt_no']; ?></th>
                             <th><?php echo $returnableFields['transaction_date']; ?></th>
-                            <th><?php echo $returnableFields['receive_return_from'];; ?></th>
+                            <th><?php echo $returnableFields['receive_return_from']; ?></th>
                             <th><?php echo "Source Name"; ?></th>
                             <th><?php echo "Destination Zone"; ?></th>
                             <th><?php echo $returnableFields['total_amount']; ?></th>
@@ -125,7 +125,7 @@ $this->breadcrumbs = array(
                         <tr>
                             <th><?php echo $returnReceiptFields['return_receipt_no']; ?></th>
                             <th><?php echo $returnReceiptFields['transaction_date']; ?></th>
-                            <th><?php echo $returnReceiptFields['receive_return_from'];; ?></th>
+                            <th><?php echo $returnReceiptFields['receive_return_from']; ?></th>
                             <th><?php echo "Source Name"; ?></th>
                             <th><?php echo "Destination Zone"; ?></th>
                             <th><?php echo $returnReceiptFields['total_amount']; ?></th>
@@ -141,13 +141,14 @@ $this->breadcrumbs = array(
                             <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
+                            <td class="filter"></td>
                             <td class="filter" id="hide_textbox"></td>  
                         </tr>
                     </thead>        
                 </table>
             </div><br/><br/><br/>
 
-            <div class="nav-tabs-custom" id="returnable">
+            <div class="nav-tabs-custom" id="return_receipt">
                 <ul class="nav nav-tabs">
                     <li class="active"><a href="#return_receipt_tab_1" data-toggle="tab">Item Details Table</a></li>
                     <li><a href="#return_receipt_tab_2" data-toggle="tab">Documents</a></li>
@@ -204,7 +205,90 @@ $this->breadcrumbs = array(
 
         </div>
         <div class="tab-pane" id="returns_tab_3">
-            msde
+
+            <?php $returnMdseFields = ReturnMdse::model()->attributeLabels(); ?>
+            <div class="box-body table-responsive">
+                <table id="return-mdse_table" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th><?php echo $returnMdseFields['return_mdse_no']; ?></th>
+                            <th><?php echo $returnMdseFields['transaction_date']; ?></th>
+                            <th><?php echo $returnMdseFields['return_to']; ?></th>
+                            <th><?php echo $returnMdseFields['return_to_id']; ?></th>
+                            <th><?php echo $returnMdseFields['total_amount']; ?></th>
+                            <th><?php echo $returnMdseFields['remarks']; ?></th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <thead>
+                        <tr id="filter_row">
+                            <td class="filter"></td>
+                            <td class="filter"></td>
+                            <td class="filter"></td>
+                            <td class="filter"></td>
+                            <td class="filter"></td>
+                            <td class="filter"></td>
+                            <td class="filter" id="hide_textbox"></td>  
+                        </tr>
+                    </thead>
+                </table>
+            </div><br/><br/><br/>
+
+            <div class="nav-tabs-custom" id="return_mdse">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#return_mdse_tab_1" data-toggle="tab">Item Details Table</a></li>
+                    <li><a href="#return_mdse_tab_2" data-toggle="tab">Documents</a></li>
+                    <span id="return_mdse_lower_table_loader" class="pull-right margin"></span>
+                </ul>
+                <div class="tab-content" id ="info">
+                    <div class="tab-pane active" id="return_mdse_tab_1">
+                        <?php $returnMdseDetailFields = ReturnMdseDetail::model()->attributeLabels(); ?>
+                        <div id="return_mdse_details" class="box-body table-responsive">
+                            <table id="return_mdse_details_table" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th><?php echo $skuFields['sku_code']; ?></th>
+                                        <th><?php echo $skuFields['description']; ?></th>
+                                        <th><?php echo $skuFields['brand_id']; ?></th>
+                                        <th><?php echo $skuFields['type']; ?></th>
+                                        <th><?php echo $skuFields['sub_type']; ?></th>
+                                        <th><?php echo $returnMdseDetailFields['returned_quantity']; ?></th>
+                                        <th><?php echo $returnMdseDetailFields['amount']; ?></th>
+                                        <th><?php echo $returnMdseDetailFields['remarks']; ?></th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <thead>
+                                    <tr id="filter_row">
+                                        <td class="filter"></td>
+                                        <td class="filter"></td>
+                                        <td class="filter"></td>
+                                        <td class="filter"></td>
+                                        <td class="filter"></td>
+                                        <td class="filter"></td>
+                                        <td class="filter"></td>
+                                        <td class="filter"></td>
+                                        <td class="filter" id="hide_textbox"></td>  
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="return_mdse_tab_2">
+                        <div id="return_mdse_attachments" class="box-body table-responsive">
+                            <table id="return_mdse_attachments_table" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th width="90%"><?php echo 'Attachments' ?></th>
+                                        <th><?php echo 'Actions' ?></th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -222,6 +306,11 @@ $this->breadcrumbs = array(
     var return_receipt_attachment_table;
     var selected_return_receipt_id;
     var return_receipt_attachments_table_loaded;
+    var return_mdse_table;
+    var return_mdse_detail_table;
+    var return_mdse_attachment_table;
+    var selected_return_mdse_id;
+    var return_mdse_attachments_table_loaded;
     $(function() {
         returnable_table = $('#returnable_table').dataTable({
             "filter": true,
@@ -229,7 +318,7 @@ $this->breadcrumbs = array(
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
-//            "order": [[7, "asc"]],
+            //            "order": [[7, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Returns/returnableData'); ?>",
             "columns": [
                 {"name": "return_receipt_no", "data": "return_receipt_no"},
@@ -277,7 +366,7 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-//                $('td:eq(11)', nRow).addClass("text-center");
+                //                $('td:eq(11)', nRow).addClass("text-center");
 //                $('td:eq(5),td:eq(8)', nRow).addClass("text-right");
             }
         });
@@ -301,7 +390,7 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-//                $('td:eq(1)', nRow).addClass("text-center");
+                //                $('td:eq(1)', nRow).addClass("text-center");
             }
         });
 
@@ -345,7 +434,7 @@ $this->breadcrumbs = array(
             "processing": true,
             "serverSide": true,
             "bAutoWidth": false,
-//            "order": [[7, "asc"]],
+            //            "order": [[7, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Returns/returnReceiptData'); ?>",
             "columns": [
                 {"name": "return_receipt_no", "data": "return_receipt_no"},
@@ -387,13 +476,12 @@ $this->breadcrumbs = array(
         return_receipt_detail_table = $('#return_receipt_details_table').dataTable({
             "filter": true,
             "dom": '<"text-center"r>t',
-            "bSort": false,
-            "processing": false,
+            "bSort": false, "processing": false,
             "serverSide": false,
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-//                $('td:eq(11)', nRow).addClass("text-center");
+                //                $('td:eq(11)', nRow).addClass("text-center");
 //                $('td:eq(5),td:eq(8)', nRow).addClass("text-right");
             }
         });
@@ -417,7 +505,7 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-//                $('td:eq(1)', nRow).addClass("text-center");
+                //                $('td:eq(1)', nRow).addClass("text-center");
             }
         });
 
@@ -425,15 +513,13 @@ $this->breadcrumbs = array(
             if (!confirm('Are you sure you want to delete this item?'))
                 return false;
             $.ajax({
-                'url': jQuery(this).attr('href') + '&ajax=1',
-                'type': 'POST',
+                'url': jQuery(this).attr('href') + '&ajax=1', 'type': 'POST',
                 'dataType': 'text',
                 'success': function(data) {
                     if (data == "1451") {
                         $.growl("Unable to delete", {
                             icon: 'glyphicon glyphicon-warning-sign',
-                            type: 'danger'
-                        });
+                            type: 'danger'});
 
                         selected_return_receipt_id = "";
                     } else {
@@ -453,6 +539,82 @@ $this->breadcrumbs = array(
                 }
             });
             return false;
+        });
+
+        return_mdse_table = $('#return-mdse_table').dataTable({
+            "filter": true,
+            "dom": 'l<"text-center"r>t<"pull-left"i><"pull-right"p>',
+            "processing": true,
+            "serverSide": true,
+            "bAutoWidth": false,
+            "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Returns/returnMdseData'); ?>",
+            "columns": [
+                {"name": "return_mdse_no", "data": "return_mdse_no"},
+                {"name": "transaction_date", "data": "transaction_date"},
+                {"name": "return_to", "data": "return_to"},
+                {"name": "destination_name", "data": "destination_name"},
+                {"name": "total_amount", "data": "total_amount"},
+                {"name": "remarks", "data": "remarks"},
+                {"name": "links", "data": "links", 'sortable': false}
+            ]
+        });
+
+        $('#return-mdse_table tbody').on('click', 'tr', function() {
+            if ($(this).hasClass('success')) {
+                $(this).removeClass('success');
+                loadReturnMdseDetails(null);
+                loadAttachmentPreview(return_mdse_attachment_table, return_mdse_attachments_table_loaded, null, $("#return_mdse_lower_table_loader"));
+            }
+            else {
+                return_mdse_table.$('tr.success').removeClass('success');
+                $(this).addClass('success');
+                var row_data = return_mdse_table.fnGetData(this);
+                loadReturnMdseDetails(row_data.return_mdse_id);
+                loadAttachmentPreview(return_mdse_attachment_table, return_mdse_attachments_table_loaded, row_data.return_mdse_id, $("#return_mdse_lower_table_loader"));
+            }
+        });
+
+        var i = 0;
+        $('#return-mdse_table thead tr#filter_row td.filter').each(function() {
+            $(this).html('<input type="text" class="form-control input-sm" placeholder="" colPos="' + i + '" />');
+            i++;
+        });
+
+        $("#return-mdse_table thead input").keyup(function() {
+            return_mdse_table.fnFilter(this.value, $(this).attr("colPos"));
+        });
+
+        return_mdse_detail_table = $('#return_mdse_details_table').dataTable({
+            "filter": true,
+            "dom": '<"text-center"r>t',
+            "bSort": false, "processing": false,
+            "serverSide": false,
+            "bAutoWidth": false,
+            iDisplayLength: -1,
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+            }
+        });
+
+        var i = 0;
+        $('#return_mdse_details_table thead tr#filter_row td.filter').each(function() {
+            $(this).html('<input type="text" class="form-control input-sm" placeholder="" colPos="' + i + '" />');
+            i++;
+        });
+
+        $("#return_mdse_details_table thead input").keyup(function() {
+            return_mdse_detail_table.fnFilter(this.value, $(this).attr("colPos"));
+        });
+
+        return_mdse_attachment_table = $('#return_mdse_attachments_table').dataTable({
+            "filter": true,
+            "dom": '<"text-center"r>t',
+            "bSort": false,
+            "processing": false,
+            "serverSide": false,
+            "bAutoWidth": false,
+            iDisplayLength: -1,
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+            }
         });
 
     });
@@ -531,8 +693,7 @@ $this->breadcrumbs = array(
                     rows++;
                     table.fnAddData([
                         v.file_name,
-                        v.links,
-                    ]);
+                        v.links, ]);
                 });
             },
             error: function(status, exception) {
@@ -542,9 +703,9 @@ $this->breadcrumbs = array(
             }
         });
     }
-    
+
     var return_receipt_detail_table_loaded;
-    function loadReturnReceiptDetails(return_receipt_id) {    
+    function loadReturnReceiptDetails(return_receipt_id) {
         selected_return_receipt_id = return_receipt_id;
 
         if (typeof return_receipt_detail_table_loaded != "undefined") {
@@ -587,7 +748,54 @@ $this->breadcrumbs = array(
                     alert("Error occured: Please try again.");
                 }
             }
-        });    
+        });
     }
-    
+
+    var return_mdse_detail_table_loaded;
+    function loadReturnMdseDetails(return_mdse_id) {
+        selected_return_mdse_id = return_mdse_id;
+
+        if (typeof return_mdse_detail_table_loaded != "undefined") {
+            return_mdse_detail_table_loaded.abort();
+        }
+
+        return_mdse_detail_table_loaded = $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/Returns/getReturnMdseDetailsByReturnMdseID'); ?>' + '&return_mdse_id=' + return_mdse_id,
+            dataType: "json",
+            beforeSend: function() {
+                $("#return_mdse_lower_table_loader").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
+            },
+            success: function(data) {
+
+                var oSettings = return_mdse_detail_table.fnSettings();
+                var iTotalRecords = oSettings.fnRecordsTotal();
+                for (var i = 0; i <= iTotalRecords; i++) {
+                    return_mdse_detail_table.fnDeleteRow(0, null, true);
+                }
+
+                $("#return_mdse_lower_table_loader").html("");
+
+                $.each(data.data, function(i, v) {
+                    return_mdse_detail_table.fnAddData([
+                        v.sku_code,
+                        v.sku_description,
+                        v.brand_name,
+                        v.sku_category,
+                        v.sku_sub_category,
+                        v.returned_quantity,
+                        v.amount,
+                        v.remarks,
+                        v.links
+                    ]);
+                });
+            },
+            error: function(status, exception) {
+                if (exception !== "abort") {
+                    alert("Error occured: Please try again.");
+                }
+            }
+        });
+    }
+
 </script>

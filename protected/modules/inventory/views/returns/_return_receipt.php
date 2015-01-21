@@ -356,17 +356,17 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 <th><?php echo $skuFields['sku_code']; ?></th>
                 <th><?php echo $skuFields['description']; ?></th>
                 <th><?php echo $skuFields['brand_id']; ?></th>
-                <th><?php echo $returnReceiptDetailFields['unit_price']; ?></th>
-                <th><?php echo $returnReceiptDetailFields['batch_no']; ?></th>
-                <th><?php echo $returnReceiptDetailFields['expiration_date']; ?></th>
-                <th><?php echo $returnReceiptDetailFields['quantity_issued']; ?></th>
+                <th><?php echo $skuFields['type']; ?></th>
+                <th><?php echo $skuFields['sub_type']; ?></th>
+                <th class="hide_row"><?php echo $returnReceiptDetailFields['unit_price']; ?></th>
+                <th class="hide_row"><?php echo $returnReceiptDetailFields['batch_no']; ?></th>
+                <th class="hide_row"><?php echo $returnReceiptDetailFields['expiration_date']; ?></th>
                 <th><?php echo $returnReceiptDetailFields['returned_quantity']; ?></th>
                 <th class="hide_row"><?php echo $returnReceiptDetailFields['uom_id']; ?></th>
-                <th class="hide_row"><?php echo $returnReceiptDetailFields['uom_id']; ?></th>
-                <th class="hide_row"><?php echo $returnReceiptDetailFields['sku_status_id']; ?></th>
+                <th><?php echo $returnReceiptDetailFields['uom_id']; ?></th>
                 <th class="hide_row"><?php echo $returnReceiptDetailFields['sku_status_id']; ?></th>
                 <th><?php echo $returnReceiptDetailFields['amount']; ?></th>
-                <th class="hide_row"><?php echo $returnReceiptDetailFields['remarks']; ?></th>
+                <th><?php echo $returnReceiptDetailFields['remarks']; ?></th>
             </tr>                                    
         </thead>
     </table>                            
@@ -410,7 +410,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             "serverSide": false,
             "bAutoWidth": false,
             "columnDefs": [{
-                    "targets": [1, 10, 11, 12, 13, 15],
+                    "targets": [1,7,8,9,11,13],
                     "visible": false
                 }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
@@ -564,15 +564,15 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                     data.details.sku_code,
                     data.details.sku_description,
                     data.details.brand_name,
+                    data.details.sku_category,
+                    data.details.sku_sub_category,
                     data.details.unit_price,
                     data.details.batch_no,
                     data.details.expiration_date,
-                    data.details.quantity_issued,
                     data.details.returned_quantity,
                     data.details.uom_id,
                     data.details.uom_name,
                     data.details.sku_status_id,
-                    data.details.sku_status_name,
                     data.details.amount,
                     data.details.remarks
                 ]);
@@ -631,13 +631,12 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
             row_datas.push({
                 "sku_id": row_data[1],
-                "unit_price": row_data[5],
-                "batch_no": row_data[6],
-                "expiration_date": row_data[7],
-                "quantity_issued": row_data[8],
-                "returned_quantity": row_data[9],
-                "uom_id": row_data[10],
-                "sku_status_id": row_data[12],
+                "unit_price": row_data[7],
+                "batch_no": row_data[8],
+                "expiration_date": row_data[9],
+                "returned_quantity": row_data[10],
+                "uom_id": row_data[11],
+                "sku_status_id": row_data[13],
                 "amount": row_data[14],
                 "remarks": row_data[15],
             });
@@ -677,7 +676,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     });
 
     $(function() {
-        $('#ReturnReceipt_transaction_date').datepicker({
+        $('#ReturnReceipt_transaction_date, #ReturnReceiptDetail_expiration_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'});

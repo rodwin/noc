@@ -278,10 +278,26 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
 <?php $source_arr = Returnable::model()->getListReturnFrom(); ?>
 
-    $('#Returnable_receive_return_from').change(function() {
-
-        var value = this.value;
-
+    $('#Returnable_receive_return_from').change(function() {        
+        loadReceivedFrom(this.value);     
+    });
+    
+    $(function() {
+        <?php if ($isReturnable === true) { ?>
+        loadReceivedFrom(<?php echo "'" . $returnable->receive_return_from . "'"; ?>);
+        
+        if (<?php echo "'" . $returnable->receive_return_from . "'"; ?> == <?php echo "'" . $source_arr[0]['value'] . "'"; ?>) {
+            loadSODetailByID(<?php echo "'" . $returnable->receive_return_from_id . "'"; ?>, returnable_label);
+        } else if (<?php echo "'" . $returnable->receive_return_from . "'"; ?> == <?php echo "'" . $source_arr[1]['value'] . "'"; ?>) {
+            loadSalesmanDetailByID(<?php echo "'" . $returnable->receive_return_from_id . "'"; ?>, returnable_label);
+        } else if (<?php echo "'" . $returnable->receive_return_from . "'"; ?> == <?php echo "'" . $source_arr[2]['value'] . "'"; ?>) {
+            loadSelect2POIDetailsByID(<?php echo "'" . $returnable->receive_return_from_id . "'"; ?>, returnable_label);
+        }
+        <?php } ?>
+    });
+    
+    function loadReceivedFrom(value) {
+        
         $("#" + returnable_label + "selected_return_from, .return_source").hide();
         $("." + returnable_label + "autofill_text").html(<?php echo $not_set; ?>);
         $("." + returnable_label + "return_from_select").select2("val", "");
@@ -295,10 +311,8 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         } else {
             $("#" + returnable_label + "selected_return_from").show();
         }
-
-//        loadReferenceDRNos(value);
-
-    });
+        
+    }
 
     var source_from;
     function loadReferenceDRNos(source) {
@@ -486,7 +500,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                             v.unit_price,
                             v.batch_no,
                             v.expiration_date,
-                            v.quantity_received,
+                            v.remaining_qty,
                             "",
                             v.uom_id,
                             v.uom_name,
