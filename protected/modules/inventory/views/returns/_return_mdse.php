@@ -14,7 +14,7 @@
         -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
         box-shadow: 0 5px 10px rgba(0,0,0,.2);
     }
-    
+
     #inventory_table tbody tr { cursor: pointer }
 </style>
 
@@ -76,7 +76,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 </div>
 
             </div>
-            
+
             <div id="<?php echo $return_mdse_label; ?>sales_office_fields" class="<?php echo $return_mdse_label; ?>return_destination" style="display: none;">
                 <div id="input_label" class="pull-left col-md-5">
                     <?php echo $form->label($return_mdse, "Salesoffice"); ?><br/>
@@ -102,7 +102,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 </div>
 
             </div>
-            
+
             <div id="<?php echo $return_mdse_label; ?>warehouse_fields" class="<?php echo $return_mdse_label; ?>return_destination" style="display: none;">
                 <div id="input_label" class="pull-left col-md-5">
                     <?php echo $form->label($return_mdse, "Warehouse"); ?><br/>
@@ -248,7 +248,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                                     ),
                                     'labelOptions' => array('label' => false)));
                                 ?>
-                                
+
                                 <?php echo $form->textFieldGroup($return_mdse_detail, 'uom_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
                                 <?php echo $form->textFieldGroup($return_mdse_detail, 'sku_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
                                 <?php echo $form->textFieldGroup($return_mdse_detail, 'inventory_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
@@ -287,7 +287,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
                     <?php echo $form->labelEx($return_mdse_detail, 'batch_no'); ?><br/>
                     <?php echo $form->labelEx($return_mdse_detail, 'expiration_date'); ?><br/>
-                    <?php echo $form->labelEx($return_mdse_detail, 'quantity_issued'); ?><br/>
+                    <?php echo $form->labelEx($return_mdse_detail, 'returned_quantity'); ?><br/>
                     <?php echo $form->labelEx($return_mdse_detail, 'unit_price'); ?><br/>
                     <?php echo $form->labelEx($return_mdse_detail, 'amount'); ?><br/>
                     <?php echo $form->labelEx($return_mdse_detail, 'remarks'); ?>
@@ -301,7 +301,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
                     <div class="span5">
                         <?php
-                        echo $form->textFieldGroup($return_mdse_detail, 'quantity_issued', array(
+                        echo $form->textFieldGroup($return_mdse_detail, 'returned_quantity', array(
                             'widgetOptions' => array(
                                 'htmlOptions' => array("class" => "span5", "onkeypress" => "return onlyNumbers(this, event, false)")
                             ),
@@ -354,7 +354,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     </div>
 </div>
 
-<?php $returnReceiptDetailFields = ReturnReceiptDetail::model()->attributeLabels(); ?>  
+<?php $returnMdseDetailFields = ReturnMdseDetail::model()->attributeLabels(); ?>  
 <h4 class="control-label text-primary"><b>Transaction Table</b></h4>
 
 <div class="table-responsive x-scroll">            
@@ -366,17 +366,17 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 <th><?php echo $skuFields['sku_code']; ?></th>
                 <th><?php echo $skuFields['description']; ?></th>
                 <th><?php echo $skuFields['brand_id']; ?></th>
-                <th><?php echo $returnReceiptDetailFields['unit_price']; ?></th>
-                <th><?php echo $returnReceiptDetailFields['batch_no']; ?></th>
-                <th><?php echo $returnReceiptDetailFields['expiration_date']; ?></th>
-                <th><?php echo $returnReceiptDetailFields['quantity_issued']; ?></th>
-                <th><?php echo $returnReceiptDetailFields['returned_quantity']; ?></th>
-                <th class="hide_row"><?php echo $returnReceiptDetailFields['uom_id']; ?></th>
-                <th class="hide_row"><?php echo $returnReceiptDetailFields['uom_id']; ?></th>
-                <th class="hide_row"><?php echo $returnReceiptDetailFields['sku_status_id']; ?></th>
-                <th class="hide_row"><?php echo $returnReceiptDetailFields['sku_status_id']; ?></th>
-                <th><?php echo $returnReceiptDetailFields['amount']; ?></th>
-                <th class="hide_row"><?php echo $returnReceiptDetailFields['remarks']; ?></th>
+                <th class="hide_row"><?php echo $returnMdseDetailFields['unit_price']; ?></th>
+                <th><?php echo $returnMdseDetailFields['batch_no']; ?></th>
+                <th><?php echo $returnMdseDetailFields['expiration_date']; ?></th>
+                <th><?php echo $returnMdseDetailFields['returned_quantity']; ?></th>
+                <th class="hide_row"><?php echo $returnMdseDetailFields['uom_id']; ?></th>
+                <th><?php echo $returnMdseDetailFields['uom_id']; ?></th>
+                <th class="hide_row"><?php echo $returnMdseDetailFields['sku_status_id']; ?></th>
+                <th><?php echo $returnMdseDetailFields['amount']; ?></th>
+                <th><?php echo $returnMdseDetailFields['remarks']; ?></th>
+                <th class="hide_row">Inventory</th>
+                <th class="hide_row"><?php echo $returnMdseDetailFields['source_zone_id']; ?></th>
             </tr>                                    
         </thead>
     </table>                            
@@ -476,7 +476,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             "serverSide": false,
             "bAutoWidth": false,
             "columnDefs": [{
-                    "targets": [1, 10, 11, 12, 13, 15, 16],
+                    "targets": [1, 5, 9, 11, 14, 15],
                     "visible": false
                 }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
@@ -510,7 +510,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 $("#ReturnMdseDetail_expiration_date").val(data.expiration_date);
                 $("#ReturnMdseDetail_uom_id").val(data.uom_id);
                 $("#ReturnMdseDetail_sku_status_id").val(data.sku_status_id);
-                $("#ReturnMdseDetail_planned_quantity, #ReturnMdseDetail_quantity_issued, #ReturnMdseDetail_amount").val("");
+                $("#ReturnMdseDetail_planned_quantity, #ReturnMdseDetail_returned_quantity, #ReturnMdseDetail_amount").val("");
             },
             error: function(data) {
                 alert("Error occured: Please try again.");
@@ -568,7 +568,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
             if (data.form == headers) {
 
-                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/admin";
+                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/returnMdseView&id=" + data.return_mdse_id;
 
                 growlAlert(data.type, data.message);
 
@@ -583,15 +583,14 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                     data.details.unit_price,
                     data.details.batch_no,
                     data.details.expiration_date,
-                    data.details.planned_quantity,
-                    data.details.quantity_issued,
+                    data.details.returned_quantity,
                     data.details.uom_id,
                     data.details.uom_name,
                     data.details.sku_status_id,
-                    data.details.sku_status_name,
                     data.details.amount,
                     data.details.remarks,
                     data.details.inventory_id,
+                    data.details.source_zone_id,
                 ]);
 
                 total_amount3 = (parseFloat(total_amount3) + parseFloat(data.details.amount));
@@ -605,7 +604,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             } else if (data.form == print && serializeTransactionTable3().length > 0) {
                 printPDF(data.print);
             }
-            
+
             inventory_table.fnMultiFilter();
         } else {
 
@@ -635,11 +634,11 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         $('#btn_save3').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
         $('#btn_print3').html('<i class="fa fa-print"></i>&nbsp; Print');
     }
-    
+
     $('#btn_add_item3').click(function() {
         sendReturnMdse(details);
     });
-    
+
     $('#btn_save3').click(function() {
         if (!confirm('Are you sure you want to submit?'))
             return false;
@@ -658,34 +657,33 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 "unit_price": row_data[5],
                 "batch_no": row_data[6],
                 "expiration_date": row_data[7],
-                "planned_quantity": row_data[8],
-                "quantity_issued": row_data[9],
-                "uom_id": row_data[10],
-                "sku_status_id": row_data[12],
-                "amount": row_data[14],
-                "remarks": row_data[15],
-                "source_zone_id": row_data[17],
-                "inventory_id": row_data[16],
+                "returned_quantity": row_data[8],
+                "uom_id": row_data[9],
+                "sku_status_id": row_data[11],
+                "amount": row_data[12],
+                "remarks": row_data[13],
+                "inventory_id": row_data[14],
+                "source_zone_id": row_data[15],
             });
         }
 
         return row_datas;
     }
 
-    $("#ReturnMdseDetail_quantity_issued").keyup(function(e) {
+    $("#ReturnMdseDetail_returned_quantity").keyup(function(e) {
         var unit_price = 0;
         if ($("#ReturnMdseDetail_unit_price").val() != "") {
             var unit_price = $("#ReturnMdseDetail_unit_price").val();
         }
 
-        var amount = ($("#ReturnMdseDetail_quantity_issued").val() * unit_price);
+        var amount = ($("#ReturnMdseDetail_returned_quantity").val() * unit_price);
         $("#ReturnMdseDetail_amount").val(parseFloat(amount).toFixed(2));
     });
 
     $("#ReturnMdseDetail_unit_price").keyup(function(e) {
         var qty = 0;
-        if ($("#ReturnMdseDetail_quantity_issued").val() != "") {
-            var qty = $("#ReturnMdseDetail_quantity_issued").val();
+        if ($("#ReturnMdseDetail_returned_quantity").val() != "") {
+            var qty = $("#ReturnMdseDetail_returned_quantity").val();
         }
 
         var amount = (qty * $("#ReturnMdseDetail_unit_price").val());
@@ -705,7 +703,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             $('#delete_row_btn3').fadeOut('slow');
         }
     }
-    
+
     $('#ReturnMdse_return_to').change(function() {
 
         var value = this.value;
@@ -724,35 +722,37 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             $("#" + return_mdse_label + "selected_return_to").show();
         }
     });
-    
+
     $(function() {
-    
+
         $("#" + return_mdse_label + "selected_supplier").select2({
             placeholder: 'Select a Supplier',
             allowClear: true,
-            id: function(data){ return data.supplier_id; },
+            id: function(data) {
+                return data.supplier_id;
+            },
             ajax: {
                 quietMillis: 10,
                 cache: false,
                 dataType: 'json',
                 type: 'GET',
                 url: '<?php echo Yii::app()->createUrl("library/supplier/select2FilterSupplier"); ?>',
-                data: function (value, page) {
+                data: function(value, page) {
                     return {
                         page: page,
                         pageSize: 10,
                         value: value
                     };
                 },
-                results: function (data, page) {
-                    return { results: data.dataItems }; 
+                results: function(data, page) {
+                    return {results: data.dataItems};
                 }
             },
             formatResult: FormatSupplierResult,
             formatSelection: FormatSupplierSelection,
             minimumInputLength: 1
         });
-    
+
     });
 
     function FormatSupplierResult(item) {
@@ -766,9 +766,9 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     function FormatSupplierSelection(item) {
         return item.supplier_name;
     }
-    
+
     $(function() {
-        $('#ReturnMdse_transaction_date').datepicker({
+        $('#ReturnMdse_transaction_date, #ReturnMdseDetail_expiration_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'});

@@ -218,8 +218,8 @@ $this->breadcrumbs = array(
                             <th><?php echo $returnMdseFields['transaction_date']; ?></th>
                             <th><?php echo $returnMdseFields['return_to']; ?></th>
                             <th><?php echo $returnMdseFields['return_to_id']; ?></th>
-                            <th><?php echo $returnMdseFields['transaction_date']; ?></th>
-                            <th><?php echo $returnMdseFields['date_returned']; ?></th>
+                            <th><?php echo $returnMdseFields['total_amount']; ?></th>
+                            <th><?php echo $returnMdseFields['remarks']; ?></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -255,7 +255,7 @@ $this->breadcrumbs = array(
                                         <th><?php echo $skuFields['brand_id']; ?></th>
                                         <th><?php echo $skuFields['type']; ?></th>
                                         <th><?php echo $skuFields['sub_type']; ?></th>
-                                        <th><?php echo $returnMdseDetailFields['quantity_issued']; ?></th>
+                                        <th><?php echo $returnMdseDetailFields['returned_quantity']; ?></th>
                                         <th><?php echo $returnMdseDetailFields['amount']; ?></th>
                                         <th><?php echo $returnMdseDetailFields['remarks']; ?></th>
                                         <th>Actions</th>
@@ -383,6 +383,7 @@ $this->breadcrumbs = array(
         $("#returnable_details_table thead input").keyup(function() {
             returnable_detail_table.fnFilter(this.value, $(this).attr("colPos"));
         });
+        
         returnable_attachment_table = $('#returnable_attachments_table').dataTable({
             "filter": true,
             "dom": '<"text-center"r>t',
@@ -554,9 +555,9 @@ $this->breadcrumbs = array(
                 {"name": "return_mdse_no", "data": "return_mdse_no"},
                 {"name": "transaction_date", "data": "transaction_date"},
                 {"name": "return_to", "data": "return_to"},
-                {"name": "return_to_id", "data": "return_to_id"},
-                {"name": "transaction_date", "data": "transaction_date"},
-                {"name": "date_returned", "data": "date_returned"},
+                {"name": "destination_name", "data": "destination_name"},
+                {"name": "total_amount", "data": "total_amount"},
+                {"name": "remarks", "data": "remarks"},
                 {"name": "links", "data": "links", 'sortable': false}
             ]
         });

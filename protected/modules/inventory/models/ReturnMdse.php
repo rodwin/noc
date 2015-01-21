@@ -12,9 +12,7 @@
  * @property string $return_to_id
  * @property string $transaction_date
  * @property string $date_returned
- * @property string $destination_zone_id
  * @property string $remarks
- * @property string $status
  * @property string $total_amount
  * @property string $created_date
  * @property string $created_by
@@ -45,13 +43,13 @@ class ReturnMdse extends CActiveRecord {
         // will receive user inputs.
         return array(
             array('company_id, return_mdse_no, return_to, transaction_date, date_returned', 'required'),
-            array('company_id, return_mdse_no, reference_dr_no, return_to, return_to_id, destination_zone_id, status, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, return_mdse_no, reference_dr_no, return_to, return_to_id, created_by, updated_by', 'length', 'max' => 50),
             array('remarks', 'length', 'max' => 150),
             array('total_amount', 'length', 'max' => 18),
             array('transaction_date, date_returned, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('return_mdse_id, company_id, return_mdse_no, reference_dr_no, return_to, return_to_id, transaction_date, date_returned, destination_zone_id, remarks, status, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('return_mdse_id, company_id, return_mdse_no, reference_dr_no, return_to, return_to_id, transaction_date, date_returned, remarks, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
     }
 
@@ -83,9 +81,7 @@ class ReturnMdse extends CActiveRecord {
             'return_to_id' => 'Return To',
             'transaction_date' => 'Transaction Date',
             'date_returned' => 'Date Returned',
-            'destination_zone_id' => 'Destination Zone',
             'remarks' => 'Remarks',
-            'status' => 'Status',
             'total_amount' => 'Total Amount',
             'created_date' => 'Created Date',
             'created_by' => 'Created By',
@@ -119,9 +115,7 @@ class ReturnMdse extends CActiveRecord {
         $criteria->compare('return_to_id', $this->return_to_id, true);
         $criteria->compare('transaction_date', $this->transaction_date, true);
         $criteria->compare('date_returned', $this->date_returned, true);
-        $criteria->compare('destination_zone_id', $this->destination_zone_id, true);
         $criteria->compare('remarks', $this->remarks, true);
-        $criteria->compare('status', $this->status, true);
         $criteria->compare('total_amount', $this->total_amount, true);
         $criteria->compare('created_date', $this->created_date, true);
         $criteria->compare('created_by', $this->created_by, true);
@@ -256,7 +250,6 @@ class ReturnMdse extends CActiveRecord {
                 'reference_dr_no' => $this->reference_dr_no,
                 'return_to' => $this->return_to,
                 'return_to_id' => $this->return_to_id,
-//                'destination_zone_id' => $this->destination_zone_id,
                 'transaction_date' => $this->transaction_date,
                 'date_returned' => $this->date_returned,
                 'remarks' => $this->remarks,
@@ -284,6 +277,38 @@ class ReturnMdse extends CActiveRecord {
         } catch (Exception $exc) {
             pr($exc);
             Yii::log($exc->getTraceAsString(), 'error');
+        }
+
+        return $data;
+    }
+
+    public function getReturnToDetails($company_id, $return_to, $return_to_id) {
+
+        $destination_arr = ReturnMdse::model()->getListReturnTo();
+        $data = array();
+
+        if ($return_to == $destination_arr[0]['value']) {
+
+            $c1 = new CDbCriteria;
+            $c1->condition = "t.company_id = '" . $company_id . "' AND t.supplier_id = '" . $return_to_id . "'";
+            $supplier = Supplier::model()->find($c1);
+
+            $data['destination_name'] = isset($supplier->supplier_name) ? $supplier->supplier_name : "";
+            $data['destination_code'] = isset($supplier->supplier_code) ? $supplier->supplier_code : "";
+            $data['contact_person'] = isset($supplier->contact_person1) ? $supplier->contact_person1 : "";
+            $data['contact_no'] = isset($supplier->telephone) ? $supplier->telephone : "";
+            $data['address'] = isset($supplier->address1) ? $supplier->address1 : "";
+        } else if ($return_to == $destination_arr[1]['value'] || $return_to == $destination_arr[2]['value']) {
+
+            $c2 = new CDbCriteria;
+            $c2->condition = "t.company_id = '" . $company_id . "' AND t.sales_office_id = '" . $return_to_id . "'";
+            $sales_office = Salesoffice::model()->find($c2);
+
+            $data['destination_name'] = isset($sales_office->sales_office_name) ? $sales_office->sales_office_name : "";
+            $data['destination_code'] = isset($sales_office->sales_office_code) ? $sales_office->sales_office_code : "";
+            $data['contact_person'] = "";
+            $data['contact_no'] = "";
+            $data['address'] = isset($sales_office->address1) ? $sales_office->address1 : "";
         }
 
         return $data;

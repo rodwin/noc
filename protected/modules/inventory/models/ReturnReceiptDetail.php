@@ -13,7 +13,6 @@
  * @property string $sku_status_id
  * @property string $unit_price
  * @property string $expiration_date
- * @property integer $quantity_issued
  * @property integer $returned_quantity
  * @property string $amount
  * @property string $status
@@ -50,14 +49,14 @@ class ReturnReceiptDetail extends CActiveRecord {
         // will receive user inputs.
         return array(
             array('company_id, sku_id, uom_id, returned_quantity', 'required'),
-            array('return_receipt_id, quantity_issued, returned_quantity', 'numerical', 'integerOnly' => true),
+            array('return_receipt_id, returned_quantity', 'numerical', 'integerOnly' => true),
             array('company_id, batch_no, sku_id, uom_id, sku_status_id, status, pr_no, created_by, updated_by, po_no', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
             array('expiration_date, pr_date, plan_arrival_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('return_receipt_detail_id, return_receipt_id, company_id, batch_no, sku_id, uom_id, sku_status_id, unit_price, expiration_date, quantity_issued, returned_quantity, amount, status, remarks, pr_no, pr_date, plan_arrival_date, created_date, created_by, updated_date, updated_by, po_no', 'safe', 'on' => 'search'),
+            array('return_receipt_detail_id, return_receipt_id, company_id, batch_no, sku_id, uom_id, sku_status_id, unit_price, expiration_date, returned_quantity, amount, status, remarks, pr_no, pr_date, plan_arrival_date, created_date, created_by, updated_date, updated_by, po_no', 'safe', 'on' => 'search'),
         );
     }
 
@@ -93,7 +92,6 @@ class ReturnReceiptDetail extends CActiveRecord {
             'sku_status_id' => 'Sku Status',
             'unit_price' => 'Unit Price',
             'expiration_date' => 'Expiration Date',
-            'quantity_issued' => 'Quantity Issued',
             'returned_quantity' => 'Returned Quantity',
             'amount' => 'Amount',
             'status' => 'Status',
@@ -135,7 +133,6 @@ class ReturnReceiptDetail extends CActiveRecord {
         $criteria->compare('sku_status_id', $this->sku_status_id, true);
         $criteria->compare('unit_price', $this->unit_price, true);
         $criteria->compare('expiration_date', $this->expiration_date, true);
-        $criteria->compare('quantity_issued', $this->quantity_issued);
         $criteria->compare('returned_quantity', $this->returned_quantity);
         $criteria->compare('amount', $this->amount, true);
         $criteria->compare('status', $this->status, true);
@@ -213,33 +210,23 @@ class ReturnReceiptDetail extends CActiveRecord {
 
     public function createReturnReceiptTransactionDetails($return_receipt_id, $company_id, $transaction_details, $zone_id, $transaction_date, $created_by) {
 
-        $exp_date = ($transaction_details['expiration_date'] != "" ? $transaction_details['expiration_date'] : null);
-        $sku_status_id = ($transaction_details['sku_status_id'] != "" ? $transaction_details['sku_status_id'] : null);
-//        $plan_arrival_date = ($transaction_details['plan_arrival_date'] != "" ? $transaction_details['plan_arrival_date'] : null);
-//        $pr_date = ($transaction_details['pr_date'] != "" ? $transaction_details['pr_date'] : null);
-        
         $return_receipt_detail = new ReturnReceiptDetail;
         $return_receipt_detail->return_receipt_id = $return_receipt_id;
         $return_receipt_detail->company_id = $company_id;
         $return_receipt_detail->batch_no = $transaction_details['batch_no'];
         $return_receipt_detail->sku_id = $transaction_details['sku_id'];
         $return_receipt_detail->uom_id = $transaction_details['uom_id'];
-        $return_receipt_detail->unit_price = $transaction_details['unit_price'] != "" ? $transaction_details['unit_price'] : "";
-        $return_receipt_detail->expiration_date = $exp_date;
-        $return_receipt_detail->quantity_issued = $transaction_details['quantity_issued'];
-        $return_receipt_detail->returned_quantity = $transaction_details['returned_quantity'] != "" ? $transaction_details['returned_quantity'] : 0;
+        $return_receipt_detail->unit_price = (trim($transaction_details['unit_price']) != "" ? $transaction_details['unit_price'] : 0);
+        $return_receipt_detail->expiration_date = (trim($transaction_details['expiration_date']) != "" ? $transaction_details['expiration_date'] : null);
+        $return_receipt_detail->returned_quantity = (trim($transaction_details['returned_quantity']) != "" ? $transaction_details['returned_quantity'] : 0);
         $return_receipt_detail->amount = $transaction_details['amount'];
-        $return_receipt_detail->status = $sku_status_id;
+        $return_receipt_detail->sku_status_id = (trim($transaction_details['sku_status_id']) != "" ? $transaction_details['sku_status_id'] : null);
         $return_receipt_detail->remarks = $transaction_details['remarks'];
         $return_receipt_detail->created_by = $created_by;
-//        $return_receipt_detail->po_no = $transaction_details['po_no'];
-//        $return_receipt_detail->pr_no = $transaction_details['pr_no'];
-//        $return_receipt_detail->pr_date = $pr_date;
-//        $return_receipt_detail->plan_arrival_date = $plan_arrival_date;
         
         if ($return_receipt_detail->save(false)) {
 
-            ReceivingInventoryDetail::model()->createInventory($return_receipt_detail->company_id, $return_receipt_detail->sku_id, $return_receipt_detail->uom_id, $return_receipt_detail->unit_price, $return_receipt_detail->returned_quantity, $zone_id, $transaction_date, $return_receipt_detail->created_by, $return_receipt_detail->expiration_date, $return_receipt_detail->batch_no, $sku_status_id, $return_receipt_detail->pr_no, $return_receipt_detail->pr_date, $return_receipt_detail->plan_arrival_date, $return_receipt_detail->po_no, $return_receipt_detail->remarks);
+            ReceivingInventoryDetail::model()->createInventory($return_receipt_detail->company_id, $return_receipt_detail->sku_id, $return_receipt_detail->uom_id, $return_receipt_detail->unit_price, $return_receipt_detail->returned_quantity, $zone_id, $transaction_date, $return_receipt_detail->created_by, $return_receipt_detail->expiration_date, $return_receipt_detail->batch_no, $return_receipt_detail->sku_status_id, "", null, null, "", $return_receipt_detail->remarks);
         
             return $return_receipt_detail;
         } else {
