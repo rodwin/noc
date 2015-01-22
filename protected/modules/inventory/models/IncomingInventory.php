@@ -41,7 +41,7 @@ class IncomingInventory extends CActiveRecord {
         // will receive user inputs.
         return array(
             array('company_id, dr_no, dr_date, transaction_date', 'required'),
-            array('company_id, dr_no, source_zone_id, destination_zone_id, status, created_by, updated_by, rra_no', 'length', 'max' => 50),
+            array('company_id, dr_no, source_zone_id, destination_zone_id, contact_person, contact_no, status, created_by, updated_by, rra_no', 'length', 'max' => 50),
             array('total_amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
             array('destination_zone_id', 'isValidZone'),
@@ -50,7 +50,7 @@ class IncomingInventory extends CActiveRecord {
             array('dr_date, transaction_date, updated_date, recipients', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('incoming_inventory_id, company_id, dr_no, dr_date, rra_date, source_zone_id, destination_zone_id, transaction_date, plan_delivery_date, status, total_amount, created_date, created_by, updated_date, updated_by, rra_no, recipients', 'safe', 'on' => 'search'),
+            array('incoming_inventory_id, company_id, dr_no, dr_date, rra_date, source_zone_id, destination_zone_id, contact_person, contact_no, transaction_date, plan_delivery_date, status, total_amount, created_date, created_by, updated_date, updated_by, rra_no, recipients', 'safe', 'on' => 'search'),
         );
     }
 
@@ -119,6 +119,8 @@ class IncomingInventory extends CActiveRecord {
             'rra_no' => 'RA No',
             'source_zone_id' => 'Source Zone',
             'destination_zone_id' => 'Destination Zone',
+            'contact_person' => 'Contact Person',
+            'contact_no' => 'Contact No',
             'transaction_date' => 'Date',
             'plan_delivery_date' => 'Plan Delivery Date',
 //            'revised_delivery_date' => 'Revised Delivery Date',
@@ -161,6 +163,8 @@ class IncomingInventory extends CActiveRecord {
         $criteria->compare('rra_no', $this->rra_no, true);
         $criteria->compare('source_zone_id', $this->source_zone_id, true);
         $criteria->compare('destination_zone_id', $this->destination_zone_id, true);
+        $criteria->compare('contact_person', $this->contact_person, true);
+        $criteria->compare('contact_no', $this->contact_no, true);
         $criteria->compare('transaction_date', $this->transaction_date, true);
         $criteria->compare('plan_delivery_date', $this->plan_delivery_date, true);
 //        $criteria->compare('revised_delivery_date', $this->revised_delivery_date, true);
@@ -314,6 +318,8 @@ class IncomingInventory extends CActiveRecord {
                 'rra_date' => $this->rra_date,
                 'source_zone_id' => $this->source_zone_id,
                 'destination_zone_id' => $this->destination_zone_id,
+                'contact_person' => $this->contact_person,
+                'contact_no' => $this->contact_no,
                 'transaction_date' => $this->transaction_date,
 //                'pr_date' => $this->pr_date,
                 'plan_delivery_date' => $this->plan_delivery_date,

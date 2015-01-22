@@ -164,8 +164,10 @@ class IncomingInventoryController extends Controller {
         $destination = array();
         $destination['zone_name'] = $incoming_inv->zone->zone_name;
         $destination['destination_sales_office_name'] = isset($destination_sales_office->sales_office_name) ? $destination_sales_office->sales_office_name : "";
-        $destination['contact_person'] = isset($employee) ? $employee->fullname : "";
-        $destination['contact_no'] = isset($employee) ? $employee->work_phone_number : "";
+//        $destination['contact_person'] = isset($employee) ? $employee->fullname : "";
+//        $destination['contact_no'] = isset($employee) ? $employee->work_phone_number : "";
+        $destination['contact_person'] = $incoming_inv->contact_person != "" ? $incoming_inv->contact_person : "";
+        $destination['contact_no'] = $incoming_inv->contact_no != "" ? $incoming_inv->contact_no : "";
         $destination['address'] = isset($destination_sales_office->address1) ? $destination_sales_office->address1 : "";
 
         $incoming_detail = IncomingInventoryDetail::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "incoming_inventory_id" => $model->incoming_inventory_id));
@@ -461,6 +463,8 @@ class IncomingInventoryController extends Controller {
 //            "plan_arrival_date" => isset($value->outgoingInventory->plan_arrival_date) ? $value->outgoingInventory->plan_arrival_date : null,
             "outgoing_inventory_id" => isset($value->outgoingInventory->outgoing_inventory_id) ? $value->outgoingInventory->outgoing_inventory_id : null,
             "rra_no" => isset($value->outgoingInventory->rra_no) ? $value->outgoingInventory->rra_no : null,
+            "contact_person" => isset($value->outgoingInventory->contact_person) ? $value->outgoingInventory->contact_person : null,
+            "contact_no" => isset($value->outgoingInventory->contact_no) ? $value->outgoingInventory->contact_no : null,
         );
 
         $output['headers'] = $header;
@@ -1016,7 +1020,7 @@ class IncomingInventoryController extends Controller {
         $zone = Zone::model()->find($c);
 
         $source['source_zone_name_so_name'] = rtrim($source_zones, "<br/>");
-        $source['contact_person'] = rtrim($source_contact_person, "<br/>");
+        $source['contact_person'] = $incoming_inv['contact_person'];
         $source['address'] = rtrim($source_address, "<br/>");
 
         $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
@@ -1335,7 +1339,7 @@ class IncomingInventoryController extends Controller {
         $zone = Zone::model()->find($c);
 
         $source['source_zone_name_so_name'] = rtrim($source_zones, "<br/>");
-        $source['contact_person'] = rtrim($source_contact_person, "<br/>");
+        $source['contact_person'] = $incoming_inv->contact_person;
         $source['address'] = rtrim($source_address, "<br/>");
 
         $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;

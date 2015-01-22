@@ -1275,7 +1275,7 @@ class OutgoingInventoryController extends Controller {
         $zone = Zone::model()->find($c);
 
         $source['source_zone_name_so_name'] = rtrim($source_zones, "<br/>");
-        $source['contact_person'] = rtrim($source_contact_person, "<br/>");
+        $source['contact_person'] = $outgoing_inv['contact_person'];
         $source['address'] = rtrim($source_address, "<br/>");
 
         $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
@@ -1678,7 +1678,7 @@ class OutgoingInventoryController extends Controller {
         $zone = Zone::model()->find($c);
 
         $source['source_zone_name_so_name'] = rtrim($source_zones, "<br/>");
-        $source['contact_person'] = rtrim($source_contact_person, "<br/>");
+        $source['contact_person'] = $outgoing_inv->contact_person;
         $source['address'] = rtrim($source_address, "<br/>");
 
         $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
