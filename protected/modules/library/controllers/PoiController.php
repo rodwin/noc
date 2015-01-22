@@ -693,7 +693,7 @@ class PoiController extends Controller {
         $return['poi_id'] = isset($poi) ? $poi->poi_id : "";
         $return['short_name'] = isset($poi) ? $poi->short_name : "";
         $return['primary_code'] = isset($poi) ? $poi->primary_code : "";
-        $return['address1'] = $poi_address;
+        $return['address1'] = isset($poi) ? $poi->address1 : "";
 
         echo json_encode($return);
     }

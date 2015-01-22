@@ -222,8 +222,8 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
 <div class="clearfix row">
     <div class="col-xs-12">
-        <button id="btn_print" class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
-        <button id="btn_save" class="btn btn-success pull-right" style=""><i class="glyphicon glyphicon-ok"></i> Save</button>  
+        <button id="btn_print" class="btn btn-default submit_butt" onclick=""><i class="fa fa-print"></i> Print</button>
+        <button id="btn_save" class="btn btn-success pull-right submit_butt" style=""><i class="glyphicon glyphicon-ok"></i> Save</button>  
     </div>
 </div>
 
@@ -236,7 +236,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
     var transaction_table;
     var headers = "transaction";
-    var print = "print";
+    var printReturnable = "print_returnable";
     var total_amount = 0;
     var returnable_label = <?php echo "'" . $returnable_label . "'"; ?>;
     var return_type = <?php echo "'" . Returnable::RETURNABLE_LABEL . "'"; ?>;
@@ -632,7 +632,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
         var data = $("#returnable-form").serialize() + "&form=" + form + "&return_type=" + return_type + "&" + $.param({"transaction_details": serializeTransactionTable()});
 
-        if ($("#btn_save, #btn_print").is("[disabled=disabled]")) {
+        if ($(".submit_butt").is("[disabled=disabled]")) {
             return false;
         } else {
             $.ajax({
@@ -641,7 +641,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 data: data,
                 dataType: "json",
                 beforeSend: function(data) {
-                    $("#btn_save, #btn_print").attr("disabled", "disabled");
+                    $(".submit_butt").attr("disabled", "disabled");
                     if (form == headers) {
                         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
                     } else if (form == print) {
@@ -653,7 +653,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 },
                 error: function(status, exception) {
                     alert(status.responseText);
-                    $("#btn_save, #btn_print").attr('disabled', false);
+                    $(".submit_butt").attr('disabled', false);
                     $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
                     $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
                 }
@@ -680,15 +680,16 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/returnableView&id=" + data.returnable_id;
                 
                 growlAlert(data.type, data.message);
-            } else if (data.form == print && serializeTransactionTable().length > 0) {
-                printPDF(data.print);
+            } else if (data.form == printReturnable && serializeTransactionTable().length > 0) {
+                
+                printReturnablePDF(data.print);
             }
 
         } else {
 
             growlAlert(data.type, data.message);
 
-            $("#btn_save, #btn_print").attr('disabled', false);
+            $(".submit_butt").attr('disabled', false);
             $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
             $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
             
@@ -708,22 +709,19 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             });
         }
 
-        $("#btn_save, #btn_print").attr('disabled', false);
+        $(".submit_butt").attr('disabled', false);
         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
         $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
-    }
-
-    function loadToView() {
-
-//        window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/incomingInventory') . '"' ?> + "/view&id=" + success_incoming_inv_id;
-
-        growlAlert(success_type, success_message);
     }
 
     $("#btn_save").click(function() {
         if (!confirm('Are you sure you want to submit?'))
             return false;
         sendReturnable(headers, <?php echo "'" . $returnable->reference_dr_no . "', '" . $sku_id . "'"; ?>);
+    });
+
+    $('#btn_print').click(function() {
+        sendReturnable(printReturnable, <?php echo "'" . $returnable->reference_dr_no . "', '" . $sku_id . "'"; ?>);
     });
 
     $(function() {
@@ -763,5 +761,39 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             minimumInputLength: 1
         });
     });
+    
+    function printReturnablePDF(data) {
+    
+        $.ajax({
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/Returns/printReturnable'); ?> ',
+            type: 'POST',
+            dataType: "json",
+            data: {"post_data": data},
+            success: function(data) {
+                if (data.success === true) {
+                    var params = [
+                        'height=' + screen.height,
+                        'width=' + screen.width,
+                        'fullscreen=yes'
+                    ].join(',');
+
+                    var tab = window.open(<?php echo "'" . Yii::app()->createUrl($this->module->id . '/Returns/loadReturnablePDF') . "'" ?> + "&id=" + data.id, "_blank", params);
+
+                    if (tab) {
+                        tab.focus();
+                        tab.moveTo(0, 0);
+                    } else {
+                        alert('Please allow popups for this site');
+                    }
+                }
+
+                return false;
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+    
+    }
 
 </script>

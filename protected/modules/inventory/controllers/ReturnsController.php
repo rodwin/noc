@@ -31,7 +31,7 @@ class ReturnsController extends Controller {
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('create', 'update', 'data', 'loadReferenceDRNos', 'infraLoadDetailsByDRNo', 'queryInfraDetails', 'getDetailsByReturnInvID', 'createReturnable', 'infraLoadDetailsBySelectedDRNo',
                     'returnableData', 'getReturnableDetailsByReturnableID', 'preview', 'returnableDelete', 'returnReceiptData', 'getReturnReceiptDetailsByReturnReceiptID', 'returnReceiptDelete', 'returnableView', 'getDetailsByReturnableID',
-                    'returnReceiptView', 'getDetailsByReturnReceiptID', 'returnMdseData', 'getReturnMdseDetailsByReturnMdseID', 'returnMdseView', 'getDetailsByReturnMdseID'),
+                    'returnReceiptView', 'getDetailsByReturnReceiptID', 'returnMdseData', 'getReturnMdseDetailsByReturnMdseID', 'returnMdseView', 'getDetailsByReturnMdseID', 'printReturnable', 'loadReturnablePDF'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -719,7 +719,7 @@ class ReturnsController extends Controller {
             $data['success'] = false;
             $data["type"] = "success";
 
-            if ($_POST['form'] == "transaction" || $_POST['form'] == "print") {
+            if ($_POST['form'] == "transaction" || $_POST['form'] == "print_returnable") {
                 $data['form'] = $_POST['form'];
 
                 if (isset($_POST['Returnable'])) {
@@ -751,7 +751,7 @@ class ReturnsController extends Controller {
                         $data["type"] = "danger";
                     } else {
 
-                        if ($data['form'] == "print") {
+                        if ($data['form'] == "print_returnable") {
 
                             $data['print'] = $_POST;
                             $data['success'] = true;
@@ -1600,5 +1600,252 @@ class ReturnsController extends Controller {
         echo json_encode($output);
         
     }
+    
+    public function actionPrintReturnable() {
+        
+        $data = Yii::app()->request->getParam('post_data');
+        
+        $returnable = $data['Returnable'];
+        $returnable_detail = $data['transaction_details'];
+        
+        $return = array();
+        
+        $details = array();
+        $source = array();
+        $destination = array();
+        $headers = array();
+        
+        foreach ($returnable_detail as $key => $val) {
+            $row = array();
 
+            $row['sku_id'] = $val['sku_id'];
+            $row['uom_id'] = $val['uom_id'];
+            $row['sku_status_id'] = $val['sku_status_id'];
+            $row['quantity_issued'] = $val['quantity_issued'];
+            $row['returned_quantity'] = $val['returned_quantity'];
+            $row['unit_price'] = $val['unit_price'];
+            $row['status'] = $val['status'];
+            $row['amount'] = $val['amount'];
+            $row['remarks'] = $val['remarks'];
+
+            $details[] = $row;
+        }
+        
+        $source_data = array();
+        if ($returnable['receive_return_from'] != "") {
+            $selected_source = $returnable['receive_return_from'];
+
+            $returnable_label = str_replace(" ", "_", Returnable::RETURNABLE_LABEL) . "_";
+            $source_data = Returnable::model()->getReturnFromID($returnable, $selected_source, $returnable_label, $data);
+        }
+        
+        $source_details = Returnable::model()->getReturnFormDetails(Yii::app()->user->company_id, $returnable['receive_return_from'], $source_data['id']);
+
+        $source["source_name"] = $source_details['source_name'];
+        $source["source_address"] = $source_details['address'];
+        
+        $c1 = new CDbCriteria;
+        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.zone_id = '" . $returnable['destination_zone_id'] . "'";
+        $c1->with = array("salesOffice");
+        $zone = Zone::model()->find($c1);
+
+        $destination['zone_name'] = $zone->zone_name;
+        $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
+        $destination['address'] = $zone->salesOffice->address1;
+        
+        $headers['return_receipt_no'] = $returnable['return_receipt_no'];
+        $headers['reference_dr_no'] = $returnable['reference_dr_no'];
+        $headers['date_returned'] = $returnable['transaction_date'];
+        $headers['remarks'] = $returnable['remarks'];
+        $headers['total_amount'] = $returnable['total_amount'];
+        
+        $return['headers'] = $headers;
+        $return['source'] = $source;
+        $return['destination'] = $destination;
+        $return['details'] = $details;
+        
+        unset(Yii::app()->session["post_pdf_data_id"]);
+
+        sleep(1);
+
+        Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
+        Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] = $return;
+
+        $output = array();
+        if (Yii::app()->session[Yii::app()->session["post_pdf_data_id"]] == "") {
+            $output["success"] = false;
+            return false;
+        }
+
+        $output["success"] = true;
+        $output["id"] = Yii::app()->session["post_pdf_data_id"];
+
+        echo json_encode($output);
+        Yii::app()->end();
+    }
+
+    public function actionLoadReturnablePDF($id) {
+        
+        $data = Yii::app()->session[$id];
+
+        if ($data == "") {
+            echo "Error: Please close and try again.";
+            return false;
+        }
+        
+        ob_start();        
+        
+        $headers = $data['headers'];
+        $source = $data['source'];
+        $destination = $data['destination'];
+        $details = $data['details'];
+        
+        $pdf = Globals::pdf();
+        
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        $pdf->SetFont('DejaVu Sans', '#000', 10);
+        
+        $pdf->AddPage();
+        
+        $html = '
+        <style type="text/css">
+            .text-center { text-align: center; }
+            .title { font-size: 12px; }
+            .sub-title { font-size: 10px; }
+            .title-report { font-size: 15px; font-weight: bold; }
+            .table_main { font-size: 8px; }
+            .table_details { font-size: 8px; width: 100%; }
+            .table_footer { font-size: 8px; width: 100%; }
+            .border-bottom { border-bottom: 1px solid #333; font-size: 8px; }
+            .row_label { width: 120px; }
+            .row_content_sm { width: 100px; }
+            .row_content_lg { width: 300px; }
+            .align-right { text-align: right; }
+        </style>
+        
+        <div id="header" class="text-center">
+            <span class="title">ASIA BREWERY INCORPORATED</span><br/>
+            <span class="sub-title">16th FLOOR ALLIED BANK CENTER, AYALA AVENUE, MAKATI CITY</span><br/>
+            <span class="title-report">RETURNABLE RECEIPT</span>
+        </div><br/><br/>
+        
+        <table class="table_main">
+            <tr>
+                <td style="font-weight: bold; width: 100px;">WAREHOUSE NAME</td>
+                <td class="border-bottom" style="width: 370px;">' . $destination['sales_office_name'] . '</td>
+                <td style="font-weight: bold; width: 90px;">DATE RETURNED</td>
+                <td class="border-bottom" style="width: 100px;">' . $headers['date_returned'] . '</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold;">ADDRESS</td>
+                <td class="border-bottom">' . $destination['address'] . '</td>
+                <td></td>
+            </tr>
+        </table><br/><br/>
+        
+        <table class="table_main">
+            <tr>
+                <td style="width: 100px;"></td>
+                <td style="width: 130px;"></td>
+                <td style="width: 50px;"></td>
+                <td style="width: 80px;"></td>
+                <td style="width: 300px;"></td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold;">RR NO.</td>
+                <td class="border-bottom">' . $headers['return_receipt_no'] . '</td>
+                <td colspan="2" style="font-weight: bold;">CUSTOMER / SALESOFFICE</td>
+                <td class="border-bottom">' . $source['source_name'] . '</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold;">REFERENCE DR NO.</td>
+                <td class="border-bottom">' . $headers['reference_dr_no'] . '</td>
+                <td style="font-weight: bold;">ADDRESS</td>
+                <td colspan="2" class="border-bottom">' . $source['source_address'] . '</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold;">DESTINATION ZONE</td>
+                <td colspan="4" class="border-bottom">' . $destination['zone_name'] . '</td>
+            </tr>
+        </table><br/><br/><br/>
+        
+        <table class="table_details" border="1">
+            <tr>
+                <td style="font-weight: bold;">MM CODE</td>
+                <td style="font-weight: bold; width: 100px;">MM DESCRIPTION</td>
+                <td style="font-weight: bold;">BRAND</td>
+                <td style="font-weight: bold;">MM CATEGORY</td>
+                <td style="font-weight: bold;">MM SUB-CATEGORY</td>
+                <td style="font-weight: bold; width: 60px;">QUANTITY ISSUED</td>
+                <td style="font-weight: bold; width: 60px;">RETURNED QUANTITY</td>
+                <td style="font-weight: bold; width: 40px;">UOM</td>
+                <td style="font-weight: bold;">UNIT PRICE</td>
+                <td style="font-weight: bold;">STATUS</td>
+                <td style="font-weight: bold;">REMARKS</td>
+            </tr>';
+
+        $qty_issued = 0;
+        $returned_qty = 0;
+        $total_unit_price = 0;
+        foreach ($details as $key => $val) {
+            $sku = Sku::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sku_id" => $val['sku_id']));
+            $uom = UOM::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $val['uom_id']));
+            
+            $html .= '<tr>
+                        <td>' . $sku->sku_code . '</td>
+                        <td>' . $sku->description . '</td>
+                        <td>' . $sku->brand->brand_name . '</td>
+                        <td>' . $sku->type . '</td>
+                        <td>' . $sku->sub_type . '</td>
+                        <td>' . $val['quantity_issued'] . '</td>
+                        <td>' . $val['returned_quantity'] . '</td>
+                        <td>' . $uom->uom_name . '</td>
+                        <td class="align-right">&#x20B1; ' . number_format($val['unit_price'], 2, '.', ',') . '</td>
+                        <td>' . $val['status'] . '</td>
+                        <td>' . $val['remarks'] . '</td>
+                    </tr>';
+
+            $qty_issued += $val['quantity_issued'];
+            $returned_qty += $val['returned_quantity'];
+            $total_unit_price += $val['unit_price'];
+        }
+        
+        $html .= '<tr>
+                    <td colspan="11"></td>
+                </tr>
+                <tr>
+                    <td colspan="5" style="text-align: right; font-weight: bold;">GRAND TOTAL</td>
+                    <td>' . $qty_issued . '</td>
+                    <td>' . $returned_qty . '</td>
+                    <td></td>
+                    <td class="align-right">&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
+                    <td colspan="2"></td>
+                </tr>';
+        
+        $html .= '</table><br/><br/><br/>
+
+                <table class="table_footer">
+                    <tr>
+                        <td style="width: 180px; border-top: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000; font-weight: bold;">REMARKS:</td>
+                        <td style="width: 100px;"></td>
+                        <td style="width: 150px; font-weight: bold;">RETURNED BY:</td>
+                        <td style="width: 100px;"></td>
+                        <td style="width: 150px; font-weight: bold;">RECEIVED BY:</td>
+                    </tr>
+                    <tr>
+                        <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000; min-height: 50px; height: 50px;"><br/>' . $headers['remarks'] . '<br/></td>
+                        <td></td>
+                        <td class="border-bottom"></td>
+                        <td></td>
+                        <td class="border-bottom"></td>
+                    </tr>
+                </table>';
+        
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        $pdf->Output('inbound.pdf', 'I');
+        
+    }
 }

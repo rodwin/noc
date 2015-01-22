@@ -522,4 +522,29 @@ class Returnable extends CActiveRecord {
         return $data;
     }
 
+    public function getReturnFromID($model, $key, $return_label, $post_data) {
+
+        $source_arr = Returnable::model()->getListReturnFrom();
+        $data = array();
+
+        if ($key == $source_arr[0]['value']) {
+
+            if ($post_data[$return_label . $source_arr[0]['id']] != "") {
+                $data['id'] = $post_data[$return_label . $source_arr[0]['id']];
+            }
+        } else if ($key == $source_arr[1]['value']) {
+
+            if ($post_data[$return_label . $source_arr[1]['id']] != "") {
+                $data['id'] = $post_data[$return_label . $source_arr[1]['id']];
+            }
+        } else {
+
+            if ($post_data[$return_label . $source_arr[2]['id']] != "") {
+                $data['id'] = $post_data[$return_label . $source_arr[2]['id']];
+            }
+        }
+
+        return $data;
+    }
+
 }
