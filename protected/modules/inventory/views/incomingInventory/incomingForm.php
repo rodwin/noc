@@ -198,6 +198,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($incoming, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'value' => date("Y-m-d"), 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
+                <?php echo $form->textFieldGroup($incoming, 'contact_person', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
+
+                <?php echo $form->textFieldGroup($incoming, 'contact_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
+
                 <?php echo $form->textFieldGroup($incoming, 'plan_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php
@@ -950,6 +954,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $("#IncomingInventory_plan_delivery_date").val(data.headers.plan_delivery_date);
                 //                $("#IncomingInventory_plan_arrival_date").val(data.headers.plan_arrival_date);
                 $("#IncomingInventory_outgoing_inventory_id").val(data.headers.outgoing_inventory_id);
+                $("#IncomingInventory_contact_person").val(data.headers.contact_person);
+                $("#IncomingInventory_contact_no").val(data.headers.contact_no);
 
                 total_amount = 0;
                 $("#IncomingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
