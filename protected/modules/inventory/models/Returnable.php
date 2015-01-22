@@ -26,11 +26,8 @@
 class Returnable extends CActiveRecord {
 
     public $search_string;
-    public $receive_return_from_div_id;
 
     const RETURNABLE_LABEL = "RETURNABLE";
-//    const RETURN_RECEIPT = "RETURN RECEIPT";
-    const RETURN_MDSE = "RETURN MDSE";
 
     /**
      * @return string the associated database table name
@@ -512,17 +509,14 @@ class Returnable extends CActiveRecord {
             
             $model->receive_return_from = $source_arr[1]['value'];
             $model->receive_return_from_id = $employee->employee_id;
-            $model->receive_return_from_div_id = $source_arr[1]['id'];
         } else if ($zone) {
             
             $model->receive_return_from = $source_arr[0]['value'];
             $model->receive_return_from_id = $zone->salesOffice->sales_office_id;
-            $model->receive_return_from_div_id = $source_arr[0]['id'];
         } else if ($poi) {
             
             $model->receive_return_from = $source_arr[2]['value'];
             $model->receive_return_from_id = $poi->poi_id;
-            $model->receive_return_from_div_id = $source_arr[2]['id'];
         }
         
         return $data;
