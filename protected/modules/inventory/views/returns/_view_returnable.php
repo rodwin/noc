@@ -185,5 +185,51 @@ $this->breadcrumbs = array(
     $('#btn_print').click(function() {
         print();
     });
+    
+    function print() {
+
+        if ($("#btn_print").is("[disabled=disabled]")) {
+            return false;
+        } else {
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo Yii::app()->createUrl($this->module->id . '/Returns/returnableViewPrint', array("returnable_id" => $model->returnable_id)); ?>',
+                dataType: "json",
+                beforeSend: function(data) {
+                    $("#btn_print").attr('disabled', true);
+                    $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Loading...');
+                },
+                success: function(data) {
+                    if (data.success === true) {
+                        var params = [
+                            'height=' + screen.height,
+                            'width=' + screen.width,
+                            'fullscreen=yes'
+                        ].join(',');
+
+                        var tab = window.open(<?php echo "'" . Yii::app()->createUrl($this->module->id . '/Returns/loadReturnablePDF') . "'" ?> + "&id=" + data.id, "_blank", params);
+
+                        $("#btn_print").attr('disabled', false);
+                        $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
+
+                        if (tab) {
+                            tab.focus();
+                            tab.moveTo(0, 0);
+                        } else {
+                            alert('Please allow popups for this site');
+                        }
+                    }
+
+                    return false;
+                },
+                error: function(data) {
+                    alert("Error occured: Please try again.");
+                    $("#btn_print").attr('disabled', false);
+                    $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
+                }
+            });
+        }
+
+    }
 
 </script>
