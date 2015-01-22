@@ -427,6 +427,20 @@ $this->breadcrumbs = array(
             });
             return false;
         });
+        
+        jQuery(document).on('click', '#returnable_table a.view', function() {
+
+            if (typeof returnable_detail_table_loaded != "undefined") {
+                returnable_detail_table_loaded.abort();
+            }
+
+            if (typeof returnable_attachments_table_loaded != "undefined") {
+                returnable_attachments_table_loaded.abort();
+            }
+
+        });
+        
+//----- RETURN RECEIPT
 
         return_receipt_table = $('#return_receipt_table').dataTable({
             "filter": true,
@@ -541,6 +555,20 @@ $this->breadcrumbs = array(
             return false;
         });
 
+        jQuery(document).on('click', '#return_receipt_table a.view', function() {
+
+            if (typeof return_receipt_detail_table_loaded != "undefined") {
+                return_receipt_detail_table_loaded.abort();
+            }
+
+            if (typeof return_receipt_attachments_table_loaded != "undefined") {
+                return_receipt_attachments_table_loaded.abort();
+            }
+
+        });
+        
+//----- RETURN MSDE
+
         return_mdse_table = $('#return-mdse_table').dataTable({
             "filter": true,
             "dom": 'l<"text-center"r>t<"pull-left"i><"pull-right"p>',
@@ -615,6 +643,18 @@ $this->breadcrumbs = array(
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
             }
+        });
+
+        jQuery(document).on('click', '#return-mdse_table a.view', function() {
+
+            if (typeof return_mdse_detail_table_loaded != "undefined") {
+                return_mdse_detail_table_loaded.abort();
+            }
+
+            if (typeof return_mdse_attachments_table_loaded != "undefined") {
+                return_mdse_attachments_table_loaded.abort();
+            }
+
         });
 
     });
