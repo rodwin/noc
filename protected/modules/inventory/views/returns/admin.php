@@ -390,7 +390,7 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                //                $('td:eq(1)', nRow).addClass("text-center");
+                $('td:eq(1)', nRow).addClass("text-center");
             }
         });
 
@@ -519,7 +519,7 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                //                $('td:eq(1)', nRow).addClass("text-center");
+                $('td:eq(1)', nRow).addClass("text-center");
             }
         });
 
@@ -565,6 +565,28 @@ $this->breadcrumbs = array(
                 return_receipt_attachments_table_loaded.abort();
             }
 
+        });
+
+        jQuery(document).on('click', '#return_receipt_attachments_table a.delete_attachment', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    $.growl(data, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: 'success'
+                    });
+
+                    loadAttachmentPreview(return_receipt_attachment_table, return_receipt_attachments_table_loaded, selected_return_receipt_id, $("#return_receipt_lower_table_loader"));
+                },
+                error: function(status, exception) {
+                    alert(status.responseText);
+                }
+            });
+            return false;
         });
         
 //----- RETURN MSDE
@@ -642,6 +664,7 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(1)', nRow).addClass("text-center");
             }
         });
 
@@ -687,6 +710,28 @@ $this->breadcrumbs = array(
                 return_mdse_attachments_table_loaded.abort();
             }
 
+        });
+
+        jQuery(document).on('click', 'a.download_attachment', function() {
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'json',
+                'success': function(data) {
+                    if (data.success === true) {
+                        window.location.href = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/loadAttachmentDownload&name=" + data.name + "&src=" + data.src;
+                    }
+
+                    $.growl(data.message, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: data.type
+                    });
+                },
+                error: function(jqXHR, exception) {
+                    alert('An error occured: ' + exception);
+                }
+            });
+            return false;
         });
 
     });
@@ -746,7 +791,7 @@ $this->breadcrumbs = array(
 
         ajax_table_var = $.ajax({
             type: 'POST',
-            url: '<?php echo Yii::app()->createUrl('/inventory/Returns/preview'); ?>' + '&id=' + id,
+            url: '<?php echo Yii::app()->createUrl('/inventory/Returns/attachmentPreview'); ?>' + '&id=' + id,
             dataType: "json",
             beforeSend: function() {
                 loader_id.html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");

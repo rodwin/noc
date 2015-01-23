@@ -72,7 +72,8 @@ $hide_Returnable = $isReturnable === false ? "display: none;" : "";
                 'return_receipt_detail' => $return_receipt_detail,
                 'uom' => $uom,
                 'sku_status' => $sku_status,
-                'isReturnable' => $isReturnable
+                'isReturnable' => $isReturnable,
+                'attachment' => $attachment,
             ));
             ?>
         </div>
