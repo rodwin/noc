@@ -26,8 +26,11 @@
 class Returnable extends CActiveRecord {
 
     public $search_string;
+    public $receive_return_from_div_id;
 
-    const RETURNABLE = "RETURNABLE";
+    const RETURNABLE_LABEL = "RETURNABLE";
+//    const RETURN_RECEIPT = "RETURN RECEIPT";
+    const RETURN_MDSE = "RETURN MDSE";
 
     /**
      * @return string the associated database table name
@@ -43,14 +46,14 @@ class Returnable extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, return_receipt_no, receive_return_from, transaction_date, date_returned, destination_zone_id', 'required'),
-            array('company_id, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, destination_zone_id, created_by, updated_by', 'length', 'max' => 50),
+            array('company_id, return_receipt_no, reference_dr_no, receive_return_from, transaction_date, date_returned, destination_zone_id', 'required'),
+            array('company_id, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, destination_zone_id, created_by, updated_by, status', 'length', 'max' => 50),
             array('remarks', 'length', 'max' => 150),
             array('total_amount', 'length', 'max' => 18),
             array('transaction_date, date_returned, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('returnable_id, company_id, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, transaction_date, date_returned, destination_zone_id, remarks, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
+            array('returnable_id, company_id, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, transaction_date, date_returned, destination_zone_id, remarks, total_amount, created_date, created_by, updated_date, updated_by, status', 'safe', 'on' => 'search'),
         );
     }
 
@@ -85,6 +88,7 @@ class Returnable extends CActiveRecord {
             'date_returned' => 'Date Returned',
             'destination_zone_id' => 'Destination Zone',
             'remarks' => 'Remarks',
+            'status' => 'Status',
             'total_amount' => 'Total Amount',
             'created_date' => 'Created Date',
             'created_by' => 'Created By',
@@ -120,6 +124,7 @@ class Returnable extends CActiveRecord {
         $criteria->compare('date_returned', $this->date_returned, true);
         $criteria->compare('destination_zone_id', $this->destination_zone_id, true);
         $criteria->compare('remarks', $this->remarks, true);
+        $criteria->compare('status', $this->status, true);
         $criteria->compare('total_amount', $this->total_amount, true);
         $criteria->compare('created_date', $this->created_date, true);
         $criteria->compare('created_by', $this->created_by, true);
@@ -199,14 +204,6 @@ class Returnable extends CActiveRecord {
             array('value' => 'SALESOFFICE', 'title' => 'Salesoffice', 'id' => 'selected_salesoffice'),
             array('value' => 'SALESMAN', 'title' => 'Salesman', 'id' => 'selected_salesman'),
             array('value' => 'OUTLET', 'title' => 'Outlet', 'id' => 'selected_outlet'),
-        );
-    }
-
-    public function getListReturnTo() {
-
-        return array(
-            array('value' => 'SALESOFFICE', 'title' => 'Salesoffice'),
-            array('value' => 'SUPPLIER', 'title' => 'Supplier'),
         );
     }
 
@@ -298,19 +295,24 @@ class Returnable extends CActiveRecord {
         }
 
         $item_status = array();
-        $incoming_status = "";
+
+        $data = array();
+        $data['success'] = false;
+
+        $returnable_status = "";
+
         foreach ($transaction_details as $v) {
             $item_status[$v['status']][] = $v['status'];
         }
 
         if (array_key_exists(OutgoingInventory::OUTGOING_PENDING_STATUS, $item_status)) {
-            $incoming_status = OutgoingInventory::OUTGOING_PENDING_STATUS;
+            $returnable_status = OutgoingInventory::OUTGOING_PENDING_STATUS;
         } else if (array_key_exists(OutgoingInventory::OUTGOING_INCOMPLETE_STATUS, $item_status)) {
-            $incoming_status = OutgoingInventory::OUTGOING_INCOMPLETE_STATUS;
+            $returnable_status = OutgoingInventory::OUTGOING_INCOMPLETE_STATUS;
         } else if (array_key_exists(OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS, $item_status)) {
-            $incoming_status = OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS;
+            $returnable_status = OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS;
         } else {
-            $incoming_status = OutgoingInventory::OUTGOING_COMPLETE_STATUS;
+            $returnable_status = OutgoingInventory::OUTGOING_COMPLETE_STATUS;
         }
 
         $returnable = new Returnable;
@@ -326,7 +328,7 @@ class Returnable extends CActiveRecord {
                 'destination_zone_id' => $this->destination_zone_id,
                 'transaction_date' => $this->transaction_date,
                 'date_returned' => $this->date_returned,
-                'status' => $incoming_status,
+                'status' => $returnable_status,
                 'remarks' => $this->remarks,
                 'total_amount' => $this->total_amount,
                 'created_by' => $this->created_by,
@@ -358,6 +360,180 @@ class Returnable extends CActiveRecord {
             Yii::log($exc->getTraceAsString(), 'error');
             return false;
         }
+
+
+        return $data;
+    }
+
+    public function checkReturnDateStatus($date) {
+
+        $status = "";
+        if (date("Y-m-d", strtotime($date)) < date("Y-m-d")) {
+            $status = "OVER DUE";
+        } else if (date("Y-m-d", strtotime($date)) == date("Y-m-d")) {
+            $status = "DUE DATE";
+        }
+
+        return $status;
+    }
+
+    public function queryReturnInfraDetails($company_id, $dr_no, $sku_id) {
+
+        $sql1 = "SELECT a.*, b.*, c.*, f.brand_name, g.uom_name, (b.quantity_received - SUM(IFNULL(e.returned_quantity,0))) AS remaining_qty
+                    FROM incoming_inventory a
+                    INNER JOIN incoming_inventory_detail b ON b.incoming_inventory_id = a.incoming_inventory_id
+                    INNER JOIN sku c ON c.sku_id = b.sku_id
+                    LEFT JOIN brand f ON f.brand_id = c.brand_id
+                    LEFT JOIN uom g ON g.uom_id = c.default_uom_id
+                    LEFT JOIN returnable d ON d.reference_dr_no = a.dr_no
+                    LEFT JOIN returnable_detail e ON e.returnable_id = d.returnable_id
+
+                    WHERE a.company_id = :company_id AND a.dr_no = :dr_no AND c.sku_id = :sku_id
+                    GROUP BY a.dr_no";
+                
+        $command1 = Yii::app()->db->createCommand($sql1);
+        $command1->bindParam(':company_id', $company_id, PDO::PARAM_STR);
+        $command1->bindParam(':dr_no', $dr_no, PDO::PARAM_STR);
+        $command1->bindParam(':sku_id', $sku_id, PDO::PARAM_STR);
+        $data1 = $command1->queryAll();
+                
+        $sql2 = "SELECT a.*, b.*, c.*, f.brand_name, g.uom_name, (b.quantity_issued - SUM(IFNULL(e.returned_quantity,0))) AS remaining_qty
+                    FROM customer_item a
+                    INNER JOIN customer_item_detail b ON b.customer_item_id = a.customer_item_id
+                    INNER JOIN sku c ON c.sku_id = b.sku_id
+                    LEFT JOIN brand f ON f.brand_id = c.brand_id
+                    LEFT JOIN uom g ON g.uom_id = c.default_uom_id
+                    LEFT JOIN returnable d ON d.reference_dr_no = a.dr_no
+                    LEFT JOIN returnable_detail e ON e.returnable_id = d.returnable_id
+
+                    WHERE a.company_id = :company_id AND a.dr_no = :dr_no AND c.sku_id = :sku_id
+                    GROUP BY a.dr_no";
+                
+        $command2 = Yii::app()->db->createCommand($sql2);
+        $command2->bindParam(':company_id', $company_id, PDO::PARAM_STR);
+        $command2->bindParam(':dr_no', $dr_no, PDO::PARAM_STR);
+        $command2->bindParam(':sku_id', $sku_id, PDO::PARAM_STR);
+        $data2 = $command2->queryAll();
+
+        $new_data = array();
+        
+        if (count($data1) > 0) {
+
+            $new_data['source_header'] = IncomingInventory::INCOMING_LABEL;
+            $new_data['source_details'] = $data1;
+        } else {
+
+            $new_data['source_header'] = CustomerItem::CUSTOMER_ITEM_LABEL;
+            $new_data['source_details'] = $data2;
+        }
+
+        return $new_data;
+    }
+
+    public function getReturnFormDetails($company_id, $receive_return_from, $receive_return_from_id) {
+
+        $source_arr = Returnable::model()->getListReturnFrom();
+        $data = array();
+
+        if ($receive_return_from == $source_arr[0]['value']) {
+
+            $c1 = new CDbCriteria;
+            $c1->condition = "t.company_id = '" . $company_id . "' AND t.sales_office_id = '" . $receive_return_from_id . "'";
+            $sales_office = Salesoffice::model()->find($c1);
+
+            $data['source_name'] = isset($sales_office->sales_office_name) ? $sales_office->sales_office_name : "";
+            $data['source_code'] = isset($sales_office->sales_office_code) ? $sales_office->sales_office_code : "";
+            $data['contact_person'] = "";
+            $data['contact_no'] = "";
+            $data['address'] = isset($sales_office->address1) ? $sales_office->address1 : "";
+        } else if ($receive_return_from == $source_arr[1]['value']) {
+
+            $c2 = new CDbCriteria;
+            $c2->select = new CDbExpression('t.*, CONCAT(t.first_name, " ",t.last_name) AS fullname');
+            $c2->condition = "t.company_id = '" . $company_id . "' AND t.employee_id = '" . $receive_return_from_id . "'";
+            $employee = Employee::model()->find($c2);
+
+            $data['source_name'] = isset($employee->fullname) ? $employee->fullname : "";
+            $data['source_code'] = isset($employee->employee_code) ? $employee->employee_code : "";
+            $data['contact_person'] = "";
+            $data['contact_no'] = isset($employee->work_phone_number) ? $employee->work_phone_number : "";
+            $data['address'] = isset($employee->address1) ? $employee->address1 : "";
+        } else if ($receive_return_from == $source_arr[2]['value']) {
+
+            $c3 = new CDbCriteria;
+            $c3->select = new CDbExpression('t.*, TRIM(barangay.barangay_name) as barangay_name, TRIM(municipal.municipal_name) as municipal_name, TRIM(province.province_name) as province_name, TRIM(region.region_name) as region_name');
+            $c3->condition = "t.company_id = '" . $company_id . "' AND t.poi_id = '" . $receive_return_from_id . "'";
+            $c3->join = 'LEFT JOIN barangay ON barangay.barangay_code = t.barangay_id';
+            $c3->join .= ' LEFT JOIN municipal ON municipal.municipal_code = t.municipal_id';
+            $c3->join .= ' LEFT JOIN province ON province.province_code = t.province_id';
+            $c3->join .= ' LEFT JOIN region ON region.region_code = t.region_id';
+            $poi = Poi::model()->find($c3);
+
+            $data['source_name'] = isset($poi->short_name) ? $poi->short_name: "";
+            $data['source_code'] = isset($poi->primary_code) ? $poi->primary_code : "";
+            $data['contact_person'] = "";
+            $data['contact_no'] = "";
+            $data['address'] = isset($poi->address1) ? $poi->address1 : "";
+        }
+
+        return $data;
+    }
+
+    public function getReturnableSource($company_id, $dr_no, $source, $model) {
+
+        $data = array();
+        
+        if ($source['source'] == IncomingInventory::INCOMING_LABEL) {
+
+            $c = new CDbCriteria;
+            $c->condition = "incomingInventory.company_id = '" . Yii::app()->user->company_id . "' AND incomingInventory.dr_no = '" . $dr_no . "'";
+            $c->with = array('incomingInventory', 'sku');
+            $incoming_inv_detail = IncomingInventoryDetail::model()->find($c);
+            
+            $model->destination_zone_id = $incoming_inv_detail->source_zone_id;
+        } else {
+            
+            $c1 = new CDbCriteria;
+            $c1->condition = "customerItem.company_id = '" . Yii::app()->user->company_id . "' AND customerItem.dr_no = '" . $dr_no . "'";
+            $c1->with = array('customerItem', 'sku');
+            $customer_item_detail = CustomerItemDetail::model()->find($c1);
+            
+            $model->destination_zone_id = $customer_item_detail->source_zone_id;
+        }
+        
+        $c2 = new CDbCriteria;
+        $c2->condition = "t.company_id = '" . $company_id . "' AND t.default_zone_id = '" . $source['source_id'] . "'";
+        $employee = Employee::model()->find($c2);
+        
+        $c3 = new CDbCriteria;
+        $c3->condition = "t.company_id = '" . $company_id . "' AND t.zone_id = '" . $source['source_id'] . "'";
+        $c3->with = array('salesOffice');
+        $zone = Zone::model()->find($c3);
+        
+        $c4 = new CDbCriteria;
+        $c4->condition = "company_id = '" . $company_id . "' AND t.poi_id = '" . $source['source_id'] . "'";
+        $poi = Poi::model()->find($c4);
+        
+        $source_arr = Returnable::model()->getListReturnFrom();
+        
+        if ($employee) {
+            
+            $model->receive_return_from = $source_arr[1]['value'];
+            $model->receive_return_from_id = $employee->employee_id;
+            $model->receive_return_from_div_id = $source_arr[1]['id'];
+        } else if ($zone) {
+            
+            $model->receive_return_from = $source_arr[0]['value'];
+            $model->receive_return_from_id = $zone->salesOffice->sales_office_id;
+            $model->receive_return_from_div_id = $source_arr[0]['id'];
+        } else if ($poi) {
+            
+            $model->receive_return_from = $source_arr[2]['value'];
+            $model->receive_return_from_id = $poi->poi_id;
+            $model->receive_return_from_div_id = $source_arr[2]['id'];
+        }
+        
+        return $data;
     }
 
 }

@@ -28,40 +28,44 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
     .hide_row { display: none; }
 
-    #transaction_table2 td { text-align:center; }
-    #transaction_table2 td + td { text-align: left; }
+    #transaction_table2 td, #transaction_table3 td { text-align:center; }
+    #transaction_table2 td + td, #transaction_table3 td + td { text-align: left; }
 </style>
 
-<?php $not_set = "'<center>--</center>'"; ?>
+<?php
+$not_set = "'<center>--</center>'";
+$hide_notReturnable = $isReturnable === true ? "display: none;" : "";
+$hide_Returnable = $isReturnable === false ? "display: none;" : "";
+?>
 
 <div class="nav-tabs-custom" id ="custTabs">
     <ul class="nav nav-tabs">
-        <li class="active"><a href="#tab_1" data-toggle="tab" class="returns_tab_cls"><?php echo Returns::RETURNABLE; ?></a></li>
-        <li><a href="#tab_2" data-toggle="tab" class="returns_tab_cls"><?php echo Returns::RETURN_RECEIPT; ?></a></li>
-        <li><a href="#tab_3" data-toggle="tab" class="returns_tab_cls"><?php echo Returns::RETURN_MDSE; ?></a></li>
+        <li class="<?php echo $form == 1 ? "active" : ""; ?>"><a href="#tab_1" data-toggle="tab" class="returns_tab_cls"  style=''><?php echo Returnable::RETURNABLE_LABEL; ?></a></li>
+        <li class="<?php echo $form == 2 ? "active" : ""; ?>"><a href="#tab_2" data-toggle="tab" class="returns_tab_cls" style='<?php echo $hide_notReturnable; ?>'><?php echo ReturnReceipt::RETURN_RECEIPT_LABEL; ?></a></li>
+        <li class="<?php echo $form == 3 ? "active" : ""; ?>"><a href="#tab_3" data-toggle="tab" class="returns_tab_cls" style='<?php echo $hide_notReturnable; ?>'><?php echo Returnable::RETURN_MDSE; ?></a></li>
     </ul>
     <div class="tab-content" id ="info">
-        <div class="tab-pane active" id="tab_1">
+        <div class="tab-pane <?php echo $form == 1 ? "active" : ""; ?>" id="tab_1">
             <?php
             $this->renderPartial("_returnable", array(
                 'returnable' => $returnable,
                 'return_from_list' => $return_from_list,
                 'zone_list' => $zone_list,
-                'poi_list' => $poi_list,
                 'salesoffice_list' => $salesoffice_list,
                 'employee' => $employee,
                 'not_set' => $not_set,
+                'isReturnable' => $isReturnable,
+                'sku_id' => $sku_id,
             ));
             ?>
         </div>
 
-        <div class="tab-pane" id="tab_2">
+        <div class="tab-pane <?php echo $form == 2 ? "active" : ""; ?>" id="tab_2">
             <?php
             $this->renderPartial("_return_receipt", array(
                 'return_receipt' => $return_receipt,
                 'return_from_list' => $return_from_list,
                 'zone_list' => $zone_list,
-                'poi_list' => $poi_list,
                 'salesoffice_list' => $salesoffice_list,
                 'employee' => $employee,
                 'not_set' => $not_set,
@@ -72,8 +76,18 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             ?>
         </div>
 
-        <div class="tab-pane" id="tab_3">
-            <?php $this->renderPartial("_return_mdse", array()); ?>
+        <div class="tab-pane <?php echo $form == 3 ? "active" : ""; ?>" id="tab_3">
+            <?php
+            $this->renderPartial("_return_mdse", array(
+                'return_mdse' => $return_mdse,
+                'return_mdse_detail' => $return_mdse_detail,
+                'return_to_list' => $return_to_list,
+                'not_set' => $not_set,
+                'salesoffice_list' => $salesoffice_list,
+                'sku' => $sku,
+                'warehouse_list' => $warehouse_list,
+            ));
+            ?>
         </div>
     </div>
 </div>
@@ -111,6 +125,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $("#" + return_type_label + "salesoffice_address1").html(data.so_detail.sales_office_address1);
             },
             error: function(data) {
+                console.log(data);
                 alert("Error occured: Please try again.");
             }
         });
@@ -157,6 +172,67 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
     }
 
+    function loadSelect2POIDetailsByID(poi_id, return_type_label) {
+        $("." + return_type_label + "autofill_text").html(<?php echo $not_set; ?>);
+//        $("#" + return_type_label + "selected_outlet").select2("val", "");
+        $("#" + return_type_label + "selected_outlet").select2('data', {poi_id: "", short_name: ""});
+
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl('/library/poi/getPOIDetails'); ?>' + '&poi_id=' + poi_id,
+            dataType: "json",
+            success: function(data) {
+//                $("#" + return_type_label + "selected_outlet").select2("val", data.poi_id);
+                $("#" + return_type_label + "selected_outlet").select2('data', {poi_id: data.poi_id, short_name: data.short_name});
+                $("#" + return_type_label + "poi_primary_code").html(data.primary_code);
+                $("#" + return_type_label + "poi_address1").html(data.address1);
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+
+    }
+
+    function loadWarehouseDetailByID(sales_office_id, return_type_label) {
+        $("." + return_type_label + "autofill_text").html(<?php echo $not_set; ?>);
+        $("#" + return_type_label + "selected_warehouse").select2("val", "");
+
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl('/library/salesoffice/getSODetailsByID'); ?>' + '&sales_office_id=' + sales_office_id,
+            dataType: "json",
+            success: function(data) {
+                $("#" + return_type_label + "selected_warehouse").select2("val", data.so_detail.sales_office_id);
+                $("#" + return_type_label + "warehouse_code").html(data.so_detail.sales_office_code);
+                $("#" + return_type_label + "warehouse_address1").html(data.so_detail.sales_office_address1);
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+    }
+
+    function loadSelect2SupplierDetailByID(supplier_id, return_type_label) {
+        $("." + return_type_label + "autofill_text").html(<?php echo $not_set; ?>);
+        $("#" + return_type_label + "selected_supplier").select2('data', {supplier_id: "", supplier_name: ""});
+
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl('/library/supplier/getSupplierDetailsByID'); ?>' + '&supplier_id=' + supplier_id,
+            dataType: "json",
+            success: function(data) {
+                $("#" + return_type_label + "selected_supplier").select2('data', {supplier_id: data.supplier_id, supplier_name: data.supplier_name});
+                $("#" + return_type_label + "supplier_code").html(data.supplier_code);
+                $("#" + return_type_label + "supplier_address1").html(data.supplier_address1);
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+
+    }
+
     function deleteTransactionRow(delete_row_butt, selected_transaction_table, total_amount_var, total_amount_field) {
         if (!confirm('Are you sure you want to delete selected item?'))
             return false;
@@ -174,6 +250,25 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         delete_row_butt.hide();
+    }
+
+    function FormatPOIResult(item) {
+        var markup = "";
+        if (item.short_name !== undefined) {
+            markup += "<option value='" + item.poi_id + "'>" + item.short_name + "</option>";
+        }
+        return markup;
+    }
+
+    function FormatPOISelection(item) {
+        return item.short_name;
+    }
+
+    function growlAlert(type, message) {
+        $.growl(message, {
+            icon: 'glyphicon glyphicon-info-sign',
+            type: type
+        });
     }
 
 </script>

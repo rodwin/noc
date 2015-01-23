@@ -1092,4 +1092,85 @@ class InventoryController extends Controller {
         $this->render('upload_details', array('model' => $model, 'uploads' => $uploads));
     }
 
+
+    public function actionLoadAllReturns() {
+
+        $incoming_inv_detail = Inventory::model()->getAllRemainingIncomingReturns(Yii::app()->user->company_id);
+
+        $incoming_arr = array();
+        $incoming_pr_nos = "";
+        $incoming_pr_nos_arr = array();
+        if (count($incoming_inv_detail) > 0) {
+            foreach ($incoming_inv_detail as $k1 => $v1) {
+                $row = array();
+
+                if (trim($v1['pr_no']) != "") {
+                    if (!in_array($v1['pr_no'], $incoming_pr_nos_arr)) {
+                        array_push($incoming_pr_nos_arr, $v1['pr_no']);
+                        $incoming_pr_nos .= $v1['pr_no'] . ", ";
+                    }
+                }
+                
+                $status = Returnable::model()->checkReturnDateStatus($v1['return_date']);
+
+                $row['transaction_date'] = date("d-M", strtotime($v1['transaction_date']));
+                $row['transaction_type'] = "RETURN";
+                $row['pr_no'] = $incoming_pr_nos != "" ? substr(trim($incoming_pr_nos), 0, -1) : "";;
+                $row['dr_no'] = $v1['dr_no'];
+                $row['sku_description'] = $v1['description'];
+                $row['return_date'] = $v1['return_date'];
+                $row['qty'] = $v1['quantity_received'];
+                $row['remaining_qty'] = $v1['remaining_qty'];
+                $row['amount'] = $v1['amount'];
+                $row['status'] = $status;
+                $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/returns/createReturnable', array('dr_no' => $v1['dr_no'], 'sku_id' => $v1['sku_id'])) . '">
+                                    <i class="glyphicon glyphicon-eye-open"></i>
+                                </a>';
+
+                $incoming_arr[] = $row;
+            }
+        }
+        
+        $customer_item_detail = Inventory::model()->getAllRemainingOutgoingReturns(Yii::app()->user->company_id);
+        
+        $customer_item_arr = array();
+        $customer_item_pr_nos = "";
+        $customer_item_pr_nos_arr = array();
+        if (count($customer_item_detail) > 0) {
+            foreach ($customer_item_detail as $k2 => $v2) {
+                $row = array();
+
+                if (trim($v2['pr_no']) != "") {
+                    if (!in_array($v2['pr_no'], $customer_item_pr_nos)) {
+                        array_push($customer_item_pr_nos, $v2['pr_no']);
+                        $customer_item_pr_nos .= $v2['pr_no'] . ", ";
+                    }
+                }
+                
+                $status = Returnable::model()->checkReturnDateStatus($v2['return_date']);
+
+                $row['transaction_date'] = date("d-M", strtotime($v2['transaction_date']));
+                $row['transaction_type'] = "RETURN";
+                $row['pr_no'] = $customer_item_pr_nos != "" ? substr(trim($customer_item_pr_nos), 0, -1) : "";;
+                $row['dr_no'] = $v2['dr_no'];
+                $row['sku_description'] = $v2['description'];
+                $row['return_date'] = $v2['return_date'];
+                $row['qty'] = $v2['quantity_issued'];
+                $row['remaining_qty'] = $v2['remaining_qty'];
+                $row['amount'] = $v2['amount'];
+                $row['status'] = $status;
+                $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/returns/createReturnable', array('dr_no' => $v2['dr_no'], 'sku_id' => $v2['sku_id'])) . '">
+                                    <i class="glyphicon glyphicon-eye-open"></i>
+                                </a>';
+
+                $customer_item_arr[] = $row;
+            }
+        }
+
+        $output = array_merge($incoming_arr, $customer_item_arr);
+
+        echo json_encode($output);
+        Yii::app()->end();
+    }
+
 }
