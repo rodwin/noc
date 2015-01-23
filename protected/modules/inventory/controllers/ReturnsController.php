@@ -32,7 +32,7 @@ class ReturnsController extends Controller {
                 'actions' => array('create', 'update', 'data', 'loadReferenceDRNos', 'infraLoadDetailsByDRNo', 'queryInfraDetails', 'getDetailsByReturnInvID', 'createReturnable', 'infraLoadDetailsBySelectedDRNo',
                     'returnableData', 'getReturnableDetailsByReturnableID', 'attachmentPreview', 'returnableDelete', 'returnReceiptData', 'getReturnReceiptDetailsByReturnReceiptID', 'returnReceiptDelete', 'returnableView', 'getDetailsByReturnableID',
                     'returnReceiptView', 'getDetailsByReturnReceiptID', 'returnMdseData', 'getReturnMdseDetailsByReturnMdseID', 'returnMdseView', 'getDetailsByReturnMdseID', 'printReturnable', 'loadReturnablePDF', 'returnableViewPrint', 'returnReceiptViewPrint',
-                    'loadReturnReceiptPDF', 'printReturnReceipt', 'returnMdseDelete', 'returnMdseViewPrint', 'loadReturnMdsePDF', 'printReturnMdse', 'uploadAttachment', 'downloadAttachment', 'loadAttachmentDownload', 'deleteAttachment'),
+                    'loadReturnReceiptPDF', 'printReturnReceipt', 'returnMdseDelete', 'returnMdseViewPrint', 'loadReturnMdsePDF', 'printReturnMdse', 'uploadAttachment', 'downloadAttachment', 'loadAttachmentDownload', 'deleteAttachment', 'returnReceiptDetailDelete'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -1164,7 +1164,9 @@ class ReturnsController extends Controller {
             $row['pr_no'] = $value->pr_no;
             $row['uom_name'] = $uom->uom_name;
 
-            $row['links'] = "";
+            $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/Returns/returnReceiptDetailDelete', array('return_receipt_detail_id' => $value->return_receipt_detail_id)) . '">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </a>';
 
             $output['data'][] = $row;
         }
@@ -2810,6 +2812,31 @@ class ReturnsController extends Controller {
         closedir($dir_handle);
         rmdir($dirname);
         return true;
+    }
+    
+    public function actionReturnReceiptDetailDelete($return_receipt_detail_id) {        
+        if (Yii::app()->request->isPostRequest) {
+            try {
+
+                ReturnReceiptDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND return_receipt_detail_id = " . $return_receipt_detail_id);
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    echo "1451";
+                    exit;
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
     }
 
 }

@@ -495,8 +495,8 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                //                $('td:eq(11)', nRow).addClass("text-center");
-//                $('td:eq(5),td:eq(8)', nRow).addClass("text-right");
+                $('td:eq(8)', nRow).addClass("text-center");
+                $('td:eq(6)', nRow).addClass("text-right");
             }
         });
 
@@ -565,6 +565,28 @@ $this->breadcrumbs = array(
                 return_receipt_attachments_table_loaded.abort();
             }
 
+        });
+
+        jQuery(document).on('click', '#return_receipt_details_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    $.growl(data, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: 'success'
+                    });
+
+                    loadReturnReceiptDetails(selected_return_receipt_id);
+                },
+                error: function(status, exception) {
+                    alert(status.responseText);
+                }
+            });
+            return false;
         });
 
         jQuery(document).on('click', '#return_receipt_attachments_table a.delete_attachment', function() {
