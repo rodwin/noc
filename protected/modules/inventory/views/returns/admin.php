@@ -366,8 +366,8 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                //                $('td:eq(11)', nRow).addClass("text-center");
-//                $('td:eq(5),td:eq(8)', nRow).addClass("text-right");
+                $('td:eq(8)', nRow).addClass("text-center");
+                $('td:eq(6)', nRow).addClass("text-right");
             }
         });
 
@@ -427,7 +427,7 @@ $this->breadcrumbs = array(
             });
             return false;
         });
-        
+
         jQuery(document).on('click', '#returnable_table a.view', function() {
 
             if (typeof returnable_detail_table_loaded != "undefined") {
@@ -439,7 +439,29 @@ $this->breadcrumbs = array(
             }
 
         });
-        
+
+        jQuery(document).on('click', '#returnable_details_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    $.growl(data, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: 'success'
+                    });
+
+                    loadReturnableDetails(selected_returnable_id);
+                },
+                error: function(status, exception) {
+                    alert(status.responseText);
+                }
+            });
+            return false;
+        });
+
 //----- RETURN RECEIPT
 
         return_receipt_table = $('#return_receipt_table').dataTable({
@@ -610,7 +632,7 @@ $this->breadcrumbs = array(
             });
             return false;
         });
-        
+
 //----- RETURN MSDE
 
         return_mdse_table = $('#return-mdse_table').dataTable({
@@ -664,6 +686,8 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(8)', nRow).addClass("text-center");
+                $('td:eq(6)', nRow).addClass("text-right");
             }
         });
 
@@ -711,8 +735,8 @@ $this->breadcrumbs = array(
 
                         return_mdse_table.fnMultiFilter();
                     }
-
-                    loadReturnReceiptDetails(selected_return_receipt_id);
+                    
+                    loadReturnMdseDetails(selected_return_mdse_id);
                     loadAttachmentPreview(return_mdse_attachment_table, return_mdse_attachments_table_loaded, selected_return_mdse_id, $("#return_mdse_lower_table_loader"));
                 },
                 error: function(status, exception) {
@@ -751,6 +775,28 @@ $this->breadcrumbs = array(
                 },
                 error: function(jqXHR, exception) {
                     alert('An error occured: ' + exception);
+                }
+            });
+            return false;
+        });
+
+        jQuery(document).on('click', '#return_mdse_details_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    $.growl(data, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: 'success'
+                    });
+
+                    loadReturnMdseDetails(selected_return_mdse_id);
+                },
+                error: function(status, exception) {
+                    alert(status.responseText);
                 }
             });
             return false;
