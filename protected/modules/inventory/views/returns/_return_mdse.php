@@ -405,7 +405,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     var transaction_table3;
     var headers = "transaction";
     var details = "details";
-    var print = "print";
+    var printReturnMdse = "print_return_mdse";
     var total_amount3 = 0;
     var return_mdse_type = <?php echo "'" . ReturnMdse::RETURN_MDSE_LABEL . "'"; ?>;
     var return_mdse_label = <?php echo "'" . $return_mdse_label . "'"; ?>;
@@ -601,8 +601,8 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 $('#return-mdse-form select:not(.ignore), input:not(.ignore), textarea:not(.ignore)').val('');
                 $('.inventory_uom_selected').html('');
 
-            } else if (data.form == print && serializeTransactionTable3().length > 0) {
-                printPDF(data.print);
+            } else if (data.form == printReturnMdse && serializeTransactionTable3().length > 0) {
+                printReturnMdsePDF(data.print);
             }
 
             inventory_table.fnMultiFilter();
@@ -785,5 +785,43 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     $('#' + return_mdse_label + 'selected_warehouse').change(function() {
         loadWarehouseDetailByID(this.value, return_mdse_label);
     });
+
+    $('#btn_print3').click(function() {
+        sendReturnMdse(printReturnMdse);
+    });
+    
+    function printReturnMdsePDF(data) {
+        
+        $.ajax({
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/Returns/printReturnMdse'); ?> ',
+            type: 'POST',
+            dataType: "json",
+            data: {"post_data": data},
+            success: function(data) {
+                if (data.success === true) {
+                    var params = [
+                        'height=' + screen.height,
+                        'width=' + screen.width,
+                        'fullscreen=yes'
+                    ].join(',');
+
+                    var tab = window.open(<?php echo "'" . Yii::app()->createUrl($this->module->id . '/Returns/loadReturnMdsePDF') . "'" ?> + "&id=" + data.id, "_blank", params);
+
+                    if (tab) {
+                        tab.focus();
+                        tab.moveTo(0, 0);
+                    } else {
+                        alert('Please allow popups for this site');
+                    }
+                }
+
+                return false;
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+        
+    }
 
 </script>
