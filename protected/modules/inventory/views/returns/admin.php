@@ -23,7 +23,7 @@ $this->breadcrumbs = array(
     <ul class="nav nav-tabs">
         <li class="active"><a href="#returns_tab_1" data-toggle="tab"><?php echo Returnable::RETURNABLE_LABEL; ?></a></li>
         <li><a href="#returns_tab_2" data-toggle="tab"><?php echo ReturnReceipt::RETURN_RECEIPT_LABEL; ?></a></li>
-        <li><a href="#returns_tab_3" data-toggle="tab"><?php echo Returnable::RETURN_MDSE; ?></a></li>
+        <li><a href="#returns_tab_3" data-toggle="tab"><?php echo ReturnMdse::RETURN_MDSE_LABEL; ?></a></li>
     </ul>
     <div class="tab-content" id="info">
         <div class="tab-pane active" id="returns_tab_1">
@@ -645,6 +645,38 @@ $this->breadcrumbs = array(
             }
         });
 
+        jQuery(document).on('click', '#return-mdse_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1', 'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    if (data == "1451") {
+                        $.growl("Unable to delete", {
+                            icon: 'glyphicon glyphicon-warning-sign',
+                            type: 'danger'});
+
+                        selected_return_mdse_id = "";
+                    } else {
+                        $.growl(data, {
+                            icon: 'glyphicon glyphicon-info-sign',
+                            type: 'success'
+                        });
+
+                        return_mdse_table.fnMultiFilter();
+                    }
+
+                    loadReturnReceiptDetails(selected_return_receipt_id);
+                    loadAttachmentPreview(return_mdse_attachment_table, return_mdse_attachments_table_loaded, selected_return_mdse_id, $("#return_mdse_lower_table_loader"));
+                },
+                error: function(status, exception) {
+                    alert(status.responseText);
+                }
+            });
+            return false;
+        });
+
         jQuery(document).on('click', '#return-mdse_table a.view', function() {
 
             if (typeof return_mdse_detail_table_loaded != "undefined") {
@@ -708,7 +740,7 @@ $this->breadcrumbs = array(
 
     function loadAttachmentPreview(table, ajax_table_var, id, loader_id) {
 
-        if (typeof ajax_table_var != "undefined") {
+        if (typeof ajax_table_var !== "undefined") {
             ajax_table_var.abort();
         }
 

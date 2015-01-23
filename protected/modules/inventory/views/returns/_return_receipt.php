@@ -394,7 +394,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     var sku_table;
     var headers = "transaction";
     var details = "details";
-    var print = "print";
+    var printReturnReceipt = "print_return_receipt";
     var total_amount2 = 0;
     var return_receipt_type = <?php echo "'" . ReturnReceipt::RETURN_RECEIPT_LABEL . "'"; ?>;
     var return_to = <?php echo "'" . $destination_arr[0]['value'] . "'"; ?>;
@@ -585,8 +585,8 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 $('#return-receipt-form select:not(.ignore), input:not(.ignore), textarea:not(.ignore)').val('');
                 $('.sku_uom_selected').html('');
 
-            } else if (data.form == print && serializeTransactionTable2().length > 0) {
-                printPDF(data.print);
+            } else if (data.form == printReturnReceipt && serializeTransactionTable2().length > 0) {
+                printReturnReceiptPDF(data.print);
             }
 
             sku_table.fnMultiFilter();
@@ -738,5 +738,43 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             minimumInputLength: 1
         });
     });
+
+    $('#btn_print2').click(function() {
+        sendReturnReceipt(printReturnReceipt);
+    });
+    
+    function printReturnReceiptPDF(data) {
+        
+        $.ajax({
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/Returns/printReturnReceipt'); ?> ',
+            type: 'POST',
+            dataType: "json",
+            data: {"post_data": data},
+            success: function(data) {
+                if (data.success === true) {
+                    var params = [
+                        'height=' + screen.height,
+                        'width=' + screen.width,
+                        'fullscreen=yes'
+                    ].join(',');
+
+                    var tab = window.open(<?php echo "'" . Yii::app()->createUrl($this->module->id . '/Returns/loadReturnReceiptPDF') . "'" ?> + "&id=" + data.id, "_blank", params);
+
+                    if (tab) {
+                        tab.focus();
+                        tab.moveTo(0, 0);
+                    } else {
+                        alert('Please allow popups for this site');
+                    }
+                }
+
+                return false;
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+        
+    }
 
 </script>

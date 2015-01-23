@@ -314,4 +314,29 @@ class ReturnMdse extends CActiveRecord {
         return $data;
     }
 
+    public function getReturnToID($key, $return_label, $post_data) {
+
+        $destination_arr = ReturnMdse::model()->getListReturnTo();
+        $data = array();
+
+        if ($key == $destination_arr[0]['value']) {
+
+            if ($post_data[$return_label . $destination_arr[0]['id']] != "") {
+                $data['id'] = $post_data[$return_label . $destination_arr[0]['id']];
+            }
+        } else if ($key == $destination_arr[1]['value']) {
+
+            if ($post_data[$return_label . $destination_arr[1]['id']] != "") {
+                $data['id'] = $post_data[$return_label . $destination_arr[1]['id']];
+            }
+        } else {
+
+            if ($post_data[$return_label . $destination_arr[2]['id']] != "") {
+                $data['id'] = $post_data[$return_label . $destination_arr[2]['id']];
+            }
+        }
+
+        return $data;
+    }
+
 }
