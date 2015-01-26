@@ -38,6 +38,7 @@ $this->breadcrumbs = array(
                             <th><?php echo $returnableFields['receive_return_from']; ?></th>
                             <th><?php echo "Source Name"; ?></th>
                             <th><?php echo "Destination Zone"; ?></th>
+                            <th><?php echo $returnableFields['status']; ?></th>
                             <th><?php echo $returnableFields['total_amount']; ?></th>
                             <th><?php echo $returnableFields['remarks']; ?></th>
                             <th>Actions</th>                
@@ -45,6 +46,7 @@ $this->breadcrumbs = array(
                     </thead> 
                     <thead>
                         <tr id="filter_row">
+                            <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
@@ -326,6 +328,7 @@ $this->breadcrumbs = array(
                 {"name": "receive_return_from", "data": "receive_return_from"},
                 {"name": "source_name", "data": "source_name", 'sortable': false},
                 {"name": "destination_zone_name", "data": "destination_zone_name", 'sortable': false},
+                {"name": "status", "data": "status"},
                 {"name": "total_amount", "data": "total_amount"},
                 {"name": "remarks", "data": "remarks"},
                 {"name": "links", "data": "links", 'sortable': false}
