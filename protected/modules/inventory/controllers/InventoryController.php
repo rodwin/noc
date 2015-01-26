@@ -749,7 +749,7 @@ class InventoryController extends Controller {
             $status = Inventory::model()->status($val2->status);
 
             $row['transaction_type'] = '<a href="#" title="Click to view" data-toggle="tooltip"><b>' . strtoupper(IncomingInventory::INCOMING_LABEL) . '</b></a>';
-            $row['ra_no'] = $val->rra_no;
+            $row['ra_no'] = $val2->rra_no;
             $row['ra_date'] = date("d-M", strtotime($val2->rra_date));
             $row['dr_date'] = date("d-M", strtotime($val2->dr_date));
             $row['delivery_date'] = date("d-M", strtotime($val2->transaction_date));

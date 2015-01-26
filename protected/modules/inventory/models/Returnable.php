@@ -147,44 +147,44 @@ class Returnable extends CActiveRecord {
         switch ($col) {
 
             case 0:
-                $sort_column = 'returnable_id';
-                break;
-
-            case 1:
-                $sort_column = 'return_type';
-                break;
-
-            case 2:
                 $sort_column = 'return_receipt_no';
                 break;
 
-            case 3:
-                $sort_column = 'reference_dr_no';
+            case 1:
+                $sort_column = 'transaction_date';
                 break;
 
-            case 4:
+            case 2:
                 $sort_column = 'receive_return_from';
                 break;
 
+//            case 3:
+//                $sort_column = 'reference_dr_no';
+//                break;
+
+//            case 4:
+//                $sort_column = 'receive_return_from';
+//                break;
+
             case 5:
-                $sort_column = 'receive_return_from_id';
+                $sort_column = 'total_amount';
                 break;
 
             case 6:
-                $sort_column = 'transaction_date';
+                $sort_column = 'remarks';
                 break;
         }
 
 
         $criteria = new CDbCriteria;
         $criteria->compare('company_id', Yii::app()->user->company_id);
-        $criteria->compare('returnable_id', $columns[0]['search']['value']);
-        $criteria->compare('return_type', $columns[1]['search']['value'], true);
-        $criteria->compare('return_receipt_no', $columns[2]['search']['value'], true);
-        $criteria->compare('reference_dr_no', $columns[3]['search']['value'], true);
-        $criteria->compare('receive_return_from', $columns[4]['search']['value'], true);
-        $criteria->compare('receive_return_from_id', $columns[5]['search']['value'], true);
-        $criteria->compare('transaction_date', $columns[6]['search']['value'], true);
+        $criteria->compare('return_receipt_no', $columns[0]['search']['value']);
+        $criteria->compare('transaction_date', $columns[1]['search']['value'], true);
+        $criteria->compare('receive_return_from', $columns[2]['search']['value'], true);
+        $criteria->compare('reference_dr_no', $columns[3]['search']['value']);
+        $criteria->compare('receive_return_from', $columns[4]['search']['value']);
+        $criteria->compare('total_amount', $columns[5]['search']['value'], true);
+        $criteria->compare('remarks', $columns[6]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;

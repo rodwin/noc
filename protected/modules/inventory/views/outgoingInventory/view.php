@@ -193,7 +193,7 @@ $this->breadcrumbs = array(
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(10)', nRow).addClass("text-right");
 
-                if ((aData.sku_type).trim() === <?php echo trim("'" . Sku::INFRA . "'"); ?>) {
+                if ((aData.sku_type).trim() === <?php echo trim("'" . Sku::INFRA . "'"); ?> && <?php echo "'" . $model->status . "'" ?> === <?php echo "'" . OutgoingInventory::OUTGOING_PENDING_STATUS . "'" ?>) {
                     $('td:eq(7)', nRow).addClass("success");
 
                     $('td:eq(7)', nRow).editable(function(value, settings) {
