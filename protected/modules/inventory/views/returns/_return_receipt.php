@@ -380,11 +380,44 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 <div class="clearfix row">
     <div class="col-xs-12">
         <button id="btn_print2" class="btn btn-default submit_butt2" onclick=""><i class="fa fa-print"></i> Print</button>
-        <button id="btn_save2" class="btn btn-success pull-right submit_butt2" style=""><i class="glyphicon glyphicon-ok"></i> Save</button>  
+        <button id="btn-upload2" class="btn btn-primary pull-right submit_butt2"><i class="fa fa-fw fa-upload"></i> Attach</button>
+        <button id="btn_save2" class="btn btn-success pull-right submit_butt2" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>  
     </div>
 </div>
 
 <?php $this->endWidget(); ?>
+
+<?php
+$this->widget('booster.widgets.TbFileUpload', array(
+    'url' => $this->createUrl('Returns/uploadAttachment'),
+    'model' => $attachment,
+    'attribute' => 'file',
+    'multiple' => true,
+    'options' => array(
+        'maxFileSize' => 5000000,
+        'acceptFileTypes' => 'js:/(\.|\/)(gif|jpe?g|png|pdf|doc|docx|xls|xlsx)$/i',
+        'submit' => "js:function (e, data) {
+            var inputs = data.context.find('.returnReceiptTagValues');
+            data.formData = inputs.serializeArray();
+            console.log(data.formData);
+   }"
+    ),
+    'formView' => 'application.modules.inventory.views.returns._return_receipt_attach_form',
+    'uploadView' => 'application.modules.inventory.views.returns._return_receipt_upload',
+    'downloadView' => 'application.modules.inventory.views.returns._return_receipt_download',
+    'callbacks' => array(
+        'done' => new CJavaScriptExpression(
+                'function(e, data) { 
+                 return_receipt_attached_file_upload_count--;
+                         
+                 if(return_receipt_attached_file_upload_count == 0) {$("#return_receipt_attached_table tr").remove(); loadToReturnReceiptView(); }
+             }'
+        ),
+        'fail' => new CJavaScriptExpression(
+                'function(e, data) { console.log("fail"); }'
+        ),
+)));
+?>
 
 <script type="text/javascript">
 
@@ -521,7 +554,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                     $(".submit_butt2").attr("disabled", "disabled");
                     if (form == headers) {
                         $('#btn_save2').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
-                    } else if (form == print) {
+                    } else if (form == printReturnReceipt) {
                         $('#btn_print2').html('<i class="fa fa-print"></i>&nbsp; Loading...');
                     }
                 },
@@ -537,7 +570,16 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             });
         }
     }
+    
+    var return_receipt_attached_file_upload_count = 0;
+    var return_receipt_attachedFiles = new Array();
+    var return_receipt_attached_ctr;
 
+    function removeReturnReceiptAttachedbyID($id) {
+        return_receipt_attachedFiles.splice($id - 1, 1);
+    }
+    
+    var success_return_receipt_id, return_receipt_success_type, return_receipt_success_message;
     function validateForm2(data) {
 
         var e = $(".error");
@@ -552,10 +594,23 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         if (data.success === true) {
 
             if (data.form == headers) {
-
-                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/returnReceiptView&id=" + data.return_receipt_id;
                 
-                growlAlert(data.type, data.message);
+                success_return_receipt_id = data.return_receipt_id;
+                return_receipt_success_type = data.type;
+                return_receipt_success_message = data.message;
+
+                if (return_receipt_attachedFiles != "") {
+                    $('[id=saved_returns_receipt_type]').val(return_receipt_type);
+                    $('[id=saved_returns_receipt_id]').val(data.return_receipt_id);
+                    
+                    return_receipt_attached_file_upload_count = 0;
+                    return_receipt_attached_file_upload_count = return_receipt_attachedFiles.length;
+
+                    $('#return_receipt_uploading_attachments').click();
+                } else {
+                    loadToReturnReceiptView();
+                }
+                
             } else if (data.form == details) {
 
                 transaction_table2.fnAddData([
@@ -743,6 +798,10 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         sendReturnReceipt(printReturnReceipt);
     });
     
+    $('#btn-upload2').click(function() {
+        $('#return_receipt_file_uploads').click();
+    });
+    
     function printReturnReceiptPDF(data) {
         
         $.ajax({
@@ -775,6 +834,13 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             }
         });
         
+    }
+
+    function loadToReturnReceiptView() {
+
+        window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/returnReceiptView&id=" + success_return_receipt_id;
+     
+        growlAlert(return_receipt_success_type, return_receipt_success_message);
     }
 
 </script>

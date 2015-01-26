@@ -30,9 +30,9 @@ class ReturnsController extends Controller {
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('create', 'update', 'data', 'loadReferenceDRNos', 'infraLoadDetailsByDRNo', 'queryInfraDetails', 'getDetailsByReturnInvID', 'createReturnable', 'infraLoadDetailsBySelectedDRNo',
-                    'returnableData', 'getReturnableDetailsByReturnableID', 'preview', 'returnableDelete', 'returnReceiptData', 'getReturnReceiptDetailsByReturnReceiptID', 'returnReceiptDelete', 'returnableView', 'getDetailsByReturnableID',
+                    'returnableData', 'getReturnableDetailsByReturnableID', 'attachmentPreview', 'returnableDelete', 'returnReceiptData', 'getReturnReceiptDetailsByReturnReceiptID', 'returnReceiptDelete', 'returnableView', 'getDetailsByReturnableID',
                     'returnReceiptView', 'getDetailsByReturnReceiptID', 'returnMdseData', 'getReturnMdseDetailsByReturnMdseID', 'returnMdseView', 'getDetailsByReturnMdseID', 'printReturnable', 'loadReturnablePDF', 'returnableViewPrint', 'returnReceiptViewPrint',
-                    'loadReturnReceiptPDF', 'printReturnReceipt', 'returnMdseDelete', 'returnMdseViewPrint', 'loadReturnMdsePDF', 'printReturnMdse'),
+                    'loadReturnReceiptPDF', 'printReturnReceipt', 'returnMdseDelete', 'returnMdseViewPrint', 'loadReturnMdsePDF', 'printReturnMdse', 'uploadAttachment', 'downloadAttachment', 'loadAttachmentDownload', 'deleteAttachment', 'returnReceiptDetailDelete', 'returnableDetailDelete', 'returnMdseDetailDelete'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -52,13 +52,14 @@ class ReturnsController extends Controller {
     public function actionCreate() {
         $this->layout = '//layouts/column1';
         $this->pageTitle = 'Returns';
-        
+
         $returnable = new Returnable;
         $return_receipt = new ReturnReceipt;
         $return_receipt_detail = new ReturnReceiptDetail;
         $return_mdse = new ReturnMdse;
         $return_mdse_detail = new ReturnMdseDetail;
         $sku = new Sku;
+        $attachment = new Attachment;
 
         $return_from_list = CHtml::listData(Returnable::model()->getListReturnFrom(), 'value', 'title');
         $return_to_list = CHtml::listData(ReturnMdse::model()->getListReturnTo(), 'value', 'title');
@@ -232,6 +233,7 @@ class ReturnsController extends Controller {
             'sku' => $sku,
             'warehouse_list' => $warehouse_list,
             'form' => isset($_GET['param']['returns_form']) ? $_GET['param']['returns_form'] : 2,
+            'attachment' => $attachment,
         ));
     }
 
@@ -699,7 +701,8 @@ class ReturnsController extends Controller {
         $return_mdse = new ReturnMdse;
         $return_mdse_detail = new ReturnMdseDetail;
         $sku = new Sku;
-                
+        $attachment = new Attachment;
+
         $returnable_header_data = Returnable::model()->getReturnableSource(Yii::app()->user->company_id, $dr_no, $exist_dr_no, $returnable);
 
         $return_from_list = CHtml::listData(Returnable::model()->getListReturnFrom(), 'value', 'title');
@@ -803,6 +806,7 @@ class ReturnsController extends Controller {
             'warehouse_list' => $warehouse_list,
             'sku' => $sku,
             'form' => 1,
+            'attachment' => $attachment,
         ));
     }
 
@@ -869,7 +873,7 @@ class ReturnsController extends Controller {
                 $row['amount'] = $value['amount'];
                 $row['remarks'] = $value['remarks'];
                 $row['sku_id'] = isset($value['sku_id']) ? $value['sku_id'] : null;
-                $row['sku_code'] = isset($value['sku_code']) ? $value['sku_code']: null;
+                $row['sku_code'] = isset($value['sku_code']) ? $value['sku_code'] : null;
                 $row['sku_description'] = isset($value['description']) ? $value['description'] : null;
                 $row['brand_name'] = isset($value['brand_name']) ? $value['brand_name'] : null;
                 $row['sku_category'] = isset($value['type']) ? $value['type'] : null;
@@ -975,7 +979,9 @@ class ReturnsController extends Controller {
             $row['pr_no'] = $value->pr_no;
             $row['uom_name'] = $uom->uom_name;
 
-            $row['links'] = "";
+            $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/Returns/returnableDetailDelete', array('returnable_detail_id' => $value->returnable_detail_id)) . '">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </a>';
 
             $output['data'][] = $row;
         }
@@ -983,7 +989,7 @@ class ReturnsController extends Controller {
         echo json_encode($output);
     }
 
-    public function actionPreview($id) {
+    public function actionAttachmentPreview($id) {
         $c = new CDbCriteria;
         $c->compare("company_id", Yii::app()->user->company_id);
         $c->compare("transaction_id", $id);
@@ -1007,10 +1013,10 @@ class ReturnsController extends Controller {
             $row = array();
             $row['file_name'] = $icon . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . $value->file_name;
 
-            $row['links'] = '<a class="btn btn-sm btn-default download_attachment" title="Delete" href="' . $this->createUrl('/inventory/incomingInventory/download', array('id' => $value->attachment_id)) . '">
+            $row['links'] = '<a class="btn btn-sm btn-default download_attachment" title="Delete" href="' . $this->createUrl('/inventory/returns/downloadAttachment', array('id' => $value->attachment_id)) . '">
                                 <i class="glyphicon glyphicon-download"></i>
                             </a>'
-                    . '&nbsp;<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/incomingInventory/deleteAttachment', array('attachment_id' => $value->attachment_id)) . '">
+                    . '&nbsp;<a class="btn btn-sm btn-default delete_attachment" title="Delete" href="' . $this->createUrl('/inventory/returns/deleteAttachment', array('attachment_id' => $value->attachment_id)) . '">
                                 <i class="glyphicon glyphicon-trash"></i>
                             </a>';
 
@@ -1162,7 +1168,9 @@ class ReturnsController extends Controller {
             $row['pr_no'] = $value->pr_no;
             $row['uom_name'] = $uom->uom_name;
 
-            $row['links'] = "";
+            $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/Returns/returnReceiptDetailDelete', array('return_receipt_detail_id' => $value->return_receipt_detail_id)) . '">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </a>';
 
             $output['data'][] = $row;
         }
@@ -1174,10 +1182,10 @@ class ReturnsController extends Controller {
         if (Yii::app()->request->isPostRequest) {
             try {
 
-                // delete returnable details by returnable_id
+                // delete return receipt details by returnable_id
                 ReturnReceiptDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND return_receipt_id = " . $id);
-                // delete attachment by returnable_id as transaction_id
-//                $this->deleteAttachmentByOutgoingInvID($id);
+                // delete attachment by return_receipt_id as transaction_id
+                $this->deleteAttachmentByTransactionID($id, ReturnReceipt::RETURN_RECEIPT_LABEL);
                 // we only allow deletion via POST request
                 $this->loadReturnReceiptModel($id)->delete();
 
@@ -1433,7 +1441,7 @@ class ReturnsController extends Controller {
             $destination = ReturnMdse::model()->getReturnToDetails(Yii::app()->user->company_id, $value->return_to, $value->return_to_id);
 
             $row['destination_name'] = $destination['destination_name'];
-            
+
             $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/Returns/returnMdseView', array('id' => $value->return_mdse_id)) . '">
                                 <i class="glyphicon glyphicon-eye-open"></i>
                             </a>
@@ -1446,9 +1454,9 @@ class ReturnsController extends Controller {
 
         echo json_encode($output);
     }
-    
+
     public function actionGetReturnMdseDetailsByReturnMdseID($return_mdse_id) {
-        
+
         $c = new CDbCriteria;
         $c->condition = "company_id = '" . Yii::app()->user->company_id . "' AND return_mdse_id = '" . $return_mdse_id . "'";
         $return_mdse_details = ReturnMdseDetail::model()->findAll($c);
@@ -1477,16 +1485,17 @@ class ReturnsController extends Controller {
             $row['pr_no'] = $value->pr_no;
             $row['uom_name'] = $uom->uom_name;
 
-            $row['links'] = "";
+            $row['links'] = '<a class="btn btn-sm btn-default delete" title="Delete" href="' . $this->createUrl('/inventory/Returns/returnMdseDetailDelete', array('return_mdse_detail_id' => $value->return_mdse_detail_id)) . '">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </a>';
 
             $output['data'][] = $row;
         }
 
         echo json_encode($output);
-        
     }
-    
-    public function actionReturnMdseView($id) {        
+
+    public function actionReturnMdseView($id) {
         $model = $this->loadReturnMdseModel($id);
 
         $this->pageTitle = "View Return Mdse";
@@ -1523,7 +1532,7 @@ class ReturnsController extends Controller {
                     $po_nos .= $val->po_no . ",";
                 }
             }
-            
+
             $source_zone_id = $val->source_zone_id;
 
             if (!in_array($source_zone_id, $source_zones_arr)) {
@@ -1547,7 +1556,7 @@ class ReturnsController extends Controller {
         $nos = array();
         $nos['pr_no'] = substr($pr_nos, 0, -1);
         $nos['po_no'] = substr($po_nos, 0, -1);
-                
+
         $source = array();
         $source['source_zone_name'] = $source_zones;
         $source['contact_person'] = $source_contact_person;
@@ -1555,18 +1564,17 @@ class ReturnsController extends Controller {
         $source['address'] = $source_address;
 
         $destination = ReturnMdse::model()->getReturnToDetails(Yii::app()->user->company_id, $model->return_to, $model->return_to_id);
-       
+
         $this->render('_view_return_mdse', array(
             'model' => $model,
             'destination' => $destination,
             'source' => $source,
             'nos' => $nos,
         ));
-        
     }
-    
+
     public function actionGetDetailsByReturnMdseID($return_mdse_id) {
-        
+
         $c = new CDbCriteria;
         $c->condition = "company_id = '" . Yii::app()->user->company_id . "' AND return_mdse_id = '" . $return_mdse_id . "'";
         $return_mdse_details = ReturnMdseDetail::model()->findAll($c);
@@ -1598,23 +1606,22 @@ class ReturnsController extends Controller {
         }
 
         echo json_encode($output);
-        
     }
-    
+
     public function actionPrintReturnable() {
-        
+
         $data = Yii::app()->request->getParam('post_data');
-        
+
         $returnable = $data['Returnable'];
         $returnable_detail = $data['transaction_details'];
-        
+
         $return = array();
-        
+
         $details = array();
         $source = array();
         $destination = array();
         $headers = array();
-        
+
         foreach ($returnable_detail as $key => $val) {
             $row = array();
 
@@ -1630,7 +1637,7 @@ class ReturnsController extends Controller {
 
             $details[] = $row;
         }
-        
+
         $source_data = array();
         if ($returnable['receive_return_from'] != "") {
             $selected_source = $returnable['receive_return_from'];
@@ -1638,12 +1645,12 @@ class ReturnsController extends Controller {
             $returnable_label = str_replace(" ", "_", Returnable::RETURNABLE_LABEL) . "_";
             $source_data = Returnable::model()->getReturnFromID($returnable, $selected_source, $returnable_label, $data);
         }
-        
+
         $source_details = Returnable::model()->getReturnFormDetails(Yii::app()->user->company_id, $returnable['receive_return_from'], $source_data['id']);
 
         $source["source_name"] = $source_details['source_name'];
         $source["source_address"] = $source_details['address'];
-        
+
         $c1 = new CDbCriteria;
         $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.zone_id = '" . $returnable['destination_zone_id'] . "'";
         $c1->with = array("salesOffice");
@@ -1652,18 +1659,18 @@ class ReturnsController extends Controller {
         $destination['zone_name'] = $zone->zone_name;
         $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
         $destination['address'] = $zone->salesOffice->address1;
-        
+
         $headers['return_receipt_no'] = $returnable['return_receipt_no'];
         $headers['reference_dr_no'] = $returnable['reference_dr_no'];
         $headers['date_returned'] = $returnable['transaction_date'];
         $headers['remarks'] = $returnable['remarks'];
         $headers['total_amount'] = $returnable['total_amount'];
-        
+
         $return['headers'] = $headers;
         $return['source'] = $source;
         $return['destination'] = $destination;
         $return['details'] = $details;
-        
+
         unset(Yii::app()->session["post_pdf_data_id"]);
 
         sleep(1);
@@ -1685,30 +1692,30 @@ class ReturnsController extends Controller {
     }
 
     public function actionLoadReturnablePDF($id) {
-        
+
         $data = Yii::app()->session[$id];
 
         if ($data == "") {
             echo "Error: Please close and try again.";
             return false;
         }
-        
-        ob_start();        
-        
+
+        ob_start();
+
         $headers = $data['headers'];
         $source = $data['source'];
         $destination = $data['destination'];
         $details = $data['details'];
-        
+
         $pdf = Globals::pdf();
-        
+
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
         $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
         $pdf->SetFont('DejaVu Sans', '#000', 10);
-        
+
         $pdf->AddPage();
-        
+
         $html = '
         <style type="text/css">
             .text-center { text-align: center; }
@@ -1792,7 +1799,7 @@ class ReturnsController extends Controller {
         foreach ($details as $key => $val) {
             $sku = Sku::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sku_id" => $val['sku_id']));
             $uom = UOM::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $val['uom_id']));
-            
+
             $html .= '<tr>
                         <td>' . $sku->sku_code . '</td>
                         <td>' . $sku->description . '</td>
@@ -1811,7 +1818,7 @@ class ReturnsController extends Controller {
             $returned_qty += $val['returned_quantity'];
             $total_unit_price += $val['unit_price'];
         }
-        
+
         $html .= '<tr>
                     <td colspan="11"></td>
                 </tr>
@@ -1823,7 +1830,7 @@ class ReturnsController extends Controller {
                     <td class="align-right">&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
                     <td colspan="2"></td>
                 </tr>';
-        
+
         $html .= '</table><br/><br/><br/>
 
                 <table class="table_footer">
@@ -1842,17 +1849,16 @@ class ReturnsController extends Controller {
                         <td class="border-bottom"></td>
                     </tr>
                 </table>';
-        
+
         $pdf->writeHTML($html, true, false, true, false, '');
 
         $pdf->Output('inbound.pdf', 'I');
-        
     }
-    
+
     public function actionReturnableViewPrint($returnable_id) {
-        
+
         $returnable = $this->loadReturnableModel($returnable_id);
-        
+
         $returnable_detail = ReturnableDetail::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "returnable_id" => $returnable_id));
 
         $return = array();
@@ -1861,7 +1867,7 @@ class ReturnsController extends Controller {
         $source = array();
         $destination = array();
         $headers = array();
-        
+
         foreach ($returnable_detail as $key => $val) {
             $row = array();
 
@@ -1877,12 +1883,12 @@ class ReturnsController extends Controller {
 
             $details[] = $row;
         }
-        
+
         $source_details = Returnable::model()->getReturnFormDetails(Yii::app()->user->company_id, $returnable->receive_return_from, $returnable->receive_return_from_id);
 
         $source["source_name"] = $source_details['source_name'];
         $source["source_address"] = $source_details['address'];
-        
+
         $c1 = new CDbCriteria;
         $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.zone_id = '" . $returnable->destination_zone_id . "'";
         $c1->with = array("salesOffice");
@@ -1891,18 +1897,18 @@ class ReturnsController extends Controller {
         $destination['zone_name'] = $zone->zone_name;
         $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
         $destination['address'] = $zone->salesOffice->address1;
-        
+
         $headers['return_receipt_no'] = $returnable->return_receipt_no;
         $headers['reference_dr_no'] = $returnable->reference_dr_no;
         $headers['date_returned'] = $returnable->date_returned;
         $headers['remarks'] = $returnable->remarks;
         $headers['total_amount'] = $returnable->total_amount;
-        
+
         $return['headers'] = $headers;
         $return['source'] = $source;
         $return['destination'] = $destination;
         $return['details'] = $details;
-        
+
         unset(Yii::app()->session["post_pdf_data_id"]);
 
         Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
@@ -1919,13 +1925,12 @@ class ReturnsController extends Controller {
 
         echo json_encode($output);
         Yii::app()->end();
-        
     }
-    
+
     public function actionReturnReceiptViewPrint($return_receipt_id) {
-        
+
         $return_receipt = $this->loadReturnReceiptModel($return_receipt_id);
-        
+
         $return_receipt_detail = ReturnReceiptDetail::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "return_receipt_id" => $return_receipt_id));
 
         $return = array();
@@ -1934,7 +1939,7 @@ class ReturnsController extends Controller {
         $source = array();
         $destination = array();
         $headers = array();
-        
+
         foreach ($return_receipt_detail as $key => $val) {
             $row = array();
 
@@ -1949,12 +1954,12 @@ class ReturnsController extends Controller {
 
             $details[] = $row;
         }
-        
+
         $source_details = Returnable::model()->getReturnFormDetails(Yii::app()->user->company_id, $return_receipt->receive_return_from, $return_receipt->receive_return_from_id);
 
         $source["source_name"] = $source_details['source_name'];
         $source["source_address"] = $source_details['address'];
-        
+
         $c1 = new CDbCriteria;
         $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.zone_id = '" . $return_receipt->destination_zone_id . "'";
         $c1->with = array("salesOffice");
@@ -1963,18 +1968,18 @@ class ReturnsController extends Controller {
         $destination['zone_name'] = $zone->zone_name;
         $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
         $destination['address'] = $zone->salesOffice->address1;
-        
+
         $headers['return_receipt_no'] = $return_receipt->return_receipt_no;
         $headers['reference_dr_no'] = $return_receipt->reference_dr_no;
         $headers['date_returned'] = $return_receipt->date_returned;
         $headers['remarks'] = $return_receipt->remarks;
         $headers['total_amount'] = $return_receipt->total_amount;
-        
+
         $return['headers'] = $headers;
         $return['source'] = $source;
         $return['destination'] = $destination;
         $return['details'] = $details;
-        
+
         unset(Yii::app()->session["post_pdf_data_id"]);
 
         Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
@@ -1988,37 +1993,36 @@ class ReturnsController extends Controller {
 
         $output["success"] = true;
         $output["id"] = Yii::app()->session["post_pdf_data_id"];
-        
+
         echo json_encode($output);
         Yii::app()->end();
-        
     }
 
     public function actionLoadReturnReceiptPDF($id) {
-        
+
         $data = Yii::app()->session[$id];
 
         if ($data == "") {
             echo "Error: Please close and try again.";
             return false;
         }
-        
-        ob_start();        
-        
+
+        ob_start();
+
         $headers = $data['headers'];
         $source = $data['source'];
         $destination = $data['destination'];
         $details = $data['details'];
-        
+
         $pdf = Globals::pdf();
-        
+
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
         $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
         $pdf->SetFont('DejaVu Sans', '#000', 10);
-        
+
         $pdf->AddPage();
-        
+
         $html = '
         <style type="text/css">
             .text-center { text-align: center; }
@@ -2093,13 +2097,13 @@ class ReturnsController extends Controller {
                 <td style="font-weight: bold;">UNIT PRICE</td>
                 <td style="font-weight: bold; width: 100px;">REMARKS</td>
             </tr>';
-        
+
         $returned_qty = 0;
         $total_unit_price = 0;
         foreach ($details as $key => $val) {
             $sku = Sku::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sku_id" => $val['sku_id']));
             $uom = UOM::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $val['uom_id']));
-            
+
             $html .= '<tr>
                         <td>' . $sku->sku_code . '</td>
                         <td>' . $sku->description . '</td>
@@ -2115,7 +2119,7 @@ class ReturnsController extends Controller {
             $returned_qty += $val['returned_quantity'];
             $total_unit_price += $val['unit_price'];
         }
-        
+
         $html .= '<tr>
                     <td colspan="9"></td>
                 </tr>
@@ -2126,7 +2130,7 @@ class ReturnsController extends Controller {
                     <td class="align-right">&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
                     <td></td>
                 </tr>';
-        
+
         $html .= '</table><br/><br/><br/>
 
                 <table class="table_footer">
@@ -2145,27 +2149,26 @@ class ReturnsController extends Controller {
                         <td class="border-bottom"></td>
                     </tr>
                 </table>';
-        
+
         $pdf->writeHTML($html, true, false, true, false, '');
 
         $pdf->Output('inbound.pdf', 'I');
-        
     }
-    
+
     public function actionPrintReturnReceipt() {
-        
+
         $data = Yii::app()->request->getParam('post_data');
-        
+
         $return_receipt = $data['ReturnReceipt'];
         $return_receipt_detail = $data['transaction_details'];
-        
+
         $return = array();
-        
+
         $details = array();
         $source = array();
         $destination = array();
         $headers = array();
-        
+
         foreach ($return_receipt_detail as $key => $val) {
             $row = array();
 
@@ -2179,7 +2182,7 @@ class ReturnsController extends Controller {
 
             $details[] = $row;
         }
-        
+
         $source_data = array();
         if ($return_receipt['receive_return_from'] != "") {
             $selected_source = $return_receipt['receive_return_from'];
@@ -2187,12 +2190,12 @@ class ReturnsController extends Controller {
             $return_receipt_label = str_replace(" ", "_", ReturnReceipt::RETURN_RECEIPT_LABEL) . "_";
             $source_data = Returnable::model()->getReturnFromID($return_receipt, $selected_source, $return_receipt_label, $data);
         }
-        
+
         $source_details = Returnable::model()->getReturnFormDetails(Yii::app()->user->company_id, $return_receipt['receive_return_from'], $source_data['id']);
 
         $source["source_name"] = $source_details['source_name'];
         $source["source_address"] = $source_details['address'];
-        
+
         $c1 = new CDbCriteria;
         $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.zone_id = '" . $return_receipt['destination_zone_id'] . "'";
         $c1->with = array("salesOffice");
@@ -2201,18 +2204,18 @@ class ReturnsController extends Controller {
         $destination['zone_name'] = $zone->zone_name;
         $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
         $destination['address'] = $zone->salesOffice->address1;
-        
+
         $headers['return_receipt_no'] = $return_receipt['return_receipt_no'];
         $headers['reference_dr_no'] = $return_receipt['reference_dr_no'];
         $headers['date_returned'] = $return_receipt['transaction_date'];
         $headers['remarks'] = $return_receipt['remarks'];
         $headers['total_amount'] = $return_receipt['total_amount'];
-        
+
         $return['headers'] = $headers;
         $return['source'] = $source;
         $return['destination'] = $destination;
         $return['details'] = $details;
-        
+
         unset(Yii::app()->session["post_pdf_data_id"]);
 
         sleep(1);
@@ -2232,7 +2235,7 @@ class ReturnsController extends Controller {
         echo json_encode($output);
         Yii::app()->end();
     }
-    
+
     public function actionReturnMdseDelete($id) {
         if (Yii::app()->request->isPostRequest) {
             try {
@@ -2267,11 +2270,11 @@ class ReturnsController extends Controller {
         } else
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
     }
-    
+
     public function actionReturnMdseViewPrint($return_mdse_id) {
-        
+
         $return_mdse = $this->loadReturnMdseModel($return_mdse_id);
-        
+
         $return_mdse_detail = ReturnMdseDetail::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "return_mdse_id" => $return_mdse_id));
 
         $return = array();
@@ -2280,7 +2283,7 @@ class ReturnsController extends Controller {
         $source = array();
         $destination = array();
         $headers = array();
-        
+
         $source_zones = "";
         $source_zones_arr = array();
         $source_address = "";
@@ -2308,27 +2311,27 @@ class ReturnsController extends Controller {
             $row['remarks'] = $val->remarks;
 
             $details[] = $row;
-        }        
-        
+        }
+
         $source['source_so_name'] = rtrim($source_zones, "<br/>");
         $source['source_address'] = rtrim($source_address, "<br/>");
-        
+
         $destination_details = ReturnMdse::model()->getReturnToDetails(Yii::app()->user->company_id, $return_mdse->return_to, $return_mdse->return_to_id);
 
         $destination["destination_name"] = $destination_details['destination_name'];
         $destination["destination_address"] = $destination_details['address'];
-                
+
         $headers['return_mdse_no'] = $return_mdse->return_mdse_no;
         $headers['reference_dr_no'] = $return_mdse->reference_dr_no;
         $headers['date_returned'] = $return_mdse->date_returned;
         $headers['remarks'] = $return_mdse->remarks;
         $headers['total_amount'] = $return_mdse->total_amount;
-        
+
         $return['headers'] = $headers;
         $return['source'] = $source;
         $return['destination'] = $destination;
         $return['details'] = $details;
-        
+
         unset(Yii::app()->session["post_pdf_data_id"]);
 
         Yii::app()->session["post_pdf_data_id"] = 'post-pdf-data-' . Globals::generateV4UUID();
@@ -2342,37 +2345,36 @@ class ReturnsController extends Controller {
 
         $output["success"] = true;
         $output["id"] = Yii::app()->session["post_pdf_data_id"];
-        
+
         echo json_encode($output);
         Yii::app()->end();
-        
     }
 
     public function actionLoadReturnMdsePDF($id) {
-        
+
         $data = Yii::app()->session[$id];
 
         if ($data == "") {
             echo "Error: Please close and try again.";
             return false;
         }
-        
-        ob_start();        
-        
+
+        ob_start();
+
         $headers = $data['headers'];
         $source = $data['source'];
         $destination = $data['destination'];
         $details = $data['details'];
-        
+
         $pdf = Globals::pdf();
-        
+
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
         $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
         $pdf->SetFont('DejaVu Sans', '#000', 10);
-        
+
         $pdf->AddPage();
-        
+
         $html = '
         <style type="text/css">
             .text-center { text-align: center; }
@@ -2443,13 +2445,13 @@ class ReturnsController extends Controller {
                 <td style="font-weight: bold;">UNIT PRICE</td>
                 <td style="font-weight: bold; width: 100px;">REMARKS</td>
             </tr>';
-        
+
         $returned_qty = 0;
         $total_unit_price = 0;
         foreach ($details as $key => $val) {
             $sku = Sku::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sku_id" => $val['sku_id']));
             $uom = UOM::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "uom_id" => $val['uom_id']));
-            
+
             $html .= '<tr>
                         <td>' . $sku->sku_code . '</td>
                         <td>' . $sku->description . '</td>
@@ -2465,7 +2467,7 @@ class ReturnsController extends Controller {
             $returned_qty += $val['returned_quantity'];
             $total_unit_price += $val['unit_price'];
         }
-        
+
         $html .= '<tr>
                     <td colspan="9"></td>
                 </tr>
@@ -2476,7 +2478,7 @@ class ReturnsController extends Controller {
                     <td class="align-right">&#x20B1; ' . number_format($total_unit_price, 2, '.', ',') . '</td>
                     <td></td>
                 </tr>';
-        
+
         $html .= '</table><br/><br/><br/>
             
             <table class="table_footer">
@@ -2531,27 +2533,26 @@ class ReturnsController extends Controller {
                     <td colspan="2" class="border-bottom"></td>
                 </tr>
             </table>';
-        
+
         $pdf->writeHTML($html, true, false, true, false, '');
 
         $pdf->Output('inbound.pdf', 'I');
-        
     }
-    
+
     public function actionPrintReturnMdse() {
-        
+
         $data = Yii::app()->request->getParam('post_data');
-        
+
         $return_mdse = $data['ReturnMdse'];
         $return_mdse_detail = $data['transaction_details'];
-        
+
         $return = array();
-        
+
         $details = array();
         $source = array();
         $destination = array();
         $headers = array();
-        
+
         $source_zones = "";
         $source_zones_arr = array();
         $source_address = "";
@@ -2567,8 +2568,8 @@ class ReturnsController extends Controller {
                 $inc_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $source_zone_id));
                 $source_zones .= isset($inc_source_zone->salesOffice->sales_office_name) ? "<sup>" . $i++ . ".</sup> " . $inc_source_zone->salesOffice->sales_office_name . "<br/>" : "";
                 $source_address .= isset($inc_source_zone->salesOffice->address1) ? "<sup>" . $x++ . ".</sup> " . $inc_source_zone->salesOffice->address1 . "<br/>" : "";
-            }           
-            
+            }
+
             $row['sku_id'] = $val['sku_id'];
             $row['uom_id'] = $val['uom_id'];
             $row['sku_status_id'] = $val['sku_status_id'];
@@ -2578,11 +2579,11 @@ class ReturnsController extends Controller {
             $row['remarks'] = $val['remarks'];
 
             $details[] = $row;
-        }        
-        
+        }
+
         $source['source_so_name'] = rtrim($source_zones, "<br/>");
-        $source['source_address'] = rtrim($source_address, "<br/>");        
-        
+        $source['source_address'] = rtrim($source_address, "<br/>");
+
         $destination_data = array();
         if ($return_mdse['return_to'] != "") {
             $selected_destination = $return_mdse['return_to'];
@@ -2590,23 +2591,23 @@ class ReturnsController extends Controller {
             $return_mdse_label = str_replace(" ", "_", ReturnMdse::RETURN_MDSE_LABEL) . "_";
             $destination_data = ReturnMdse::model()->getReturnToID($selected_destination, $return_mdse_label, $data);
         }
-        
+
         $destination_details = ReturnMdse::model()->getReturnToDetails(Yii::app()->user->company_id, $return_mdse['return_to'], $destination_data['id']);
 
         $destination["destination_name"] = $destination_details['destination_name'];
         $destination["destination_address"] = $destination_details['address'];
-                        
+
         $headers['return_mdse_no'] = $return_mdse['return_mdse_no'];
         $headers['reference_dr_no'] = $return_mdse['reference_dr_no'];
         $headers['date_returned'] = $return_mdse['transaction_date'];
         $headers['remarks'] = $return_mdse['remarks'];
         $headers['total_amount'] = $return_mdse['total_amount'];
-        
+
         $return['headers'] = $headers;
         $return['source'] = $source;
         $return['destination'] = $destination;
         $return['details'] = $details;
-        
+
         unset(Yii::app()->session["post_pdf_data_id"]);
 
         sleep(1);
@@ -2625,6 +2626,273 @@ class ReturnsController extends Controller {
 
         echo json_encode($output);
         Yii::app()->end();
-        
     }
+
+    public function actionUploadAttachment() {
+
+        header('Vary: Accept');
+        if (isset($_SERVER['HTTP_ACCEPT']) &&
+                (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
+            header('Content-type: application/json');
+        } else {
+            header('Content-type: text/plain');
+        }
+
+        $data = array();
+        $model = new Attachment;
+
+        $transaction_type = Yii::app()->request->getPost('saved_returns_transaction_type', '');
+        $returns_transaction_id = Yii::app()->request->getPost('saved_returns_transaction_id', '');
+
+        $returns_transaction_type = str_replace(" ", "_", $transaction_type);
+
+        if (isset($_FILES['Attachment']['name']) && $_FILES['Attachment']['name'] != "") {
+
+            $file = CUploadedFile::getInstance($model, 'file');
+            $dir = dirname(Yii::app()->getBasePath()) . DIRECTORY_SEPARATOR . 'protected' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . Yii::app()->user->company_id . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . $returns_transaction_type . DIRECTORY_SEPARATOR . $returns_transaction_id;
+
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+
+            $file_name = str_replace(' ', '_', strtolower($file->name));
+            $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . $returns_transaction_type . "/" . $returns_transaction_id . "/" . $file_name;
+
+            if (@fopen($url, "r")) {
+                //existing
+                throw new CHttpException(409, "Could not upload file. File already exist " . CHtml::errorSummary($model));
+            } else {
+                //not existing            
+
+                $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
+
+                $model->attachment_id = Globals::generateV4UUID();
+                $model->company_id = Yii::app()->user->company_id;
+                $model->file_name = $file_name;
+                $model->url = $url;
+                $model->transaction_id = $returns_transaction_id;
+                $model->transaction_type = $returns_transaction_type;
+                $model->created_by = Yii::app()->user->name;
+
+                if ($model->save()) {
+
+                    $data[] = array(
+                        'name' => $file->name,
+                        'type' => $file->type,
+                        'size' => $file->size,
+                        'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
+                        'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name,
+                    );
+                } else {
+
+                    if ($model->hasErrors()) {
+
+                        $data[] = array('error', $model->getErrors());
+                    }
+                }
+            }
+        } else {
+
+            throw new CHttpException(500, "Could not upload file " . CHtml::errorSummary($model));
+        }
+
+
+        echo json_encode($data);
+    }
+
+    public function actionDownloadAttachment($id) {
+
+        $attachment = Attachment::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "attachment_id" => $id));
+
+        $url = $attachment->url;
+        $name = $attachment->file_name;
+
+        $base = Yii::app()->getBaseUrl(true);
+        $arr = explode("/", $base);
+        $base = $arr[count($arr) - 1];
+        $url = str_replace(Yii::app()->getBaseUrl(true), "", $url);
+        $src = '../' . $base . $url;
+
+        $data = array();
+        $data['success'] = false;
+        $data['type'] = "success";
+
+        if (file_exists($src)) {
+
+            $data['name'] = $name;
+            $data['src'] = $src;
+            $data['success'] = true;
+            $data['message'] = "Successfully downloaded";
+        } else {
+
+            $data['type'] = "danger";
+            $data['message'] = "Could not download file";
+        }
+
+        echo json_encode($data);
+    }
+
+    public function actionLoadAttachmentDownload($name, $src) {
+        ob_clean();
+        Yii::app()->getRequest()->sendFile($name, file_get_contents($src));
+    }
+    
+    public function actionDeleteAttachment($attachment_id) {        
+        if (Yii::app()->request->isPostRequest) {
+            try {
+
+                $attachment = Attachment::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "attachment_id" => $attachment_id));
+
+                if ($attachment) {
+                    Attachment::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND attachment_id = '" . $attachment->attachment_id . "'");
+
+                    $base = Yii::app()->getBaseUrl(true);
+                    $arr = explode("/", $base);
+                    $base = $arr[count($arr) - 1];
+                    $url = str_replace(Yii::app()->getBaseUrl(true), "", $attachment->url);
+                    $delete_link = '../' . $base . $url;
+
+                    if (file_exists($delete_link)) {
+                        unlink($delete_link);
+                    }
+                } else {
+                    throw new CHttpException(404, 'The requested page does not exist.');
+                }
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    echo "1451";
+                    exit;
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');        
+    }
+    
+    public function deleteAttachmentByTransactionID($transaction_id, $transaction_type) {
+        
+        $type = str_replace(" ", "_", $transaction_type);
+        
+        $attachment = Attachment::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "transaction_type" => $type, "transaction_id" => $transaction_id));
+
+        if (count($attachment) > 0) {
+            $base = Yii::app()->getBaseUrl(true);
+            $arr = explode("/", $base);
+            $base = $arr[count($arr) - 1];
+
+            Attachment::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND transaction_type = '" . $type . "' AND transaction_id = " . $transaction_id);
+            $this->delete_directory('../' . $base . "/protected/uploads/" . Yii::app()->user->company_id . "/attachments/" . $type . "/" . $transaction_id);
+        } else {
+            return false;
+        }
+    }
+
+    function delete_directory($dirname) {
+        if (is_dir($dirname)) {
+            $dir_handle = opendir($dirname);
+        } else {
+            return false;
+        }
+
+        if (!$dir_handle) {
+            return false;
+        }
+
+        while ($file = readdir($dir_handle)) {
+            if ($file != "." && $file != "..") {
+                if (!is_dir($dirname . "/" . $file))
+                    unlink($dirname . "/" . $file);
+                else
+                    delete_directory($dirname . '/' . $file);
+            }
+        }
+        closedir($dir_handle);
+        rmdir($dirname);
+        return true;
+    }
+    
+    public function actionReturnReceiptDetailDelete($return_receipt_detail_id) {        
+        if (Yii::app()->request->isPostRequest) {
+            try {
+
+                ReturnReceiptDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND return_receipt_detail_id = " . $return_receipt_detail_id);
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    echo "1451";
+                    exit;
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+    
+    public function actionReturnableDetailDelete($returnable_detail_id) {        
+        if (Yii::app()->request->isPostRequest) {
+            try {
+
+                ReturnableDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND returnable_detail_id = " . $returnable_detail_id);
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    echo "1451";
+                    exit;
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+    
+    public function actionReturnMdseDetailDelete($return_mdse_detail_id) {        
+        if (Yii::app()->request->isPostRequest) {
+            try {
+
+                ReturnMdseDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND return_mdse_detail_id = " . $return_mdse_detail_id);
+
+                // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+                if (!isset($_GET['ajax'])) {
+                    Yii::app()->user->setFlash('success', "Successfully deleted");
+                    $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+                } else {
+
+                    echo "Successfully deleted";
+                    exit;
+                }
+            } catch (CDbException $e) {
+                if ($e->errorInfo[1] == 1451) {
+                    echo "1451";
+                    exit;
+                }
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
 }

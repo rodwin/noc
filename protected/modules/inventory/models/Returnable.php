@@ -47,11 +47,21 @@ class Returnable extends CActiveRecord {
             array('company_id, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, destination_zone_id, created_by, updated_by, status', 'length', 'max' => 50),
             array('remarks', 'length', 'max' => 150),
             array('total_amount', 'length', 'max' => 18),
+            array('return_receipt_no', 'uniqueRRNo'),
             array('transaction_date, date_returned, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('returnable_id, company_id, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, transaction_date, date_returned, destination_zone_id, remarks, total_amount, created_date, created_by, updated_date, updated_by, status', 'safe', 'on' => 'search'),
         );
+    }
+
+    public function uniqueRRNo($attribute, $params) {
+
+        $model = Returnable::model()->findByAttributes(array('company_id' => $this->company_id, 'return_receipt_no' => $this->$attribute));
+        if ($model && $model->returnable_id != $this->returnable_id) {
+            $this->addError($attribute, 'Return Receipt Number selected already taken');
+        }
+        return;
     }
 
     public function beforeValidate() {
