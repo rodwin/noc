@@ -955,7 +955,7 @@ class InventoryController extends Controller {
             $row['pr_no'] = $outgoing_pr_nos != "" ? substr(trim($outgoing_pr_nos), 0, -1) : "";
             $row['ra_no'] = $v4->rra_no;
             $row['dr_no'] = $v4->dr_no;
-            $row['destination'] = $poi->short_name;
+            $row['destination'] = isset($poi) ? $poi->short_name : "";
             $row['plan_delivery_date'] = isset($v4->plan_delivery_date) ? date("d-M", strtotime($v4->plan_delivery_date)) : "";
             $row['qty'] = number_format($v4->total_quantity);
             $row['amount'] = "&#x20B1;" . number_format($v4->total_amount, 2, '.', ',');
