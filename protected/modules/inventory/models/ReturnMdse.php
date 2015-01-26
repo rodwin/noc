@@ -46,11 +46,21 @@ class ReturnMdse extends CActiveRecord {
             array('company_id, return_mdse_no, reference_dr_no, return_to, return_to_id, created_by, updated_by', 'length', 'max' => 50),
             array('remarks', 'length', 'max' => 150),
             array('total_amount', 'length', 'max' => 18),
+            array('return_mdse_no', 'uniqueMdseNo'),
             array('transaction_date, date_returned, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('return_mdse_id, company_id, return_mdse_no, reference_dr_no, return_to, return_to_id, transaction_date, date_returned, remarks, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
+    }
+
+    public function uniqueMdseNo($attribute, $params) {
+
+        $model = ReturnMdse::model()->findByAttributes(array('company_id' => $this->company_id, 'return_mdse_no' => $this->$attribute));
+        if ($model && $model->return_mdse_id != $this->return_mdse_id) {
+            $this->addError($attribute, 'Return Mdse Number selected already taken');
+        }
+        return;
     }
 
     public function beforeValidate() {

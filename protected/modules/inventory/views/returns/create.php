@@ -56,6 +56,7 @@ $hide_Returnable = $isReturnable === false ? "display: none;" : "";
                 'not_set' => $not_set,
                 'isReturnable' => $isReturnable,
                 'sku_id' => $sku_id,
+                'attachment' => $attachment,
             ));
             ?>
         </div>
@@ -88,6 +89,7 @@ $hide_Returnable = $isReturnable === false ? "display: none;" : "";
                 'salesoffice_list' => $salesoffice_list,
                 'sku' => $sku,
                 'warehouse_list' => $warehouse_list,
+                'attachment' => $attachment,
             ));
             ?>
         </div>

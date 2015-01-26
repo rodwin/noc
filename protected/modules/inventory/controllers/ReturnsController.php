@@ -701,6 +701,7 @@ class ReturnsController extends Controller {
         $return_mdse = new ReturnMdse;
         $return_mdse_detail = new ReturnMdseDetail;
         $sku = new Sku;
+        $attachment = new Attachment;
 
         $returnable_header_data = Returnable::model()->getReturnableSource(Yii::app()->user->company_id, $dr_no, $exist_dr_no, $returnable);
 
@@ -805,6 +806,7 @@ class ReturnsController extends Controller {
             'warehouse_list' => $warehouse_list,
             'sku' => $sku,
             'form' => 1,
+            'attachment' => $attachment,
         ));
     }
 

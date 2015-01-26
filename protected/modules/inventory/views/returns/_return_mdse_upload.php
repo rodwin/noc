@@ -8,11 +8,11 @@
     <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
     {% if (file.error) {  %}
     <td class="error" colspan="2"><span class="label label-danger">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
-    {% } else if (o.files.valid && !i) { attachedFiles.push(file); attached_ctr = attachedFiles.length; %}
+    {% } else if (o.files.valid && !i) { return_mdse_attachedFiles.push(file); return_mdse_attached_ctr = return_mdse_attachedFiles.length; %}
         
     <td>
-        <input id="saved_returns_transaction_type" type="hidden" name="saved_returns_transaction_type" class="tagValues" />          
-        <input id="saved_returns_transaction_id" type="hidden" name="saved_returns_transaction_id" class="tagValues" />          
+        <input id="saved_returns_mdse_type" type="hidden" name="saved_returns_transaction_type" class="returnMdseTagValues" />          
+        <input id="saved_returns_mdse_id" type="hidden" name="saved_returns_transaction_id" class="returnMdseTagValues" />          
     </td>    
         
     <td class="start">{% if (!o.options.autoUpload) { %}
@@ -25,7 +25,7 @@
     <td colspan="2"></td>
     {% } %}
     <td class="cancel">{% if (!i) { %}
-    <button class="btn btn-warning btn-sm btn-flat submit_butt2" onclick="removeAttachedbyID('{%=attached_ctr%}');">  <!--onclick="alert('{%=attached_ctr - 1%}');"> -->
+    <button class="btn btn-warning btn-sm btn-flat submit_butt3" onclick="removeReturnReceiptAttachedbyID('{%=return_mdse_attached_ctr%}');">  <!--onclick="alert('{%=return_mdse_attached_ctr - 1%}');"> -->
     <i class="glyphicon glyphicon-ban-circle"></i>
     <span>{%=locale.fileupload.cancel%}</span>
     </button>

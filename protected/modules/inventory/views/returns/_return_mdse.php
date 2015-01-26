@@ -390,12 +390,44 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 <div class="clearfix row">
     <div class="col-xs-12">
         <button id="btn_print3" class="btn btn-default submit_butt3" onclick=""><i class="fa fa-print"></i> Print</button>
-        <button id="btn_save3" class="btn btn-success pull-right submit_butt3" style=""><i class="glyphicon glyphicon-ok"></i> Save</button>  
+        <button id="btn-upload3" class="btn btn-primary pull-right submit_butt2"><i class="fa fa-fw fa-upload"></i> Attach</button>
+        <button id="btn_save3" class="btn btn-success pull-right submit_butt3" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>  
     </div>
 </div>
 
 <?php $this->endWidget(); ?>
 
+<?php
+$this->widget('booster.widgets.TbFileUpload', array(
+    'url' => $this->createUrl('Returns/uploadAttachment'),
+    'model' => $attachment,
+    'attribute' => 'file',
+    'multiple' => true,
+    'options' => array(
+        'maxFileSize' => 5000000,
+        'acceptFileTypes' => 'js:/(\.|\/)(gif|jpe?g|png|pdf|doc|docx|xls|xlsx)$/i',
+        'submit' => "js:function (e, data) {
+            var inputs = data.context.find('.returnMdseTagValues');
+            data.formData = inputs.serializeArray();
+            console.log(data.formData);
+   }"
+    ),
+    'formView' => 'application.modules.inventory.views.returns._return_mdse_attach_form',
+    'uploadView' => 'application.modules.inventory.views.returns._return_mdse_upload',
+    'downloadView' => 'application.modules.inventory.views.returns._return_mdse_download',
+    'callbacks' => array(
+        'done' => new CJavaScriptExpression(
+                'function(e, data) { 
+                 return_mdse_attached_file_upload_count--;
+                         
+                 if(return_mdse_attached_file_upload_count == 0) {$("#return_mdse_attached_table tr").remove(); loadToReturnMdseView(); }
+             }'
+        ),
+        'fail' => new CJavaScriptExpression(
+                'function(e, data) { console.log("fail"); }'
+        ),
+)));
+?>
 
 <script type="text/javascript">
 
@@ -551,8 +583,15 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         }
     }
 
-    var file_upload_count = 0;
-    var success_outgoing_inv_id, success_type, success_message;
+    var return_mdse_attached_file_upload_count = 0;
+    var return_mdse_attachedFiles = new Array();
+    var return_mdse_attached_ctr;
+
+    function removeReturnMdseAttachedbyID($id) {
+        return_mdse_attachedFiles.splice($id - 1, 1);
+    }
+    
+    var success_return_mdse_id, return_mdse_success_type, return_mdse_success_message;
     function validateForm3(data) {
 
         var e = $(".error");
@@ -568,10 +607,19 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
             if (data.form == headers) {
 
-                window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/returnMdseView&id=" + data.return_mdse_id;
+                success_return_mdse_id = data.return_mdse_id;
+                return_mdse_success_type = data.type;
+                return_mdse_success_message = data.message;
 
-                growlAlert(data.type, data.message);
+                if (return_mdse_attachedFiles != "") {
+                    $('[id=saved_returns_mdse_type]').val(return_receipt_type);
+                    $('[id=saved_returns_mdse_id]').val(data.return_mdse_id);
+                    
+                    return_mdse_attached_file_upload_count = 0;
+                    return_mdse_attached_file_upload_count = return_mdse_attachedFiles.length;
 
+                    $('#return_mdse_uploading_attachments').click();
+                }
             } else if (data.form == details) {
 
                 $('#transaction_table3').dataTable().fnAddData([
@@ -790,6 +838,10 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         sendReturnMdse(printReturnMdse);
     });
     
+    $('#btn-upload3').click(function() {
+        $('#return_mdse_file_uploads').click();
+    });
+    
     function printReturnMdsePDF(data) {
         
         $.ajax({
@@ -822,6 +874,13 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             }
         });
         
+    }
+
+    function loadToReturnMdseView() {
+
+        window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/returnMdseView&id=" + success_return_mdse_id;
+     
+        growlAlert(return_mdse_success_type, return_mdse_success_message);
     }
 
 </script>

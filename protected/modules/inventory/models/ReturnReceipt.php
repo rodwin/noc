@@ -47,11 +47,21 @@ class ReturnReceipt extends CActiveRecord {
             array('company_id, return_receipt_no, receive_return_from, receive_return_from_id, reference_dr_no, destination_zone_id, created_by, updated_by', 'length', 'max' => 50),
             array('remarks', 'length', 'max' => 150),
             array('total_amount', 'length', 'max' => 18),
+            array('return_receipt_no', 'uniqueRRNo'),
             array('transaction_date, date_returned, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('return_receipt_id, company_id, return_receipt_no, receive_return_from, receive_return_from_id, reference_dr_no, transaction_date, date_returned, destination_zone_id, remarks, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
+    }
+
+    public function uniqueRRNo($attribute, $params) {
+
+        $model = ReturnReceipt::model()->findByAttributes(array('company_id' => $this->company_id, 'return_receipt_no' => $this->$attribute));
+        if ($model && $model->return_receipt_id != $this->return_receipt_id) {
+            $this->addError($attribute, 'Return Rceipt Number selected already taken');
+        }
+        return;
     }
 
     public function beforeValidate() {

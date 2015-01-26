@@ -10,14 +10,14 @@
          <?php
          if ($this->hasModel()) :
 
-            echo CHtml::activeFileField($this->model, $this->attribute, array("id" => "file_uploads", "multiple" => true)) . "\n";
+            echo CHtml::activeFileField($this->model, $this->attribute, array("id" => "return_mdse_file_uploads", "multiple" => true)) . "\n";
          else :
             echo CHtml::fileField($name, $this->value, $htmlOptions) . "\n";
          endif;
          ?>
       </span>
 
-      <button type="submit" class="btn btn-primary btn-sm btn-flat start" id="uploading_attachments" style="display: none;">
+      <button type="submit" class="btn btn-primary btn-sm btn-flat start" id="return_mdse_uploading_attachments" style="display: none;">
          <i class="icon-upload icon-white"></i>
          <i class="glyphicon glyphicon-upload"></i>
          <span>Start upload</span>
@@ -46,7 +46,7 @@
 
 <!-- The table listing the files available for upload/download -->
 <div class="row-fluid">
-   <table class="table table-striped" id="attached_table">
+   <table class="table table-striped" id="return_mdse_attached_table">
       <tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody>
    </table>
 </div>

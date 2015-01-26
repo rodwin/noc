@@ -397,20 +397,20 @@ $this->widget('booster.widgets.TbFileUpload', array(
         'maxFileSize' => 5000000,
         'acceptFileTypes' => 'js:/(\.|\/)(gif|jpe?g|png|pdf|doc|docx|xls|xlsx)$/i',
         'submit' => "js:function (e, data) {
-            var inputs = data.context.find('.tagValues');
+            var inputs = data.context.find('.returnReceiptTagValues');
             data.formData = inputs.serializeArray();
             console.log(data.formData);
    }"
     ),
-    'formView' => 'application.modules.inventory.views.returns._form',
-    'uploadView' => 'application.modules.inventory.views.returns._upload',
-    'downloadView' => 'application.modules.inventory.views.returns._download',
+    'formView' => 'application.modules.inventory.views.returns._return_receipt_attach_form',
+    'uploadView' => 'application.modules.inventory.views.returns._return_receipt_upload',
+    'downloadView' => 'application.modules.inventory.views.returns._return_receipt_download',
     'callbacks' => array(
         'done' => new CJavaScriptExpression(
                 'function(e, data) { 
-                 attached_file_upload_count--;
+                 return_receipt_attached_file_upload_count--;
                          
-                 if(attached_file_upload_count == 0) {$("#attached_table tr").remove(); loadToReturnReceiptView(); }
+                 if(return_receipt_attached_file_upload_count == 0) {$("#return_receipt_attached_table tr").remove(); loadToReturnReceiptView(); }
              }'
         ),
         'fail' => new CJavaScriptExpression(
@@ -570,15 +570,16 @@ $this->widget('booster.widgets.TbFileUpload', array(
             });
         }
     }
+    
+    var return_receipt_attached_file_upload_count = 0;
+    var return_receipt_attachedFiles = new Array();
+    var return_receipt_attached_ctr;
 
-    var attached_file_upload_count = 0;
-    var attachedFiles = new Array();
-    var attached_ctr;
-    function removeAttachedbyID($id) {
-        attachedFiles.splice($id - 1, 1);
+    function removeReturnReceiptAttachedbyID($id) {
+        return_receipt_attachedFiles.splice($id - 1, 1);
     }
     
-    var success_outgoing_inv_id, success_type, success_message;
+    var success_return_receipt_id, return_receipt_success_type, return_receipt_success_message;
     function validateForm2(data) {
 
         var e = $(".error");
@@ -598,15 +599,14 @@ $this->widget('booster.widgets.TbFileUpload', array(
                 return_receipt_success_type = data.type;
                 return_receipt_success_message = data.message;
 
-
-                if (attachedFiles != "") {
-                    $('[id=saved_returns_transaction_type]').val(return_receipt_type);
-                    $('[id=saved_returns_transaction_id]').val(data.return_receipt_id);
+                if (return_receipt_attachedFiles != "") {
+                    $('[id=saved_returns_receipt_type]').val(return_receipt_type);
+                    $('[id=saved_returns_receipt_id]').val(data.return_receipt_id);
                     
-                    attached_file_upload_count = 0;
-                    attached_file_upload_count = attachedFiles.length;
+                    return_receipt_attached_file_upload_count = 0;
+                    return_receipt_attached_file_upload_count = return_receipt_attachedFiles.length;
 
-                    $('#uploading_attachments').click();
+                    $('#return_receipt_uploading_attachments').click();
                 } else {
                     loadToReturnReceiptView();
                 }
@@ -799,7 +799,7 @@ $this->widget('booster.widgets.TbFileUpload', array(
     });
     
     $('#btn-upload2').click(function() {
-        $('#file_uploads').click();
+        $('#return_receipt_file_uploads').click();
     });
     
     function printReturnReceiptPDF(data) {
