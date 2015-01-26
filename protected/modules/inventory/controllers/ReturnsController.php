@@ -912,6 +912,9 @@ class ReturnsController extends Controller {
 
         foreach ($dataProvider->getData() as $key => $value) {
             $row = array();
+            
+            $status = Inventory::model()->status($value->status);
+            
             $row['returnable_id'] = $value->returnable_id;
             $row['return_receipt_no'] = $value->return_receipt_no;
             $row['reference_dr_no'] = $value->reference_dr_no;
@@ -926,6 +929,7 @@ class ReturnsController extends Controller {
             $row['created_by'] = $value->created_by;
             $row['updated_date'] = $value->updated_date;
             $row['updated_by'] = $value->updated_by;
+            $row['status'] = $status;
 
             $source = Returnable::model()->getReturnFormDetails(Yii::app()->user->company_id, $value->receive_return_from, $value->receive_return_from_id);
 

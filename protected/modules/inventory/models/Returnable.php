@@ -158,19 +158,19 @@ class Returnable extends CActiveRecord {
                 $sort_column = 'receive_return_from';
                 break;
 
-//            case 3:
-//                $sort_column = 'reference_dr_no';
-//                break;
+            case 5:
+                $sort_column = 'status';
+                break;
 
 //            case 4:
 //                $sort_column = 'receive_return_from';
 //                break;
 
-            case 5:
+            case 6:
                 $sort_column = 'total_amount';
                 break;
 
-            case 6:
+            case 7:
                 $sort_column = 'remarks';
                 break;
         }
@@ -183,8 +183,9 @@ class Returnable extends CActiveRecord {
         $criteria->compare('receive_return_from', $columns[2]['search']['value'], true);
         $criteria->compare('reference_dr_no', $columns[3]['search']['value']);
         $criteria->compare('receive_return_from', $columns[4]['search']['value']);
-        $criteria->compare('total_amount', $columns[5]['search']['value'], true);
-        $criteria->compare('remarks', $columns[6]['search']['value'], true);
+        $criteria->compare('status', $columns[5]['search']['value'], true);
+        $criteria->compare('total_amount', $columns[6]['search']['value'], true);
+        $criteria->compare('remarks', $columns[7]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
