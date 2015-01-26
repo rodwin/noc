@@ -325,7 +325,7 @@ $this->breadcrumbs = array(
                 {"name": "transaction_date", "data": "transaction_date"},
                 {"name": "receive_return_from", "data": "receive_return_from"},
                 {"name": "source_name", "data": "source_name", 'sortable': false},
-                {"name": "destination_zone_name", "data": "destination_zone_name"},
+                {"name": "destination_zone_name", "data": "destination_zone_name", 'sortable': false},
                 {"name": "total_amount", "data": "total_amount"},
                 {"name": "remarks", "data": "remarks"},
                 {"name": "links", "data": "links", 'sortable': false}
@@ -477,7 +477,7 @@ $this->breadcrumbs = array(
                 {"name": "transaction_date", "data": "transaction_date"},
                 {"name": "receive_return_from", "data": "receive_return_from"},
                 {"name": "source_name", "data": "source_name", 'sortable': false},
-                {"name": "destination_zone_name", "data": "destination_zone_name"},
+                {"name": "destination_zone_name", "data": "destination_zone_name", 'sortable': false},
                 {"name": "total_amount", "data": "total_amount"},
                 {"name": "remarks", "data": "remarks"},
                 {"name": "links", "data": "links", 'sortable': false}
@@ -646,7 +646,7 @@ $this->breadcrumbs = array(
                 {"name": "return_mdse_no", "data": "return_mdse_no"},
                 {"name": "transaction_date", "data": "transaction_date"},
                 {"name": "return_to", "data": "return_to"},
-                {"name": "destination_name", "data": "destination_name"},
+                {"name": "destination_name", "data": "destination_name", 'sortable': false},
                 {"name": "total_amount", "data": "total_amount"},
                 {"name": "remarks", "data": "remarks"},
                 {"name": "links", "data": "links", 'sortable': false}
