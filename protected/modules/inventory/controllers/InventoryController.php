@@ -696,6 +696,7 @@ class InventoryController extends Controller {
         $c = new CDbCriteria;
         $c->condition = "t.status = '" . OutgoingInventory::OUTGOING_PENDING_STATUS . "' AND b.source_zone_id IN (" . Yii::app()->user->zones . ")";
         $c->join = "INNER JOIN outgoing_inventory_detail b ON b.outgoing_inventory_id = t.outgoing_inventory_id";
+        $c->group = "t.dr_no";
         $outbound = OutgoingInventory::model()->findAll($c);
 
         $outbound_arr = array();
@@ -718,6 +719,7 @@ class InventoryController extends Controller {
         $c1 = new CDbCriteria;
         $c1->condition = "t.status = '" . OutgoingInventory::OUTGOING_PENDING_STATUS . "' AND b.source_zone_id IN (" . Yii::app()->user->zones . ")";
         $c1->join = "INNER JOIN customer_item_detail b ON b.customer_item_id = t.customer_item_id";
+        $c1->group = "t.dr_no";
         $outgoing = CustomerItem::model()->findAll($c1);
 
         $outgoing_arr = array();
@@ -740,6 +742,7 @@ class InventoryController extends Controller {
         $c2 = new CDbCriteria;
         $c2->condition = "t.status = '" . OutgoingInventory::OUTGOING_PENDING_STATUS . "' AND t.destination_zone_id IN (" . Yii::app()->user->zones . ")";
         $c2->join = "INNER JOIN outgoing_inventory_detail b ON b.outgoing_inventory_id = t.outgoing_inventory_id";
+        $c2->group = "t.dr_no";
         $outbound_for_inbound = OutgoingInventory::model()->findAll($c2);
 
         $outbound_for_inbound_arr = array();
@@ -810,7 +813,7 @@ class InventoryController extends Controller {
         $c2 = new CDbCriteria;
         $c2->select = "t.*, SUM(incoming_inventory_detail.quantity_received) as total_quantity";
         $c2->join = "INNER JOIN incoming_inventory_detail ON incoming_inventory_detail.incoming_inventory_id = t.incoming_inventory_id";
-        $c2->condition = "incoming_inventory_detail.source_zone_id IN (" . Yii::app()->user->zones . ")";
+        $c2->condition = "t.destination_zone_id IN (" . Yii::app()->user->zones . ")";
         $c2->order = "t.created_date DESC";
         $c2->limit = 3;
         $c2->group = "t.incoming_inventory_id";
