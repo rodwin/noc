@@ -1111,6 +1111,7 @@ class InventoryController extends Controller {
                 $row['remaining_qty'] = $v1['remaining_qty'];
                 $row['amount'] = $v1['amount'];
                 $row['status'] = $status;
+                $row['return_type'] = Returnable::RETURNABLE_LABEL;
                 $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/returns/createReturnable', array('dr_no' => $v1['dr_no'], 'sku_id' => $v1['sku_id'])) . '">
                                     <i class="glyphicon glyphicon-eye-open"></i>
                                 </a>';
@@ -1147,6 +1148,7 @@ class InventoryController extends Controller {
                 $row['remaining_qty'] = $v2['remaining_qty'];
                 $row['amount'] = $v2['amount'];
                 $row['status'] = $status;
+                $row['return_type'] = Returnable::RETURNABLE_LABEL;
                 $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/returns/createReturnable', array('dr_no' => $v2['dr_no'], 'sku_id' => $v2['sku_id'])) . '">
                                     <i class="glyphicon glyphicon-eye-open"></i>
                                 </a>';
