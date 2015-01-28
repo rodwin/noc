@@ -242,7 +242,7 @@ class ProofOfDeliveryDetail extends CActiveRecord {
         return parent::model($className);
     }
 
-    public function createPODTransactionDetails($pod_id, $company_id, $inventory_id, $batch_no, $sku_id, $source_zone_id, $unit_price, $expiration_date, $planned_quantity, $quantity_issued, $amount, $return_date, $remarks, $created_by = null, $uom_id, $sku_status_id, $transaction_date, $customer_item_detail_id) {
+    public function createPODTransactionDetails($pod_id, $company_id, $inventory_id, $batch_no, $sku_id, $source_zone_id, $unit_price, $expiration_date, $planned_quantity, $quantity_issued, $amount, $return_date, $remarks, $created_by = null, $uom_id, $sku_status_id, $transaction_date, $customer_item_detail_id, $po_no, $pr_no, $pr_date, $plan_arrival_date) {
 
         $inventory = Inventory::model()->findByAttributes(array("inventory_id" => $inventory_id, "company_id" => $company_id));
 
@@ -250,6 +250,8 @@ class ProofOfDeliveryDetail extends CActiveRecord {
         $exp_date = ($expiration_date != "" ? $expiration_date : null);
         $cost_per_unit = (isset($unit_price) ? $unit_price : 0);
         $status_id = ($sku_status_id != "" ? $sku_status_id : null);
+        $new_pr_date = (trim($pr_date) != "" ? $pr_date : null);
+        $new_plan_arrival_date = (trim($plan_arrival_date) != "" ? $plan_arrival_date : null);
 
         $pod_transaction_detail = new ProofOfDeliveryDetail;
         $pod_transaction_detail->pod_id = $pod_id;
@@ -269,11 +271,11 @@ class ProofOfDeliveryDetail extends CActiveRecord {
         $pod_transaction_detail->status = OutgoingInventory::OUTGOING_PENDING_STATUS;
         $pod_transaction_detail->remarks = $remarks;
         $pod_transaction_detail->created_by = $created_by;
-        $pod_transaction_detail->po_no = $inventory->po_no;
-        $pod_transaction_detail->pr_no = $inventory->pr_no;
-        $pod_transaction_detail->pr_date = $inventory->pr_date;
-        $pod_transaction_detail->plan_arrival_date = $inventory->plan_arrival_date;
-        $pod_transaction_detail->revised_delivery_date = $inventory->revised_delivery_date;
+        $pod_transaction_detail->po_no = $po_no;
+        $pod_transaction_detail->pr_no = $pr_no;
+        $pod_transaction_detail->pr_date = $new_pr_date;
+        $pod_transaction_detail->plan_arrival_date = $new_plan_arrival_date;
+//        $pod_transaction_detail->revised_delivery_date = $inventory->revised_delivery_date;
         $pod_transaction_detail->customer_item_detail_id = $customer_item_detail_id;
 
         if ($pod_transaction_detail->save(false)) {

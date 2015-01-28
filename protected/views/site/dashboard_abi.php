@@ -159,6 +159,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
             </table>
         </div>
     </div>  
+        </div>
 
     <div class="box box-solid box-primary">
         <div class="box-header">
@@ -166,6 +167,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
             <h3 class="box-title">Returnables</h3>
         </div>            
         <div class="box-body">
+            <div class="table-responsive">
             <table id="returnables_table" class="table table-bordered table-hover">
                 <thead>
                     <tr>
@@ -183,6 +185,8 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                     </tr>
                 </thead>
             </table>
+        </div>
+            <div class="clearfix"></div>
         </div>
     </div>  
 
@@ -302,7 +306,8 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
 
             returns_table = $('#returnables_table').dataTable({
                 "filter": false,
-                "dom": 't',
+                "dom": 't<"pull-left"i><"pull-right small"p>',
+//            "dom": 'l<"text-center"r>t<"pull-left"i><"pull-right"p>',
                 "bSort": false,
                 "processing": false,
                 "serverSide": false,

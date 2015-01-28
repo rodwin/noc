@@ -288,8 +288,18 @@ class ReceivingInventory extends CActiveRecord {
         $criteria->offset = $offset;
         $criteria->with = array("supplier", "employee", "zone");
 
-        $arr = array();
-        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
+        $arr = array();       
+        if (Yii::app()->user->userObj->userType->updated_date == "") {
+
+            $data_first_rem = strstr(Yii::app()->user->userObj->userType->data, '{');
+            $data_last_rem = strstr(strrev($data_first_rem), '}');
+            $final_data = strrev($data_last_rem);
+        } else {
+
+            $final_data = Yii::app()->user->userObj->userType->data;
+        }
+        
+        $unserialize = CJSON::decode($final_data);
         $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
 
         if (!empty($zones)) {
@@ -357,12 +367,24 @@ class ReceivingInventory extends CActiveRecord {
         $criteria->offset = $offset;
         $criteria->with = array('brand', 'company', 'defaultUom', 'defaultZone');
 
-        $arr = array();
-        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
-        $brands = CJSON::decode(isset($unserialize['brand']) ? $unserialize['brand'] : "");
+        $arr = array();        
+        if (Yii::app()->user->userObj->userType->updated_date == "") {
 
-        foreach ($brands as $key => $val) {
-            $arr[] = $key;
+            $data_first_rem = strstr(Yii::app()->user->userObj->userType->data, '{');
+            $data_last_rem = strstr(strrev($data_first_rem), '}');
+            $final_data = strrev($data_last_rem);
+        } else {
+
+            $final_data = Yii::app()->user->userObj->userType->data;
+        }
+        
+        $unserialize = CJSON::decode($final_data);
+        $brands = CJSON::decode(isset($unserialize['brand']) ? $unserialize['brand'] : "");
+        
+        if (count($brands) > 0) {
+            foreach ($brands as $key => $val) {
+                $arr[] = $key;
+            }
         }
 
         $criteria->addInCondition('t.brand_id', $arr);
