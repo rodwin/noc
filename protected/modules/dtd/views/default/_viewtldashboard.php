@@ -158,6 +158,8 @@
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
+                    },series: {
+                        pointWidth: 20
                     }
                 },
                 series: [{
@@ -284,6 +286,8 @@
                                     textShadow: '0 0 3px black, 0 0 3px black'
                                 }
                             }
+                        },series: {
+                            pointWidth: 20
                         }
                     },
                     series: [{

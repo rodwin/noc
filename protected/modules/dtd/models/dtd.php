@@ -148,7 +148,7 @@ class Dtd extends CFormModel {
       return $data; 
     }
     
-    public function getRoute($from,$to,$brand,$agency,$region)
+    public function getRoute($from,$to,$brand,$agency,$region,$year)
     {
            if($region==0){
                $region = '';
@@ -176,7 +176,7 @@ class Dtd extends CFormModel {
                 inner join [pg_mapping].[dbo].[region] e on e.id = d.region_id
                 inner join [pg_mapping].[dbo].[brand_target] f on f.brand_id = a.brand_id
                 --where date between  '2013-11-01' and '2014-11-30'
-                where date between '$from' and '$to' $brand and b.agency_id = $agency $region
+                where date between '$from' and '$to' $brand and b.agency_id = $agency $region and f.[year] = '$year'
                 order by $select
             ";
 //        pr($sql);
@@ -199,9 +199,16 @@ class Dtd extends CFormModel {
         return $data; 
     }
     
-    public function getActualHit($from,$to,$brand,$agency)
+    public function getActualHit($from,$to,$brand,$agency,$trans_type,$region)
     {
-        $sql ="SELECT e.name,count(h.id) as hit
+        if($region==0){
+           $region = '';
+           $select = 'e.name';
+       }else{
+           $region = 'and e.id='.$region;
+           $select = 'd.name';
+       }
+        $sql ="SELECT $select,count(h.id) as hit
                 FROM [pg_mapping].[dbo].[route] a
                 inner join [pg_mapping].[dbo].[agency_team] b on b.team_id = a.team_id
                 inner join [pg_mapping].[dbo].[municipal] c on c.id =a.municipal_id
@@ -210,18 +217,26 @@ class Dtd extends CFormModel {
                 inner join [pg_mapping].[dbo].[route_transaction] f on f.route_id = a.id
                 inner join [pg_mapping].[dbo].[route_transaction_detail] g on g.route_transaction_id = f.id
                 inner join [pg_mapping].[dbo].nextgen_sales_order h on h.route_transaction_detail_id = g.id
-                where date between '$from' and '$to' and a.brand_id = $brand and b.agency_id = $agency and h.transaction_type = 3
-                group by e.name
-                order by e.name";
-        
+                where date between '$from' and '$to' and a.brand_id = $brand and b.agency_id = $agency and h.transaction_type = $trans_type $region
+                group by $select
+                order by $select";
+//        pr($sql);
         $command = Yii::app()->db3->createCommand($sql);
         $data = $command->queryAll();
         return $data; 
     }
     
-    public function getTargetHit($from,$to,$brand,$agency)
+    public function getTargetHit($from,$to,$brand,$agency,$region,$year)
     {
-        $sql ="SELECT e.name,sum(f.hit * f.seller) as target_hit,sum(f.seller) as target_attendance
+        if($region==0){
+           $region = '';
+           $select = 'e.name';
+       }else{
+           $region = 'and e.id='.$region;
+           $select = 'd.name';
+       }
+       
+        $sql ="SELECT $select,sum(f.hit * f.seller) as target_hit,sum(f.seller) as target_attendance,sum(f.reach * f.seller) as target_reach
                 FROM [pg_mapping].[dbo].[route] a
                 inner join [pg_mapping].[dbo].[agency_team] b on b.team_id = a.team_id
                 inner join [pg_mapping].[dbo].[municipal] c on c.id =a.municipal_id
@@ -229,34 +244,41 @@ class Dtd extends CFormModel {
                 inner join [pg_mapping].[dbo].[region] e on e.id = d.region_id
                 inner join [pg_mapping].[dbo].[brand_target] f on f.brand_id = a.brand_id
                 --where date between  '2013-11-01' and '2014-11-30'
-                where date between '$from' and '$to' and a.brand_id = $brand and b.agency_id = $agency
-                group by e.name
-                order by e.name";
+                where date between '$from' and '$to' and a.brand_id = $brand and b.agency_id = $agency $region and f.[year] = '$year'
+                group by $select
+                order by $select";
 //        pr($sql);
         $command = Yii::app()->db3->createCommand($sql);
         $data = $command->queryAll();
         return $data; 
     }
     
-    public function getParPerArea($from,$to,$brand,$agency)
+    public function getParPerArea($from,$to,$brand,$agency,$region,$year)
     {
-        $sql ="SELECT e.name,f.seller * count(a.id) as par
+        if($region==0){
+           $region = '';
+           $select = 'e.name';
+       }else{
+           $region = 'and e.id='.$region;
+           $select = 'd.name';
+       }
+        $sql ="SELECT $select,f.seller * count(a.id) as par
                 FROM [pg_mapping].[dbo].[route] a
                 inner join [pg_mapping].[dbo].[agency_team] b on b.team_id = a.team_id
                 inner join [pg_mapping].[dbo].[municipal] c on c.id =a.municipal_id
                 inner join [pg_mapping].[dbo].[province] d on d.id = c.province_id
                 inner join [pg_mapping].[dbo].[region] e on e.id = d.region_id
                 inner join [pg_mapping].[dbo].[brand_target] f on f.brand_id = a.brand_id
-                where date between '$from' and '$to' and a.brand_id = $brand and b.agency_id = $agency
-                group by e.name,f.seller
-                order by e.name";
+                where date between '$from' and '$to' and a.brand_id = $brand and b.agency_id = $agency $region and f.[year] = '$year'
+                group by $select,f.seller
+                order by $select";
 //        pr($sql);
         $command = Yii::app()->db3->createCommand($sql);
         $data = $command->queryAll();
         return $data; 
     }
     
-    public function getRoutePerQuarter($from,$to,$brand,$agency)
+    public function getRoutePerQuarter($from,$to,$brand,$agency,$year)
     {
         if($brand != 0){
            $brand = 'and a.brand_id ='.$brand;
@@ -264,13 +286,13 @@ class Dtd extends CFormModel {
            $brand= '';
         }
         
-        $sql ="SELECT a.date,f.seller,f.hit
+        $sql ="SELECT a.date,f.seller,f.hit,f.reach
                 FROM [pg_mapping].[dbo].[route] a
                 inner join [pg_mapping].[dbo].[agency_team] b on b.team_id = a.team_id
                 inner join [pg_mapping].[dbo].[brand_target] f on f.brand_id = a.brand_id
-                where date between '$from' and '$to' $brand and b.agency_id = $agency
+                where date between '$from' and '$to' $brand and b.agency_id = $agency and f.[year] = '$year'
                 order by a.date asc";
-        
+//        pr($sql);
         $command = Yii::app()->db3->createCommand($sql);
         $data = $command->queryAll();
         return $data; 
@@ -325,7 +347,7 @@ class Dtd extends CFormModel {
                     FROM [pg_mapping].[dbo].[route] a
                     inner join [pg_mapping].[dbo].[agency_team] b on b.team_id = a.team_id
                     inner join [pg_mapping].[dbo].[brand_target] f on f.brand_id = a.brand_id
-                    where date between '$from' and '$to'  $brand and b.agency_id = $agency
+                    where date between '$from' and '$to'  $brand and b.agency_id = $agency and f.[year]= '$year'
                     order by a.date asc
                 ";
 
