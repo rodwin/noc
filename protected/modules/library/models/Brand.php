@@ -193,8 +193,18 @@ class Brand extends CActiveRecord {
         $criteria->offset = $offset;
         $criteria->with = array('brandCategory', 'company', 'skus');
 
-        $arr = array();
-        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
+        $arr = array();        
+        if (Yii::app()->user->userObj->userType->updated_date == "") {
+
+            $data_first_rem = strstr(Yii::app()->user->userObj->userType->data, '{');
+            $data_last_rem = strstr(strrev($data_first_rem), '}');
+            $final_data = strrev($data_last_rem);
+        } else {
+
+            $final_data = Yii::app()->user->userObj->userType->data;
+        }
+        
+        $unserialize = CJSON::decode($final_data);
         $brands = CJSON::decode(isset($unserialize['brand']) ? $unserialize['brand'] : "");
 
         if (!empty($brands)) {

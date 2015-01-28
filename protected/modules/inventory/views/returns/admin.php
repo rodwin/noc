@@ -5,7 +5,14 @@ $this->breadcrumbs = array(
 );
 ?>
 
-<?php echo CHtml::link('Create', array('Returns/create', 'param' => array('returns_form' => 2)), array('class' => 'btn btn-primary btn-flat')); ?>
+<?php
+echo CHtml::link('Create', array('Returns/create', 'param' => array(
+        'returns_form' => 0,
+        'isReturnable' => false,
+        'isReturnReceipt' => false,
+        'isReturnMdse' => false,
+    )), array('class' => 'btn btn-primary btn-flat'));
+?>
 <br/>
 <br/>
 
@@ -28,7 +35,7 @@ $this->breadcrumbs = array(
     <div class="tab-content" id="info">
         <div class="tab-pane active" id="returns_tab_1">
 
-            <?php $returnableFields = Returnable::model()->attributeLabels(); ?>
+<?php $returnableFields = Returnable::model()->attributeLabels(); ?>
             <div class="box-body table-responsive">
                 <table id="returnable_table" class="table table-bordered">
                     <thead>
@@ -38,6 +45,7 @@ $this->breadcrumbs = array(
                             <th><?php echo $returnableFields['receive_return_from']; ?></th>
                             <th><?php echo "Source Name"; ?></th>
                             <th><?php echo "Destination Zone"; ?></th>
+                            <th><?php echo $returnableFields['status']; ?></th>
                             <th><?php echo $returnableFields['total_amount']; ?></th>
                             <th><?php echo $returnableFields['remarks']; ?></th>
                             <th>Actions</th>                
@@ -45,6 +53,7 @@ $this->breadcrumbs = array(
                     </thead> 
                     <thead>
                         <tr id="filter_row">
+                            <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
@@ -66,8 +75,8 @@ $this->breadcrumbs = array(
                 </ul>
                 <div class="tab-content" id ="info">
                     <div class="tab-pane active" id="returnable_tab_1">
-                        <?php $skuFields = Sku::model()->attributeLabels(); ?>
-                        <?php $returnableDetailFields = ReturnableDetail::model()->attributeLabels(); ?>
+<?php $skuFields = Sku::model()->attributeLabels(); ?>
+<?php $returnableDetailFields = ReturnableDetail::model()->attributeLabels(); ?>
                         <div id="returnable_details" class="box-body table-responsive">
                             <table id="returnable_details_table" class="table table-bordered">
                                 <thead>
@@ -100,7 +109,7 @@ $this->breadcrumbs = array(
                         </div>
                     </div>
                     <div class="tab-pane" id="returnable_tab_2">
-                        <?php $attachment = Attachment::model()->attributeLabels(); ?>
+<?php $attachment = Attachment::model()->attributeLabels(); ?>
                         <div id="returnable_attachments" class="box-body table-responsive">
                             <table id="returnable_attachments_table" class="table table-bordered">
                                 <thead>
@@ -118,7 +127,7 @@ $this->breadcrumbs = array(
         </div>
         <div class="tab-pane" id="returns_tab_2">
 
-            <?php $returnReceiptFields = ReturnReceipt::model()->attributeLabels(); ?>
+<?php $returnReceiptFields = ReturnReceipt::model()->attributeLabels(); ?>
             <div class="box-body table-responsive">
                 <table id="return_receipt_table" class="table table-bordered">
                     <thead>
@@ -156,7 +165,7 @@ $this->breadcrumbs = array(
                 </ul>
                 <div class="tab-content" id ="info">
                     <div class="tab-pane active" id="return_receipt_tab_1">
-                        <?php $returnReceiptDetailFields = ReturnReceiptDetail::model()->attributeLabels(); ?>
+<?php $returnReceiptDetailFields = ReturnReceiptDetail::model()->attributeLabels(); ?>
                         <div id="return_receipt_details" class="box-body table-responsive">
                             <table id="return_receipt_details_table" class="table table-bordered">
                                 <thead>
@@ -206,7 +215,7 @@ $this->breadcrumbs = array(
         </div>
         <div class="tab-pane" id="returns_tab_3">
 
-            <?php $returnMdseFields = ReturnMdse::model()->attributeLabels(); ?>
+<?php $returnMdseFields = ReturnMdse::model()->attributeLabels(); ?>
             <div class="box-body table-responsive">
                 <table id="return-mdse_table" class="table table-bordered">
                     <thead>
@@ -242,7 +251,7 @@ $this->breadcrumbs = array(
                 </ul>
                 <div class="tab-content" id ="info">
                     <div class="tab-pane active" id="return_mdse_tab_1">
-                        <?php $returnMdseDetailFields = ReturnMdseDetail::model()->attributeLabels(); ?>
+<?php $returnMdseDetailFields = ReturnMdseDetail::model()->attributeLabels(); ?>
                         <div id="return_mdse_details" class="box-body table-responsive">
                             <table id="return_mdse_details_table" class="table table-bordered">
                                 <thead>
@@ -326,6 +335,7 @@ $this->breadcrumbs = array(
                 {"name": "receive_return_from", "data": "receive_return_from"},
                 {"name": "source_name", "data": "source_name", 'sortable': false},
                 {"name": "destination_zone_name", "data": "destination_zone_name", 'sortable': false},
+                {"name": "status", "data": "status"},
                 {"name": "total_amount", "data": "total_amount"},
                 {"name": "remarks", "data": "remarks"},
                 {"name": "links", "data": "links", 'sortable': false}
@@ -735,7 +745,7 @@ $this->breadcrumbs = array(
 
                         return_mdse_table.fnMultiFilter();
                     }
-                    
+
                     loadReturnMdseDetails(selected_return_mdse_id);
                     loadAttachmentPreview(return_mdse_attachment_table, return_mdse_attachments_table_loaded, selected_return_mdse_id, $("#return_mdse_lower_table_loader"));
                 },

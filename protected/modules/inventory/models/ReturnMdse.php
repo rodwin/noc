@@ -343,5 +343,41 @@ class ReturnMdse extends CActiveRecord {
 
         return $data;
     }
+    
+    public function checkIfReturnMdseDetailIsExists($company_id, $dr_no, $detail_id) {
+        
+        $c1 = new CDbCriteria;
+        $c1->condition = "t.company_id = '" . $company_id . "' AND incomingInventory.dr_no = '" . $dr_no . "' AND t.incoming_inventory_detail_id = '" . $detail_id . "'";
+        $c1->with = array('incomingInventory', 'sku');
+        $incoming_detail = IncomingInventoryDetail::model()->find($c1);
+              
+        $data = array();
+        $data['success'] = true;
+        
+        if ($incoming_detail) {
+            $data['destination'] = IncomingInventory::INCOMING_LABEL;
+            $data['destination_id'] = isset($incoming_detail->source_zone_id) ? $incoming_detail->source_zone_id : "";
+        } else {
+            $data['success'] = false;
+        }
+        
+        return $data;        
+    }
+    
+    public function getReturnMdseSource($company_id, $dr_no, $destination, $model) {
+        
+        $c1 = new CDbCriteria;
+        $c1->condition = "t.company_id = '" . $company_id . "' AND t.zone_id = '" . $destination['destination_id'] . "'";
+        $c1->with = array('salesOffice');
+        $zone = Zone::model()->find($c1);
+        
+        $destination_arr = ReturnMdse::model()->getListReturnTo();
+        
+        if ($zone) {
+            
+            $model->return_to = $destination_arr[1]['value'];
+            $model->return_to_id = isset($zone->salesOffice->sales_office_id) ? $zone->salesOffice->sales_office_id: "";
+        }        
+    }
 
 }

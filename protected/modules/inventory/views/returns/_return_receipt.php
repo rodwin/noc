@@ -37,7 +37,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
         <div class="pull-right col-md-7">
 
-            <?php echo $form->textFieldGroup($return_receipt, 'return_receipt_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+            <?php echo $form->textFieldGroup($return_receipt, 'return_receipt_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'readonly' => true)), 'labelOptions' => array('label' => false))); ?>
 
             <?php
             echo $form->select2Group(

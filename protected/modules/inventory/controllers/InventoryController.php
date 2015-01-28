@@ -696,6 +696,7 @@ class InventoryController extends Controller {
         $c = new CDbCriteria;
         $c->condition = "t.status = '" . OutgoingInventory::OUTGOING_PENDING_STATUS . "' AND b.source_zone_id IN (" . Yii::app()->user->zones . ")";
         $c->join = "INNER JOIN outgoing_inventory_detail b ON b.outgoing_inventory_id = t.outgoing_inventory_id";
+        $c->group = "t.dr_no";
         $outbound = OutgoingInventory::model()->findAll($c);
 
         $outbound_arr = array();
@@ -718,6 +719,7 @@ class InventoryController extends Controller {
         $c1 = new CDbCriteria;
         $c1->condition = "t.status = '" . OutgoingInventory::OUTGOING_PENDING_STATUS . "' AND b.source_zone_id IN (" . Yii::app()->user->zones . ")";
         $c1->join = "INNER JOIN customer_item_detail b ON b.customer_item_id = t.customer_item_id";
+        $c1->group = "t.dr_no";
         $outgoing = CustomerItem::model()->findAll($c1);
 
         $outgoing_arr = array();
@@ -740,6 +742,7 @@ class InventoryController extends Controller {
         $c2 = new CDbCriteria;
         $c2->condition = "t.status = '" . OutgoingInventory::OUTGOING_PENDING_STATUS . "' AND t.destination_zone_id IN (" . Yii::app()->user->zones . ")";
         $c2->join = "INNER JOIN outgoing_inventory_detail b ON b.outgoing_inventory_id = t.outgoing_inventory_id";
+        $c2->group = "t.dr_no";
         $outbound_for_inbound = OutgoingInventory::model()->findAll($c2);
 
         $outbound_for_inbound_arr = array();
@@ -810,7 +813,7 @@ class InventoryController extends Controller {
         $c2 = new CDbCriteria;
         $c2->select = "t.*, SUM(incoming_inventory_detail.quantity_received) as total_quantity";
         $c2->join = "INNER JOIN incoming_inventory_detail ON incoming_inventory_detail.incoming_inventory_id = t.incoming_inventory_id";
-        $c2->condition = "incoming_inventory_detail.source_zone_id IN (" . Yii::app()->user->zones . ")";
+        $c2->condition = "t.destination_zone_id IN (" . Yii::app()->user->zones . ")";
         $c2->order = "t.created_date DESC";
         $c2->limit = 3;
         $c2->group = "t.incoming_inventory_id";
@@ -952,7 +955,7 @@ class InventoryController extends Controller {
             $row['pr_no'] = $outgoing_pr_nos != "" ? substr(trim($outgoing_pr_nos), 0, -1) : "";
             $row['ra_no'] = $v4->rra_no;
             $row['dr_no'] = $v4->dr_no;
-            $row['destination'] = $poi->short_name;
+            $row['destination'] = isset($poi) ? $poi->short_name : "";
             $row['plan_delivery_date'] = isset($v4->plan_delivery_date) ? date("d-M", strtotime($v4->plan_delivery_date)) : "";
             $row['qty'] = number_format($v4->total_quantity);
             $row['amount'] = "&#x20B1;" . number_format($v4->total_amount, 2, '.', ',');
@@ -1080,8 +1083,11 @@ class InventoryController extends Controller {
 
     public function actionLoadAllReturns() {
 
-        $incoming_inv_detail = Inventory::model()->getAllRemainingIncomingReturns(Yii::app()->user->company_id);
+        $incoming_inv_detail = Inventory::model()->getAllRemainingInboundReturns(Yii::app()->user->company_id);
 
+        $returnable_arr = array();
+        $return_mdse_arr = array();
+        
         $incoming_arr = array();
         $incoming_pr_nos = "";
         $incoming_pr_nos_arr = array();
@@ -1108,6 +1114,7 @@ class InventoryController extends Controller {
                 $row['remaining_qty'] = $v1['remaining_qty'];
                 $row['amount'] = $v1['amount'];
                 $row['status'] = $status;
+                $row['return_type'] = '<span class="label label-info">' . Returnable::RETURNABLE_LABEL . '</span>';
                 $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/returns/createReturnable', array('dr_no' => $v1['dr_no'], 'sku_id' => $v1['sku_id'])) . '">
                                     <i class="glyphicon glyphicon-eye-open"></i>
                                 </a>';
@@ -1126,8 +1133,8 @@ class InventoryController extends Controller {
                 $row = array();
 
                 if (trim($v2['pr_no']) != "") {
-                    if (!in_array($v2['pr_no'], $customer_item_pr_nos)) {
-                        array_push($customer_item_pr_nos, $v2['pr_no']);
+                    if (!in_array($v2['pr_no'], $customer_item_pr_nos_arr)) {
+                        array_push($customer_item_pr_nos_arr, $v2['pr_no']);
                         $customer_item_pr_nos .= $v2['pr_no'] . ", ";
                     }
                 }
@@ -1144,6 +1151,7 @@ class InventoryController extends Controller {
                 $row['remaining_qty'] = $v2['remaining_qty'];
                 $row['amount'] = $v2['amount'];
                 $row['status'] = $status;
+                $row['return_type'] = '<span class="label label-info">' . Returnable::RETURNABLE_LABEL . '</span>';
                 $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/returns/createReturnable', array('dr_no' => $v2['dr_no'], 'sku_id' => $v2['sku_id'])) . '">
                                     <i class="glyphicon glyphicon-eye-open"></i>
                                 </a>';
@@ -1152,8 +1160,47 @@ class InventoryController extends Controller {
             }
         }
 
-        $output = array_merge($incoming_arr, $customer_item_arr);
+        $returnable_arr = array_merge($incoming_arr, $customer_item_arr);
+        
+        $incoming_inv_delivery_detail = Inventory::model()->getAllIncomingReturnsDeliveryByInboundInv(Yii::app()->user->company_id);
 
+        $incoming_delivery_arr = array();
+        $incoming_delivery_pr_nos = "";
+        $incoming_delivery_pr_nos_arr = array();
+        if (count($incoming_inv_delivery_detail) > 0) {
+            foreach ($incoming_inv_delivery_detail as $k3 => $v3) {
+                $row = array();
+
+                if (trim($v3['pr_no']) != "") {
+                    if (!in_array($v1['pr_no'], $incoming_delivery_pr_nos_arr)) {
+                        array_push($incoming_delivery_pr_nos_arr, $v3['pr_no']);
+                        $incoming_delivery_pr_nos .= $v3['pr_no'] . ", ";
+                    }
+                }
+                
+                $status = Returnable::model()->checkReturnDateStatus($v3['return_date']);
+
+                $row['transaction_date'] = date("d-M", strtotime($v3['transaction_date']));
+                $row['transaction_type'] = "RETURN";
+                $row['pr_no'] = $incoming_delivery_pr_nos != "" ? substr(trim($incoming_delivery_pr_nos), 0, -1) : "";;
+                $row['dr_no'] = $v3['dr_no'];
+                $row['sku_description'] = $v3['description'];
+                $row['return_date'] = $v3['return_date'];
+                $row['qty'] = $v3['quantity_received'];
+                $row['remaining_qty'] = $v3['remaining_qty'];
+                $row['amount'] = $v3['amount'];
+                $row['status'] = $status;
+                $row['return_type'] = '<span class="label label-info">' . ReturnMdse::RETURN_MDSE_LABEL . '</span>';
+                $row['links'] = '<a class="btn btn-sm btn-default view" title="View" href="' . $this->createUrl('/inventory/returns/createReturnMdse', array('dr_no' => $v3['dr_no'], 'detail_id' => $v3['incoming_inventory_detail_id'])) . '">
+                                    <i class="glyphicon glyphicon-eye-open"></i>
+                                </a>';
+
+                $incoming_delivery_arr[] = $row;
+            }
+        }
+        
+        $output = array_merge($returnable_arr, $incoming_delivery_arr);
+        
         echo json_encode($output);
         Yii::app()->end();
     }

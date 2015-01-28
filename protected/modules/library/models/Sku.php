@@ -36,39 +36,36 @@ class Sku extends CActiveRecord {
      * @soap
      */
     public $sku_id;
-    
+
     /**
      * @var string sku_code
      * @soap
      */
     public $sku_code;
-    
+
     /**
      * @var string company_id
      * @soap
      */
     public $company_id;
-    
+
     /**
      * @var Brand brandObj
      * @soap
      */
     public $brandObj;
-    
+
     /**
      * @var string sku_name
      * @soap
      */
     public $sku_name;
-    
+
     /**
      * @var string description
      * @soap
      */
     public $description;
-    
-    
-    
     public $search_string;
 
     //types
@@ -454,15 +451,27 @@ class Sku extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
         $criteria->with = array('brand', 'company', 'defaultUom', 'defaultZone');
-        
+
         $arr = array();        
-        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
-        $brands = CJSON::decode(isset($unserialize['brand']) ? $unserialize['brand'] : "");
-        
-        foreach ($brands as $key => $val) {
-            $arr[] = $key;
+        if (Yii::app()->user->userObj->userType->updated_date == "") {
+
+            $data_first_rem = strstr(Yii::app()->user->userObj->userType->data, '{');
+            $data_last_rem = strstr(strrev($data_first_rem), '}');
+            $final_data = strrev($data_last_rem);
+        } else {
+
+            $final_data = Yii::app()->user->userObj->userType->data;
         }
         
+        $unserialize = CJSON::decode($final_data);
+        $brands = CJSON::decode(isset($unserialize['brand']) ? $unserialize['brand'] : "");
+        
+        if (count($brands) > 0) {
+            foreach ($brands as $key => $val) {
+                $arr[] = $key;
+            }
+        }
+
         $criteria->addInCondition('t.brand_id', $arr);
 
         return new CActiveDataProvider($this, array(
@@ -745,20 +754,19 @@ class Sku extends CActiveRecord {
             );
         }
     }
-    
-    public function retrieveSkusByCriteria(SkuCriteria $SkuCriteria){
-        
+
+    public function retrieveSkusByCriteria(SkuCriteria $SkuCriteria) {
+
         $cdbcriteria = new CDbCriteria();
         $cdbcriteria->together = true;
         $cdbcriteria->with = array('brand');
         $cdbcriteria->compare('t.company_id', $SkuCriteria->company_id);
-        $cdbcriteria->compare('t.sku_name', $SkuCriteria->sku_name,true);
+        $cdbcriteria->compare('t.sku_name', $SkuCriteria->sku_name, true);
         $cdbcriteria->compare('t.type', $SkuCriteria->type);
         $cdbcriteria->compare('t.sub_type', $SkuCriteria->sub_type);
         $cdbcriteria->compare('brand.brand_id', $SkuCriteria->brand_id);
-        
+
         return Sku::model()->findAll($cdbcriteria);
-        
     }
 
 }

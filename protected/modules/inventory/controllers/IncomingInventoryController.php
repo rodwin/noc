@@ -30,7 +30,7 @@ class IncomingInventoryController extends Controller {
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('data', 'loadAllOutgoingTransactionDetailsByDRNo', 'loadInventoryDetails', 'incomingInvDetailData', 'uploadAttachment', 'preview', 'download', 'print', 'loadPDF',
-                    'getDetailsByIncomingInvID', 'viewPrint'),
+                    'getDetailsByIncomingInvID', 'viewPrint', 'loadIncomingDetailByID'),
                 'users' => array('@'),
             ),
             array('allow',
@@ -1453,6 +1453,44 @@ class IncomingInventoryController extends Controller {
                 . '</html>';
 
         Globals::sendMail('Inbound Receipt', $content, 'text/html', Yii::app()->params['swiftMailer']['username'], Yii::app()->params['swiftMailer']['accountName'], $sendTo);
+    }
+    
+    public function actionLoadIncomingDetailByID($detail_id) {
+        
+        $c = new CDbCriteria;
+        $c->condition = "incomingInventory.company_id = '" . Yii::app()->user->company_id . "' AND t.incoming_inventory_detail_id = '" . $detail_id . "'";
+        $c->with = array('incomingInventory');
+        $incoming_inv_details = IncomingInventoryDetail::model()->find($c);
+        
+        $output = array();
+        $output['incoming_inventory_detail_id'] = $incoming_inv_details->incoming_inventory_detail_id;
+        $output['incoming_inventory_id'] = $incoming_inv_details->incoming_inventory_id;
+        $output['batch_no'] = $incoming_inv_details->batch_no;
+        $output['sku_code'] = isset($incoming_inv_details->sku->sku_code) ? $incoming_inv_details->sku->sku_code : null;
+        $output['sku_name'] = isset($incoming_inv_details->sku->sku_name) ? $incoming_inv_details->sku->sku_name : null;
+        $output['sku_description'] = isset($incoming_inv_details->sku->description) ? $incoming_inv_details->sku->description : null;
+        $output['sku_category'] = isset($incoming_inv_details->sku->type) ? $incoming_inv_details->sku->type : null;
+        $output['brand_name'] = isset($incoming_inv_details->sku->brand->brand_name) ? $incoming_inv_details->sku->brand->brand_name : null;
+        $output['source_zone_id'] = $incoming_inv_details->source_zone_id;
+        $output['source_zone_name'] = isset($incoming_inv_details->zone->zone_name) ? $incoming_inv_details->zone->zone_name : null;
+        $output['unit_price'] = $incoming_inv_details->unit_price;
+        $output['expiration_date'] = $incoming_inv_details->expiration_date;
+        $output['planned_quantity'] = $incoming_inv_details->planned_quantity;
+        $output['quantity_received'] = $incoming_inv_details->quantity_received;
+        $output['amount'] = "&#x20B1;" . number_format($incoming_inv_details->amount, 2, '.', ',');
+        $output['return_date'] = $incoming_inv_details->return_date;
+        $output['status'] = $incoming_inv_details->status;
+        $output['remarks'] = $incoming_inv_details->remarks;
+        $output['campaign_no'] = $incoming_inv_details->campaign_no;
+        $output['po_no'] = $incoming_inv_details->po_no;
+        $output['pr_no'] = $incoming_inv_details->pr_no;
+        $output['pr_date'] = $incoming_inv_details->pr_date;
+        $output['plan_arrival_date'] = $incoming_inv_details->plan_arrival_date;
+        $output['uom_name'] = $incoming_inv_details->uom->uom_name;
+        $output['destination_zone_name'] = isset($incoming_inv_details->incomingInventory->zone->zone_name) ? trim($incoming_inv_details->incomingInventory->zone->zone_name) : "";
+        $output['sku_status_name'] = isset($incoming_inv_details->skuStatus->status_name) ? $incoming_inv_details->skuStatus->status_name : "";
+
+        echo json_encode($output);
     }
 
 }
