@@ -959,15 +959,15 @@ class Inventory extends CActiveRecord {
     
     public function getAllIncomingReturnsDeliveryByInboundInv($company_id) {
         
-        $sql = "SELECT (b.quantity_received - SUM(IFNULL(e.returned_quantity,0))) AS remaining_qty, b.*, a.*, c.*
-	
+        $sql = "SELECT (b.quantity_received - SUM(IFNULL(e.returned_quantity, 0))) AS remaining_qty, a.*, b.*, c.*
+
                 FROM incoming_inventory a
                 INNER JOIN incoming_inventory_detail b ON b.incoming_inventory_id = a.incoming_inventory_id
                 INNER JOIN sku c ON c.sku_id = b.sku_id
                 LEFT JOIN return_mdse d ON d.reference_dr_no = a.dr_no
-                LEFT JOIN return_mdse_detail e ON e.return_mdse_id = d.return_mdse_id
-                WHERE c.type LIKE '%" . Sku::INFRA . "%'
-                AND b.return_date IS NOT NULL AND a.company_id = :company_id AND a.destination_zone_id IN (" . Yii::app()->user->zones . ")
+                LEFT JOIN return_mdse_detail e ON e.return_mdse_id = d.return_mdse_id AND e.sku_id = c.sku_id
+
+                WHERE c.type LIKE '%" . Sku::INFRA . "%' AND a.company_id = :company_id AND b.return_date IS NOT NULL AND a.destination_zone_id IN (" . Yii::app()->user->zones . ")
                 GROUP BY a.dr_no, c.sku_id
                 HAVING remaining_qty != 0";
         

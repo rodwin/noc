@@ -1,6 +1,6 @@
 <?php
 $main_menu = array(
-    array('label' => 'Dashboard Pome', 'url' => array(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['dashboard']), 'icon' => 'fa fa-dashboard', 'visible' => Yii::app()->user->checkAccess(Yii::app()->user->auth_company_dashboard, array('company_id' => Yii::app()->user->company_id))),
+    array('label' => Yii::app()->params['company_modules'][Yii::app()->user->company_id]['default_name'], 'url' => array(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['dashboard']), 'icon' => 'fa fa-dashboard', 'visible' => Yii::app()->user->checkAccess(Yii::app()->user->auth_company_dashboard, array('company_id' => Yii::app()->user->company_id))),
     array('label' => 'Dashboard Pome', 'url' => array('pome/tl'), 'icon' => 'fa fa-dashboard', 'visible' => Yii::app()->user->checkAccess('Pome Dashboard TL', array('company_id' => Yii::app()->user->company_id))),
     array('label' => 'Dashboard Dtd', 'url' => array('dtd'), 'icon' => 'fa fa-dashboard', 'visible' => Yii::app()->user->checkAccess('DTD Dashboard', array('company_id' => Yii::app()->user->company_id))),
     array('label' => 'Edac', 'url' => array('pome/survey'), 'icon' => 'fa fa-book', 'visible' => Yii::app()->user->checkAccess('Survey', array('company_id' => Yii::app()->user->company_id))),
