@@ -369,9 +369,11 @@ class Returnable extends CActiveRecord {
 
         $status = "";
         if (date("Y-m-d", strtotime($date)) < date("Y-m-d")) {
-            $status = "OVER DUE";
+            $status = '<span class="label label-danger">OVER DUE</span>';
         } else if (date("Y-m-d", strtotime($date)) == date("Y-m-d")) {
-            $status = "DUE DATE";
+            $status = '<span class="label label-success">DUE DATE</span>';
+        } else {
+            $status = '<span class="label label-warning">ON LOAN</span>';
         }
 
         return $status;

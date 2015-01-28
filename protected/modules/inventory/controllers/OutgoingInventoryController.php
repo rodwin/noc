@@ -230,13 +230,15 @@ class OutgoingInventoryController extends Controller {
         $c->with = array("zone");
         $outgoing_inv = OutgoingInventory::model()->find($c);
 
+        $outgoing_inv_destination_zone_id = isset($outgoing_inv->zone->zone_id) ? $outgoing_inv->zone->zone_id : "";
+        
         $c1 = new CDbCriteria;
-        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND zones.zone_id = '" . $outgoing_inv->zone->zone_id . "'";
+        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND zones.zone_id = '" . $outgoing_inv_destination_zone_id . "'";
         $c1->with = array("zones");
         $destination_sales_office = SalesOffice::model()->find($c1);
 
         $destination = array();
-        $destination['zone_name'] = $outgoing_inv->zone->zone_name;
+        $destination['zone_name'] = isset($outgoing_inv->zone->zone_name) ? $outgoing_inv->zone->zone_name : "";
         $destination['destination_sales_office_name'] = isset($destination_sales_office->sales_office_name) ? $destination_sales_office->sales_office_name : "";
         $destination['contact_person'] = $outgoing_inv->contact_person != "" ? $outgoing_inv->contact_person : "";
         $destination['contact_no'] = $outgoing_inv->contact_no != "" ? $outgoing_inv->contact_no : "";
@@ -1681,8 +1683,8 @@ class OutgoingInventoryController extends Controller {
         $source['contact_person'] = $outgoing_inv->contact_person;
         $source['address'] = rtrim($source_address, "<br/>");
 
-        $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
-        $destination['address'] = $zone->salesOffice->address1;
+        $destination['sales_office_name'] = isset($zone->salesOffice->sales_office_name) ? $zone->salesOffice->sales_office_name : "";
+        $destination['address'] = isset($zone->salesOffice->address1) ? $zone->salesOffice->address1 : "";
 
         $headers['transaction_date'] = $outgoing_inv->transaction_date;
         $headers['plan_delivery_date'] = $outgoing_inv->plan_delivery_date;

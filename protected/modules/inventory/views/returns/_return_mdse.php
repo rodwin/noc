@@ -39,7 +39,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
         <div class="pull-right col-md-7">
 
-            <?php echo $form->textFieldGroup($return_mdse, 'return_mdse_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+            <?php echo $form->textFieldGroup($return_mdse, 'return_mdse_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'readonly' => true)), 'labelOptions' => array('label' => false))); ?>
 
             <?php
             echo $form->select2Group(
@@ -147,7 +147,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
             <?php echo $form->textFieldGroup($return_mdse, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'value' => date("Y-m-d"), 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-            <?php echo $form->textFieldGroup($return_mdse, 'reference_dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'placeholder' => 'DR No')), 'labelOptions' => array('label' => false))); ?>
+            <?php echo $form->textFieldGroup($return_mdse, 'reference_dr_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'placeholder' => 'DR No', 'readonly' => $return_mdse->reference_dr_no != "" ? true : false)), 'labelOptions' => array('label' => false))); ?>
 
             <?php
             echo $form->textAreaGroup($return_mdse, 'remarks', array(
@@ -390,7 +390,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 <div class="clearfix row">
     <div class="col-xs-12">
         <button id="btn_print3" class="btn btn-default submit_butt3" onclick=""><i class="fa fa-print"></i> Print</button>
-        <button id="btn-upload3" class="btn btn-primary pull-right submit_butt2"><i class="fa fa-fw fa-upload"></i> Attach</button>
+        <button id="btn-upload3" class="btn btn-primary pull-right submit_butt3"><i class="fa fa-fw fa-upload"></i> Attach</button>
         <button id="btn_save3" class="btn btn-success pull-right submit_butt3" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>  
     </div>
 </div>
@@ -590,7 +590,7 @@ $this->widget('booster.widgets.TbFileUpload', array(
     function removeReturnMdseAttachedbyID($id) {
         return_mdse_attachedFiles.splice($id - 1, 1);
     }
-    
+
     var success_return_mdse_id, return_mdse_success_type, return_mdse_success_message;
     function validateForm3(data) {
 
@@ -614,11 +614,14 @@ $this->widget('booster.widgets.TbFileUpload', array(
                 if (return_mdse_attachedFiles != "") {
                     $('[id=saved_returns_mdse_type]').val(return_receipt_type);
                     $('[id=saved_returns_mdse_id]').val(data.return_mdse_id);
-                    
+
                     return_mdse_attached_file_upload_count = 0;
                     return_mdse_attached_file_upload_count = return_mdse_attachedFiles.length;
 
                     $('#return_mdse_uploading_attachments').click();
+                } else {
+                    
+                    loadToReturnMdseView();
                 }
             } else if (data.form == details) {
 
@@ -690,7 +693,11 @@ $this->widget('booster.widgets.TbFileUpload', array(
     $('#btn_save3').click(function() {
         if (!confirm('Are you sure you want to submit?'))
             return false;
-        sendReturnMdse(headers);
+<?php if ($isReturnMdse === true && $return_mdse->reference_dr_no != "") { ?>
+            sendReturnMdseByDRAndDetailID(headers, <?php echo "'" . $return_mdse->reference_dr_no . "', '" . $detail_id . "'"; ?>);
+<?php } else { ?>
+            sendReturnMdse(headers);
+<?php } ?>
     });
 
     function serializeTransactionTable3() {
@@ -754,21 +761,7 @@ $this->widget('booster.widgets.TbFileUpload', array(
 
     $('#ReturnMdse_return_to').change(function() {
 
-        var value = this.value;
-
-        $("#" + return_mdse_label + "selected_return_to, ." + return_mdse_label + "return_destination").hide();
-        $("." + return_mdse_label + "autofill_text").html(<?php echo $not_set; ?>);
-        $("." + return_mdse_label + "return_to_select").select2("val", "");
-
-        if (value == <?php echo "'" . $destination_arr[0]['value'] . "'"; ?>) {
-            $("#" + return_mdse_label + "supplier_fields").show();
-        } else if (value == <?php echo "'" . $destination_arr[1]['value'] . "'"; ?>) {
-            $("#" + return_mdse_label + "sales_office_fields").show();
-        } else if (value == <?php echo "'" . $destination_arr[2]['value'] . "'"; ?>) {
-            $("#" + return_mdse_label + "warehouse_fields").show();
-        } else {
-            $("#" + return_mdse_label + "selected_return_to").show();
-        }
+        loadReturnTo(this.value)
     });
 
     $(function() {
@@ -837,13 +830,13 @@ $this->widget('booster.widgets.TbFileUpload', array(
     $('#btn_print3').click(function() {
         sendReturnMdse(printReturnMdse);
     });
-    
+
     $('#btn-upload3').click(function() {
         $('#return_mdse_file_uploads').click();
     });
-    
+
     function printReturnMdsePDF(data) {
-        
+
         $.ajax({
             url: '<?php echo Yii::app()->createUrl($this->module->id . '/Returns/printReturnMdse'); ?> ',
             type: 'POST',
@@ -873,14 +866,110 @@ $this->widget('booster.widgets.TbFileUpload', array(
                 alert("Error occured: Please try again.");
             }
         });
-        
+
     }
 
     function loadToReturnMdseView() {
 
         window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/returnMdseView&id=" + success_return_mdse_id;
-     
+
         growlAlert(return_mdse_success_type, return_mdse_success_message);
+    }
+
+    $(function() {
+<?php if ($isReturnMdse === true && $return_mdse->reference_dr_no != "") { ?>
+            loadFiltersInventoryDetails(<?php echo "'" . $detail_id . "'"; ?>);
+
+            loadReturnTo(<?php echo "'" . $return_mdse->return_to . "'"; ?>);
+
+            if (<?php echo "'" . $return_mdse->return_to . "'"; ?> == <?php echo "'" . $destination_arr[0]['value'] . "'"; ?>) {
+                loadSelect2SupplierDetailByID(<?php echo "'" . $return_mdse->return_to_id . "'"; ?>, return_mdse_label);
+            } else if (<?php echo "'" . $return_mdse->return_to . "'"; ?> == <?php echo "'" . $destination_arr[1]['value'] . "'"; ?>) {
+                loadSODetailByID(<?php echo "'" . $return_mdse->return_to_id . "'"; ?>, return_mdse_label);
+            } else if (<?php echo "'" . $return_mdse->return_to . "'"; ?> == <?php echo "'" . $destination_arr[2]['value'] . "'"; ?>) {
+                loadWarehouseDetailByID(<?php echo "'" . $return_mdse->return_to_id . "'"; ?>, return_mdse_label);
+            }
+<?php }
+?>
+    });
+
+    function loadFiltersInventoryDetails(detail_id) {
+
+        $.ajax({
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/IncomingInventory/loadIncomingDetailByID'); ?>' + "&detail_id=" + detail_id,
+            type: 'POST',
+            dataType: "json",
+            success: function(data) {
+
+                var defaultFilters = {
+                    "sku_code": data.sku_code,
+                    "uom_name": data.uom_name,
+                    "zone_name": data.destination_zone_name,
+                    "sku_status_name": data.sku_status_name,
+                    "po_no": data.po_no,
+                    "pr_no": data.pr_no,
+                    "pr_date": data.pr_date,
+                    "plan_arrival_date": data.plan_arrival_date,
+                    "batch_no": data.batch_no,
+                    "expiration_date": data.expiration_date,
+                };
+
+                inventory_table.fnMultiFilter(defaultFilters);
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+    }
+
+    function loadReturnTo(value) {
+
+        $("#" + return_mdse_label + "selected_return_to, ." + return_mdse_label + "return_destination").hide();
+        $("." + return_mdse_label + "autofill_text").html(<?php echo $not_set; ?>);
+        $("." + return_mdse_label + "return_to_select").select2("val", "");
+
+        if (value == <?php echo "'" . $destination_arr[0]['value'] . "'"; ?>) {
+            $("#" + return_mdse_label + "supplier_fields").show();
+        } else if (value == <?php echo "'" . $destination_arr[1]['value'] . "'"; ?>) {
+            $("#" + return_mdse_label + "sales_office_fields").show();
+        } else if (value == <?php echo "'" . $destination_arr[2]['value'] . "'"; ?>) {
+            $("#" + return_mdse_label + "warehouse_fields").show();
+        } else {
+            $("#" + return_mdse_label + "selected_return_to").show();
+        }
+    }
+
+    function sendReturnMdseByDRAndDetailID(form, dr_no, detail_id) {
+
+        var data = $("#return-mdse-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable3()});
+
+        if ($(".submit_butt3").is("[disabled=disabled]")) {
+            return false;
+        } else {
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo Yii::app()->createUrl($this->module->id . '/Returns/createReturnMdse'); ?>' + "&dr_no=" + dr_no + "&detail_id=" + detail_id,
+                data: data,
+                dataType: "json",
+                beforeSend: function(data) {
+                    $(".submit_butt3").attr("disabled", "disabled");
+                    if (form == headers) {
+                        $('#btn_save3').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
+                    } else if (form == print) {
+                        $('#btn_print3').html('<i class="fa fa-print"></i>&nbsp; Loading...');
+                    }
+                },
+                success: function(data) {
+                    validateForm3(data);
+                },
+                error: function(status, exception) {
+                    alert(status.responseText);
+                    $(".submit_butt3").attr('disabled', false);
+                    $('#btn_save3').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
+                    $('#btn_print3').html('<i class="fa fa-print"></i>&nbsp; Print');
+                }
+            });
+        }
     }
 
 </script>

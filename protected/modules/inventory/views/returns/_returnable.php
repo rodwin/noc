@@ -26,7 +26,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
         <div class="pull-right col-md-7">
 
-            <?php echo $form->textFieldGroup($returnable, 'return_receipt_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+            <?php echo $form->textFieldGroup($returnable, 'return_receipt_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'readonly' => true)), 'labelOptions' => array('label' => false))); ?>
 
             <?php
             echo $form->select2Group(
@@ -195,7 +195,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 <th class="hide_col"><?php echo $returnsDetailFields['unit_price']; ?></th>
                 <th class="hide_col"><?php echo $returnsDetailFields['batch_no']; ?></th>
                 <th class="hide_col"><?php echo $returnsDetailFields['expiration_date']; ?></th>
-                <th><?php echo $returnsDetailFields['quantity_issued']; ?></th>
+                <th><?php echo "Remaining Quantity"; ?></th>
                 <th><?php echo $returnsDetailFields['returned_quantity']; ?> <span title="Click green cell to edit" data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
                 <th class="hide_col"><?php echo $returnsDetailFields['uom_id']; ?></th>
                 <th><?php echo $returnsDetailFields['uom_id']; ?></th>

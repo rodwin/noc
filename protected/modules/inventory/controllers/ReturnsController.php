@@ -32,7 +32,8 @@ class ReturnsController extends Controller {
                 'actions' => array('create', 'update', 'data', 'loadReferenceDRNos', 'infraLoadDetailsByDRNo', 'queryInfraDetails', 'getDetailsByReturnInvID', 'createReturnable', 'infraLoadDetailsBySelectedDRNo',
                     'returnableData', 'getReturnableDetailsByReturnableID', 'attachmentPreview', 'returnableDelete', 'returnReceiptData', 'getReturnReceiptDetailsByReturnReceiptID', 'returnReceiptDelete', 'returnableView', 'getDetailsByReturnableID',
                     'returnReceiptView', 'getDetailsByReturnReceiptID', 'returnMdseData', 'getReturnMdseDetailsByReturnMdseID', 'returnMdseView', 'getDetailsByReturnMdseID', 'printReturnable', 'loadReturnablePDF', 'returnableViewPrint', 'returnReceiptViewPrint',
-                    'loadReturnReceiptPDF', 'printReturnReceipt', 'returnMdseDelete', 'returnMdseViewPrint', 'loadReturnMdsePDF', 'printReturnMdse', 'uploadAttachment', 'downloadAttachment', 'loadAttachmentDownload', 'deleteAttachment', 'returnReceiptDetailDelete', 'returnableDetailDelete', 'returnMdseDetailDelete'),
+                    'loadReturnReceiptPDF', 'printReturnReceipt', 'returnMdseDelete', 'returnMdseViewPrint', 'loadReturnMdsePDF', 'printReturnMdse', 'uploadAttachment', 'downloadAttachment', 'loadAttachmentDownload', 'deleteAttachment', 'returnReceiptDetailDelete', 'returnableDetailDelete', 'returnMdseDetailDelete',
+                    'createReturnMdse'),
                 'users' => array('@'),
             ),
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -215,6 +216,10 @@ class ReturnsController extends Controller {
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
 
+        $returnable->return_receipt_no = "R" . date("YmdHis");
+        $return_receipt->return_receipt_no = "RR" . date("YmdHis");
+        $return_mdse->return_mdse_no = "MDSE" . date("YmdHis");
+
         $this->render('create', array(
             'returnable' => $returnable,
             'return_from_list' => $return_from_list,
@@ -225,15 +230,18 @@ class ReturnsController extends Controller {
             'return_receipt_detail' => $return_receipt_detail,
             'uom' => $uom,
             'sku_status' => $sku_status,
-            'isReturnable' => false,
+            'isReturnable' => isset($_GET['param']['isReturnable']) && $_GET['param']['isReturnable'] != "" ? true : false,
+            'isReturnReceipt' => isset($_GET['param']['isReturnReceipt']) && $_GET['param']['isReturnReceipt'] != "" ? true : false,
+            'isReturnMdse' => isset($_GET['param']['isReturnMdse']) && $_GET['param']['isReturnMdse'] != "" ? true : false,
             'sku_id' => "",
             'return_mdse' => $return_mdse,
             'return_mdse_detail' => $return_mdse_detail,
             'return_to_list' => $return_to_list,
             'sku' => $sku,
             'warehouse_list' => $warehouse_list,
-            'form' => isset($_GET['param']['returns_form']) ? $_GET['param']['returns_form'] : 2,
+            'form' => isset($_GET['param']['returns_form']) ? $_GET['param']['returns_form'] : 0,
             'attachment' => $attachment,
+            'detail_id' => "",
         ));
     }
 
@@ -787,6 +795,7 @@ class ReturnsController extends Controller {
         $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
 
         $returnable->reference_dr_no = $dr_no;
+        $returnable->return_receipt_no = "R" . date("YmdHis");
 
         $this->render('create', array(
             'returnable' => $returnable,
@@ -799,6 +808,8 @@ class ReturnsController extends Controller {
             'uom' => $uom,
             'sku_status' => $sku_status,
             'isReturnable' => true,
+            'isReturnReceipt' => false,
+            'isReturnMdse' => false,
             'sku_id' => $sku_id,
             'return_mdse' => $return_mdse,
             'return_mdse_detail' => $return_mdse_detail,
@@ -806,7 +817,8 @@ class ReturnsController extends Controller {
             'warehouse_list' => $warehouse_list,
             'sku' => $sku,
             'form' => 1,
-            'attachment' => $attachment,
+            'attachment' => $attachment,            
+            'detail_id' => "",
         ));
     }
 
@@ -912,9 +924,9 @@ class ReturnsController extends Controller {
 
         foreach ($dataProvider->getData() as $key => $value) {
             $row = array();
-            
+
             $status = Inventory::model()->status($value->status);
-            
+
             $row['returnable_id'] = $value->returnable_id;
             $row['return_receipt_no'] = $value->return_receipt_no;
             $row['reference_dr_no'] = $value->reference_dr_no;
@@ -1321,7 +1333,12 @@ class ReturnsController extends Controller {
 
         $this->pageTitle = "View Return Receipt";
         $this->menu = array(
-            array('label' => "Create Return Receipt", 'url' => array('create', 'param' => array('returns_form' => 2))),
+            array('label' => "Create Return Receipt", 'url' => array('create', 'param' => array(
+                        'returns_form' => 2,
+                        'isReturnable' => false,
+                        'isReturnReceipt' => true,
+                        'isReturnMdse' => false,
+                    ))),
             array('label' => "Delete Return Receipt", 'url' => '#', 'linkOptions' => array('submit' => array('returnReceiptDelete', 'id' => $model->return_receipt_id), 'confirm' => 'Are you sure you want to delete this item?')),
             array('label' => "Manage Returns", 'url' => array('admin')),
         );
@@ -1504,7 +1521,12 @@ class ReturnsController extends Controller {
 
         $this->pageTitle = "View Return Mdse";
         $this->menu = array(
-            array('label' => "Create Return Mdse", 'url' => array('create', 'param' => array('returns_form' => 3))),
+            array('label' => "Create Return Mdse", 'url' => array('create', 'param' => array(
+                        'returns_form' => 3,
+                        'isReturnable' => false,
+                        'isReturnReceipt' => false,
+                        'isReturnMdse' => true,
+                    ))),
             array('label' => "Delete Return Mdse", 'url' => '#', 'linkOptions' => array('submit' => array('returnableDelete', 'id' => $model->return_mdse_id), 'confirm' => 'Are you sure you want to delete this item?')),
             array('label' => "Manage Returns", 'url' => array('admin')),
         );
@@ -2740,8 +2762,8 @@ class ReturnsController extends Controller {
         ob_clean();
         Yii::app()->getRequest()->sendFile($name, file_get_contents($src));
     }
-    
-    public function actionDeleteAttachment($attachment_id) {        
+
+    public function actionDeleteAttachment($attachment_id) {
         if (Yii::app()->request->isPostRequest) {
             try {
 
@@ -2779,13 +2801,13 @@ class ReturnsController extends Controller {
                 }
             }
         } else
-            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');        
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
     }
-    
+
     public function deleteAttachmentByTransactionID($transaction_id, $transaction_type) {
-        
+
         $type = str_replace(" ", "_", $transaction_type);
-        
+
         $attachment = Attachment::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "transaction_type" => $type, "transaction_id" => $transaction_id));
 
         if (count($attachment) > 0) {
@@ -2823,8 +2845,8 @@ class ReturnsController extends Controller {
         rmdir($dirname);
         return true;
     }
-    
-    public function actionReturnReceiptDetailDelete($return_receipt_detail_id) {        
+
+    public function actionReturnReceiptDetailDelete($return_receipt_detail_id) {
         if (Yii::app()->request->isPostRequest) {
             try {
 
@@ -2848,8 +2870,8 @@ class ReturnsController extends Controller {
         } else
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
     }
-    
-    public function actionReturnableDetailDelete($returnable_detail_id) {        
+
+    public function actionReturnableDetailDelete($returnable_detail_id) {
         if (Yii::app()->request->isPostRequest) {
             try {
 
@@ -2873,8 +2895,8 @@ class ReturnsController extends Controller {
         } else
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
     }
-    
-    public function actionReturnMdseDetailDelete($return_mdse_detail_id) {        
+
+    public function actionReturnMdseDetailDelete($return_mdse_detail_id) {
         if (Yii::app()->request->isPostRequest) {
             try {
 
@@ -2897,6 +2919,96 @@ class ReturnsController extends Controller {
             }
         } else
             throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
+    public function actionCreateReturnMdse($dr_no, $detail_id) {
+        $this->layout = '//layouts/column1';
+        $this->pageTitle = 'Returns';
+
+        $exist_return_mdse = ReturnMdse::model()->checkIfReturnMdseDetailIsExists(Yii::app()->user->company_id, $dr_no, $detail_id);
+
+        if (!$exist_return_mdse['success']) {
+            throw new CHttpException(403, "You are not authorized to perform this action.");
+        }
+
+        $returnable = new Returnable;
+        $return_receipt = new ReturnReceipt;
+        $return_receipt_detail = new ReturnReceiptDetail;
+        $return_mdse = new ReturnMdse;
+        $return_mdse_detail = new ReturnMdseDetail;
+        $sku = new Sku;
+        $attachment = new Attachment;
+
+        $return_mdse_header_data = ReturnMdse::model()->getReturnMdseSource(Yii::app()->user->company_id, $dr_no, $exist_return_mdse, $return_mdse);
+        
+        $return_from_list = CHtml::listData(Returnable::model()->getListReturnFrom(), 'value', 'title');
+        $return_to_list = CHtml::listData(ReturnMdse::model()->getListReturnTo(), 'value', 'title');
+        $zone_list = CHtml::listData(Zone::model()->findAll(array("condition" => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
+        $salesoffice_list = CHtml::listData(Salesoffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
+        $warehouse_list = CHtml::listData(Salesoffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '" AND distributor_id = ""', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
+
+        $c = new CDbCriteria;
+        $c->select = new CDbExpression('t.*, CONCAT(t.first_name, " ", t.last_name) AS fullname');
+        $c->condition = 'company_id = "' . Yii::app()->user->company_id . '"';
+        $c->order = 'fullname ASC';
+        $employee = CHtml::listData(Employee::model()->findAll($c), 'employee_id', 'fullname', 'employee_code');
+
+        if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
+
+            $data = array();
+            $data['success'] = false;
+            $data["type"] = "success";
+
+            if ($_POST['form'] == "transaction" || $_POST['form'] == "print_return_mdse") {
+                $data['form'] = $_POST['form'];
+
+                if (isset($_POST['ReturnMdse'])) {
+                    
+                    $return_mdse->attributes = $_POST['ReturnMdse'];
+                    $return_mdse->company_id = Yii::app()->user->company_id;
+                    $return_mdse->created_by = Yii::app()->user->name;
+                    $return_mdse->date_returned = $return_mdse->transaction_date;
+                    unset($return_mdse->created_date);
+
+                    $validatedReturnMdse = CActiveForm::validate($return_mdse);
+
+                    $data = $this->saveReturnMdse($return_mdse, $_POST, $validatedReturnMdse, $data);
+                }
+            }
+
+            echo json_encode($data);
+            Yii::app()->end();
+        }
+
+        $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
+        $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
+
+        $return_mdse->reference_dr_no = $dr_no;
+        $return_mdse->return_mdse_no = "R" . date("YmdHis");
+
+        $this->render('create', array(
+            'returnable' => $returnable,
+            'return_from_list' => $return_from_list,
+            'zone_list' => $zone_list,
+            'salesoffice_list' => $salesoffice_list,
+            'employee' => $employee,
+            'return_receipt' => $return_receipt,
+            'return_receipt_detail' => $return_receipt_detail,
+            'uom' => $uom,
+            'sku_status' => $sku_status,
+            'isReturnable' => false,
+            'isReturnReceipt' => false,
+            'isReturnMdse' => true,
+            'sku_id' => "",
+            'return_mdse' => $return_mdse,
+            'return_mdse_detail' => $return_mdse_detail,
+            'return_to_list' => $return_to_list,
+            'warehouse_list' => $warehouse_list,
+            'sku' => $sku,
+            'form' => 3,
+            'attachment' => $attachment,
+            'detail_id' => $detail_id,
+        ));
     }
 
 }
