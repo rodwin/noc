@@ -357,14 +357,14 @@ class ReceivingInventoryController extends Controller {
                             $recipient_email_address = ReceivingInventory::model()->mergeRecipientAndEmails($emails, $recipients);
 
                             $receiving->recipients = CJSON::encode($recipient_email_address);
-                            
+
                             $saved = $receiving->create($transaction_details);
 
                             if ($saved['success']) {
                                 $data['receiving_inv_id'] = $saved['header_data']->receiving_inventory_id;
                                 $data['message'] = 'Successfully created';
                                 $data['success'] = true;
-                                
+
                                 $this->generateRecipientDetails(CJSON::decode($saved['header_data']->recipients), $saved['header_data'], $saved['detail_data']);
                             } else {
                                 $data['message'] = 'Unable to process';
@@ -732,36 +732,43 @@ class ReceivingInventoryController extends Controller {
 
             $file_name = str_replace(' ', '_', strtolower($file->name));
             $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::RECEIVING_TRANSACTION_TYPE . "/" . $receiving_inv_id_attachment . "/" . $file_name;
-            $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
-            $model->attachment_id = Globals::generateV4UUID();
-            $model->company_id = Yii::app()->user->company_id;
-            $model->file_name = $file_name;
-            $model->url = $url;
-            $model->transaction_id = $receiving_inv_id_attachment;
-            $model->transaction_type = Attachment::RECEIVING_TRANSACTION_TYPE;
-            $model->created_by = Yii::app()->user->name;
+            if (@fopen($url, "r")) {
+
+                throw new CHttpException(409, "Could not upload file. File already exist " . CHtml::errorSummary($model));
+            } else {
+
+                $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
+
+                $model->attachment_id = Globals::generateV4UUID();
+                $model->company_id = Yii::app()->user->company_id;
+                $model->file_name = $file_name;
+                $model->url = $url;
+                $model->transaction_id = $receiving_inv_id_attachment;
+                $model->transaction_type = Attachment::RECEIVING_TRANSACTION_TYPE;
+                $model->created_by = Yii::app()->user->name;
 //            dito start
-            if ($tag_category != "OTHERS") {
-                $model->tag_category = $tag_category;
-            } else {
-                $model->tag_category = $tag_to;
-            }
+                if ($tag_category != "OTHERS") {
+                    $model->tag_category = $tag_category;
+                } else {
+                    $model->tag_category = $tag_to;
+                }
 //          dito end
-            if ($model->save()) {
+                if ($model->save()) {
 
-                $data[] = array(
-                    'name' => $file->name,
-                    'type' => $file->type,
-                    'size' => $file->size,
-                    'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
-                    'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name,
-                );
-            } else {
+                    $data[] = array(
+                        'name' => $file->name,
+                        'type' => $file->type,
+                        'size' => $file->size,
+                        'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
+                        'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name,
+                    );
+                } else {
 
-                if ($model->hasErrors()) {
+                    if ($model->hasErrors()) {
 
-                    $data[] = array('error', $model->getErrors());
+                        $data[] = array('error', $model->getErrors());
+                    }
                 }
             }
         } else {
@@ -779,7 +786,13 @@ class ReceivingInventoryController extends Controller {
         $c->compare("transaction_id", $id);
         $attachment = Attachment::model()->findAll($c);
 
-        $output = array();
+        $output = array(
+            "draw" => intval(count($attachment)),
+            "recordsTotal" => count($attachment),
+            "recordsFiltered" => count($attachment),
+            "data" => array()
+        );
+
         foreach ($attachment as $key => $value) {
             $ext = new SplFileInfo($value->file_name);
 
@@ -1238,16 +1251,16 @@ class ReceivingInventoryController extends Controller {
         $header['plan_delivery_date'] = $header_data->plan_delivery_date != "" ? strtoupper(date('M d Y', strtotime($header_data->plan_delivery_date))) : "";
         $header['delivery_date'] = $header_data->transaction_date != "" ? strtoupper(date('M d Y', strtotime($header_data->transaction_date))) : "";
         $header['remarks'] = $header_data->delivery_remarks;
-        
+
         $user_details = User::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "user_name" => $header_data->created_by));
         $user = User::model()->userDetailsByID(isset($user_details) ? $user_details->user_id : "", Yii::app()->user->company_id);
-        $header['received_by'] = isset($user) ? $user->first_name." ".$user->last_name : "";
+        $header['received_by'] = isset($user) ? $user->first_name . " " . $user->last_name : "";
 
         $c = new CDbCriteria;
         $c->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.zone_id = '" . $header_data->zone_id . "'";
         $c->with = array("salesOffice");
         $zone = Zone::model()->find($c);
-        
+
         $header['sales_office_name'] = isset($zone->salesOffice->sales_office_name) ? $zone->salesOffice->sales_office_name : "";
 
         foreach ($detail_data as $k1 => $v1) {
