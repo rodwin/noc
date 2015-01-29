@@ -198,19 +198,11 @@ $this->breadcrumbs = array(
                         'callbacks' => array(
                             'done' => new CJavaScriptExpression(
                                     'function(e, data) {
-                                        file_upload_count--;
-                                        
-                                        if(file_upload_count == 0) {
-                                            files = [];
-                                            
-                                            growlAlert("success", "Successfully Uploaded");
-                                            $("#tbl tbody tr").remove();
-                                            loadAttachmentPreview(' . $model->receiving_inventory_id . ');
-                                        }
+                                        reloadAttachmentByWidget();
                                 }'
                             ),
                             'fail' => new CJavaScriptExpression(
-                                    'function(e, data) { console.log("fail"); file_upload_count--; }'
+                                    'function(e, data) { console.log("fail"); reloadAttachmentByWidget(); }'
                             ),
                     )));
                     ?>
@@ -218,7 +210,6 @@ $this->breadcrumbs = array(
                 </div>
 
             </div>
-
         </div>
     </div>
 
@@ -268,9 +259,9 @@ $this->breadcrumbs = array(
 //                $('td:eq(10)', nRow).addClass("text-right");
             }
         });
-        
+
         loadAttachmentPreview(receiving_inventory_id);
-        
+
         receiving_inv_attachment_table = $('#receiving-inventory-attachment_table').dataTable({
             "filter": true,
             "dom": '<"text-center"r>t',
@@ -294,7 +285,7 @@ $this->breadcrumbs = array(
                 'dataType': 'text',
                 'success': function(data) {
                     growlAlert("success", data);
-                    
+
                     loadAttachmentPreview(receiving_inventory_id);
                 },
                 error: function(status, exception) {
@@ -312,8 +303,8 @@ $this->breadcrumbs = array(
                 'success': function(data) {
                     if (data.success === true) {
                         window.location.href = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/outgoingInventory') . '"' ?> + "/loadAttachmentDownload&name=" + data.name + "&src=" + data.src;
-                    }                    
-                    
+                    }
+
                     growlAlert(data.type, data.message);
                 },
                 error: function(status, exception) {
@@ -322,7 +313,6 @@ $this->breadcrumbs = array(
             });
             return false;
         });
-
     });
 
     $('#btn_print').click(function() {
@@ -404,7 +394,7 @@ $this->breadcrumbs = array(
     $('#btn_upload').click(function() {
         if (!confirm('Are you sure you want to submit?'))
             return false;
-        
+
         if (files !== "") {
             file_upload_count = files.length;
             $('[id=saved_receiving_inventory_id]').val(<?php echo "'" . $model->receiving_inventory_id . "'"; ?>);
@@ -420,7 +410,7 @@ $this->breadcrumbs = array(
             type: type
         });
     }
-    
+
     var receiving_attachments_table;
     function loadAttachmentPreview(receiving_inv_id) {
 
@@ -459,6 +449,19 @@ $this->breadcrumbs = array(
                 }
             }
         });
+    }
+
+    function reloadAttachmentByWidget() {
+
+        file_upload_count--;
+
+        if (file_upload_count == 0) {
+            files = [];
+
+            growlAlert("success", "Successfully Uploaded");
+            $("#tbl tbody tr").remove();
+            loadAttachmentPreview(receiving_inventory_id);
+        }        
     }
 
 </script>

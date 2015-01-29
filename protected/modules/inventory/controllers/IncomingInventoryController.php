@@ -30,7 +30,7 @@ class IncomingInventoryController extends Controller {
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('data', 'loadAllOutgoingTransactionDetailsByDRNo', 'loadInventoryDetails', 'incomingInvDetailData', 'uploadAttachment', 'preview', 'download', 'print', 'loadPDF',
-                    'getDetailsByIncomingInvID', 'viewPrint', 'loadIncomingDetailByID'),
+                    'getDetailsByIncomingInvID', 'viewPrint', 'loadIncomingDetailByID', 'loadAttachmentDownload'),
                 'users' => array('@'),
             ),
             array('allow',
@@ -137,6 +137,7 @@ class IncomingInventoryController extends Controller {
      */
     public function actionView($id) {
         $model = $this->loadModel($id);
+        $attachment = new Attachment;
 
         $this->pageTitle = "View " . IncomingInventory::INCOMING_LABEL . ' Inventory';
 
@@ -240,6 +241,7 @@ class IncomingInventoryController extends Controller {
             'pr_dates' => $pr_dates,
             'po_nos' => $po_nos,
             'source' => $source,
+            'attachment_model' => $attachment,
         ));
     }
 
@@ -830,36 +832,43 @@ class IncomingInventoryController extends Controller {
 
             $file_name = str_replace(' ', '_', strtolower($file->name));
             $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::INCOMING_TRANSACTION_TYPE . "/" . $incoming_inv_id_attachment . "/" . $file_name;
-            $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
-            $model->attachment_id = Globals::generateV4UUID();
+            if (@fopen($url, "r")) {
 
-            $model->company_id = Yii::app()->user->company_id;
-            $model->file_name = $file_name;
-            $model->url = $url;
-            $model->transaction_id = $incoming_inv_id_attachment;
-            $model->transaction_type = Attachment::INCOMING_TRANSACTION_TYPE;
-            $model->created_by = Yii::app()->user->name;
-            if ($tag_category != "OTHERS") {
-                $model->tag_category = $tag_category;
-            } else {
-                $model->tag_category = $tag_to;
-            }
-
-            if ($model->save()) {
-
-                $data[] = array(
-                    'name' => $file->name,
-                    'type' => $file->type,
-                    'size' => $file->size,
-                    'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
-                    'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name,
-                );
+                throw new CHttpException(409, "Could not upload file. File already exist " . CHtml::errorSummary($model));
             } else {
 
-                if ($model->hasErrors()) {
+                $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
-                    $data[] = array('error', $model->getErrors());
+                $model->attachment_id = Globals::generateV4UUID();
+
+                $model->company_id = Yii::app()->user->company_id;
+                $model->file_name = $file_name;
+                $model->url = $url;
+                $model->transaction_id = $incoming_inv_id_attachment;
+                $model->transaction_type = Attachment::INCOMING_TRANSACTION_TYPE;
+                $model->created_by = Yii::app()->user->name;
+                if ($tag_category != "OTHERS") {
+                    $model->tag_category = $tag_category;
+                } else {
+                    $model->tag_category = $tag_to;
+                }
+
+                if ($model->save()) {
+
+                    $data[] = array(
+                        'name' => $file->name,
+                        'type' => $file->type,
+                        'size' => $file->size,
+                        'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
+                        'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name,
+                    );
+                } else {
+
+                    if ($model->hasErrors()) {
+
+                        $data[] = array('error', $model->getErrors());
+                    }
                 }
             }
         } else {
@@ -875,6 +884,7 @@ class IncomingInventoryController extends Controller {
         $c = new CDbCriteria;
         $c->compare("company_id", Yii::app()->user->company_id);
         $c->compare("transaction_id", $id);
+        $c->compare("transaction_type", Attachment::INCOMING_TRANSACTION_TYPE);
         $attachment = Attachment::model()->findAll($c);
 
         $output = array();
@@ -1395,10 +1405,10 @@ class IncomingInventoryController extends Controller {
         $header['delivery_date'] = $header_data->transaction_date != "" ? strtoupper(date('M d Y', strtotime($header_data->transaction_date))) : "";
         $header['dr_date'] = $header_data->dr_date != "" ? strtoupper(date('M d Y', strtotime($header_data->dr_date))) : "";
         $header['remarks'] = $header_data->remarks;
-        
+
         $user_details = User::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "user_name" => $header_data->created_by));
         $user = User::model()->userDetailsByID(isset($user_details) ? $user_details->user_id : "", Yii::app()->user->company_id);
-        $header['received_by'] = isset($user) ? $user->first_name." ".$user->last_name : "";
+        $header['received_by'] = isset($user) ? $user->first_name . " " . $user->last_name : "";
 
         $pr_no_arr = array();
         $pr_nos = "";
@@ -1454,14 +1464,14 @@ class IncomingInventoryController extends Controller {
 
         Globals::sendMail('Inbound Receipt', $content, 'text/html', Yii::app()->params['swiftMailer']['username'], Yii::app()->params['swiftMailer']['accountName'], $sendTo);
     }
-    
+
     public function actionLoadIncomingDetailByID($detail_id) {
-        
+
         $c = new CDbCriteria;
         $c->condition = "incomingInventory.company_id = '" . Yii::app()->user->company_id . "' AND t.incoming_inventory_detail_id = '" . $detail_id . "'";
         $c->with = array('incomingInventory');
         $incoming_inv_details = IncomingInventoryDetail::model()->find($c);
-        
+
         $output = array();
         $output['incoming_inventory_detail_id'] = $incoming_inv_details->incoming_inventory_detail_id;
         $output['incoming_inventory_id'] = $incoming_inv_details->incoming_inventory_id;
