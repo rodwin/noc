@@ -692,8 +692,8 @@ class PoiController extends Controller {
 
         $return['poi_id'] = isset($poi) ? $poi->poi_id : "";
         $return['short_name'] = isset($poi) ? $poi->short_name : "";
-        $return['primary_code'] = isset($poi) ? $poi->primary_code : "";
-        $return['address1'] = $poi_address;
+        $return['primary_code'] = isset($poi) ? $poi->secondary_code : "";
+        $return['address1'] = isset($poi) ? $poi->address1 : "";
 
         echo json_encode($return);
     }
@@ -716,7 +716,7 @@ class PoiController extends Controller {
 
                 $row['poi_id'] = $val->poi_id;
                 $row['short_name'] = $val->short_name;
-                $row['primary_code'] = $val->primary_code;
+                $row['primary_code'] = $val->secondary_code;
 
                 $return["dataItems"][] = $row;
             }
@@ -732,4 +732,6 @@ class PoiController extends Controller {
         echo json_encode($return);
         Yii::app()->end();
     }
+
 }
+

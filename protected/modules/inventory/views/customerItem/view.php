@@ -195,6 +195,41 @@ $this->breadcrumbs = array(
             ],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(10)', nRow).addClass("text-right");
+
+                if ((aData.sku_type).trim() === <?php echo trim("'" . Sku::INFRA . "'"); ?> && <?php echo "'" . $model->status . "'" ?> === <?php echo "'" . OutgoingInventory::OUTGOING_PENDING_STATUS . "'" ?>) {
+                    $('td:eq(7)', nRow).addClass("success");
+
+                    $('td:eq(7)', nRow).editable(function(value, settings) {
+                        var pos = customer_item_detail_table.fnGetPosition(this);
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '<?php echo Yii::app()->createUrl($this->module->id . '/CustomerItem/updateCustomerItemDetailReturnDate'); ?>' + '&return_date=' + value + "&customer_item_id=" + aData.customer_item_id + "&customer_item_detail_id=" + aData.customer_item_detail_id,
+                            dataType: "json",
+                            beforeSend: function(data) {
+                            },
+                            success: function(data) {
+
+                                customer_item_detail_table.fnUpdate(data.return_date, pos[0], pos[2]);
+
+                                growlAlert(data.type, data.message);
+
+                            },
+                            error: function(data) {
+                                alert("Error occured: Please try again.");
+                            }
+                        });
+
+                    }, {
+                        type: 'text',
+                        placeholder: 'YYYY-MM-DD',
+                        indicator: '',
+                        tooltip: 'Click to edit',
+                        width: "100%",
+                        height: "30px",
+                        onblur: 'submit'
+                    });
+                }
             }
         });
 

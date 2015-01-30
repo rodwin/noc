@@ -194,25 +194,37 @@ class ProofOfDelivery extends CActiveRecord {
                 $sort_column = 't.created_date';
                 break;
         }
-        $zone_arr = array();
-        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
-        $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
-
-        if (!empty($zones)) {
-            foreach ($zones as $key => $val) {
-                $zone_arr[] = $key;
-            }
-        }
+        
+//        $zone_arr = array();
+//        if (Yii::app()->user->userObj->userType->updated_date == "") {
+//
+//            $data_first_rem = strstr(Yii::app()->user->userObj->userType->data, '{');
+//            $data_last_rem = strstr(strrev($data_first_rem), '}');
+//            $final_data = strrev($data_last_rem);
+//        } else {
+//
+//            $final_data = Yii::app()->user->userObj->userType->data;
+//        }
+//        
+//        $unserialize = CJSON::decode($final_data);
+//        $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
+//
+//        if (!empty($zones)) {
+//            foreach ($zones as $key => $val) {
+//                $zone_arr[] = $key;
+//            }
+//        }
 
         $c1 = new CDbCriteria;
-        $c1->condition = "t.source_zone_id IN (" . Yii::app()->user->zones . ")";
+        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND t.source_zone_id IN (" . Yii::app()->user->zones . ")";
         $c1->group = "t.pod_id";
+        $c1->with = array('pod');
         $pod_detail = ProofOfDeliveryDetail::model()->findAll($c1);
 
         $pod_id_arr = array();
         if (count($pod_detail) > 0) {
             foreach ($pod_detail as $key1 => $val1) {
-                $pod_id_arr[] = $val1->pod_id;
+                $pod_id_arr[] = $val1->pod->pod_id;
             }
         }
 
@@ -308,8 +320,9 @@ class ProofOfDelivery extends CActiveRecord {
             if (count($transaction_details) > 0) {
                 if ($proofOfDelivery->save(false)) {
 
-                    for ($i = 0; $i < count($transaction_details); $i++) {
-                        ProofOfDeliveryDetail::model()->createPODTransactionDetails($proofOfDelivery->pod_id, $proofOfDelivery->company_id, $transaction_details[$i]->inventory_id, $transaction_details[$i]->batch_no, $transaction_details[$i]->sku_id, $transaction_details[$i]->source_zone_id, $transaction_details[$i]->unit_price, $transaction_details[$i]->expiration_date, $transaction_details[$i]->planned_quantity, $transaction_details[$i]->quantity_issued, $transaction_details[$i]->amount, $transaction_details[$i]->return_date, $transaction_details[$i]->remarks, $proofOfDelivery->created_by, $transaction_details[$i]->uom_id, $transaction_details[$i]->sku_status_id, $proofOfDelivery->transaction_date, $transaction_details[$i]->customer_item_detail_id);
+                    for ($i = 0; $i < count($transaction_details); $i++) {                        
+                        $pod_detail = ProofOfDeliveryDetail::model()->createPODTransactionDetails($proofOfDelivery->pod_id, $proofOfDelivery->company_id, $transaction_details[$i]->inventory_id, $transaction_details[$i]->batch_no, $transaction_details[$i]->sku_id, $transaction_details[$i]->source_zone_id, $transaction_details[$i]->unit_price, $transaction_details[$i]->expiration_date, $transaction_details[$i]->planned_quantity, $transaction_details[$i]->quantity_issued, $transaction_details[$i]->amount, $transaction_details[$i]->return_date, $transaction_details[$i]->remarks, $proofOfDelivery->created_by, $transaction_details[$i]->uom_id, $transaction_details[$i]->sku_status_id, $proofOfDelivery->transaction_date, $transaction_details[$i]->customer_item_detail_id, $transaction_details[$i]->po_no, $transaction_details[$i]->pr_no, $transaction_details[$i]->pr_date, $transaction_details[$i]->plan_arrival_date);                    
+                        $pod_details[] = $pod_detail;
                     }
 
                     return true;
