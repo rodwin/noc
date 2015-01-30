@@ -415,61 +415,86 @@ class IncomingInventoryController extends Controller {
 
     public function actionLoadAllOutgoingTransactionDetailsByDRNo($dr_no) {
 
-        $c = new CDbCriteria;
-        $c->condition = "outgoingInventory.company_id = '" . Yii::app()->user->company_id . "' AND outgoingInventory.dr_no = '" . $dr_no . "'";
-        $c->with = array("outgoingInventory");
-        $outgoing_inv_details = OutgoingInventoryDetail::model()->findAll($c);
+//        $c = new CDbCriteria;
+//        $c->condition = "outgoingInventory.company_id = '" . Yii::app()->user->company_id . "' AND outgoingInventory.dr_no = '" . $dr_no . "'";
+//        $c->with = array("outgoingInventory");
+//        $outgoing_inv_details = OutgoingInventoryDetail::model()->findAll($c);
 
-
+        $data = IncomingInventory::model()->loadAllOutgoingTransactionDetailsByDRNo(Yii::app()->user->company_id, $dr_no);
+//        pre($data); exit;
         $output = array();
-        if (count($outgoing_inv_details) > 0) {
-            foreach ($outgoing_inv_details as $key => $value) {
+        if (count($data) > 0) {
+            foreach ($data as $key => $value) {
                 $row = array();
 
-                $row['outgoing_inventory_detail_id'] = $value->outgoing_inventory_detail_id;
-                $row['outgoing_inventory_id'] = $value->outgoing_inventory_id;
-                $row['inventory_id'] = $value->inventory_id;
-                $row['batch_no'] = $value->batch_no;
-                $row['sku_id'] = $value->sku_id;
-                $row['source_zone_id'] = $value->source_zone_id;
-                $row['source_zone_name'] = isset($value->zone->zone_name) ? $value->zone->zone_name : null;
-                $row['unit_price'] = $value->unit_price;
-                $row['expiration_date'] = $value->expiration_date;
-                $row['planned_quantity'] = $value->quantity_issued;
+                $row['outgoing_inventory_detail_id'] = $value['outgoing_inventory_detail_id'];
+                $row['outgoing_inventory_id'] = $value['outgoing_inventory_id'];
+                $row['inventory_id'] = $value['inventory_id'];
+                $row['batch_no'] = $value['batch_no'];
+                $row['sku_id'] = $value['sku_id'];
+                $row['source_zone_id'] = $value['source_zone_id'];
+                $row['source_zone_name'] = $value['source_zone_name'];
+                $row['unit_price'] = $value['unit_price'];
+                $row['expiration_date'] = $value['expiration_date'];
+                $row['planned_quantity'] = $value['quantity_issued'];
                 $row['quantity_received'] = "0";
-                $row['amount'] = $value->amount;
-                $row['inventory_on_hand'] = $value->inventory_on_hand;
-                $row['return_date'] = $value->return_date;
-                $row['remarks'] = $value->remarks;
-                $row['sku_id'] = isset($value->sku->sku_id) ? $value->sku->sku_id : null;
-                $row['sku_code'] = isset($value->sku->sku_code) ? $value->sku->sku_code : null;
-                $row['sku_description'] = isset($value->sku->description) ? $value->sku->description : null;
-                $row['brand_name'] = isset($value->sku->brand->brand_name) ? $value->sku->brand->brand_name : null;
-                $row['status'] = $value->status;
-                $row['uom_id'] = $value->uom_id;
-                $row['sku_status_id'] = $value->sku_status_id;
+                $row['amount'] = $value['amount'];
+//                $row['inventory_on_hand'] = $value->inventory_on_hand;
+                $row['return_date'] = $value['return_date'];
+                $row['remarks'] = $value['remarks'];
+                $row['sku_id'] = $value['sku_id'];
+                $row['sku_code'] = $value['sku_code'];
+                $row['sku_description'] = $value['description'];
+                $row['brand_name'] = $value['brand_name'];
+                $row['status'] = $value['status'];
+                $row['uom_id'] = $value['uom_id'];
+                $row['sku_status_id'] = $value['sku_status_id'];
 
+                if ($value['remaining_qty'] == 0) {
+
+                    $row['remaining_qty'] = $value['quantity_issued'];
+                } else if ($value['remaining_qty'] > 0) {
+
+                    $row['remaining_qty'] = $value['remaining_qty'];
+                } else {
+
+                    $row['remaining_qty'] = 0;
+                }
+                
+                $row['incoming_inventory_detail_id'] = isset($value['incoming_inventory_detail_id']) ? $value['incoming_inventory_detail_id'] : "";
+                
                 $output['transaction_details'][] = $row;
             }
         }
 
         $header = array(
-            "rra_date" => isset($value->outgoingInventory->rra_date) ? $value->outgoingInventory->rra_date : null,
+            "rra_date" => isset($value['rra_date']) ? $value['rra_date'] : null,
 //            "campaign_no" => isset($value->outgoingInventory->campaign_no) ? $value->outgoingInventory->campaign_no : null,
 //            "pr_no" => isset($value->outgoingInventory->pr_no) ? $value->outgoingInventory->pr_no : null,
-            "dr_date" => isset($value->outgoingInventory->transaction_date) ? $value->outgoingInventory->transaction_date : null,
+            "dr_date" => isset($value['transaction_date']) ? $value['transaction_date'] : null,
             "source_zone_id" => "",
-            "destination_zone_id" => isset($value->outgoingInventory->destination_zone_id) ? $value->outgoingInventory->destination_zone_id : null,
-            "destination_zone_name" => isset($value->outgoingInventory->zone->zone_name) ? $value->outgoingInventory->zone->zone_name : null,
-            "plan_delivery_date" => isset($value->outgoingInventory->plan_delivery_date) ? $value->outgoingInventory->plan_delivery_date : null,
+            "destination_zone_id" => isset($value['destination_zone_id']) ? $value['destination_zone_id'] : "",
+            "destination_zone_name" => isset($value['destination_zone_name']) ? $value['destination_zone_name'] : "",
+            "plan_delivery_date" => isset($value['plan_delivery_date']) ? $value['plan_delivery_date'] : null,
 //            "plan_arrival_date" => isset($value->outgoingInventory->plan_arrival_date) ? $value->outgoingInventory->plan_arrival_date : null,
-            "outgoing_inventory_id" => isset($value->outgoingInventory->outgoing_inventory_id) ? $value->outgoingInventory->outgoing_inventory_id : null,
-            "rra_no" => isset($value->outgoingInventory->rra_no) ? $value->outgoingInventory->rra_no : null,
-            "contact_person" => isset($value->outgoingInventory->contact_person) ? $value->outgoingInventory->contact_person : null,
-            "contact_no" => isset($value->outgoingInventory->contact_no) ? $value->outgoingInventory->contact_no : null,
+            "outgoing_inventory_id" => isset($value['outgoing_inventory_id']) ? $value['outgoing_inventory_id'] : "",
+            "rra_no" => isset($value['rra_no']) ? $value['rra_no'] : "",
+            "contact_person" => isset($value['contact_person']) ? $value['contact_person'] : "",
+            "contact_no" => isset($value['contact_no']) ? $value['contact_no'] : "",
+            "contact_no" => isset($value['contact_no']) ? $value['contact_no'] : "",
+            "incoming_inventory_id" => isset($value['incoming_inventory_id']) ? $value['incoming_inventory_id'] : "",
         );
-
+        
         $output['headers'] = $header;
+        
+        $header_status = isset($value['header_status']) ? $value['header_status'] : "";
+        
+        $for_update = false;
+        if ($header_status != "" && $header_status != OutgoingInventory::OUTGOING_PENDING_STATUS) {
+            $for_update = true;
+        }
+        
+        $output['for_update'] = $for_update;
 
         echo json_encode($output);
     }
@@ -576,34 +601,163 @@ class IncomingInventoryController extends Controller {
      * @param integer $id the ID of the model to be updated
      */
     public function actionUpdate($id) {
-        $model = $this->loadModel($id);
+        
+        $incoming = $this->loadModel($id);
+        $transaction_detail = new IncomingInventoryDetail;
+        $sku = new Sku;
+        $model = new Attachment;
 
-        $this->menu = array(
-            array('label' => 'Create IncomingInventory', 'url' => array('create')),
-            array('label' => 'View IncomingInventory', 'url' => array('view', 'id' => $model->incoming_inventory_id)),
-            array('label' => 'Manage IncomingInventory', 'url' => array('admin')),
-            '',
-            array('label' => 'Help', 'url' => '#'),
-        );
+        $c = new CDbCriteria;
+        $c->compare("company_id", Yii::app()->user->company_id);
+        $c->condition = "closed = 0 AND destination_zone_id IN (" . Yii::app()->user->zones . ")";
+        $c->order = "dr_no ASC";
+        $outgoing_inv_dr_nos = CHtml::listData(OutgoingInventory::model()->findAll($c), "dr_no", "dr_no");
+        $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
+        $sku_status = CHtml::listData(SkuStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'status_name ASC')), 'sku_status_id', 'status_name');
 
-        $this->pageTitle = 'Update IncomingInventory ' . $model->incoming_inventory_id;
+        if (Yii::app()->request->isPostRequest && Yii::app()->request->isAjaxRequest) {
 
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
+            $data = array();
+            $data['success'] = false;
+            $data["type"] = "success";
 
-        if (isset($_POST['IncomingInventory'])) {
-            $model->attributes = $_POST['IncomingInventory'];
-            $model->updated_by = Yii::app()->user->name;
-            $model->updated_date = date('Y-m-d H:i:s');
+            if ($_POST['form'] == "transaction" || $_POST['form'] == "print") {
+                $data['form'] = $_POST['form'];
 
-            if ($model->save()) {
-                Yii::app()->user->setFlash('success', "Successfully updated");
-                $this->redirect(array('view', 'id' => $model->incoming_inventory_id));
+                if (isset($_POST['IncomingInventory'])) {
+                    $incoming->attributes = $_POST['IncomingInventory'];
+                    $incoming->company_id = Yii::app()->user->company_id;
+                    $incoming->created_by = Yii::app()->user->name;
+                    unset($incoming->created_date);
+
+                    $validatedIncoming = CActiveForm::validate($incoming);
+                    $emails = isset($_POST['emails']) ? $_POST['emails'] : array();
+                    $recipients = isset($_POST['recipients']) ? $_POST['recipients'] : array();
+                    $validatedEmails = ReceivingInventory::model()->validateEmails($incoming, $emails);
+                    $validatedRecipients = ReceivingInventory::model()->validateRecipients($incoming, $recipients);
+
+                    $validatedModel_arr = (array) json_decode($validatedIncoming);
+                    $model_errors = json_encode(array_merge($validatedModel_arr, $validatedEmails, $validatedRecipients));
+
+                    if ($model_errors != '[]') {
+
+                        $data['error'] = $model_errors;
+                        $data['message'] = 'Unable to process';
+                        $data['success'] = false;
+                        $data["type"] = "danger";
+                    } else {
+
+                        if ($data['form'] == "print") {
+
+                            $data['print'] = $_POST;
+                            $data['success'] = true;
+                        } else {
+
+                            $incoming->outgoing_inventory_id = $_POST['IncomingInventory']['outgoing_inventory_id'];
+
+                            $transaction_details = isset($_POST['transaction_details']) ? $_POST['transaction_details'] : array();
+
+                            $recipients_address['emails'] = CJSON::encode($emails);
+                            $recipients_address['recipients'] = CJSON::encode($recipients);
+                            $recipient_email_address = ReceivingInventory::model()->mergeRecipientAndEmails($emails, $recipients);
+
+                            $incoming->recipients = CJSON::encode($recipient_email_address);
+
+                            $saved = $incoming->updateTransaction($transaction_details);
+
+                            if ($saved['success']) {
+                                $data['incoming_inv_id'] = $saved['header_data']->incoming_inventory_id;
+                                $data['message'] = 'Successfully created';
+                                $data['success'] = true;
+
+//                                $this->generateRecipientDetails(CJSON::decode($saved['header_data']->recipients), $saved['header_data'], $saved['detail_data']);
+                            } else {
+                                $data['message'] = 'Unable to process';
+                                $data['success'] = false;
+                                $data["type"] = "danger";
+                            }
+                        }
+                    }
+                }
+            } else if ($_POST['form'] == "details") {
+                $data['form'] = $_POST['form'];
+
+                if (isset($_POST['IncomingInventoryDetail'])) {
+                    $transaction_detail->attributes = $_POST['IncomingInventoryDetail'];
+                    $transaction_detail->company_id = Yii::app()->user->company_id;
+                    $transaction_detail->created_by = Yii::app()->user->name;
+                    unset($transaction_detail->created_date);
+
+                    $validatedReceivingDetail = CActiveForm::validate($transaction_detail);
+
+                    if ($validatedReceivingDetail != '[]') {
+
+                        $data['error'] = $validatedReceivingDetail;
+                        $data['message'] = 'Unable to process';
+                        $data['success'] = false;
+                        $data["type"] = "danger";
+                    } else {
+
+                        $c = new CDbCriteria;
+                        $c->compare('t.company_id', Yii::app()->user->company_id);
+                        $c->compare('t.sku_id', $transaction_detail->sku_id);
+                        $c->with = array('brand', 'company', 'defaultUom', 'defaultZone');
+                        $sku_details = Sku::model()->find($c);
+
+                        $data['success'] = true;
+                        $data['message'] = 'Successfully Added Item';
+
+                        $status = "";
+                        $qty_received = $transaction_detail->quantity_received != "" ? $transaction_detail->quantity_received : 0;
+                        $planned_qty = $transaction_detail->planned_quantity != "" ? $transaction_detail->planned_quantity : 0;
+
+                        if ($qty_received == $planned_qty) {
+                            $status = OutgoingInventory::OUTGOING_COMPLETE_STATUS;
+                        } else if ($qty_received < $planned_qty) {
+                            $status = OutgoingInventory::OUTGOING_INCOMPLETE_STATUS;
+                        } else if ($qty_received > $planned_qty) {
+                            $status = OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS;
+                        }
+
+                        $data['details'] = array(
+                            "inventory_id" => "",
+                            "sku_id" => isset($sku_details->sku_id) ? $sku_details->sku_id : null,
+                            "sku_code" => isset($sku_details->sku_code) ? $sku_details->sku_code : null,
+                            "sku_description" => isset($sku_details->description) ? $sku_details->description : null,
+                            'brand_name' => isset($sku_details->brand->brand_name) ? $sku_details->brand->brand_name : null,
+                            'unit_price' => isset($transaction_detail->unit_price) ? number_format($transaction_detail->unit_price, 2, '.', '') : number_format(0, 2, '.', ''),
+                            'batch_no' => isset($transaction_detail->batch_no) ? $transaction_detail->batch_no : null,
+                            'source_zone_id' => isset($transaction_detail->source_zone_id) ? $transaction_detail->source_zone_id : null,
+                            'source_zone_name' => isset($transaction_detail->zone->zone_name) ? $transaction_detail->zone->zone_name : null,
+                            'expiration_date' => isset($transaction_detail->expiration_date) ? $transaction_detail->expiration_date : null,
+                            'planned_quantity' => $planned_qty,
+                            'quantity_received' => $qty_received,
+                            'amount' => $transaction_detail->amount != "" ? number_format($transaction_detail->amount, 2, '.', '') : number_format(0, 2, '.', ''),
+//                            'inventory_on_hand' => $transaction_detail->inventory_on_hand != "" ? $transaction_detail->inventory_on_hand : 0,
+                            'reference_no' => isset($transaction_detail->pr_no) ? $transaction_detail->pr_no : null,
+                            'return_date' => isset($transaction_detail->return_date) ? $transaction_detail->return_date : null,
+                            'remarks' => isset($transaction_detail->remarks) ? $transaction_detail->remarks : null,
+                            'outgoing_inventory_detail_id' => "",
+                            'status' => $status,
+                            'uom_id' => isset($transaction_detail->uom_id) ? $transaction_detail->uom_id : null,
+                            'sku_status_id' => isset($transaction_detail->sku_status_id) ? $transaction_detail->sku_status_id : null,
+                        );
+                    }
+                }
             }
+
+            echo json_encode($data);
+            Yii::app()->end();
         }
 
-        $this->render('update', array(
+        $this->render('incomingForm', array(
+            'incoming' => $incoming,
+            'transaction_detail' => $transaction_detail,
+            'sku' => $sku,
+            'outgoing_inv_dr_nos' => $outgoing_inv_dr_nos,
             'model' => $model,
+            'uom' => $uom,
+            'sku_status' => $sku_status,
         ));
     }
 
