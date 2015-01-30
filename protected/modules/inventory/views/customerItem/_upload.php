@@ -9,7 +9,7 @@
     {% if (file.error) {  %}
     <td class="error" colspan="2"><span class="label label-danger">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
     {% } else if (o.files.valid && !i) { files.push(file); ctr = files.length ; %}
-    <td>
+    <td id="progress_bar_col">
     <div class="progress progress-success progress-striped active"><div class="bar" style="width:0%;"></div></div>
     </td>
      <td>

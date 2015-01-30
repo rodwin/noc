@@ -213,6 +213,7 @@ class OutgoingInventoryController extends Controller {
      */
     public function actionView($id) {
         $model = $this->loadModel($id);
+        $attachment = new Attachment;
 
         $this->pageTitle = "View " . OutgoingInventory::OUTGOING_LABEL . ' Inventory';
 
@@ -231,7 +232,7 @@ class OutgoingInventoryController extends Controller {
         $outgoing_inv = OutgoingInventory::model()->find($c);
 
         $outgoing_inv_destination_zone_id = isset($outgoing_inv->zone->zone_id) ? $outgoing_inv->zone->zone_id : "";
-        
+
         $c1 = new CDbCriteria;
         $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND zones.zone_id = '" . $outgoing_inv_destination_zone_id . "'";
         $c1->with = array("zones");
@@ -314,6 +315,7 @@ class OutgoingInventoryController extends Controller {
             'pr_dates' => $pr_dates,
             'po_nos' => $po_nos,
             'source' => $source,
+            'attachment_model' => $attachment,
         ));
     }
 
@@ -909,35 +911,42 @@ class OutgoingInventoryController extends Controller {
 
             $file_name = str_replace(' ', '_', strtolower($file->name));
             $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::OUTGOING_TRANSACTION_TYPE . "/" . $outgoing_inv_id_attachment . "/" . $file_name;
-            $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
-            $model->attachment_id = Globals::generateV4UUID();
-            $model->company_id = Yii::app()->user->company_id;
-            $model->file_name = $file_name;
-            $model->url = $url;
-            $model->transaction_id = $outgoing_inv_id_attachment;
-            $model->transaction_type = Attachment::OUTGOING_TRANSACTION_TYPE;
-            $model->created_by = Yii::app()->user->name;
-            if ($tag_category != "OTHERS") {
-                $model->tag_category = $tag_category;
-            } else {
-                $model->tag_category = $tag_to;
-            }
+            if (@fopen($url, "r")) {
 
-            if ($model->save()) {
-
-                $data[] = array(
-                    'name' => $file->name,
-                    'type' => $file->type,
-                    'size' => $file->size,
-                    'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
-                    'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name,
-                );
+                throw new CHttpException(409, "Could not upload file. File already exist " . CHtml::errorSummary($model));
             } else {
 
-                if ($model->hasErrors()) {
+                $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
-                    $data[] = array('error', $model->getErrors());
+                $model->attachment_id = Globals::generateV4UUID();
+                $model->company_id = Yii::app()->user->company_id;
+                $model->file_name = $file_name;
+                $model->url = $url;
+                $model->transaction_id = $outgoing_inv_id_attachment;
+                $model->transaction_type = Attachment::OUTGOING_TRANSACTION_TYPE;
+                $model->created_by = Yii::app()->user->name;
+                if ($tag_category != "OTHERS") {
+                    $model->tag_category = $tag_category;
+                } else {
+                    $model->tag_category = $tag_to;
+                }
+
+                if ($model->save()) {
+
+                    $data[] = array(
+                        'name' => $file->name,
+                        'type' => $file->type,
+                        'size' => $file->size,
+                        'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
+                        'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name,
+                    );
+                } else {
+
+                    if ($model->hasErrors()) {
+
+                        $data[] = array('error', $model->getErrors());
+                    }
                 }
             }
         } else {
@@ -953,6 +962,7 @@ class OutgoingInventoryController extends Controller {
         $c = new CDbCriteria;
         $c->compare("company_id", Yii::app()->user->company_id);
         $c->compare("transaction_id", $id);
+        $c->compare("transaction_type", Attachment::OUTGOING_TRANSACTION_TYPE);
         $attachment = Attachment::model()->findAll($c);
 
         $output = array();
@@ -1872,10 +1882,10 @@ class OutgoingInventoryController extends Controller {
         $header['plan_delivery_date'] = $header_data->plan_delivery_date != "" ? strtoupper(date('M d Y', strtotime($header_data->plan_delivery_date))) : "";
         $header['delivery_date'] = $header_data->transaction_date != "" ? strtoupper(date('M d Y', strtotime($header_data->transaction_date))) : "";
         $header['remarks'] = $header_data->remarks;
-        
+
         $user_details = User::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "user_name" => $header_data->created_by));
         $user = User::model()->userDetailsByID(isset($user_details) ? $user_details->user_id : "", Yii::app()->user->company_id);
-        $header['sent_by'] = isset($user) ? $user->first_name." ".$user->last_name : "";
+        $header['sent_by'] = isset($user) ? $user->first_name . " " . $user->last_name : "";
 
         $pr_no_arr = array();
         $pr_nos = "";
@@ -1903,9 +1913,9 @@ class OutgoingInventoryController extends Controller {
                 if ($out_source_zone) {
                     if (!in_array($out_source_zone->sales_office_id, $source_sales_office_arr)) {
                         array_push($source_sales_office_arr, $out_source_zone->sales_office_id);
-                        
+
                         $sales_office = SalesOffice::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "sales_office_id" => $out_source_zone->sales_office_id));
-                                            
+
                         $source_sales_offices .= isset($sales_office->sales_office_name) ? $sales_office->sales_office_name . ", " : "";
                     }
                 }
@@ -1913,8 +1923,8 @@ class OutgoingInventoryController extends Controller {
 
             $details[] = $row;
         }
-        
-        $header['source_sales_office_name'] = $source_sales_offices != "" ? substr(trim($source_sales_offices), 0, -1) : "";    
+
+        $header['source_sales_office_name'] = $source_sales_offices != "" ? substr(trim($source_sales_offices), 0, -1) : "";
         $header['pr_nos'] = $pr_nos != "" ? "PR " . substr(trim($pr_nos), 0, -1) : "<i>(PR No not set)</i>";
 
         $this->sendTransactionMail($sendTo, $header, $details);
@@ -1961,7 +1971,7 @@ class OutgoingInventoryController extends Controller {
 
         $new_return_date = trim($return_date);
         $outgoing_inventory_detail = OutgoingInventoryDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "outgoing_inventory_id" => $outgoing_inv_id, "outgoing_inventory_detail_id" => $outgoing_inv_detail_id));
-            
+
         if ($new_return_date == "") {
 
             $outgoing_inventory_detail->return_date = null;

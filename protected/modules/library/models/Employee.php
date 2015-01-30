@@ -183,7 +183,7 @@ class Employee extends CActiveRecord {
 
    public function uniqueEmployeeCode($attribute, $params) {
 
-      $model = Employee::model()->findByAttributes(array('company_id' => $this->company_id, 'employee_code' => $this->$attribute));
+      $model = Employee::model()->findByAttributes(array('company_id' => $this->company_id, 'employee_code' => $this->$attribute, 'sales_office_id' => $this->sales_office_id));
       if ($model && $model->employee_id != $this->employee_id) {
          $this->addError($attribute, 'Employee code selected already taken.');
       }
@@ -362,6 +362,28 @@ class Employee extends CActiveRecord {
       $criteria->with = array('employeeType', 'salesOffice', 'zone');
       $criteria->join = 'left join employee_status ON employee_status.employee_status_id = t.employee_status';
 
+      $arr = array();     
+        if (Yii::app()->user->userObj->userType->updated_date == "") {
+
+            $data_first_rem = strstr(Yii::app()->user->userObj->userType->data, '{');
+            $data_last_rem = strstr(strrev($data_first_rem), '}');
+            $final_data = strrev($data_last_rem);
+        } else {
+
+            $final_data = Yii::app()->user->userObj->userType->data;
+        }
+        
+        $unserialize = CJSON::decode($final_data);
+        $sales_offices = CJSON::decode(isset($unserialize['so']) ? $unserialize['so'] : "");
+
+        if (!empty($sales_offices)) {
+            foreach ($sales_offices as $key => $val) {
+                $arr[] = $key;
+            }
+        }
+
+        $criteria->addInCondition('t.sales_office_id', $arr);
+      
       return new CActiveDataProvider($this, array(
                   'criteria' => $criteria,
                   'pagination' => false,

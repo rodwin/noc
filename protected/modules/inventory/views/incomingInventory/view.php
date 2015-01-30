@@ -18,8 +18,10 @@ $this->breadcrumbs = array(
     .first_col_right_table { width: 150px; } 
 
     .text_bold { font-weight: bold; }
-    
+
     sup { font-weight: bold; }
+
+    #progress_bar_col { display: none; }  
 </style>
 
 <?php $skuFields = Sku::model()->attributeLabels(); ?>
@@ -122,30 +124,97 @@ $this->breadcrumbs = array(
     <br/>
 
     <div class="col-xs-12">
-        <div class="table-responsive">
-            <h5 class="control-label text-primary text_bold">Item Details</h5>
-            <div  style="overflow-x: scroll;">
-                <table id="incoming-inv-detail_table" class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th><?php echo $skuFields['sku_code']; ?></th>
-                            <th><?php echo $skuFields['description']; ?></th>
-                            <th><?php echo $skuFields['brand_id']; ?></th>
-                            <th><?php echo $skuFields['type']; ?></th>
-                            <th><?php echo $incomingDetailFields['uom_id']; ?></th>
-                            <th><?php echo $incomingDetailFields['unit_price']; ?></th>
-                            <th><?php echo $incomingDetailFields['batch_no']; ?></th>
-                            <th><?php echo $incomingDetailFields['expiration_date']; ?></th>
-                            <th><?php echo $incomingDetailFields['planned_quantity']; ?></th>
-                            <th><?php echo $incomingDetailFields['quantity_received']; ?></th>
-                            <th><?php echo $incomingDetailFields['amount']; ?></th>
-                            <th><?php echo $incomingDetailFields['remarks']; ?></th>
-                            <th><?php echo $incomingDetailFields['status']; ?></th>
-                        </tr>                                    
-                    </thead>
-                </table>  
+        <div class="nav-tabs-custom" id="">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#tab_1" data-toggle="tab">Item Details</a></li>
+                <li><a href="#tab_2" data-toggle="tab">Documents</a></li>
+                <span id="lower_table_loader" class="pull-right margin"></span>
+            </ul>
+            <div class="tab-content" id ="info">
+                <div class="tab-pane active" id="tab_1">
+                    <div class="table-responsive">
+                        <div  style="overflow-x: scroll;">
+                            <table id="incoming-inv-detail_table" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th><?php echo $skuFields['sku_code']; ?></th>
+                                        <th><?php echo $skuFields['description']; ?></th>
+                                        <th><?php echo $skuFields['brand_id']; ?></th>
+                                        <th><?php echo $skuFields['type']; ?></th>
+                                        <th><?php echo $incomingDetailFields['uom_id']; ?></th>
+                                        <th><?php echo $incomingDetailFields['unit_price']; ?></th>
+                                        <th><?php echo $incomingDetailFields['batch_no']; ?></th>
+                                        <th><?php echo $incomingDetailFields['expiration_date']; ?></th>
+                                        <th><?php echo $incomingDetailFields['planned_quantity']; ?></th>
+                                        <th><?php echo $incomingDetailFields['quantity_received']; ?></th>
+                                        <th><?php echo $incomingDetailFields['amount']; ?></th>
+                                        <th><?php echo $incomingDetailFields['remarks']; ?></th>
+                                        <th><?php echo $incomingDetailFields['status']; ?></th>
+                                    </tr>                                    
+                                </thead>
+                            </table>  
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="tab_2">
+                    <?php $attachment = Attachment::model()->attributeLabels(); ?>
+                    <div id="incoming_attachments" class="box-body table-responsive">
+                        <table id="incoming-inventory-attachment_table" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>File Name</th>
+                                    <th style="width: 80px;"><?php echo 'Actions' ?></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div> 
+
+                    <div class="clearfix" style="">
+                        <span id="btn_attach" class="btn btn-success fileinput-button btn-sm btn-flat submit_butt">
+                            <i class="glyphicon glyphicon-plus"></i>
+                            <span>Add files...</span>
+                        </span>
+
+                        <button type="submit" class="btn btn-primary btn-sm btn-flat start submit_butt" id="btn_upload">
+                            <i class="icon-upload icon-white"></i>
+                            <i class="glyphicon glyphicon-upload"></i>
+                            <span>Start upload</span>
+                        </button>
+                    </div>
+
+                    <?php
+                    $this->widget('booster.widgets.TbFileUpload', array(
+                        'url' => $this->createUrl('IncomingInventory/uploadAttachment'),
+                        'model' => $attachment_model,
+                        'attribute' => 'file',
+                        'multiple' => true,
+                        'options' => array(
+                            'maxFileSize' => 5000000,
+                            'acceptFileTypes' => 'js:/(\.|\/)(gif|jpe?g|png|pdf|doc|docx|xls|xlsx)$/i',
+                            'submit' => "js:function (e, data) {
+                                var inputs = data.context.find('.tagValues');
+                                data.formData = inputs.serializeArray();
+                                return true;
+                       }"
+                        ),
+                        'formView' => 'application.modules.inventory.views.incomingInventory._form',
+                        'uploadView' => 'application.modules.inventory.views.incomingInventory._upload',
+                        'downloadView' => 'application.modules.inventory.views.incomingInventory._download',
+                        'callbacks' => array(
+                            'done' => new CJavaScriptExpression(
+                                    'function(e, data) {
+                                        reloadAttachmentByWidget();
+                                }'
+                            ),
+                            'fail' => new CJavaScriptExpression(
+                                    'function(e, data) { console.log("fail"); reloadAttachmentByWidget(); }'
+                            ),
+                    )));
+                    ?>
+
+                </div>
             </div>
-        </div><br/>
+        </div>
     </div>
 
     <div class="col-md12">
@@ -164,6 +233,8 @@ $this->breadcrumbs = array(
 <script type="text/javascript">
 
     var incoming_inv_detail_table;
+    var incoming_inv_attachment_table;
+    var incoming_inventory_id = <?php echo "'" . $model->incoming_inventory_id . "'"; ?>;
     $(function() {
 
         incoming_inv_detail_table = $('#incoming-inv-detail_table').dataTable({
@@ -194,6 +265,59 @@ $this->breadcrumbs = array(
             }
         });
 
+        loadAttachmentPreview(incoming_inventory_id);
+
+        incoming_inv_attachment_table = $('#incoming-inventory-attachment_table').dataTable({
+            "filter": true,
+            "dom": '<"text-center"r>t',
+            "bSort": false,
+            "processing": false,
+            "serverSide": false,
+            "bAutoWidth": false,
+            iDisplayLength: -1,
+            "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(1)', nRow).addClass("text-center");
+
+            }
+        });
+
+        jQuery(document).on('click', '#incoming-inventory-attachment_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    growlAlert("success", data);
+
+                    loadAttachmentPreview(incoming_inventory_id);
+                },
+                error: function(status, exception) {
+                    alert(status.responseText);
+                }
+            });
+            return false;
+        });
+
+        jQuery(document).on('click', 'a.download_attachment', function() {
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'json',
+                'success': function(data) {
+                    if (data.success === true) {
+                        window.location.href = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/incomingInventory') . '"' ?> + "/loadAttachmentDownload&name=" + data.name + "&src=" + data.src;
+                    }
+
+                    growlAlert(data.type, data.message);
+                },
+                error: function(status, exception) {
+                    alert(status.responseText);
+                }
+            });
+            return false;
+        });
     });
 
     $('#btn_print').click(function() {
@@ -244,6 +368,105 @@ $this->breadcrumbs = array(
             });
         }
 
+    }
+
+    $('#btn_attach').click(function() {
+        $('#file_uploads').click();
+    });
+
+    var ctr = 0;
+    var file_upload_count = 0;
+    var files = new Array();
+    function removebyID($id) {
+        files.splice($id - 1, 1);
+    }
+
+    function selectchange(el) {
+
+        var tag_textbox = $(el).closest("tr").find("input[name=tagname]");
+        tag_textbox.val("");
+
+        var selected = $(el).val();
+        if (selected != "OTHERS") {
+            tag_textbox.attr('disabled', true);
+        }
+        else {
+            tag_textbox.attr('disabled', false);
+        }
+
+    }
+
+    $('#btn_upload').click(function() {
+        if (!confirm('Are you sure you want to submit?'))
+            return false;
+
+        if (files !== "") {
+            file_upload_count = files.length;
+            $('[id=saved_incoming_inventory_id]').val(<?php echo "'" . $model->incoming_inventory_id . "'"; ?>);
+
+            $('#uploading').click();
+        }
+        return false;
+    });
+
+    var incoming_attachments_table;
+    function loadAttachmentPreview(incoming_inv_id) {
+
+        if (typeof incoming_attachments_table != "undefined") {
+            incoming_attachments_table.abort();
+        }
+
+        incoming_attachments_table = $.ajax({
+            type: 'POST',
+            url: '<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/preview'); ?>' + '&id=' + incoming_inv_id,
+            dataType: "json",
+            beforeSend: function() {
+                $("#lower_table_loader").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
+            },
+            success: function(data) {
+                var oSettings = incoming_inv_attachment_table.fnSettings();
+                var iTotalRecords = oSettings.fnRecordsTotal();
+                var rows = 0;
+                for (var i = 0; i <= iTotalRecords; i++) {
+                    incoming_inv_attachment_table.fnDeleteRow(0, null, true);
+                }
+
+                $("#lower_table_loader").html("");
+
+                $.each(data.data, function(i, v) {
+                    rows++;
+                    incoming_inv_attachment_table.fnAddData([
+                        v.file_name,
+                        v.links
+                    ]);
+                });
+            },
+            error: function(status, exception) {
+                if (exception !== "abort") {
+                    alert("Error occured: Please try again.");
+                }
+            }
+        });
+    }
+
+    function growlAlert(type, message) {
+        $.growl(message, {
+            icon: 'glyphicon glyphicon-info-sign',
+            type: type
+        });
+    }
+
+    function reloadAttachmentByWidget() {
+
+        file_upload_count--;
+
+        if (file_upload_count == 0) {
+            files = [];
+
+            growlAlert("success", "Successfully Uploaded");
+            $("#tbl tbody tr").remove();
+            loadAttachmentPreview(incoming_inventory_id);
+        }        
     }
 
 </script>
