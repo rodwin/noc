@@ -34,15 +34,19 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
 <?php
 $not_set = "'<center>--</center>'";
-$hide_notReturnable = $isReturnable === true ? "display: none;" : "";
-$hide_Returnable = $isReturnable === false ? "display: none;" : "";
+$hide_notReturnable = $isReturnable === true || $form == 0 ? "" : "display: none;";
+$hide_Returnable = $isReturnable === false || $form == 0 ? "display: none;" : "";
+$hide_notReturnReceipt = $isReturnReceipt === true || $form == 0 ? "" : "display: none;";
+$hide_ReturnReceipt = $isReturnReceipt === false || $form == 0 ? "display: none;" : "";
+$hide_notReturnMdse = $isReturnMdse === true || $form == 0 ? "" : "display: none;";
+$hide_ReturnMdse = $isReturnMdse === false || $form == 0 ? "display: none;" : "";
 ?>
 
 <div class="nav-tabs-custom" id ="custTabs">
     <ul class="nav nav-tabs">
-        <li class="<?php echo $form == 1 ? "active" : ""; ?>"><a href="#tab_1" data-toggle="tab" class="returns_tab_cls"  style=''><?php echo Returnable::RETURNABLE_LABEL; ?></a></li>
-        <li class="<?php echo $form == 2 ? "active" : ""; ?>"><a href="#tab_2" data-toggle="tab" class="returns_tab_cls" style='<?php echo $hide_notReturnable; ?>'><?php echo ReturnReceipt::RETURN_RECEIPT_LABEL; ?></a></li>
-        <li class="<?php echo $form == 3 ? "active" : ""; ?>"><a href="#tab_3" data-toggle="tab" class="returns_tab_cls" style='<?php echo $hide_notReturnable; ?>'><?php echo Returnable::RETURN_MDSE; ?></a></li>
+        <li class="<?php echo $form == 1 ? "active" : ""; ?>"><a href="#tab_1" data-toggle="tab" class="returns_tab_cls"  style='<?php echo $hide_notReturnable; ?>'><?php echo Returnable::RETURNABLE_LABEL; ?></a></li>
+        <li class="<?php echo $form == 2 || $form == 0 ? "active" : ""; ?>"><a href="#tab_2" data-toggle="tab" class="returns_tab_cls" style='<?php echo $hide_notReturnReceipt; ?>'><?php echo ReturnReceipt::RETURN_RECEIPT_LABEL; ?></a></li>
+        <li class="<?php echo $form == 3 ? "active" : ""; ?>"><a href="#tab_3" data-toggle="tab" class="returns_tab_cls" style='<?php echo $hide_notReturnMdse; ?>'><?php echo ReturnMdse::RETURN_MDSE_LABEL; ?></a></li>
     </ul>
     <div class="tab-content" id ="info">
         <div class="tab-pane <?php echo $form == 1 ? "active" : ""; ?>" id="tab_1">
@@ -56,11 +60,12 @@ $hide_Returnable = $isReturnable === false ? "display: none;" : "";
                 'not_set' => $not_set,
                 'isReturnable' => $isReturnable,
                 'sku_id' => $sku_id,
+                'attachment' => $attachment,
             ));
             ?>
         </div>
 
-        <div class="tab-pane <?php echo $form == 2 ? "active" : ""; ?>" id="tab_2">
+        <div class="tab-pane <?php echo $form == 2 || $form == 0 ? "active" : ""; ?>" id="tab_2">
             <?php
             $this->renderPartial("_return_receipt", array(
                 'return_receipt' => $return_receipt,
@@ -72,6 +77,8 @@ $hide_Returnable = $isReturnable === false ? "display: none;" : "";
                 'return_receipt_detail' => $return_receipt_detail,
                 'uom' => $uom,
                 'sku_status' => $sku_status,
+                'isReturnable' => $isReturnable,
+                'attachment' => $attachment,
             ));
             ?>
         </div>
@@ -86,6 +93,9 @@ $hide_Returnable = $isReturnable === false ? "display: none;" : "";
                 'salesoffice_list' => $salesoffice_list,
                 'sku' => $sku,
                 'warehouse_list' => $warehouse_list,
+                'attachment' => $attachment,
+                'isReturnMdse' => $isReturnMdse,
+                'detail_id' => $detail_id,
             ));
             ?>
         </div>
@@ -93,12 +103,6 @@ $hide_Returnable = $isReturnable === false ? "display: none;" : "";
 </div>
 
 <script type="text/javascript">
-
-    var returns_tabs = document.getElementsByClassName('returns_tab_cls');
-
-    returns_tabs.addEventListener('click', function(e) {
-        console.log(e);
-    });
 
     function onlyNumbers(txt, event, point) {
 
@@ -226,8 +230,8 @@ $hide_Returnable = $isReturnable === false ? "display: none;" : "";
                 $("#" + return_type_label + "supplier_code").html(data.supplier_code);
                 $("#" + return_type_label + "supplier_address1").html(data.supplier_address1);
             },
-            error: function(data) {
-                alert("Error occured: Please try again.");
+            error: function(status, exception) {
+                alert(status.responseText);
             }
         });
 

@@ -5,7 +5,14 @@ $this->breadcrumbs = array(
 );
 ?>
 
-<?php echo CHtml::link('Create', array('Returns/create', 'param' => array('returns_form' => 2)), array('class' => 'btn btn-primary btn-flat')); ?>
+<?php
+echo CHtml::link('Create', array('Returns/create', 'param' => array(
+        'returns_form' => 0,
+        'isReturnable' => false,
+        'isReturnReceipt' => false,
+        'isReturnMdse' => false,
+    )), array('class' => 'btn btn-primary btn-flat'));
+?>
 <br/>
 <br/>
 
@@ -19,53 +26,18 @@ $this->breadcrumbs = array(
 
 </style>  
 
-<?php $fields = Returns::model()->attributeLabels(); ?>
-<div class="box-body table-responsive">
-    <table id="returns_table" class="table table-bordered">
-        <thead>
-            <tr>
-                <th><?php echo $fields['return_type']; ?></th>
-                <th>RR No./RM No.</th>
-                <th><?php echo $fields['transaction_date']; ?></th>
-                <th><?php echo $fields['receive_return_from']; ?></th>
-                <th><?php echo $fields['receive_return_from_id']; ?></th>
-                <th><?php echo $fields['return_to']; ?></th>
-                <th>Destination Zone/Supplier</th>
-                <th><?php echo $fields['total_amount']; ?></th>
-                <th><?php echo $fields['remarks']; ?></th>
-                <th>Actions</th>
-            </tr>
-        </thead>   
-        <thead>
-            <tr id="filter_row">
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter"></td>
-                <td class="filter" id="hide_textbox"></td>  
-            </tr>
-        </thead>   
-    </table>
-</div><br/><br/><br/>
-
-<div class="nav-tabs-custom" id ="custTabs">
+<div class="nav-tabs-custom" id ="returns_tabs">
     <ul class="nav nav-tabs">
         <li class="active"><a href="#returns_tab_1" data-toggle="tab"><?php echo Returnable::RETURNABLE_LABEL; ?></a></li>
         <li><a href="#returns_tab_2" data-toggle="tab"><?php echo ReturnReceipt::RETURN_RECEIPT_LABEL; ?></a></li>
-        <li><a href="#returns_tab_3" data-toggle="tab"><?php echo Returnable::RETURN_MDSE; ?></a></li>
+        <li><a href="#returns_tab_3" data-toggle="tab"><?php echo ReturnMdse::RETURN_MDSE_LABEL; ?></a></li>
     </ul>
-    <div class="tab-content" id ="info">
-        <div class="tab-pane active" id="tab_1">
-            <div id="ajax_loader_details"></div>
-            <?php $skuFields = Sku::model()->attributeLabels(); ?>
-            <?php $returnsDetail = ReturnsDetail::model()->attributeLabels(); ?>
-            <div id="incoming_details" class="box-body table-responsive">
-                <table id="returns-details_table" class="table table-bordered">
+    <div class="tab-content" id="info">
+        <div class="tab-pane active" id="returns_tab_1">
+
+<?php $returnableFields = Returnable::model()->attributeLabels(); ?>
+            <div class="box-body table-responsive">
+                <table id="returnable_table" class="table table-bordered">
                     <thead>
                         <tr>
                             <th><?php echo $returnableFields['return_receipt_no']; ?></th>
@@ -73,13 +45,15 @@ $this->breadcrumbs = array(
                             <th><?php echo $returnableFields['receive_return_from']; ?></th>
                             <th><?php echo "Source Name"; ?></th>
                             <th><?php echo "Destination Zone"; ?></th>
+                            <th><?php echo $returnableFields['status']; ?></th>
                             <th><?php echo $returnableFields['total_amount']; ?></th>
                             <th><?php echo $returnableFields['remarks']; ?></th>
                             <th>Actions</th>                
                         </tr>
-                    </thead>
+                    </thead> 
                     <thead>
                         <tr id="filter_row">
+                            <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
                             <td class="filter"></td>
@@ -101,8 +75,8 @@ $this->breadcrumbs = array(
                 </ul>
                 <div class="tab-content" id ="info">
                     <div class="tab-pane active" id="returnable_tab_1">
-                        <?php $skuFields = Sku::model()->attributeLabels(); ?>
-                        <?php $returnableDetailFields = ReturnableDetail::model()->attributeLabels(); ?>
+<?php $skuFields = Sku::model()->attributeLabels(); ?>
+<?php $returnableDetailFields = ReturnableDetail::model()->attributeLabels(); ?>
                         <div id="returnable_details" class="box-body table-responsive">
                             <table id="returnable_details_table" class="table table-bordered">
                                 <thead>
@@ -135,7 +109,7 @@ $this->breadcrumbs = array(
                         </div>
                     </div>
                     <div class="tab-pane" id="returnable_tab_2">
-                        <?php $attachment = Attachment::model()->attributeLabels(); ?>
+<?php $attachment = Attachment::model()->attributeLabels(); ?>
                         <div id="returnable_attachments" class="box-body table-responsive">
                             <table id="returnable_attachments_table" class="table table-bordered">
                                 <thead>
@@ -153,7 +127,7 @@ $this->breadcrumbs = array(
         </div>
         <div class="tab-pane" id="returns_tab_2">
 
-            <?php $returnReceiptFields = ReturnReceipt::model()->attributeLabels(); ?>
+<?php $returnReceiptFields = ReturnReceipt::model()->attributeLabels(); ?>
             <div class="box-body table-responsive">
                 <table id="return_receipt_table" class="table table-bordered">
                     <thead>
@@ -191,7 +165,7 @@ $this->breadcrumbs = array(
                 </ul>
                 <div class="tab-content" id ="info">
                     <div class="tab-pane active" id="return_receipt_tab_1">
-                        <?php $returnReceiptDetailFields = ReturnReceiptDetail::model()->attributeLabels(); ?>
+<?php $returnReceiptDetailFields = ReturnReceiptDetail::model()->attributeLabels(); ?>
                         <div id="return_receipt_details" class="box-body table-responsive">
                             <table id="return_receipt_details_table" class="table table-bordered">
                                 <thead>
@@ -241,7 +215,7 @@ $this->breadcrumbs = array(
         </div>
         <div class="tab-pane" id="returns_tab_3">
 
-            <?php $returnMdseFields = ReturnMdse::model()->attributeLabels(); ?>
+<?php $returnMdseFields = ReturnMdse::model()->attributeLabels(); ?>
             <div class="box-body table-responsive">
                 <table id="return-mdse_table" class="table table-bordered">
                     <thead>
@@ -277,7 +251,7 @@ $this->breadcrumbs = array(
                 </ul>
                 <div class="tab-content" id ="info">
                     <div class="tab-pane active" id="return_mdse_tab_1">
-                        <?php $returnMdseDetailFields = ReturnMdseDetail::model()->attributeLabels(); ?>
+<?php $returnMdseDetailFields = ReturnMdseDetail::model()->attributeLabels(); ?>
                         <div id="return_mdse_details" class="box-body table-responsive">
                             <table id="return_mdse_details_table" class="table table-bordered">
                                 <thead>
@@ -323,11 +297,14 @@ $this->breadcrumbs = array(
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
 
+
 <script type="text/javascript">
+
     var returnable_table;
     var returnable_detail_table;
     var returnable_attachment_table;
@@ -344,7 +321,7 @@ $this->breadcrumbs = array(
     var selected_return_mdse_id;
     var return_mdse_attachments_table_loaded;
     $(function() {
-        returns_table = $('#returns_table').dataTable({
+        returnable_table = $('#returnable_table').dataTable({
             "filter": true,
             "dom": 'l<"text-center"r>t<"pull-left"i><"pull-right"p>',
             "processing": true,
@@ -353,36 +330,26 @@ $this->breadcrumbs = array(
             //            "order": [[7, "asc"]],
             "ajax": "<?php echo Yii::app()->createUrl($this->module->id . '/Returns/returnableData'); ?>",
             "columns": [
-                {"name": "return_type", "data": "return_type"},
                 {"name": "return_receipt_no", "data": "return_receipt_no"},
                 {"name": "transaction_date", "data": "transaction_date"},
                 {"name": "receive_return_from", "data": "receive_return_from"},
                 {"name": "source_name", "data": "source_name", 'sortable': false},
-                {"name": "destination_zone_name", "data": "destination_zone_name"},
+                {"name": "destination_zone_name", "data": "destination_zone_name", 'sortable': false},
+                {"name": "status", "data": "status"},
                 {"name": "total_amount", "data": "total_amount"},
                 {"name": "remarks", "data": "remarks"},
                 {"name": "links", "data": "links", 'sortable': false}
             ]
         });
 
-        var i = 0;
-        $('#returns_table thead tr#filter_row td.filter').each(function() {
-            $(this).html('<input type="text" class="form-control input-sm" placeholder="" colPos="' + i + '" />');
-            i++;
-        });
-
-        $("#returns_table thead input").keyup(function() {
-            returns_table.fnFilter(this.value, $(this).attr("colPos"));
-        });
-
-        $('#returns_table tbody').on('click', 'tr', function() {
+        $('#returnable_table tbody').on('click', 'tr', function() {
             if ($(this).hasClass('success')) {
                 $(this).removeClass('success');
                 loadReturnableDetails(null);
                 loadAttachmentPreview(returnable_attachment_table, returnable_attachments_table_loaded, null, $("#returnable_lower_table_loader"));
             }
             else {
-                returns_table.$('tr.success').removeClass('success');
+                returnable_table.$('tr.success').removeClass('success');
                 $(this).addClass('success');
                 var row_data = returnable_table.fnGetData(this);
                 loadReturnableDetails(row_data.returnable_id);
@@ -390,7 +357,17 @@ $this->breadcrumbs = array(
             }
         });
 
-        returns_detail_table = $('#returns-details_table').dataTable({
+        var i = 0;
+        $('#returnable_table thead tr#filter_row td.filter').each(function() {
+            $(this).html('<input type="text" class="form-control input-sm" placeholder="" colPos="' + i + '" />');
+            i++;
+        });
+
+        $("#returnable_table thead input").keyup(function() {
+            returnable_table.fnFilter(this.value, $(this).attr("colPos"));
+        });
+
+        returnable_detail_table = $('#returnable_details_table').dataTable({
             "filter": true,
             "dom": '<"text-center"r>t',
             "bSort": false,
@@ -399,16 +376,17 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                //                $('td:eq(11)', nRow).addClass("text-center");
-//                $('td:eq(5),td:eq(8)', nRow).addClass("text-right");
+                $('td:eq(8)', nRow).addClass("text-center");
+                $('td:eq(6)', nRow).addClass("text-right");
             }
         });
 
         var i = 0;
-        $('#returns-details_table thead tr#filter_row td.filter').each(function() {
+        $('#returnable_details_table thead tr#filter_row td.filter').each(function() {
             $(this).html('<input type="text" class="form-control input-sm" placeholder="" colPos="' + i + '" />');
             i++;
         });
+
         $("#returnable_details_table thead input").keyup(function() {
             returnable_detail_table.fnFilter(this.value, $(this).attr("colPos"));
         });
@@ -422,7 +400,7 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                //                $('td:eq(1)', nRow).addClass("text-center");
+                $('td:eq(1)', nRow).addClass("text-center");
             }
         });
 
@@ -459,7 +437,7 @@ $this->breadcrumbs = array(
             });
             return false;
         });
-        
+
         jQuery(document).on('click', '#returnable_table a.view', function() {
 
             if (typeof returnable_detail_table_loaded != "undefined") {
@@ -471,7 +449,29 @@ $this->breadcrumbs = array(
             }
 
         });
-        
+
+        jQuery(document).on('click', '#returnable_details_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    $.growl(data, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: 'success'
+                    });
+
+                    loadReturnableDetails(selected_returnable_id);
+                },
+                error: function(status, exception) {
+                    alert(status.responseText);
+                }
+            });
+            return false;
+        });
+
 //----- RETURN RECEIPT
 
         return_receipt_table = $('#return_receipt_table').dataTable({
@@ -487,7 +487,7 @@ $this->breadcrumbs = array(
                 {"name": "transaction_date", "data": "transaction_date"},
                 {"name": "receive_return_from", "data": "receive_return_from"},
                 {"name": "source_name", "data": "source_name", 'sortable': false},
-                {"name": "destination_zone_name", "data": "destination_zone_name"},
+                {"name": "destination_zone_name", "data": "destination_zone_name", 'sortable': false},
                 {"name": "total_amount", "data": "total_amount"},
                 {"name": "remarks", "data": "remarks"},
                 {"name": "links", "data": "links", 'sortable': false}
@@ -527,8 +527,8 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                //                $('td:eq(11)', nRow).addClass("text-center");
-//                $('td:eq(5),td:eq(8)', nRow).addClass("text-right");
+                $('td:eq(8)', nRow).addClass("text-center");
+                $('td:eq(6)', nRow).addClass("text-right");
             }
         });
 
@@ -551,7 +551,7 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                //                $('td:eq(1)', nRow).addClass("text-center");
+                $('td:eq(1)', nRow).addClass("text-center");
             }
         });
 
@@ -598,7 +598,51 @@ $this->breadcrumbs = array(
             }
 
         });
-        
+
+        jQuery(document).on('click', '#return_receipt_details_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    $.growl(data, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: 'success'
+                    });
+
+                    loadReturnReceiptDetails(selected_return_receipt_id);
+                },
+                error: function(status, exception) {
+                    alert(status.responseText);
+                }
+            });
+            return false;
+        });
+
+        jQuery(document).on('click', '#return_receipt_attachments_table a.delete_attachment', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    $.growl(data, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: 'success'
+                    });
+
+                    loadAttachmentPreview(return_receipt_attachment_table, return_receipt_attachments_table_loaded, selected_return_receipt_id, $("#return_receipt_lower_table_loader"));
+                },
+                error: function(status, exception) {
+                    alert(status.responseText);
+                }
+            });
+            return false;
+        });
+
 //----- RETURN MSDE
 
         return_mdse_table = $('#return-mdse_table').dataTable({
@@ -612,7 +656,7 @@ $this->breadcrumbs = array(
                 {"name": "return_mdse_no", "data": "return_mdse_no"},
                 {"name": "transaction_date", "data": "transaction_date"},
                 {"name": "return_to", "data": "return_to"},
-                {"name": "destination_name", "data": "destination_name"},
+                {"name": "destination_name", "data": "destination_name", 'sortable': false},
                 {"name": "total_amount", "data": "total_amount"},
                 {"name": "remarks", "data": "remarks"},
                 {"name": "links", "data": "links", 'sortable': false}
@@ -652,6 +696,8 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(8)', nRow).addClass("text-center");
+                $('td:eq(6)', nRow).addClass("text-right");
             }
         });
 
@@ -674,7 +720,40 @@ $this->breadcrumbs = array(
             "bAutoWidth": false,
             iDisplayLength: -1,
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(1)', nRow).addClass("text-center");
             }
+        });
+
+        jQuery(document).on('click', '#return-mdse_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1', 'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    if (data == "1451") {
+                        $.growl("Unable to delete", {
+                            icon: 'glyphicon glyphicon-warning-sign',
+                            type: 'danger'});
+
+                        selected_return_mdse_id = "";
+                    } else {
+                        $.growl(data, {
+                            icon: 'glyphicon glyphicon-info-sign',
+                            type: 'success'
+                        });
+
+                        return_mdse_table.fnMultiFilter();
+                    }
+
+                    loadReturnMdseDetails(selected_return_mdse_id);
+                    loadAttachmentPreview(return_mdse_attachment_table, return_mdse_attachments_table_loaded, selected_return_mdse_id, $("#return_mdse_lower_table_loader"));
+                },
+                error: function(status, exception) {
+                    alert(status.responseText);
+                }
+            });
+            return false;
         });
 
         jQuery(document).on('click', '#return-mdse_table a.view', function() {
@@ -689,35 +768,79 @@ $this->breadcrumbs = array(
 
         });
 
+        jQuery(document).on('click', 'a.download_attachment', function() {
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'json',
+                'success': function(data) {
+                    if (data.success === true) {
+                        window.location.href = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/loadAttachmentDownload&name=" + data.name + "&src=" + data.src;
+                    }
+
+                    $.growl(data.message, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: data.type
+                    });
+                },
+                error: function(jqXHR, exception) {
+                    alert('An error occured: ' + exception);
+                }
+            });
+            return false;
+        });
+
+        jQuery(document).on('click', '#return_mdse_details_table a.delete', function() {
+            if (!confirm('Are you sure you want to delete this item?'))
+                return false;
+            $.ajax({
+                'url': jQuery(this).attr('href') + '&ajax=1',
+                'type': 'POST',
+                'dataType': 'text',
+                'success': function(data) {
+                    $.growl(data, {
+                        icon: 'glyphicon glyphicon-info-sign',
+                        type: 'success'
+                    });
+
+                    loadReturnMdseDetails(selected_return_mdse_id);
+                },
+                error: function(status, exception) {
+                    alert(status.responseText);
+                }
+            });
+            return false;
+        });
+
     });
 
-    var returns_details_table;
-    function loadReturnsInvDetails(returns_id) {
-        selected_returns_id = returns_id;
+    var returnable_detail_table_loaded;
+    function loadReturnableDetails(returnable_id) {
+        selected_returnable_id = returnable_id;
 
-        if (typeof returns_details_table != "undefined") {
-            returns_details_table.abort();
+        if (typeof returnable_detail_table_loaded != "undefined") {
+            returnable_detail_table_loaded.abort();
         }
 
-        returns_details_table = $.ajax({
+        returnable_detail_table_loaded = $.ajax({
             type: 'POST',
-            url: '<?php echo Yii::app()->createUrl($this->module->id . '/Returns/getDetailsByReturnInvID'); ?>' + '&returns_id=' + returns_id,
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/Returns/getReturnableDetailsByReturnableID'); ?>' + '&returnable_id=' + returnable_id,
             dataType: "json",
             beforeSend: function() {
-                $("#lower_table_loader").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
+                $("#returnable_lower_table_loader").html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
             },
             success: function(data) {
 
-                var oSettings = returns_detail_table.fnSettings();
+                var oSettings = returnable_detail_table.fnSettings();
                 var iTotalRecords = oSettings.fnRecordsTotal();
                 for (var i = 0; i <= iTotalRecords; i++) {
-                    returns_detail_table.fnDeleteRow(0, null, true);
+                    returnable_detail_table.fnDeleteRow(0, null, true);
                 }
 
-                $("#lower_table_loader").html("");
+                $("#returnable_lower_table_loader").html("");
 
                 $.each(data.data, function(i, v) {
-                    returns_detail_table.fnAddData([
+                    returnable_detail_table.fnAddData([
                         v.sku_code,
                         v.sku_description,
                         v.brand_name,
@@ -740,13 +863,13 @@ $this->breadcrumbs = array(
 
     function loadAttachmentPreview(table, ajax_table_var, id, loader_id) {
 
-        if (typeof ajax_table_var != "undefined") {
+        if (typeof ajax_table_var !== "undefined") {
             ajax_table_var.abort();
         }
 
         ajax_table_var = $.ajax({
             type: 'POST',
-            url: '<?php echo Yii::app()->createUrl('/inventory/Returns/preview'); ?>' + '&id=' + id,
+            url: '<?php echo Yii::app()->createUrl('/inventory/Returns/attachmentPreview'); ?>' + '&id=' + id,
             dataType: "json",
             beforeSend: function() {
                 loader_id.html("<div class=\"img-loader text-center\"><img src=\"<?php echo Yii::app()->baseUrl; ?>/images/ajax-loader.gif\" /></div>");
@@ -869,4 +992,5 @@ $this->breadcrumbs = array(
             }
         });
     }
+
 </script>

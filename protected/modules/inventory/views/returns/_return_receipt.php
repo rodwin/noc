@@ -37,7 +37,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
         <div class="pull-right col-md-7">
 
-            <?php echo $form->textFieldGroup($return_receipt, 'return_receipt_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50)), 'labelOptions' => array('label' => false))); ?>
+            <?php echo $form->textFieldGroup($return_receipt, 'return_receipt_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'readonly' => true)), 'labelOptions' => array('label' => false))); ?>
 
             <?php
             echo $form->select2Group(
@@ -68,16 +68,18 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
                 <div class="pull-right col-md-7">
                     <?php
-                    $this->widget(
-                            'booster.widgets.TbSelect2', array(
-                        'name' => $return_receipt_label . 'selected_outlet',
-                        'data' => $poi_list,
-                        'htmlOptions' => array(
-                            'class' => 'span5 ignore ' . $return_receipt_label . 'return_from_select',
-                            'prompt' => '--'
-                        ),
-                    ));
+//                    $this->widget(
+//                            'booster.widgets.TbSelect2', array(
+//                        'name' => $return_receipt_label . 'selected_outlet',
+//                        'data' => $poi_list,
+//                        'htmlOptions' => array(
+//                            'class' => 'span5 ignore ' . $return_receipt_label . 'return_from_select',
+//                            'prompt' => '--'
+//                        ),
+//                    ));
                     ?>
+                    
+                    <?php echo CHtml::textField($return_receipt_label . 'selected_outlet', '', array('class' => 'form-control span5 ignore ' . $return_receipt_label . 'return_from_select', "placeholder" => "Select Outlet")); ?> 
 
                     <div id="<?php echo $return_receipt_label; ?>poi_primary_code" class="<?php echo $return_receipt_label; ?>autofill_text span5"><?php echo $not_set; ?></div>
                     <div id="<?php echo $return_receipt_label; ?>poi_address1" class="<?php echo $return_receipt_label; ?>autofill_text span5" style="height: auto;"><?php echo $not_set; ?></div>
@@ -222,7 +224,6 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 <div id="input_label" class="pull-left col-md-5">
 
                     <?php echo $form->labelEx($return_receipt_detail, 'batch_no'); ?><br/>
-                    <?php echo $form->labelEx($return_receipt_detail, 'quantity_issued'); ?><br/>
                     <?php echo $form->labelEx($return_receipt_detail, 'returned_quantity'); ?><br/>
                     <?php echo $form->label($return_receipt_detail, 'Inventory On Hand'); ?>
 
@@ -242,18 +243,6 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                         ),
                         'labelOptions' => array('label' => false)));
                     ?>
-
-                    <div class="span5">
-                        <?php
-                        echo $form->textFieldGroup($return_receipt_detail, 'quantity_issued', array(
-                            'widgetOptions' => array(
-                                'htmlOptions' => array("class" => "span5", "onkeypress" => "return onlyNumbers(this, event, false)")
-                            ),
-                            'labelOptions' => array('label' => false),
-                            'append' => '<b class="sku_uom_selected"></b>'
-                        ));
-                        ?>
-                    </div>
 
                     <div class="span5">
                         <?php
@@ -344,7 +333,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                         'labelOptions' => array('label' => false)));
                     ?>
 
-                    <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-plus-circle"></i> Add Item', array('name' => 'add_item', 'maxlength' => 150, 'class' => 'btn btn-primary btn-sm span5', 'id' => 'btn_add_item')); ?>
+                    <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-plus-circle"></i> Add Item', array('name' => 'add_item', 'maxlength' => 150, 'class' => 'btn btn-primary btn-sm span5 submit_butt2', 'id' => 'btn_add_item')); ?>
 
                 </div>
             </div>
@@ -367,17 +356,17 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 <th><?php echo $skuFields['sku_code']; ?></th>
                 <th><?php echo $skuFields['description']; ?></th>
                 <th><?php echo $skuFields['brand_id']; ?></th>
-                <th><?php echo $returnReceiptDetailFields['unit_price']; ?></th>
-                <th><?php echo $returnReceiptDetailFields['batch_no']; ?></th>
-                <th><?php echo $returnReceiptDetailFields['expiration_date']; ?></th>
-                <th><?php echo $returnReceiptDetailFields['quantity_issued']; ?></th>
+                <th><?php echo $skuFields['type']; ?></th>
+                <th><?php echo $skuFields['sub_type']; ?></th>
+                <th class="hide_row"><?php echo $returnReceiptDetailFields['unit_price']; ?></th>
+                <th class="hide_row"><?php echo $returnReceiptDetailFields['batch_no']; ?></th>
+                <th class="hide_row"><?php echo $returnReceiptDetailFields['expiration_date']; ?></th>
                 <th><?php echo $returnReceiptDetailFields['returned_quantity']; ?></th>
                 <th class="hide_row"><?php echo $returnReceiptDetailFields['uom_id']; ?></th>
-                <th class="hide_row"><?php echo $returnReceiptDetailFields['uom_id']; ?></th>
-                <th class="hide_row"><?php echo $returnReceiptDetailFields['sku_status_id']; ?></th>
+                <th><?php echo $returnReceiptDetailFields['uom_id']; ?></th>
                 <th class="hide_row"><?php echo $returnReceiptDetailFields['sku_status_id']; ?></th>
                 <th><?php echo $returnReceiptDetailFields['amount']; ?></th>
-                <th class="hide_row"><?php echo $returnReceiptDetailFields['remarks']; ?></th>
+                <th><?php echo $returnReceiptDetailFields['remarks']; ?></th>
             </tr>                                    
         </thead>
     </table>                            
@@ -390,28 +379,60 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
 <div class="clearfix row">
     <div class="col-xs-12">
-        <button id="btn_print2" class="btn btn-default" onclick=""><i class="fa fa-print"></i> Print</button>
-        <button id="btn_save2" class="btn btn-success pull-right" style=""><i class="glyphicon glyphicon-ok"></i> Save</button>  
+        <button id="btn_print2" class="btn btn-default submit_butt2" onclick=""><i class="fa fa-print"></i> Print</button>
+        <button id="btn-upload2" class="btn btn-primary pull-right submit_butt2"><i class="fa fa-fw fa-upload"></i> Attach</button>
+        <button id="btn_save2" class="btn btn-success pull-right submit_butt2" style="margin-right: 5px;"><i class="glyphicon glyphicon-ok"></i> Save</button>  
     </div>
 </div>
 
 <?php $this->endWidget(); ?>
 
+<?php
+$this->widget('booster.widgets.TbFileUpload', array(
+    'url' => $this->createUrl('Returns/uploadAttachment'),
+    'model' => $attachment,
+    'attribute' => 'file',
+    'multiple' => true,
+    'options' => array(
+        'maxFileSize' => 5000000,
+        'acceptFileTypes' => 'js:/(\.|\/)(gif|jpe?g|png|pdf|doc|docx|xls|xlsx)$/i',
+        'submit' => "js:function (e, data) {
+            var inputs = data.context.find('.returnReceiptTagValues');
+            data.formData = inputs.serializeArray();
+            console.log(data.formData);
+   }"
+    ),
+    'formView' => 'application.modules.inventory.views.returns._return_receipt_attach_form',
+    'uploadView' => 'application.modules.inventory.views.returns._return_receipt_upload',
+    'downloadView' => 'application.modules.inventory.views.returns._return_receipt_download',
+    'callbacks' => array(
+        'done' => new CJavaScriptExpression(
+                'function(e, data) { 
+                 return_receipt_attached_file_upload_count--;
+                         
+                 if(return_receipt_attached_file_upload_count == 0) {$("#return_receipt_attached_table tr").remove(); loadToReturnReceiptView(); }
+             }'
+        ),
+        'fail' => new CJavaScriptExpression(
+                'function(e, data) { console.log("fail"); }'
+        ),
+)));
+?>
+
 <script type="text/javascript">
 
-<?php $destination_arr = Returns::model()->getListReturnFrom(); ?>
+<?php $destination_arr = Returnable::model()->getListReturnFrom(); ?>
 
     var transaction_table2;
     var sku_table;
     var headers = "transaction";
     var details = "details";
-    var print = "print";
+    var printReturnReceipt = "print_return_receipt";
     var total_amount2 = 0;
     var return_receipt_type = <?php echo "'" . ReturnReceipt::RETURN_RECEIPT_LABEL . "'"; ?>;
     var return_to = <?php echo "'" . $destination_arr[0]['value'] . "'"; ?>;
     var return_receipt_label = <?php echo "'" . $return_receipt_label . "'"; ?>;
     $(function() {
-
         $("[data-mask]").inputmask();
 
         transaction_table2 = $('#transaction_table2').dataTable({
@@ -422,7 +443,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             "serverSide": false,
             "bAutoWidth": false,
             "columnDefs": [{
-                    "targets": [1, 10, 11, 12, 13, 15],
+                    "targets": [1,7,8,9,11,13],
                     "visible": false
                 }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
@@ -496,7 +517,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         });
     }
 
-<?php $source_arr = Returns::model()->getListReturnFrom(); ?>
+<?php $source_arr = Returnable::model()->getListReturnFrom(); ?>
 
     $('#ReturnReceipt_receive_return_from').change(function() {
 
@@ -519,9 +540,9 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
     function sendReturnReceipt(form) {
 
-        var data = $("#return-receipt-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable2()});
-
-        if ($("#btn_save2, #btn_add_item, #btn_print2").is("[disabled=disabled]")) {
+        var data = $("#return-receipt-form").serialize() + "&form=" + form + "&return_type=" + return_receipt_type + '&' + $.param({"transaction_details": serializeTransactionTable2()});
+        
+        if ($(".submit_butt2").is("[disabled=disabled]")) {
             return false;
         } else {
             $.ajax({
@@ -530,26 +551,35 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 data: data,
                 dataType: "json",
                 beforeSend: function(data) {
-                    $("#btn_save2, #btn_add_item, #btn_print2").attr("disabled", "disabled");
+                    $(".submit_butt2").attr("disabled", "disabled");
                     if (form == headers) {
                         $('#btn_save2').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
-                    } else if (form == print) {
+                    } else if (form == printReturnReceipt) {
                         $('#btn_print2').html('<i class="fa fa-print"></i>&nbsp; Loading...');
                     }
                 },
                 success: function(data) {
                     validateForm2(data);
                 },
-                error: function(data) {
-                    alert("Error occured: Please try again.");
-                    $("#btn_save2, #btn_add_item, #btn_print2").attr('disabled', false);
+                error: function(status, exception) {
+                    alert(status.responseText);
+                    $(".submit_butt2").attr('disabled', false);
                     $('#btn_save2').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
                     $('#btn_print2').html('<i class="fa fa-print"></i>&nbsp; Print');
                 }
             });
         }
     }
+    
+    var return_receipt_attached_file_upload_count = 0;
+    var return_receipt_attachedFiles = new Array();
+    var return_receipt_attached_ctr;
 
+    function removeReturnReceiptAttachedbyID($id) {
+        return_receipt_attachedFiles.splice($id - 1, 1);
+    }
+    
+    var success_return_receipt_id, return_receipt_success_type, return_receipt_success_message;
     function validateForm2(data) {
 
         var e = $(".error");
@@ -564,8 +594,23 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         if (data.success === true) {
 
             if (data.form == headers) {
+                
+                success_return_receipt_id = data.return_receipt_id;
+                return_receipt_success_type = data.type;
+                return_receipt_success_message = data.message;
 
-                growlAlert(data.type, data.message);
+                if (return_receipt_attachedFiles != "") {
+                    $('[id=saved_returns_receipt_type]').val(return_receipt_type);
+                    $('[id=saved_returns_receipt_id]').val(data.return_receipt_id);
+                    
+                    return_receipt_attached_file_upload_count = 0;
+                    return_receipt_attached_file_upload_count = return_receipt_attachedFiles.length;
+
+                    $('#return_receipt_uploading_attachments').click();
+                } else {
+                    loadToReturnReceiptView();
+                }
+                
             } else if (data.form == details) {
 
                 transaction_table2.fnAddData([
@@ -574,15 +619,15 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                     data.details.sku_code,
                     data.details.sku_description,
                     data.details.brand_name,
+                    data.details.sku_category,
+                    data.details.sku_sub_category,
                     data.details.unit_price,
                     data.details.batch_no,
                     data.details.expiration_date,
-                    data.details.quantity_issued,
                     data.details.returned_quantity,
                     data.details.uom_id,
                     data.details.uom_name,
                     data.details.sku_status_id,
-                    data.details.sku_status_name,
                     data.details.amount,
                     data.details.remarks
                 ]);
@@ -595,8 +640,8 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
                 $('#return-receipt-form select:not(.ignore), input:not(.ignore), textarea:not(.ignore)').val('');
                 $('.sku_uom_selected').html('');
 
-            } else if (data.form == print && serializeTransactionTable2().length > 0) {
-                printPDF(data.print);
+            } else if (data.form == printReturnReceipt && serializeTransactionTable2().length > 0) {
+                printReturnReceiptPDF(data.print);
             }
 
             sku_table.fnMultiFilter();
@@ -604,7 +649,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
             growlAlert(data.type, data.message);
 
-            $("#btn_save2, #btn_add_item, #btn_print2").attr('disabled', false);
+            $(".submit_butt2").attr('disabled', false);
             $('#btn_save2').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
             $('#btn_print2').html('<i class="fa fa-print"></i>&nbsp; Print');
 
@@ -627,7 +672,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
             });
         }
 
-        $("#btn_save2, #btn_add_item, #btn_print2").attr('disabled', false);
+        $(".submit_butt2").attr('disabled', false);
         $('#btn_save2').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
         $('#btn_print2').html('<i class="fa fa-print"></i>&nbsp; Print');
     }
@@ -641,26 +686,18 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
 
             row_datas.push({
                 "sku_id": row_data[1],
-                "unit_price": row_data[5],
-                "batch_no": row_data[6],
-                "expiration_date": row_data[7],
-                "quantity_issued": row_data[8],
-                "returned_quantity": row_data[9],
-                "uom_id": row_data[10],
-                "sku_status_id": row_data[12],
+                "unit_price": row_data[7],
+                "batch_no": row_data[8],
+                "expiration_date": row_data[9],
+                "returned_quantity": row_data[10],
+                "uom_id": row_data[11],
+                "sku_status_id": row_data[13],
                 "amount": row_data[14],
                 "remarks": row_data[15],
             });
         }
 
         return row_datas;
-    }
-
-    function growlAlert(type, message) {
-        $.growl(message, {
-            icon: 'glyphicon glyphicon-info-sign',
-            type: type
-        });
     }
 
     $("#ReturnReceiptDetail_returned_quantity").keyup(function(e) {
@@ -694,7 +731,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     });
 
     $(function() {
-        $('#ReturnReceipt_transaction_date').datepicker({
+        $('#ReturnReceipt_transaction_date, #ReturnReceiptDetail_expiration_date').datepicker({
             timePicker: false,
             format: 'YYYY-MM-DD',
             applyClass: 'btn-primary'});
@@ -709,7 +746,7 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
     });
 
     $('#' + return_receipt_label + 'selected_outlet').change(function() {
-        loadPOIDetailsByID(this.value, return_receipt_label);
+        loadSelect2POIDetailsByID(this.value, return_receipt_label);
     });
 
     $("#delete_row_btn").click(function() {
@@ -724,6 +761,86 @@ $form = $this->beginWidget('booster.widgets.TbActiveForm', array(
         if (atLeastOneIsChecked === false) {
             $('#delete_row_btn').fadeOut('slow');
         }
+    }
+
+    $(function() {
+
+        $('#' + return_receipt_label + 'selected_outlet').select2({
+            placeholder: 'Select a Outlet',
+            allowClear: true,
+            id: function(data) {
+                return data.poi_id;
+            },
+            ajax: {
+                quietMillis: 10,
+                cache: false,
+                dataType: 'json',
+                type: 'GET',
+                url: '<?php echo Yii::app()->createUrl("library/poi/select2FilterPOI"); ?>',
+                data: function(value, page) {
+                    return {
+                        page: page,
+                        pageSize: 10,
+                        value: value
+                    };
+                },
+                results: function(data, page) {
+                    return {results: data.dataItems};
+                }
+            },
+            formatResult: FormatPOIResult,
+            formatSelection: FormatPOISelection,
+            minimumInputLength: 1
+        });
+    });
+
+    $('#btn_print2').click(function() {
+        sendReturnReceipt(printReturnReceipt);
+    });
+    
+    $('#btn-upload2').click(function() {
+        $('#return_receipt_file_uploads').click();
+    });
+    
+    function printReturnReceiptPDF(data) {
+        
+        $.ajax({
+            url: '<?php echo Yii::app()->createUrl($this->module->id . '/Returns/printReturnReceipt'); ?> ',
+            type: 'POST',
+            dataType: "json",
+            data: {"post_data": data},
+            success: function(data) {
+                if (data.success === true) {
+                    var params = [
+                        'height=' + screen.height,
+                        'width=' + screen.width,
+                        'fullscreen=yes'
+                    ].join(',');
+
+                    var tab = window.open(<?php echo "'" . Yii::app()->createUrl($this->module->id . '/Returns/loadReturnReceiptPDF') . "'" ?> + "&id=" + data.id, "_blank", params);
+
+                    if (tab) {
+                        tab.focus();
+                        tab.moveTo(0, 0);
+                    } else {
+                        alert('Please allow popups for this site');
+                    }
+                }
+
+                return false;
+            },
+            error: function(data) {
+                alert("Error occured: Please try again.");
+            }
+        });
+        
+    }
+
+    function loadToReturnReceiptView() {
+
+        window.location = <?php echo '"' . Yii::app()->createAbsoluteUrl($this->module->id . '/Returns') . '"' ?> + "/returnReceiptView&id=" + success_return_receipt_id;
+     
+        growlAlert(return_receipt_success_type, return_receipt_success_message);
     }
 
 </script>
