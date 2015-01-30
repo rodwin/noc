@@ -449,16 +449,13 @@ class IncomingInventoryController extends Controller {
                 $row['status'] = $value['status'];
                 $row['uom_id'] = $value['uom_id'];
                 $row['sku_status_id'] = $value['sku_status_id'];
-
-                if ($value['remaining_qty'] == 0) {
+                
+                if ($value['remaining_qty'] == "") {
 
                     $row['remaining_qty'] = $value['quantity_issued'];
-                } else if ($value['remaining_qty'] > 0) {
-
-                    $row['remaining_qty'] = $value['remaining_qty'];
                 } else {
 
-                    $row['remaining_qty'] = 0;
+                    $row['remaining_qty'] = $value['remaining_qty'];
                 }
                 
                 $row['incoming_inventory_detail_id'] = isset($value['incoming_inventory_detail_id']) ? $value['incoming_inventory_detail_id'] : "";
@@ -487,10 +484,10 @@ class IncomingInventoryController extends Controller {
         
         $output['headers'] = $header;
         
-        $header_status = isset($value['header_status']) ? $value['header_status'] : "";
+        $updated_already = isset($value['updated_already']) ? $value['updated_already'] : "";
         
         $for_update = false;
-        if ($header_status != "" && $header_status != OutgoingInventory::OUTGOING_PENDING_STATUS) {
+        if ($updated_already != "") {
             $for_update = true;
         }
         
@@ -627,8 +624,8 @@ class IncomingInventoryController extends Controller {
                 if (isset($_POST['IncomingInventory'])) {
                     $incoming->attributes = $_POST['IncomingInventory'];
                     $incoming->company_id = Yii::app()->user->company_id;
-                    $incoming->created_by = Yii::app()->user->name;
-                    unset($incoming->created_date);
+                    $incoming->updated_by = Yii::app()->user->name;
+                    $incoming->updated_date = date("Y-m-d H:i:s");
 
                     $validatedIncoming = CActiveForm::validate($incoming);
                     $emails = isset($_POST['emails']) ? $_POST['emails'] : array();

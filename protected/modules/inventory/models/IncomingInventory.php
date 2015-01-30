@@ -367,7 +367,7 @@ class IncomingInventory extends CActiveRecord {
     
     public function loadAllOutgoingTransactionDetailsByDRNo($company_id, $dr_no) {
         
-        $sql = "SELECT a.status AS header_status, c.incoming_inventory_id, d.incoming_inventory_detail_id, (IFNULL(d.planned_quantity,0) - IFNULL(d.quantity_received, 0)) AS remaining_qty, a.*, b.*, e.*, h.*, f.brand_name,
+        $sql = "SELECT a.status AS header_status, c.incoming_inventory_id, d.incoming_inventory_detail_id, a.updated_date as updated_already, (d.planned_quantity - d.quantity_received) AS remaining_qty, a.*, b.*, e.*, h.*, f.brand_name,
                 g.zone_id AS source_zone_id, g.zone_name AS source_zone_name, i.zone_id AS destination_zone_id, i.zone_name AS destination_zone_name
 
                 FROM outgoing_inventory a
@@ -444,8 +444,9 @@ class IncomingInventory extends CActiveRecord {
                 'status' => $incoming_status,
                 'remarks' => $this->remarks,
                 'total_amount' => $this->total_amount,
-                'created_by' => $this->created_by,
                 'recipients' => $this->recipients,
+                'updated_by' => $this->updated_by,
+                'updated_date' => $this->updated_date,
             );
 
             $incoming_inventory->attributes = $incoming_inventory_data;
@@ -454,14 +455,14 @@ class IncomingInventory extends CActiveRecord {
                 if ($incoming_inventory->save(false)) {
 
 //                    if ($incoming_inventory->status != OutgoingInventory::OUTGOING_PENDING_STATUS) {
-                    OutgoingInventory::model()->updateAll(array('status' => $incoming_inventory->status, 'updated_by' => $this->created_by, 'updated_date' => date('Y-m-d H:i:s'), "closed" => $closed), 'outgoing_inventory_id = ' . $this->outgoing_inventory_id . ' AND company_id = "' . $incoming_inventory->company_id . '"');
+                    OutgoingInventory::model()->updateAll(array('status' => $incoming_inventory->status, 'updated_by' => $this->updated_by, 'updated_date' => $this->updated_date, "closed" => $closed), 'outgoing_inventory_id = ' . $this->outgoing_inventory_id . ' AND company_id = "' . $incoming_inventory->company_id . '"');
 //                    } else {
 //                        OutgoingInventory::model()->updateAll(array('status' => $incoming_inventory->status, 'updated_by' => $this->created_by, 'updated_date' => date('Y-m-d H:i:s')), 'outgoing_inventory_id = ' . $this->outgoing_inventory_id . ' AND company_id = "' . $incoming_inventory->company_id . '"');
 //                    }
 
                     $incoming_details = array();
                     for ($i = 0; $i < count($transaction_details); $i++) {
-                        $incoming_inv_detail = IncomingInventoryDetail::model()->updateIncomingTransactionDetails($incoming_inventory->incoming_inventory_id, $transaction_details[$i]['incoming_inventory_detail_id'], $incoming_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_received'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $incoming_inventory->created_by, $transaction_details[$i]['status'], $transaction_details[$i]['outgoing_inventory_detail_id'], $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $incoming_inventory->destination_zone_id, $incoming_inventory->transaction_date);
+                        $incoming_inv_detail = IncomingInventoryDetail::model()->updateIncomingTransactionDetails($incoming_inventory->incoming_inventory_id, $transaction_details[$i]['incoming_inventory_detail_id'], $incoming_inventory->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_received'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $incoming_inventory->updated_by, $transaction_details[$i]['status'], $transaction_details[$i]['outgoing_inventory_detail_id'], $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $incoming_inventory->destination_zone_id, $incoming_inventory->transaction_date);
                         
                         $incoming_details[] = $incoming_inv_detail;
                     }

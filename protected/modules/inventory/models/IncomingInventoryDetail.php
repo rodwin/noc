@@ -410,10 +410,14 @@ class IncomingInventoryDetail extends CActiveRecord {
             $incoming_transaction_detail->quantity_received = $incoming_transaction_detail->quantity_received + $quantity_received;
             $incoming_transaction_detail->remarks = $remarks;
             $incoming_transaction_detail->status = $status;
+            $incoming_transaction_detail->updated_by = $created_by;
+            $incoming_transaction_detail->updated_date = date("Y-m-d H:i:s");
             
             if ($incoming_transaction_detail->save(false)) {
                 OutgoingInventoryDetail::model()->updateAll(array('status' => $incoming_transaction_detail->status, 'remarks' => $incoming_transaction_detail->remarks, 'updated_by' => $created_by, 'updated_date' => date('Y-m-d H:i:s')), 'outgoing_inventory_detail_id = ' . $outgoing_inventory_detail_id . ' AND company_id = "' . $incoming_transaction_detail->company_id . '"');
             
+                ReceivingInventoryDetail::model()->createInventory($incoming_transaction_detail->company_id, $incoming_transaction_detail->sku_id, $incoming_transaction_detail->uom_id, $incoming_transaction_detail->unit_price, $quantity_received, $zone_id, $transaction_date, $incoming_transaction_detail->created_by, $incoming_transaction_detail->expiration_date, $incoming_transaction_detail->batch_no, $incoming_transaction_detail->sku_status_id, $incoming_transaction_detail->pr_no, $incoming_transaction_detail->pr_date, $incoming_transaction_detail->plan_arrival_date, $incoming_transaction_detail->po_no, $incoming_transaction_detail->remarks);
+                            
                 return $incoming_transaction_detail;
             } else {
                 return $incoming_transaction_detail->getErrors();
