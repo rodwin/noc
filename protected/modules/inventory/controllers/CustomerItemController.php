@@ -30,7 +30,7 @@ class CustomerItemController extends Controller {
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('data', 'loadTransactionByDRNo', 'loadInventoryDetails', 'customerItemDetailData', 'uploadAttachment', 'preview', 'download',
-                    'print', 'loadPDF', 'getDetailsByCustomerItemID', 'viewPrint', 'loadItemDetails', 'checkInvIfUpdatedActualQtyValid'),
+                    'print', 'loadPDF', 'getDetailsByCustomerItemID', 'viewPrint', 'loadItemDetails', 'checkInvIfUpdatedActualQtyValid', 'updateCustomerItemDetailReturnDate', 'loadAttachmentDownload'),
                 'users' => array('@'),
             ),
             array('allow',
@@ -144,6 +144,7 @@ class CustomerItemController extends Controller {
      */
     public function actionView($id) {
         $model = $this->loadModel($id);
+        $attachment = new Attachment;
 
         $this->pageTitle = "View " . CustomerItem::CUSTOMER_ITEM_LABEL . ' Inventory';
 
@@ -176,8 +177,8 @@ class CustomerItemController extends Controller {
         $poi_address .= isset($poi->region_name) ? $poi->region_name : "";
 
         $destination = array();
-        $destination['poi_name'] = $poi->short_name;
-        $destination['poi_code'] = $poi->primary_code;
+        $destination['poi_name'] = isset($poi->short_name) ? $poi->short_name : "";
+        $destination['poi_code'] = isset($poi->primary_code) ? $poi->primary_code: "";
         $destination['contact_person'] = "";
         $destination['contact_no'] = "";
         $destination['address'] = $poi_address;
@@ -258,6 +259,7 @@ class CustomerItemController extends Controller {
             'po_nos' => $po_nos,
             'employee' => $employee,
             'source' => $source,
+            'attachment_model' => $attachment,
         ));
     }
 
@@ -1020,36 +1022,43 @@ class CustomerItemController extends Controller {
 
             $file_name = str_replace(' ', '_', strtolower($file->name));
             $url = Yii::app()->getBaseUrl(true) . '/protected/uploads/' . Yii::app()->user->company_id . '/attachments/' . Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE . "/" . $customer_item_id_attachment . "/" . $file_name;
-            $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
-            $model->attachment_id = Globals::generateV4UUID();
+            if (@fopen($url, "r")) {
 
-            $model->company_id = Yii::app()->user->company_id;
-            $model->file_name = $file_name;
-            $model->url = $url;
-            $model->transaction_id = $customer_item_id_attachment;
-            $model->transaction_type = Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE;
-            $model->created_by = Yii::app()->user->name;
-            if ($tag_category != "OTHERS") {
-                $model->tag_category = $tag_category;
-            } else {
-                $model->tag_category = $tag_to;
-            }
-
-            if ($model->save()) {
-
-                $data[] = array(
-                    'name' => $file->name,
-                    'type' => $file->type,
-                    'size' => $file->size,
-                    'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
-                    'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name
-                );
+                throw new CHttpException(409, "Could not upload file. File already exist " . CHtml::errorSummary($model));
             } else {
 
-                if ($model->hasErrors()) {
+                $file->saveAs($dir . DIRECTORY_SEPARATOR . $file_name);
 
-                    $data[] = array('error', $model->getErrors());
+                $model->attachment_id = Globals::generateV4UUID();
+
+                $model->company_id = Yii::app()->user->company_id;
+                $model->file_name = $file_name;
+                $model->url = $url;
+                $model->transaction_id = $customer_item_id_attachment;
+                $model->transaction_type = Attachment::CUSTOMER_ITEM_TRANSACTION_TYPE;
+                $model->created_by = Yii::app()->user->name;
+                if ($tag_category != "OTHERS") {
+                    $model->tag_category = $tag_category;
+                } else {
+                    $model->tag_category = $tag_to;
+                }
+
+                if ($model->save()) {
+
+                    $data[] = array(
+                        'name' => $file->name,
+                        'type' => $file->type,
+                        'size' => $file->size,
+                        'url' => $dir . DIRECTORY_SEPARATOR . $file_name,
+                        'thumbnail_url' => $dir . DIRECTORY_SEPARATOR . $file_name
+                    );
+                } else {
+
+                    if ($model->hasErrors()) {
+
+                        $data[] = array('error', $model->getErrors());
+                    }
                 }
             }
         } else {
