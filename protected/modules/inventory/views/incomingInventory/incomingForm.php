@@ -198,10 +198,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
                 <?php echo $form->textFieldGroup($incoming, 'transaction_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'value' => date("Y-m-d"), 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
-                <?php echo $form->textFieldGroup($incoming, 'contact_person', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
-
-                <?php echo $form->textFieldGroup($incoming, 'contact_no', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'maxlength' => 50, 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
-
                 <?php echo $form->textFieldGroup($incoming, 'plan_delivery_date', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'data-inputmask' => "'alias': 'yyyy-mm-dd'", 'data-mask' => 'data-mask')), 'labelOptions' => array('label' => false))); ?>
 
                 <?php
@@ -383,7 +379,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             ),
                             'labelOptions' => array('label' => false)));
                         ?>
-
                         <?php echo CHtml::htmlButton('<i class="fa fa-fw fa-plus-circle"></i> Add Item', array('name' => 'add_item', 'maxlength' => 150, 'class' => 'btn btn-primary btn-sm span5 submit_butt', 'id' => 'btn_add_item')); ?>
 
                     </div>
@@ -440,6 +435,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 <div id="added_textbox_email"><span id="email_not_set_id" class="email_not_set"><i>Recipient Email not set.</i></span></div>
             </div>
             <div class="clearfix" style="margin-top: 3px;">
+
                 <button id="addEmailRecipient" class="btn btn-info btn-flat btn-sm add_field_button pull-right submit_butt" type="button">Add Field</button>
 
             </div>
@@ -652,6 +648,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 dataType: "json",
                 beforeSend: function(data) {
                     $(".submit_butt").attr("disabled", "disabled");
+
                     if (form == headers) {
                         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
                     } else if (form == print) {
@@ -798,7 +795,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         } else {
 
             growlAlert(data.type, data.message);
-
             $(".submit_butt").attr('disabled', false);
             $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
             $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
@@ -828,7 +824,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         .tooltip();
             });
         }
-
         $(".submit_butt").attr('disabled', false);
         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
         $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
@@ -976,8 +971,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $("#IncomingInventory_plan_delivery_date").val(data.headers.plan_delivery_date);
                 //                $("#IncomingInventory_plan_arrival_date").val(data.headers.plan_arrival_date);
                 $("#IncomingInventory_outgoing_inventory_id").val(data.headers.outgoing_inventory_id);
-                $("#IncomingInventory_contact_person").val(data.headers.contact_person);
-                $("#IncomingInventory_contact_no").val(data.headers.contact_no);
 
                 total_amount = 0;
                 $("#IncomingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));

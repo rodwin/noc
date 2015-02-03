@@ -207,7 +207,6 @@ class Survey extends CFormModel {
                 where team_leader = 0 and agency_id = 6 $team
                 order by code";
 //        pr($sql);
-        
       $command = Yii::app()->db3->createCommand($sql);
       $data = $command->queryAll();
 
@@ -227,20 +226,11 @@ class Survey extends CFormModel {
 
         return $data;
     }
-    public function getHospitalByPh($ph,$bws)
+    public function getHospitalByPh($ph)
     {
-        if($bws== ''){
-            $bws = 0;
-        }else{
-            $bws = $bws;
-        }
-         $date = date('Y-m-d');
          $sql = "SELECT outlet_code+'('+ outlet_name+')' as outlet_code,outlet_id
-                FROM [pg_mapping].[dbo].[outlets] a
-                inner join [pg_mapping].[dbo].[pome_route_details] b on b.hospital_id = a.outlet_id
-                inner join [pg_mapping].[dbo].[pome_route] c on c.id = b.route_id
-                where storetype_id = 27 and class ='$ph' and c.date = '$date' and c.pps_id = $bws
-                order by outlet_code";
+                FROM [pg_mapping].[dbo].[outlets]
+                where storetype_id = 27 and class ='$ph'";
          
         $command = Yii::app()->db3->createCommand($sql);
         $data = $command->queryAll();
@@ -372,22 +362,8 @@ class Survey extends CFormModel {
         }else{
             $team_id = $data['Survey']['team_id'];
         }
-        
-        
-            $sqla ="SELECT top 1 *
-                from [pg_mapping].[dbo].[pome_qachecklist] 
-                where pps_id = ".$data['Survey']['bws']." and hospital =".$data['Survey']['hospital']." and date_checked = '".$data['Survey']['date']."'
-                 order by counter desc
-                ";
-
-            $commanda = Yii::app()->db3->createCommand($sqla);
-            $existing = $commanda->queryRow();
-
-            if($existing){
-                $counter = $existing['counter'] + 1;
-            }else{
-                $counter=1;
-            }
+//        pr($team_id);
+//        exit;
         foreach($data['question'] as $key => $val){
                     $sql = "INSERT INTO [pg_mapping].[dbo].[pome_qachecklist]
                             ([pps_id]
@@ -398,7 +374,6 @@ class Survey extends CFormModel {
                             ,[added_by]
                             ,[question]
                             ,[answer]
-                            ,[counter]
  
                             )
                       VALUES
@@ -410,7 +385,6 @@ class Survey extends CFormModel {
                             ,:added_by
                             ,:question
                             ,:answer
-                            ,:counter
                            
             
 
@@ -425,7 +399,6 @@ class Survey extends CFormModel {
             $command->bindParam(':added_by', $team_id, PDO::PARAM_INT);
             $command->bindParam(':question', $data['question'][$key], PDO::PARAM_STR);
             $command->bindParam(':answer', $data['answer'][$key], PDO::PARAM_STR);
-            $command->bindParam(':counter',$counter, PDO::PARAM_INT);
      
 
             $command->execute();

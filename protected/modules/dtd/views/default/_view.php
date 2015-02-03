@@ -124,7 +124,7 @@
                 },
                 plotOptions: {
                     column: {
-                        stacking: 'percent',
+                        stacking: 'normal',
                         dataLabels: {
                             enabled: true,
                             color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
@@ -132,9 +132,7 @@
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
-                    },series: {
-                                pointWidth: 15
-                        }
+                    }
                 },
                 series: [{
                     name: 'Target',

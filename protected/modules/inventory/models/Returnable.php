@@ -303,10 +303,12 @@ class Returnable extends CActiveRecord {
         }
 
         $item_status = array();
+
         $data = array();
         $data['success'] = false;
 
         $returnable_status = "";
+
         foreach ($transaction_details as $v) {
             $item_status[$v['status']][] = $v['status'];
         }
@@ -345,22 +347,28 @@ class Returnable extends CActiveRecord {
             if (count($transaction_details) > 0) {
                 if ($returnable->save(false)) {
 
-                    $returnable_details = array();
-                    for ($i = 0; $i < count($transaction_details); $i++) {
-                        $returnable_detail = ReturnableDetail::model()->createReturnableTransactionDetails($returnable->returnable_id, $returnable->company_id, $transaction_details[$i], $returnable->destination_zone_id, $returnable->transaction_date, $returnable->created_by);
+//                    Yii::app()->session['returns_id_create_session'] = $return->returns_id;
+//                    unset(Yii::app()->session['returns_id_create_session']);
 
-                        $returnable_details[] = $returnable_detail;
+                    for ($i = 0; $i < count($transaction_details); $i++) {
+                        ReturnableDetail::model()->createReturnableTransactionDetails($returnable->returnable_id, $returnable->company_id, $transaction_details[$i], $returnable->destination_zone_id, $returnable->transaction_date, $returnable->created_by);
                     }
 
-                    $data['success'] = true;
-                    $data['header_data'] = $returnable;
-                    $data['detail_data'] = $returnable_details;
+                    return true;
+                } else {
+                    return false;
                 }
+            } else {
+                return false;
             }
+
+            return true;
         } catch (Exception $exc) {
             pr($exc);
             Yii::log($exc->getTraceAsString(), 'error');
+            return false;
         }
+
 
         return $data;
     }

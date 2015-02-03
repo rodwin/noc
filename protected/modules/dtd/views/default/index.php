@@ -6,17 +6,7 @@ $this->breadcrumbs=array(
 );
 ?>
 <style>
- #test {display: none; }  
- #tldashboard {display: none; }  
- #productivity{
-     
- }
- #reach{
-     
- }
- #trial{
-     
- }
+ #test {display: none; }    
 </style>
 
       <div class="panel panel-default">
@@ -57,8 +47,8 @@ $this->breadcrumbs=array(
                                 </p> 
                               </td>
                               <td>
-                                 <p style="margin-top: -20px; ">
-                                     <h3  id ="reach"></h3>
+                                 <p style="margin-top: -20px;">
+                                 <h3 id ="reach"></h3>
                                 </p> 
                               </td>
                           </tr>
@@ -68,11 +58,10 @@ $this->breadcrumbs=array(
                                   <button type="button" class="btn btn-primary btn-lg"># of Trials</button>
                                 </p> 
                               </td>
-                              <td >
-                                  <p style="margin-top: -20px; ">
-                                     <h3  id ="trial"></h3>
-                                </p> 
-                                  
+                              <td>
+                                 <p style="margin-top: -20px;">
+                                 <h3 id ="trial"></h3>
+                                </p>  
                               </td>
                           </tr>
                           <tr>
@@ -82,39 +71,43 @@ $this->breadcrumbs=array(
                                 </p> 
                               </td>
                               <td>
-                               <p style="margin-top: -20px; ">
-                                     <h3  id ="productivity"></h3>
+                                 <p style="margin-top: -20px;">
+                                 <h3 id ="productivity"></h3>
                                 </p> 
                               </td>
                           </tr>
                     </table>
                   </div>
-                   
               </div>
-               <div class="nav-tabs-custom" id ="custTabs">
-                        <ul class="nav nav-tabs">
-                            <li class="active" ><a href="#TotalNational" data-toggle="tab">JAS</a></li>
-                            <li><a href="#TotalNational_ond" data-toggle="tab">OND</a></li>
-                            <li><a href="#TotalNational_jfm" data-toggle="tab">JFM</a></li>
-                            <li><a href="#TotalNational_amj" data-toggle="tab">AMJ</a></li>
-                        </ul>
-                        <div class="tab-content" id ="info">
-                           
-                            <div class="tab-pane active" id="TotalNational" ></div>
-                            <div class="tab-pane" id="TotalNational_ond"></div>
-                            <div class="tab-pane" id="TotalNational_jfm"></div>
-                            <div class="tab-pane" id="TotalNational_amj"></div>
-                            
-                        </div>
-                    </div>
-             
+              <div class="col-xs-6 col-sm-3">
+                 <div id="TotalNational" style="min-width: auto; height: 400px; margin: 0 auto"></div>
+<!--                 <div id="detail_table_loader_ttl_national_qtr"><img height="50" style="display:block;margin:auto;" alt="activity indicator" src="<?php Yii::app()->baseUrl ;?>protected/modules/pome/image/loader.gif" alt="" /></div>-->
+               
+              </div>
+              <div class="col-xs-6 col-sm-3">
+                 <div id="TotalNational_ond" style="min-width: auto; height: 400px; margin: 0 auto"></div>
+<!--                 <div id="detail_table_loader_ttl_national"><img height="50" style="display:block;margin:auto;" alt="activity indicator" src="<?php Yii::app()->baseUrl ;?>protected/modules/pome/image/loader.gif" alt="" /></div>-->
+               
+              </div>
+              <div class="col-xs-6 col-sm-3">
+                 <div id="TotalNational_jfm" style="min-width: auto; height: 400px; margin: 0 auto"></div>
+<!--                 <div id="detail_table_loader_ttl_national"><img height="50" style="display:block;margin:auto;" alt="activity indicator" src="<?php Yii::app()->baseUrl ;?>protected/modules/pome/image/loader.gif" alt="" /></div>-->
+               
+              </div>
+              <div class="col-xs-6 col-sm-3">
+                 <div id="TotalNational_amj" style="min-width: auto; height: 400px; margin: 0 auto"></div>
+<!--                 <div id="detail_table_loader_ttl_national"><img height="50" style="display:block;margin:auto;" alt="activity indicator" src="<?php Yii::app()->baseUrl ;?>protected/modules/pome/image/loader.gif" alt="" /></div>-->
+               
+              </div>
+           
+                                       
         </div>
       
             
       </div>
 
       <div class="panel panel-default">
-          <div class="panel-heading">Detailed</div>
+          <div class="panel-heading">Detailed Hit</div>
           <div class="panel-body" id ="dtl_reach_div">
                 <?php
 
@@ -128,10 +121,8 @@ $this->breadcrumbs=array(
 
                 ));
                 ?>
-              <div class="row" id ="tesz">
+              
                 <div id="detailed_reach" style="min-width: auto; height: 400px; margin: 0 auto"></div>
-              </div>
- 
 
           </div>
 <!--          <div id="detail_table_loader_dtl"><img height="50" style="display:block;margin:auto;" alt="activity indicator" src="<?php Yii::app()->baseUrl ;?>protected/modules/pome/image/loader.gif" alt="" /></div>-->
@@ -161,7 +152,7 @@ $this->breadcrumbs=array(
 
       </div>
 
-      <div class="panel panel-default" id="tldashboard">
+      <div class="panel panel-default">
           <div class="panel-heading">TL Dashboard</div>
           
           <div class="panel-body" id ="tl_dashboard_div">
@@ -194,28 +185,14 @@ $this->breadcrumbs=array(
            
           
         </div>
-      </div>
-      <div class="panel panel-default" id="average_detail_dashboard">
-          <div class="panel-heading">Average Detail</div>
+      
           
-          <div class="panel-body" id ="average_detail">
-               <?php
+          <div class="panel-body">
+                
+               
 
-                echo $this->renderPartial('_view_detailed_ave', array(
-                    'model' => $model,
-                    'agency' => $agency,
-                    'brand' => $brand,
-                    'region' => $region,
-                    'month' => $month,
-                    'year' => $year,
-
-                ));
-                ?>
-              
-                <div id="Detailed_Average" style="min-width: auto; height: 400px; margin: 0 auto"></div>
           </div>
       </div>
-
 
 
     
@@ -224,32 +201,7 @@ $this->breadcrumbs=array(
 <!--<script src="http://code.highcharts.com/highcharts.js"></script>
 <script src="http://code.highcharts.com/modules/exporting.js"></script>-->
 <script>
-
-    
-
 $(function () {
-//    $('#custTabs').click(function (e) {
-////    $('#custTabs').tabs({
-//        select: function(event, ui) {
-//            var theSelectedTab = ui.index;
-//            if (theSelectedTab == 0) {
-//                alert("0");
-//            }
-//            else if (theSelectedTab == 1) {
-//                alert("1");
-//            }
-//        }
-//    });
-//      $('#tesz').css('overflow','scroll');
-    $('#custTabs').on( 'shown.bs.tab', 'a[data-toggle="tab"]', function (e) { // on tab selection event
-		    $( ".tab-pane" ).each(function() { // target each element with the .contains-chart class
-		        var chart = $(this).highcharts(); // target the chart itself
-		        chart.reflow() // reflow that chart
-		    });
-		    });
-    
-     
-    
     
     var covered_global =0;
     var reach_global =0;
@@ -258,7 +210,6 @@ $(function () {
          chart: {
                     type: 'column',
                     renderTo: 'container'
-                    
                 },
                 title: {
                     text: 'Attendance'
@@ -289,15 +240,13 @@ $(function () {
                 },
                 plotOptions: {
                     column: {
-                        stacking: 'percent',
+                        stacking: 'normal',
                         dataLabels: {
                             enabled: true,
                             color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
                             style: {
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
-                        },series: {
-                                pointWidth: 15
                         }
                     }
                 },
@@ -323,7 +272,10 @@ $(function () {
       var province =  document.getElementById('Dtd_province');
       var brand =  document.getElementById('Dtd_brand');
       var attd_year =  document.getElementById('att_year');
-    
+      console.log(agency.value);
+      console.log(brand.value);
+      console.log(month.value);
+      console.log(attd_year.value);
         $.ajax({
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/attendance'); ?>",
             'type':'GET',
@@ -383,7 +335,7 @@ $(function () {
                     renderTo: 'detailed_reach'
                 },
                 title: {
-                    text: 'Detailed'
+                    text: 'Detailed Hit'
                 },
                 xAxis: {
                     categories: labels
@@ -391,7 +343,7 @@ $(function () {
                 yAxis: {
                     min: 0,
                     title: {
-                        text: 'Detailed'
+                        text: 'Detailed Hit'
                     },
                     stackLabels: {
                         enabled: true,
@@ -406,13 +358,12 @@ $(function () {
                     formatter: function () {
                         return '<b>' + this.x + '</b><br/>' +
                             this.series.name + ': ' + this.y + '<br/>' +
-                            'Target: ' + this.point.mydatac;
+                            'Target: ' + this.point.mydatab;
                     }
                 },
                 plotOptions: {
                     column: {
-                        stacking: 'percent',
-                        size:'100%',
+                        stacking: 'normal',
                         dataLabels: {
                             enabled: true,
                             color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
@@ -423,44 +374,25 @@ $(function () {
                     }
                 },
                 series: [{
-                            name: 'Target Hit',
-                            data:target_hit,
-                            stack:'hit'
-
-                        },
-                        {
-                            name: 'Actual Hit',
-                            data:actual_hit,
-                            stack:'hit'
-
-                        },
-                        {
-                            name: 'Target Reach',
-                            data:target_reach,
-                            stack:'reach'
-
-                        }, {
-                            name: 'Actual Reach',
-                            data:actual_reach,
-                            stack:'reach'
-
-                        },{
-                            name: 'Productivity',
-                            data:prod_bar_detail_reach_ind,
-                            stack:'prod'
-
-                        }]
+                    name: 'Target',
+                     data: 
+                        target_reach
+                        
+                }, {
+                    name: 'Hit',
+                    data:target_actual
+            
+                }]
     });
     
       var labels_detail = new Array();
       var target_reach = new Array();
-      var target_hit = new Array();
-      var actual_reach = new Array();
-      var actual_hit = new Array();
-      var prod_bar_detail_reach_ind = new Array();
+      var target_actual = new Array();
       var agency_detail =  document.getElementById('agency_detail');
       var region_detail =  document.getElementById('region_detail');
       var month_detail =  document.getElementById('month_detail');
+      var province_detail =  document.getElementById('province_detail');
+      var ph_detail =  document.getElementById('ph_detail');
       var brand_detail =  document.getElementById('brand_detail');
       var year_details =  document.getElementById('year_detail');
         $.ajax({
@@ -478,48 +410,27 @@ $(function () {
                for(var i = 0; i < data.length; i++){
                     labels_detail.push(data[i].name);
                     
-                    var target_reach = data[i].target_reach - data[i].actual_reach;
-                    var target_hit = data[i].target_hit - data[i].actual_hit;
-                    var percentage_hit = data[i].actual_hit / data[i].target_hit * 100;
-                    var percentage_reach = data[i].actual_reach / data[i].target_reach * 100;
+                    var target = data[i].target_hit - data[i].actual_hit;
+                    var percentage = data[i].actual_hit / data[i].target_hit * 100;
                     var par = data[i].par / data[i].target_attendance * 100;
-                    var prod = data[i].actual_hit / data[i].actual_reach * 100;
-                    var test_hit = percentage_hit / par *100;
-                    var test_reach = percentage_reach / par *100;
-                    if(test_hit >= 100)
+                    var test = percentage / par *100;
+                    console.log(test);
+                    if(test >= 100)
                     {
-                        color_hit = 'green';
-                    }else if(test_hit >= 90 && test_hit <99)
+                        color = 'green';
+                    }else if(test >= 90 && test <99)
                     {
-                        color_hit = 'yellow';
+                        color = 'yellow';
                     }else{
-                        color_hit = 'red';
+                        color = 'red';
                     }
-                    if(test_reach >= 100)
-                    {
-                        color_reach = 'green';
-                    }else if(test_reach >= 90 && test_reach <99)
-                    {
-                        color_reach = 'yellow';
-                    }else{
-                        color_reach = 'red';
-                    }
-                     var a_p = parseFloat(Math.round(prod)).toFixed(2)
-//                    target_reach.push({y: target, color: 'gray',mydatab:data[i].target_reach});
-//                    target_actual.push({y: data[i].actual_reach, color: color,mydatab:data[i].target_reach});
-                      target_reach.push({y: target_reach, color: 'gray',mydatac:data[i].target_reach});
-                      actual_reach.push({y: data[i].actual_reach, color: color_reach,mydatac:data[i].target_reach});
-                      target_hit.push({y: target_hit, color: 'gray',mydatac:data[i].target_hit});
-                      actual_hit.push({y: data[i].actual_hit, color: color_hit,mydatac:data[i].target_hit})
-                      prod_bar_detail_reach_ind.push({y: parseFloat(a_p) , color: color_prod,mydatac:100});
+                    target_reach.push({y: target, color: 'gray',mydatab:data[i].target_reach});
+                    target_actual.push({y: data[i].actual_reach, color: color,mydatab:data[i].target_reach});
    
                }
                charts.xAxis[0].setCategories(labels_detail)
                charts.series[0].setData(target_reach)
-               charts.series[1].setData(actual_reach)
-               charts.series[2].setData(target_hit)
-               charts.series[3].setData(actual_hit)
-               charts.series[4].setData(prod_bar_detail_reach_ind)
+               charts.series[1].setData(target_actual)
 //               $("#detail_table_loader_dtl").hide();  
 //               $("#detailed_reach").show();
                  charts.hideLoading();
@@ -543,7 +454,7 @@ $(function () {
                     text: 'JAS'
                 },
                 xAxis: {
-                    categories: labels_total_jas_ind
+                    categories: labels
                 },
                 yAxis: {
                     min: 0,
@@ -568,7 +479,7 @@ $(function () {
                 },
                 plotOptions: {
                     column: {
-                        stacking: 'percent',
+                        stacking: 'normal',
                         dataLabels: {
                             enabled: true,
                             color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
@@ -576,56 +487,29 @@ $(function () {
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
-                    },series: {
-                        pointWidth: 20
                     }
                 },
                 series: [{
-                            name: 'Target Hit',
-                            data:target_hit_total_jas_ind,
-                            stack:'hit'
-
-                        },
-                        {
-                            name: 'Actual Hit',
-                            data:actual_total_hit_jas_ind,
-                            stack:'hit'
-
-                        },
-                        {
-                            name: 'Target Reach',
-                            data:target_reach_total_jas_ind,
-                            stack:'reach'
-
-                        }, {
-                            name: 'Actual Reach',
-                            data:actual_total_reach_jas_ind,
-                            stack:'reach'
-
-                        },{
-                            name: 'Productivity Reach',
-                            data:prod_bar_jas_reach_ind,
-                            stack:'prod'
-
-                        }
-                        ]
+                    name: 'Target',
+                     data: 
+                        target_reach
+                        
+                }, {
+                    name: 'Hit',
+                    data:target_actual
+            
+                }]
     });
     
-      var labels_total_jas_ind = new Array();
-      var target_reach_total_jas_ind = new Array();
-      var target_hit_total_jas_ind = new Array();
-      var actual_total_reach_jas_ind = new Array();
-      var actual_total_hit_jas_ind = new Array();
-      var counter_target_reach_jas_ind = 0;
-      var counter_target_hit_jas_ind = 0;
-      var counter_actual_hit_jas_ind = 0;
-      var counter_actual_reach_jas_ind = 0;
-      var total_target_jas_ind =0;
-      var total_actual_jas_ind=0;
-      var total_actual_reach_jas_ind=0;
-      var prod_bar_jas_reach_ind = new Array();
-
+      var labels_total = new Array();
+      var target_reach_total = new Array();
+      var target_actual_total = new Array();
+      var counter_target = 0;
+      var counter_actual = 0;
+      var total_target=0;
+      var total_actual=0;
       var agency_ttl =  document.getElementById('total_agency');
+//      var qtr_ttl =  document.getElementById('total_quarter');
       var brand_ttl =  document.getElementById('total_brand');
       var year_ttl =  document.getElementById('total_year');
         $.ajax({
@@ -641,71 +525,46 @@ $(function () {
             'success':function(data) {
              
                for(var i = 0; i < data.length; i++){
-                        labels_total_jas_ind.push(data[i].name);
+                    labels_total.push(data[i].name);
 
-                        var target_hit = data[i].target_hit - data[i].actual_hit;
-                        var target_reach = data[i].target_reach - data[i].actual_reach;
-                        var percentage_hit = data[i].actual_hit / data[i].target_hit * 100;
-                        var percentage_reach = data[i].actual_reach / data[i].target_reach * 100;
-                        var par = data[i].par / data[i].target_attendance * 100;
-                        var prod = data[i].actual_hit / data[i].actual_reach * 100;
-                        var test_hit = percentage_hit / par *100;
-                        var test_reach = percentage_reach / par *100;
-                          counter_target_reach_jas_ind += data[i].target_reach
-                          counter_target_hit_jas_ind += data[i].target_hit
-                          counter_actual_reach_jas_ind += data[i].actual_reach
-                          counter_actual_hit_jas_ind += data[i].actual_hit
-//                        counter_target_ond += data[i].target_hit
-//                        counter_actual_ond += data[i].actual_hit
-//                        counter_actual_reach_ond += data[i].actual_reach +data[i].actual_hit
-                        total_target_jas_ind = counter_target_reach_jas_ind ;
-                        total_actual_jas_ind = counter_actual_hit_jas_ind ;
-                        total_actual_reach_jas_ind = counter_actual_reach_jas_ind ;
-//                        console.log(prod);
-                        if(test_hit >= 100)
-                        {
-                            color_hit = 'green';
-                        }else if(test_hit >= 89.50 && test_hit <99.49)
-                        {
-                            color_hit = 'yellow';
-                        }else{
-                            color_hit = 'red';
-                        }
-                        
-                        if(test_reach >= 100)
-                        {
-                            color_reach= 'green';
-                        }else if(test_hit >= 89.50 && test_hit <99.49)
-                        {
-                            color_reach = 'yellow';
-                        }else{
-                            color_reach = 'red';
-                        }
-                        if(prod >= 59.50)
-                        {
-                            color_prod= 'green';
-                        }else if(prod >= 54.50 && prod <59.49)
-                        {
-                            color_prod = 'yellow';
-                        }else{
-                            color_prod = 'red';
-                        }
-                        var a_p = parseFloat(Math.round(prod)).toFixed(2)
-                        target_hit_total_jas_ind.push({y: target_hit, color: 'gray',mydatac:data[i].target_hit});
-                        actual_total_hit_jas_ind.push({y: data[i].actual_hit, color: color_hit,mydatac:data[i].target_hit});
-                        target_reach_total_jas_ind.push({y: target_reach, color: 'gray',mydatac:data[i].target_reach});
-                        actual_total_reach_jas_ind.push({y: data[i].actual_reach, color: color_hit,mydatac:data[i].target_reach});
-                        prod_bar_jas_reach_ind.push({y: a_p , color: color_prod,mydatac:100});
-             
+                    var target = data[i].target_hit - data[i].actual_hit;
+                    var percentage = data[i].actual_hit / data[i].target_hit * 100;
+                    var par = data[i].par / data[i].target_attendance * 100;
+                    var test = percentage / par *100;
+                    counter_target += data[i].target_hit
+                    counter_actual += data[i].actual_hit
+                    total_target = counter_target ;
+                    total_actual = counter_actual ;
+                    if(test >= 100)
+                    {
+                        color = 'green';
+                    }else if(test >= 90 && test <99)
+                    {
+                        color = 'yellow';
+                    }else{
+                        color = 'red';
+                    }
+                   
+                    target_reach_total.push({y: target, color: 'gray',mydatac:data[i].target_hit});
+                    target_actual_total.push({y: data[i].actual_hit, color: color,mydatac:data[i].target_hit});
                    
    
                }
-               chartz.xAxis[0].setCategories(labels_total_jas_ind)
-               chartz.series[0].setData(target_hit_total_jas_ind)
-               chartz.series[1].setData(actual_total_hit_jas_ind)
-               chartz.series[2].setData(target_reach_total_jas_ind)
-               chartz.series[3].setData(actual_total_reach_jas_ind)
-               chartz.series[4].setData(prod_bar_jas_reach_ind)
+//             $("#detail_table_loader_ttl_national").hide();  
+//             $("#TotalNational").show();  
+                covered_global +=total_target;
+                reach_global +=total_actual;
+                trials_global +=total_actual;
+                $("#covered").html('');
+                $("#reach").html('');
+                $("#trial").html('');
+             
+                $("#covered").append(covered_global.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $("#reach").append(reach_global.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $("#trial").append(trials_global.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+               chartz.xAxis[0].setCategories(labels_total)
+               chartz.series[0].setData(target_reach_total)
+               chartz.series[1].setData(target_actual_total)
                chartz.hideLoading();
             
                
@@ -754,7 +613,7 @@ $(function () {
                 },
                 plotOptions: {
                     column: {
-                        stacking: 'percent',
+                        stacking: 'normal',
                         dataLabels: {
                             enabled: true,
                             color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
@@ -762,8 +621,6 @@ $(function () {
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
-                    },series: {
-                        pointWidth: 20
                     }
                 },
                 series: [{
@@ -878,7 +735,7 @@ $(function () {
                 },
                 plotOptions: {
                     column: {
-                        stacking: 'percent',
+                        stacking: 'normal',
                         dataLabels: {
                             enabled: true,
                             color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
@@ -886,8 +743,6 @@ $(function () {
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
-                    },series: {
-                        pointWidth: 20
                     }
                 },
                 series: [{
@@ -971,7 +826,7 @@ $(function () {
                     text: 'OND'
                 },
                 xAxis: {
-                    categories: labels_total_ond_ind
+                    categories: labels_total_ond
                 },
                 yAxis: {
                     min: 0,
@@ -996,7 +851,7 @@ $(function () {
                 },
                 plotOptions: {
                     column: {
-                        stacking: 'percent',
+                        stacking: 'normal',
                         dataLabels: {
                             enabled: true,
                             color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
@@ -1004,47 +859,27 @@ $(function () {
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
-                    },series: {
-                        pointWidth: 20
                     }
                 },
                 series: [{
-                            name: 'Target Hit',
-                            data:target_hit_total_ond_ind,
-                            stack:'hit'
-
-                        },
-                        {
-                            name: 'Actual Hit',
-                            data:actual_total_hit_ond_ind,
-                            stack:'hit'
-
-                        },
-                        {
-                            name: 'Target Reach',
-                            data:target_reach_total_ond_ind,
-                            stack:'reach'
-
-                        }, {
-                            name: 'Actual Reach',
-                            data:actual_total_reach_ond_ind,
-                            stack:'reach'
-
-                        },{
-                            name: 'Productivity',
-                            data:prod_bar_ond_reach_ind,
-                            stack:'prod'
-
-                        }
-                        ]
+                    name: 'Target',
+                     data: 
+                        total_target_ond
+                        
+                }, {
+                    name: 'Hit',
+                    data:total_actual_ond
+            
+                }]
     });
     
-      var labels_total_ond_ind = new Array();
-      var target_reach_total_ond_ind = new Array();
-      var target_hit_total_ond_ind = new Array();
-      var actual_total_reach_ond_ind = new Array();
-      var actual_total_hit_ond_ind = new Array();
-      var prod_bar_ond_reach_ind = new Array();
+      var labels_total_ond = new Array();
+      var target_reach_total_ond = new Array();
+      var target_actual_total_ond = new Array();
+      var counter_target_ond = 0;
+      var counter_actual_ond = 0;
+      var total_target_ond =0;
+      var total_actual_ond=0;
         $.ajax({
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TotalNationalReachOND'); ?>",
             'type':'GET',
@@ -1058,60 +893,45 @@ $(function () {
             'success':function(data) {
              
                for(var i = 0; i < data.length; i++){
-                        labels_total_ond_ind.push(data[i].name);
+                    labels_total_ond.push(data[i].name);
 
-                        var target_hit = data[i].target_hit - data[i].actual_hit;
-                        var target_reach = data[i].target_reach - data[i].actual_reach;
-                        var percentage_hit = data[i].actual_hit / data[i].target_hit * 100;
-                        var percentage_reach = data[i].actual_reach / data[i].target_reach * 100;
-                        var par = data[i].par / data[i].target_attendance * 100;
-                        var prod = data[i].actual_hit / data[i].actual_reach * 100;
-                        var test_hit = percentage_hit / par *100;
-                        var test_reach = percentage_reach / par *100;
-                        if(test_hit >= 100)
-                        {
-                            color_hit = 'green';
-                        }else if(test_hit >= 89.50 && test_hit <99.49)
-                        {
-                            color_hit = 'yellow';
-                        }else{
-                            color_hit = 'red';
-                        }
-                        
-                        if(test_reach >= 100)
-                        {
-                            color_reach= 'green';
-                        }else if(test_hit >= 89.50 && test_hit <99.49)
-                        {
-                            color_reach = 'yellow';
-                        }else{
-                            color_reach = 'red';
-                        }
-                        if(prod >= 59.50)
-                        {
-                            color_prod= 'green';
-                        }else if(prod >= 54.50 && prod <59.49)
-                        {
-                            color_prod = 'yellow';
-                        }else{
-                            color_prod = 'red';
-                        }
-                        var a_p = parseFloat(Math.round(prod)).toFixed(2)
-                        target_hit_total_ond_ind.push({y: target_hit, color: 'gray',mydatac:data[i].target_hit});
-                        actual_total_hit_ond_ind.push({y: data[i].actual_hit, color: color_hit,mydatac:data[i].target_hit});
-                        target_reach_total_ond_ind.push({y: target_reach, color: 'gray',mydatac:data[i].target_reach});
-                        actual_total_reach_ond_ind.push({y: data[i].actual_reach, color: color_hit,mydatac:data[i].target_reach});
-                        prod_bar_ond_reach_ind.push({y: a_p , color: color_prod,mydatac:100});
+                    var target = data[i].target_hit - data[i].actual_hit;
+                    var percentage = data[i].actual_hit / data[i].target_hit * 100;
+                    var par = data[i].par / data[i].target_attendance * 100;
+                    var test = percentage / par *100;
+                    counter_target_ond += data[i].target_hit
+                    counter_actual_ond += data[i].actual_hit
+                    total_target_ond = counter_target_ond ;
+                    total_actual_ond = counter_actual_ond ;
+                    if(test >= 100)
+                    {
+                        color = 'green';
+                    }else if(test >= 90 && test <99)
+                    {
+                        color = 'yellow';
+                    }else{
+                        color = 'red';
+                    }
+                   
+                    target_reach_total_ond.push({y: target, color: 'gray',mydatac:data[i].target_hit});
+                    target_actual_total_ond.push({y: data[i].actual_hit, color: color,mydatac:data[i].target_hit});
                    
    
                }
-
-               chartond.xAxis[0].setCategories(labels_total_ond_ind)
-               chartond.series[0].setData(target_hit_total_ond_ind)
-               chartond.series[1].setData(actual_total_hit_ond_ind)
-               chartond.series[2].setData(target_reach_total_ond_ind)
-               chartond.series[3].setData(actual_total_reach_ond_ind)
-               chartond.series[4].setData(prod_bar_ond_reach_ind)
+//             $("#detail_table_loader_ttl_national").hide();  
+//             $("#TotalNational").show();  
+                covered_global +=total_target_ond;
+                reach_global +=total_actual_ond;
+                trials_global +=total_actual_ond;
+                $("#covered").html('');
+                $("#reach").html('');
+                $("#trial").html('');
+                $("#covered").append(covered_global.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $("#reach").append(reach_global.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $("#trial").append(trials_global.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+               chartond.xAxis[0].setCategories(labels_total_ond)
+               chartond.series[0].setData(target_reach_total_ond)
+               chartond.series[1].setData(target_actual_total_ond)
                chartond.hideLoading();
             
                
@@ -1135,7 +955,7 @@ $(function () {
                     text: 'AMJ'
                 },
                 xAxis: {
-                    categories: labels_total_amj_ind
+                    categories: labels_total_amj
                 },
                 yAxis: {
                     min: 0,
@@ -1160,7 +980,7 @@ $(function () {
                 },
                 plotOptions: {
                     column: {
-                        stacking: 'percentt',
+                        stacking: 'normal',
                         dataLabels: {
                             enabled: true,
                             color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
@@ -1168,115 +988,79 @@ $(function () {
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
-                    },series: {
-                        pointWidth: 20
                     }
                 },
                 series: [{
-                            name: 'Target Hit',
-                            data:target_hit_total_amj_ind,
-                            stack:'hit'
-
-                        },
-                        {
-                            name: 'Actual Hit',
-                            data:actual_total_hit_amj_ind,
-                            stack:'hit'
-
-                        },
-                        {
-                            name: 'Target Reach',
-                            data:target_reach_total_amj_ind,
-                            stack:'reach'
-
-                        }, {
-                            name: 'Actual Reach',
-                            data:actual_total_reach_amj_ind,
-                            stack:'reach'
-
-                        },{
-                            name: 'Productivity',
-                            data:prod_bar_amj_reach_ind,
-                            stack:'prod'
-
-                        }
-                        ]
+                    name: 'Target',
+                     data: 
+                        total_target_amj
+                        
+                }, {
+                    name: 'Hit',
+                    data:total_actual_amj
+            
+                }]
     });
     
-      var labels_total_amj_ind = new Array();
-      var target_reach_total_amj_ind = new Array();
-      var target_hit_total_amj_ind = new Array();
-      var actual_total_reach_amj_ind = new Array();
-      var actual_total_hit_amj_ind = new Array();
-      var prod_bar_amj_reach_ind = new Array();
+      var labels_total_amj= new Array();
+      var target_reach_total_amj = new Array();
+      var target_actual_total_amj = new Array();
+      var counter_target_amj = 0;
+      var counter_actual_amj = 0;
+      var total_target_amj=0;
+      var total_actual_amj=0;
         $.ajax({
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TotalNationalReachAMJ'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=OND'+'&year='+year_ttl.value,
+            'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=AMJ'+'&year='+year_ttl.value,
              beforeSend: function(){
 //                $("#detail_table_loader_ttl_national").show();  
-//                $("#TotalNational").hide(); 
-                  chartond.showLoading();
+//                $("#TotalNational").hide();  
+                  chartamj.showLoading();
              },
             'success':function(data) {
              
                for(var i = 0; i < data.length; i++){
-                        labels_total_amj_ind.push(data[i].name);
+                    labels_total_amj.push(data[i].name);
 
-                        var target_hit = data[i].target_hit - data[i].actual_hit;
-                        var target_reach = data[i].target_reach - data[i].actual_reach;
-                        var percentage_hit = data[i].actual_hit / data[i].target_hit * 100;
-                        var percentage_reach = data[i].actual_reach / data[i].target_reach * 100;
-                        var par = data[i].par / data[i].target_attendance * 100;
-                        var prod = data[i].actual_hit / data[i].actual_reach * 100;
-                        var test_hit = percentage_hit / par *100;
-                        var test_reach = percentage_reach / par *100;
-//                        console.log(prod);
-                        if(test_hit >= 100)
-                        {
-                            color_hit = 'green';
-                        }else if(test_hit >= 89.50 && test_hit <99.49)
-                        {
-                            color_hit = 'yellow';
-                        }else{
-                            color_hit = 'red';
-                        }
-                        
-                        if(test_reach >= 100)
-                        {
-                            color_reach= 'green';
-                        }else if(test_hit >= 89.50 && test_hit <99.49)
-                        {
-                            color_reach = 'yellow';
-                        }else{
-                            color_reach = 'red';
-                        }
-                        if(prod >= 59.50)
-                        {
-                            color_prod= 'green';
-                        }else if(prod >= 54.50 && prod <59.49)
-                        {
-                            color_prod = 'yellow';
-                        }else{
-                            color_prod = 'red';
-                        }
-                        var a_p = parseFloat(Math.round(prod)).toFixed(2)
-                        target_hit_total_amj_ind.push({y: target_hit, color: 'gray',mydatac:data[i].target_hit});
-                        actual_total_hit_amj_ind.push({y: data[i].actual_hit, color: color_hit,mydatac:data[i].target_hit});
-                        target_reach_total_amj_ind.push({y: target_reach, color: 'gray',mydatac:data[i].target_reach});
-                        actual_total_reach_amj_ind.push({y: data[i].actual_reach, color: color_hit,mydatac:data[i].target_reach});
-                        prod_bar_amj_reach_ind.push({y: a_p, color: color_prod,mydatac:100});
+                    var target = data[i].target_hit - data[i].actual_hit;
+                    var percentage = data[i].actual_hit / data[i].target_hit * 100;
+                    var par = data[i].par / data[i].target_attendance * 100;
+                    var test = percentage / par *100;
+                    counter_target_amj += data[i].target_hit
+                    counter_actual_amj += data[i].actual_hit
+                    total_target_amj = counter_target_amj ;
+                    total_actual_amj = counter_actual_amj ;
+                    if(test >= 100)
+                    {
+                        color = 'green';
+                    }else if(test >= 90 && test <99)
+                    {
+                        color = 'yellow';
+                    }else{
+                        color = 'red';
+                    }
+                   
+                    target_reach_total_amj.push({y: target, color: 'gray',mydatac:data[i].target_hit});
+                    target_actual_total_amj.push({y: data[i].actual_hit, color: color,mydatac:data[i].target_hit});
                    
    
                }
-
-               chartamj.xAxis[0].setCategories(labels_total_amj_ind)
-               chartamj.series[0].setData(target_hit_total_amj_ind)
-               chartamj.series[1].setData(actual_total_hit_amj_ind)
-               chartamj.series[2].setData(target_reach_total_amj_ind)
-               chartamj.series[3].setData(actual_total_reach_amj_ind)
-               chartamj.series[4].setData(prod_bar_amj_reach_ind)
+//             $("#detail_table_loader_ttl_national").hide();  
+//             $("#TotalNational").show();
+                covered_global +=total_target_amj;
+                reach_global +=total_actual_amj;
+                trials_global +=total_actual_amj;  
+                $("#covered").html('');
+                $("#reach").html('');
+                $("#trial").html('');
+                $("#covered").append(covered_global.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $("#reach").append(reach_global.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $("#trial").append(trials_global.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+               chartamj.xAxis[0].setCategories(labels_total_amj)
+               chartamj.series[0].setData(target_reach_total_amj)
+               chartamj.series[1].setData(target_actual_total_amj)
                chartamj.hideLoading();
             
                
@@ -1290,10 +1074,7 @@ $(function () {
                alert('An error occured: '+ exception);
             }
          }); 
-   
-
-
-
+         
          var chartjfm= new Highcharts.Chart({
          chart: {
                     type: 'column',
@@ -1303,7 +1084,7 @@ $(function () {
                     text: 'JFM'
                 },
                 xAxis: {
-                    categories: labels_total_jfm_ind
+                    categories: labels_total_jfm
                 },
                 yAxis: {
                     min: 0,
@@ -1328,7 +1109,7 @@ $(function () {
                 },
                 plotOptions: {
                     column: {
-                        stacking: 'percent',
+                        stacking: 'normal',
                         dataLabels: {
                             enabled: true,
                             color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
@@ -1336,116 +1117,79 @@ $(function () {
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
-                    },series: {
-                        pointWidth: 20
                     }
                 },
                 series: [{
-                            name: 'Target Hit',
-                            data:target_hit_total_jfm_ind,
-                            stack:'hit'
-
-                        },
-                        {
-                            name: 'Actual Hit',
-                            data:actual_total_hit_jfm_ind,
-                            stack:'hit'
-
-                        },
-                        {
-                            name: 'Target Reach',
-                            data:target_reach_total_jfm_ind,
-                            stack:'reach'
-
-                        }, {
-                            name: 'Actual Reach',
-                            data:actual_total_reach_jfm_ind,
-                            stack:'reach'
-
-                        },{
-                            name: 'Productivity',
-                            data:prod_bar_jfm_reach_ind,
-                            stack:'prod'
-
-                        }
-                        ]
+                    name: 'Target',
+                     data: 
+                        total_target_jfm
+                        
+                }, {
+                    name: 'Hit',
+                    data:total_actual_jfm
+            
+                }]
     });
     
-      var labels_total_jfm_ind = new Array();
-      var target_reach_total_jfm_ind = new Array();
-      var target_hit_total_jfm_ind = new Array();
-      var actual_total_reach_jfm_ind = new Array();
-      var actual_total_hit_jfm_ind = new Array();
-      var prod_bar_jfm_reach_ind = new Array();
-
+      var labels_total_jfm= new Array();
+      var target_reach_total_jfm = new Array();
+      var target_actual_total_jfm = new Array();
+      var counter_target_jfm = 0;
+      var counter_actual_jfm = 0;
+      var total_target_jfm=0;
+      var total_actual_jfm=0;
         $.ajax({
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TotalNationalReachJFM'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=OND'+'&year='+year_ttl.value,
+            'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=JFM'+'&year='+year_ttl.value,
              beforeSend: function(){
 //                $("#detail_table_loader_ttl_national").show();  
 //                $("#TotalNational").hide(); 
-                  chartond.showLoading();
+                  chartjfm.showLoading();
              },
             'success':function(data) {
              
                for(var i = 0; i < data.length; i++){
-                        labels_total_jfm_ind.push(data[i].name);
+                    labels_total_amj.push(data[i].name);
 
-                        var target_hit = data[i].target_hit - data[i].actual_hit;
-                        var target_reach = data[i].target_reach - data[i].actual_reach;
-                        var percentage_hit = data[i].actual_hit / data[i].target_hit * 100;
-                        var percentage_reach = data[i].actual_reach / data[i].target_reach * 100;
-                        var par = data[i].par / data[i].target_attendance * 100;
-                        var prod = data[i].actual_hit / data[i].actual_reach * 100;
-                        var test_hit = percentage_hit / par *100;
-                        var test_reach = percentage_reach / par *100;
-  
-                        if(test_hit >= 100)
-                        {
-                            color_hit = 'green';
-                        }else if(test_hit >= 89.50 && test_hit <99.49)
-                        {
-                            color_hit = 'yellow';
-                        }else{
-                            color_hit = 'red';
-                        }
-                        
-                        if(test_reach >= 100)
-                        {
-                            color_reach= 'green';
-                        }else if(test_hit >= 89.50 && test_hit <99.49)
-                        {
-                            color_reach = 'yellow';
-                        }else{
-                            color_reach = 'red';
-                        }
-                        if(prod >= 59.50)
-                        {
-                            color_prod= 'green';
-                        }else if(prod >= 54.50 && prod <59.49)
-                        {
-                            color_prod = 'yellow';
-                        }else{
-                            color_prod = 'red';
-                        }
-                        var a_p = parseFloat(Math.round(prod)).toFixed(2)
-                        target_hit_total_jfm_ind.push({y: target_hit, color: 'gray',mydatac:data[i].target_hit});
-                        actual_total_hit_jfm_ind.push({y: data[i].actual_hit, color: color_hit,mydatac:data[i].target_hit});
-                        target_reach_total_jfm_ind.push({y: target_reach, color: 'gray',mydatac:data[i].target_reach});
-                        actual_total_reach_jfm_ind.push({y: data[i].actual_reach, color: color_hit,mydatac:data[i].target_reach});
-                        prod_bar_jfm_reach_ind.push({y: a_p , color: color_prod,mydatac:100});
+                    var target = data[i].target_hit - data[i].actual_hit;
+                    var percentage = data[i].actual_hit / data[i].target_hit * 100;
+                    var par = data[i].par / data[i].target_attendance * 100;
+                    var test = percentage / par *100;
+                    counter_target_jfm += data[i].target_hit
+                    counter_actual_jfm += data[i].actual_hit
+                    total_target_jfm = counter_target_jfm ;
+                    total_actual_jfm = counter_actual_jfm ;
+                    if(test >= 100)
+                    {
+                        color = 'green';
+                    }else if(test >= 90 && test <99)
+                    {
+                        color = 'yellow';
+                    }else{
+                        color = 'red';
+                    }
+                   
+                    target_reach_total_jfm.push({y: target, color: 'gray',mydatac:data[i].target_hit});
+                    target_actual_total_jfm.push({y: data[i].actual_hit, color: color,mydatac:data[i].target_hit});
                    
    
                }
-
-               chartjfm.xAxis[0].setCategories(labels_total_jfm_ind)
-               chartjfm.series[0].setData(target_hit_total_jfm_ind)
-               chartjfm.series[1].setData(actual_total_hit_jfm_ind)
-               chartjfm.series[2].setData(target_reach_total_jfm_ind)
-               chartjfm.series[3].setData(actual_total_reach_jfm_ind)
-               chartjfm.series[4].setData(prod_bar_jfm_reach_ind)
+//             $("#detail_table_loader_ttl_national").hide();  
+//             $("#TotalNational").show();  
+             covered_global +=total_target_jfm;
+                reach_global +=total_actual_jfm;
+                trials_global +=total_actual_jfm;
+                $("#covered").html('');
+                $("#reach").html('');
+                $("#trial").html('');
+                $("#covered").append(covered_global.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $("#reach").append(reach_global.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+                $("#trial").append(trials_global.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+               chartjfm.xAxis[0].setCategories(labels_total_jfm)
+               chartjfm.series[0].setData(target_reach_total_jfm)
+               chartjfm.series[1].setData(target_actual_total_jfm)
                chartjfm.hideLoading();
             
                
@@ -1460,182 +1204,8 @@ $(function () {
             }
          }); 
          
-         var chartix = new Highcharts.Chart({
-         chart: {
-                    type: 'column',
-                    renderTo: 'Detailed_Average'
-                },
-                title: {
-                    text: 'Detailed Average'
-                },
-                xAxis: {
-                    categories: labels_detail_ave
-                },
-                yAxis: {
-                    min: 0,
-                    title: {
-                        text: 'average'
-                    },
-                    stackLabels: {
-                        enabled: true,
-                        style: {
-                            fontWeight: 'bold',
-                            color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
-                        }
-                    }
-                },
-                
-                tooltip: {
-                    formatter: function () {
-                        return '<b>' + this.x + '</b><br/>' +
-                            this.series.name + ': ' + this.y + '<br/>' +
-                            'Target: ' + this.point.mydatae;
-                    }
-                },
-                plotOptions: {
-                    column: {
-                        stacking: 'percent',
-                        dataLabels: {
-                            enabled: true,
-                            color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
-                            style: {
-                                textShadow: '0 0 3px black, 0 0 3px black'
-                            }
-                        }
-                    },series: {
-                        pointWidth: 20
-                    }
-                },
-                series: [{
-                            name: 'Target Hit',
-                            data:target_hit,
-                            stack:'hit'
-
-                        },
-                        {
-                            name: 'Actual Hit',
-                            data:actual_hit,
-                            stack:'hit'
-
-                        },
-                        {
-                            name: 'Target Reach',
-                            data:target_reach,
-                            stack:'reach'
-
-                        }, {
-                            name: 'Actual Reach',
-                            data:actual_reach,
-                            stack:'reach'
-
-                        }]
-    });
     
-      var labels_detail_ave = new Array();
-      var target_reach_ave = new Array();
-      var target_hit_ave = new Array();
-      var actual_reach_ave = new Array();
-      var actual_hit_ave = new Array();
-      var agency_detail_ave =  document.getElementById('agency_detail_ave');
-      var region_detail_ave =  document.getElementById('region_detail_ave');
-      var month_detail_ave =  document.getElementById('month_detail_ave');
-      var brand_detail_ave =  document.getElementById('brand_detail_ave');
-      var year_details_ave =  document.getElementById('year_detail_ave');
-        $.ajax({
-            'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/DetailAverage'); ?>",
-            'type':'GET',
-            'dataType': 'json',
-            'data':'agency='+agency_detail_ave.value+'&region='+region_detail_ave.value+'&month='+month_detail_ave.value+'&brand='+brand_detail_ave.value+'&year='+year_details_ave.value,
-             beforeSend: function(){
-//               $("#detail_table_loader_dtl").show();  
-//               $("#detailed_reach").hide();  
-                 charts.showLoading();
-             },
-            'success':function(data) {
-             
-                for(var i = 0; i < data.length; i++){
-                    labels_detail_ave.push(data[i].salesman);
-
-                    var percentage_hit = data[i].actual_hit / data[i].actual_attendance;
-                    var percentage_reach = data[i].actual_reach / data[i].actual_attendance;
-                    var target_reach_ajax = 100 - percentage_reach;
-                    var target_hit_ajax = 100 - percentage_hit;
-//                    console.log(test);
-                    if(percentage_hit >= 100)
-                    {
-                        color_hit = 'green';
-                    }else if(percentage_hit >= 90 && percentage_hit <99)
-                    {
-                        color_hit = 'yellow';
-                    }else{
-                        color_hit = 'red';
-                    }
-                    
-                    if(percentage_reach >= 100)
-                    {
-                        color_reach = 'green';
-                    }else if(percentage_reach >= 90 && percentage_reach <99)
-                    {
-                        color_reach = 'yellow';
-                    }else{
-                        color_reach = 'red';
-                    }
-                      var hit_percentage = parseFloat(Math.round(percentage_hit * 100) / 100).toFixed(2)
-                      var reach_percentage = parseFloat(Math.round(percentage_reach * 100) / 100).toFixed(2)
-                      
-                      var t_reach_percentage = parseFloat(Math.round(target_reach_ajax * 100) / 100).toFixed(2)
-                      var t_hit_percentage = parseFloat(Math.round(target_hit_ajax * 100) / 100).toFixed(2)
-                      target_hit_ave.push({y: parseFloat(t_hit_percentage), color: 'gray',mydatac:100});
-                      actual_hit_ave.push({y: parseFloat(hit_percentage), color: color_hit,mydatac:parseFloat(hit_percentage)});
-                      
-                      target_reach_ave.push({y: parseFloat(t_reach_percentage), color: 'gray',mydatac:100});
-                      actual_reach_ave.push({y: parseFloat(reach_percentage), color: color_reach,mydatac:parseFloat(reach_percentage)});
-                      
-
-                   }
-
-               chartix.xAxis[0].setCategories(labels_detail_ave)
-               chartix.series[0].setData(target_reach_ave)
-               chartix.series[1].setData(actual_reach_ave)
-               chartix.series[2].setData(target_hit_ave)
-               chartix.series[3].setData(actual_hit_ave)  
-               chartix.hideLoading();
-               
-            },
-            error: function(jqXHR, exception) {
-//                $("#detail_table_loader_tl_reach").hide();  
-//              $("#tlreach").show();
-                chartv.hideLoading();
-               alert('An error occured: '+ exception);
-            }
-         }); 
-         
-          $.ajax({
-                'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/compute'); ?>",
-                'type':'GET',
-                'dataType': 'json',
-                'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&year='+year_ttl.value,
-                 beforeSend: function(){
-                        $("#covered").html('');
-                        $("#reach").html('');
-                        $("#trial").html('');
-                 },
-                'success':function(data) {
-                    
-                    for(var i = 0; i < data.length; i++){
-
-                        $("#covered").append(data[i].covered.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-                        $("#reach").append(data[i].reach.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-                        $("#trial").append(data[i].hit.toString().replace(/,/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ","))
-                        $("#productivity").append(data[i].productivity+'%');
-                    }
-                }
-                
-                });
-
 });
-    
-    
 
 
 </script>

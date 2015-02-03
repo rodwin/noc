@@ -434,18 +434,19 @@
                     var test = data[i].total / data[i].score * 100;
                     var remaining = data[i].score - data[i].total;
 
-
-                    if(test >= 90)
+       
+                    if(test >= 100)
                     {
-                         color = 'green';
-                    }else if(test >= 85 && test <90){
-                         color = 'yellow';
+                        color = 'green';
+                    }else if(test >= 90 && test <99)
+                    {
+                        color = 'yellow';
                     }else{
-                         color = 'red';
-                     }
-                    var act =parseFloat(Math.round(data[i].total * 100) / 100).toFixed(2);
-                    score_target.push({y: parseFloat(Math.round(remaining * 100) / 100), color: 'gray',mydata:parseFloat(act)});
-                    score_actual.push({y: parseFloat(act), color: color,mydata:parseFloat(act)});
+                        color = 'red';
+                    }
+                   
+                    score_target.push({y: remaining, color: 'gray',mydata:data[i].total});
+                    score_actual.push({y: parseFloat(data[i].total), color: color,mydata:data[i].total});
 //                    target_actual_total_jfm.push({y: data[i].actual_reach, color: color,mydatac:data[i].target_reach});
                    
    

@@ -30,12 +30,11 @@ class SurveyController extends Controller
     
 	public function actionIndex()
 	{     
-       
             $this->layout='//layouts/column1';
             
             $survey = new Survey;
             
-//            $data_a =  $survey->getHospitalByPh('PH1');
+            $data_a =  $survey->getHospitalByPh('PH1');
             $data_b =  $survey->getTlDetail();
            
             $question =  $survey->getQuestionare();
@@ -52,7 +51,7 @@ class SurveyController extends Controller
             
             $bws = CHtml::listData($data, 'id', 'code');
             $ph = CHtml::listData($ph, 'id', 'name');
-//            $hospital = CHtml::listData($data_a, 'outlet_id', 'outlet_code');
+            $hospital = CHtml::listData($data_a, 'outlet_id', 'outlet_code');
             
             $question_array = array();
             $previous = '';
@@ -79,7 +78,7 @@ class SurveyController extends Controller
                   'model' => $survey,
                     'bws' => $bws,
                     'ph' => $ph,
-          
+                    'hospital' => $hospital,
                     'question' => $question_array,
 
                 ));
@@ -99,18 +98,14 @@ class SurveyController extends Controller
         
         public function actiongetHospitalByPh()
         {
-            $test= "<option value=''>--</option>";
+            echo "<option value=''>Select Hospital</option>";
             $model = new survey;
+            $data = $model->getHospitalByPh($_GET['id']);    
             
-            $data = $model->getHospitalByPh($_GET['ph'],$_GET['bws']);    
-            
-         
-            
-//         $test ='';
             foreach ($data as $key => $val) {
-            $test .= CHtml::tag('option', array('value' => $val['outlet_id']), CHtml::encode($val['outlet_code']), true);
+            echo CHtml::tag('option', array('value' => $val['outlet_id']), CHtml::encode($val['outlet_code']), true);
              }
-               echo json_encode($test);
+//            
                     
         }
         

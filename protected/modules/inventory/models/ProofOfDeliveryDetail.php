@@ -279,7 +279,7 @@ class ProofOfDeliveryDetail extends CActiveRecord {
         $pod_transaction_detail->customer_item_detail_id = $customer_item_detail_id;
 
         if ($pod_transaction_detail->save(false)) {
-            return $pod_transaction_detail;
+             return $pod_transaction_detail;
         } else {
             return $pod_transaction_detail->getErrors();
         }
@@ -305,7 +305,7 @@ class ProofOfDeliveryDetail extends CActiveRecord {
         $pod_transaction_detail->amount = $amount;
 
         if ($pod_transaction_detail->save(false)) {
-            return $pod_transaction_detail;
+            
         } else {
             return $pod_transaction_detail->getErrors();
         }

@@ -73,8 +73,6 @@ class ReturnableDetail extends CActiveRecord {
         // class name for the relations automatically generated below.
         return array(
             'returnable' => array(self::BELONGS_TO, 'Returnable', 'returnable_id'),
-            'sku' => array(self::BELONGS_TO, 'Sku', 'sku_id'),
-            'uom' => array(self::BELONGS_TO, 'Uom', 'uom_id'),
         );
     }
 
@@ -245,6 +243,7 @@ class ReturnableDetail extends CActiveRecord {
             ReceivingInventoryDetail::model()->createInventory($returnable_detail->company_id, $returnable_detail->sku_id, $returnable_detail->uom_id, $returnable_detail->unit_price, $returnable_detail->returned_quantity, $zone_id, $transaction_date, $returnable_detail->created_by, $returnable_detail->expiration_date, $returnable_detail->batch_no, $returnable_detail->sku_status_id, $returnable_detail->pr_no, $returnable_detail->pr_date, $returnable_detail->plan_arrival_date, $returnable_detail->po_no, $returnable_detail->remarks);
         
             return $returnable_detail;
+
         } else {
             return $returnable_detail->getErrors();
         }

@@ -28,7 +28,7 @@ class PoiController extends Controller {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
                 'actions' => array('index', 'data', 'getAllSubCategoryByCategoryID', 'getAllCustomDataByCategoryID', 'getAllSubCategoryByCategoryName', 'getProvinceByRegionCode',
-                    'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode', 'upload', 'uploadDetails', 'search', 'getPOIDetails', 'getAllPoiData', 'select2FilterPOI'),
+                    'getMunicipalByProvinceCode', 'getBarangayByMunicipalCode', 'upload', 'uploadDetails', 'search', 'getPOIDetails', 'getAllPoiData'),
                 'users' => array('@'),
             ),
             array('allow',
@@ -86,34 +86,34 @@ class PoiController extends Controller {
             $row['long_name'] = $value->long_name;
             $row['primary_code'] = $value->primary_code;
             $row['secondary_code'] = $value->secondary_code;
-//            $row['barangay_id'] = $value->barangay_id;
-//            $row['barangay_name'] = isset($value->barangay_name) ? $value->barangay_name : null;
-//            $row['municipal_id'] = $value->municipal_id;
-//            $row['municipal_name'] = isset($value->municipal_name) ? $value->municipal_name : null;
-//            $row['province_id'] = $value->province_id;
-//            $row['province_name'] = isset($value->province_name) ? $value->province_name : null;
-//            $row['region_id'] = $value->region_id;
-//            $row['region_name'] = $value->region_name;
-//            $row['sales_region_id'] = $value->sales_region_id;
-//            $row['latitude'] = $value->latitude;
-//            $row['longitude'] = $value->longitude;
+            $row['barangay_id'] = $value->barangay_id;
+            $row['barangay_name'] = isset($value->barangay_name) ? $value->barangay_name : null;
+            $row['municipal_id'] = $value->municipal_id;
+            $row['municipal_name'] = isset($value->municipal_name) ? $value->municipal_name : null;
+            $row['province_id'] = $value->province_id;
+            $row['province_name'] = isset($value->province_name) ? $value->province_name : null;
+            $row['region_id'] = $value->region_id;
+            $row['region_name'] = $value->region_name;
+            $row['sales_region_id'] = $value->sales_region_id;
+            $row['latitude'] = $value->latitude;
+            $row['longitude'] = $value->longitude;
             $row['address1'] = $value->address1;
             $row['address2'] = $value->address2;
-//            $row['zip'] = $value->zip;
-//            $row['landline'] = $value->landline;
-//            $row['mobile'] = $value->mobile;
-//            $row['poi_category_id'] = $value->poi_category_id;
-//            $row['poi_category_name'] = isset($value->poiCategory->category_name) ? $value->poiCategory->category_name : null;
-//            $row['poi_sub_category_id'] = $value->poi_sub_category_id;
-//            $row['poi_sub_category_name'] = isset($value->poiSubCategory->sub_category_name) ? $value->poiSubCategory->sub_category_name : null;
-//            $row['remarks'] = $value->remarks;
-//            $row['status'] = $value->status;
-//            $row['created_date'] = $value->created_date;
-//            $row['created_by'] = $value->created_by;
-//            $row['edited_date'] = $value->edited_date;
-//            $row['edited_by'] = $value->edited_by;
-//            $row['verified_by'] = $value->verified_by;
-//            $row['verified_date'] = $value->verified_date;
+            $row['zip'] = $value->zip;
+            $row['landline'] = $value->landline;
+            $row['mobile'] = $value->mobile;
+            $row['poi_category_id'] = $value->poi_category_id;
+            $row['poi_category_name'] = isset($value->poiCategory->category_name) ? $value->poiCategory->category_name : null;
+            $row['poi_sub_category_id'] = $value->poi_sub_category_id;
+            $row['poi_sub_category_name'] = isset($value->poiSubCategory->sub_category_name) ? $value->poiSubCategory->sub_category_name : null;
+            $row['remarks'] = $value->remarks;
+            $row['status'] = $value->status;
+            $row['created_date'] = $value->created_date;
+            $row['created_by'] = $value->created_by;
+            $row['edited_date'] = $value->edited_date;
+            $row['edited_by'] = $value->edited_by;
+            $row['verified_by'] = $value->verified_by;
+            $row['verified_date'] = $value->verified_date;
 
 
             $row['links'] = '<a class="view" title="View" data-toggle="tooltip" href="' . $this->createUrl('/library/poi/view', array('id' => $value->poi_id)) . '" data-original-title="View"><i class="fa fa-eye"></i></a>'
@@ -734,3 +734,4 @@ class PoiController extends Controller {
     }
 
 }
+

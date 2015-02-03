@@ -46,6 +46,79 @@ class ReturnsController extends Controller {
         );
     }
 
+    public function actionData() {
+
+        Returns::model()->search_string = $_GET['search']['value'] != "" ? $_GET['search']['value'] : null;
+
+        $dataProvider = Returns::model()->data($_GET['order'][0]['column'], $_GET['order'][0]['dir'], $_GET['length'], $_GET['start'], $_GET['columns']);
+
+        $count = Returns::model()->countByAttributes(array('company_id' => Yii::app()->user->company_id));
+
+        $output = array(
+            "draw" => intval($_GET['draw']),
+            "recordsTotal" => $count,
+            "recordsFiltered" => $dataProvider->totalItemCount,
+            "data" => array()
+        );
+
+        foreach ($dataProvider->getData() as $key => $value) {
+            $row = array();
+
+            $source_name = Returns::model()->getReturnFromIDDetail($value->receive_return_from, $value->receive_return_from_id, Yii::app()->user->company_id);
+            $destination_name = Returns::model()->getReturnToIDDetail($value->return_to, $value->return_to_id, Yii::app()->user->company_id);
+
+            $row['returns_id'] = $value->returns_id;
+            $row['return_type'] = "";
+            $row['return_receipt_no'] = $value->return_receipt_no;
+            $row['reference_dr_no'] = $value->reference_dr_no;
+            $row['receive_return_from'] = $value->receive_return_from;
+            $row['receive_return_from_id'] = $value->receive_return_from_id;
+            $row['transaction_date'] = $value->transaction_date;
+            $row['date_returned'] = $value->date_returned;
+            $row['return_to'] = $value->return_to;
+            $row['return_to_id'] = $value->return_to_id;
+            $row['remarks'] = $value->remarks;
+            $row['total_amount'] = $value->total_amount;
+            $row['created_date'] = $value->created_date;
+            $row['created_by'] = $value->created_by;
+            $row['updated_date'] = $value->updated_date;
+            $row['updated_by'] = $value->updated_by;
+            $row['receive_return_from_name'] = $source_name;
+            $row['return_to_name'] = $destination_name;
+
+            $row['links'] = '<a class="view" title="View" data-toggle="tooltip" href="' . $this->createUrl('/inventory/returns/view', array('id' => $value->returns_id)) . '" data-original-title="View"><i class="fa fa-eye"></i></a>'
+                    . '&nbsp;<a class="update" title="Update" data-toggle="tooltip" href="' . $this->createUrl('/inventory/returns/update', array('id' => $value->returns_id)) . '" data-original-title="View"><i class="fa fa-pencil"></i></a>'
+                    . '&nbsp;<a class="delete" title="Delete" data-toggle="tooltip" href="' . $this->createUrl('/inventory/returns/delete', array('id' => $value->returns_id)) . '" data-original-title="Delete"><i class="fa fa-trash-o"></i></a>';
+
+            $output['data'][] = $row;
+        }
+
+        echo json_encode($output);
+    }
+
+    /**
+     * Displays a particular model.
+     * @param integer $id the ID of the model to be displayed
+     */
+    public function actionView($id) {
+        $model = $this->loadModel($id);
+
+        $this->pageTitle = 'View Returns ' . $model->returns_id;
+
+        $this->menu = array(
+            array('label' => 'Create Returns', 'url' => array('create')),
+            array('label' => 'Update Returns', 'url' => array('update', 'id' => $model->returns_id)),
+            array('label' => 'Delete Returns', 'url' => '#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->returns_id), 'confirm' => 'Are you sure you want to delete this item?')),
+            array('label' => 'Manage Returns', 'url' => array('admin')),
+            '',
+            array('label' => 'Help', 'url' => '#'),
+        );
+
+        $this->render('view', array(
+            'model' => $model,
+        ));
+    }
+
     /**
      * Creates a new model.
      * If creation is successful, the browser will be redirected to the 'view' page.
@@ -64,6 +137,7 @@ class ReturnsController extends Controller {
 
         $return_from_list = CHtml::listData(Returnable::model()->getListReturnFrom(), 'value', 'title');
         $return_to_list = CHtml::listData(ReturnMdse::model()->getListReturnTo(), 'value', 'title');
+
         $zone_list = CHtml::listData(Zone::model()->findAll(array("condition" => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'zone_name ASC')), 'zone_id', 'zone_name');
         $salesoffice_list = CHtml::listData(Salesoffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
         $warehouse_list = CHtml::listData(Salesoffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '" AND distributor_id = ""', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
@@ -425,10 +499,70 @@ class ReturnsController extends Controller {
     }
 
     /**
+     * Updates a particular model.
+     * If update is successful, the browser will be redirected to the 'view' page.
+     * @param integer $id the ID of the model to be updated
+     */
+    public function actionUpdate($id) {
+        $model = $this->loadModel($id);
+
+        $this->menu = array(
+            array('label' => 'Create Returns', 'url' => array('create')),
+            array('label' => 'View Returns', 'url' => array('view', 'id' => $model->returns_id)),
+            array('label' => 'Manage Returns', 'url' => array('admin')),
+            '',
+            array('label' => 'Help', 'url' => '#'),
+        );
+
+        $this->pageTitle = 'Update Returns ' . $model->returns_id;
+
+        // Uncomment the following line if AJAX validation is needed
+        // $this->performAjaxValidation($model);
+
+        if (isset($_POST['Returns'])) {
+            $model->attributes = $_POST['Returns'];
+            $model->updated_by = Yii::app()->user->name;
+            $model->updated_date = date('Y-m-d H:i:s');
+
+            if ($model->save()) {
+                Yii::app()->user->setFlash('success', "Successfully updated");
+                $this->redirect(array('view', 'id' => $model->returns_id));
+            }
+        }
+
+        $this->render('update', array(
+            'model' => $model,
+        ));
+    }
+
+    /**
+     * Deletes a particular model.
+     * If deletion is successful, the browser will be redirected to the 'admin' page.
+     * @param integer $id the ID of the model to be deleted
+     */
+    public function actionDelete($id) {
+        if (Yii::app()->request->isPostRequest) {
+            // we only allow deletion via POST request
+            $this->loadModel($id)->delete();
+
+            // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+            if (!isset($_GET['ajax'])) {
+                Yii::app()->user->setFlash('success', "Successfully deleted");
+                $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+            } else {
+
+                echo "Successfully deleted";
+                exit;
+            }
+        } else
+            throw new CHttpException(400, 'Invalid request. Please do not repeat this request again.');
+    }
+
+    /**
      * Lists all models.
      */
     public function actionIndex() {
-        $dataProvider = new CActiveDataProvider('Returnable');
+        $dataProvider = new CActiveDataProvider('Returns');
 
         $this->render('index', array(
             'dataProvider' => $dataProvider,
@@ -442,14 +576,27 @@ class ReturnsController extends Controller {
         $this->layout = '//layouts/column1';
         $this->pageTitle = 'Manage Returns';
 
-        $model = new Returnable('search');
+        $model = new Returns('search');
         $model->unsetAttributes();  // clear any default values
-        if (isset($_GET['Returnable']))
-            $model->attributes = $_GET['Returnable'];
+        if (isset($_GET['Returns']))
+            $model->attributes = $_GET['Returns'];
 
         $this->render('admin', array(
             'model' => $model,
         ));
+    }
+
+    /**
+     * Returns the data model based on the primary key given in the GET variable.
+     * If the data model is not found, an HTTP exception will be raised.
+     * @param integer the ID of the model to be loaded
+     */
+    public function loadModel($id) {
+        $model = Returns::model()->findByAttributes(array('returns_id' => $id, 'company_id' => Yii::app()->user->company_id));
+        if ($model === null)
+            throw new CHttpException(404, 'The requested page does not exist.');
+
+        return $model;
     }
 
     /**
@@ -558,7 +705,7 @@ class ReturnsController extends Controller {
                 }
             }
         }
-
+        
         echo json_encode($return);
     }
 
@@ -3010,5 +3157,4 @@ class ReturnsController extends Controller {
             'detail_id' => $detail_id,
         ));
     }
-
 }

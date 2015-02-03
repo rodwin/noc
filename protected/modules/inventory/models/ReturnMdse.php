@@ -46,21 +46,11 @@ class ReturnMdse extends CActiveRecord {
             array('company_id, return_mdse_no, reference_dr_no, return_to, return_to_id, created_by, updated_by', 'length', 'max' => 50),
             array('remarks', 'length', 'max' => 150),
             array('total_amount', 'length', 'max' => 18),
-            array('return_mdse_no', 'uniqueMdseNo'),
             array('transaction_date, date_returned, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('return_mdse_id, company_id, return_mdse_no, reference_dr_no, return_to, return_to_id, transaction_date, date_returned, remarks, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
-    }
-
-    public function uniqueMdseNo($attribute, $params) {
-
-        $model = ReturnMdse::model()->findByAttributes(array('company_id' => $this->company_id, 'return_mdse_no' => $this->$attribute));
-        if ($model && $model->return_mdse_id != $this->return_mdse_id) {
-            $this->addError($attribute, 'Return Mdse Number selected already taken');
-        }
-        return;
     }
 
     public function beforeValidate() {
@@ -141,39 +131,44 @@ class ReturnMdse extends CActiveRecord {
         switch ($col) {
 
             case 0:
-                $sort_column = 'return_mdse_no';
+                $sort_column = 'return_mdse_id';
                 break;
 
             case 1:
-                $sort_column = 'transaction_date';
+                $sort_column = 'return_mdse_no';
                 break;
 
             case 2:
+                $sort_column = 'reference_dr_no';
+                break;
+
+            case 3:
                 $sort_column = 'return_to';
                 break;
 
-//            case 3:
-//                $sort_column = 'return_to';
-//                break;
-
             case 4:
-                $sort_column = 'total_amount';
+                $sort_column = 'return_to_id';
                 break;
 
             case 5:
-                $sort_column = 'remarks';
+                $sort_column = 'transaction_date';
+                break;
+
+            case 6:
+                $sort_column = 'date_returned';
                 break;
         }
 
 
         $criteria = new CDbCriteria;
         $criteria->compare('company_id', Yii::app()->user->company_id);
-        $criteria->compare('return_mdse_no', $columns[0]['search']['value']);
-        $criteria->compare('transaction_date', $columns[1]['search']['value'], true);
-        $criteria->compare('return_to', $columns[2]['search']['value'], true);
-        $criteria->compare('return_to', $columns[3]['search']['value']);
-        $criteria->compare('total_amount', $columns[4]['search']['value'], true);
-        $criteria->compare('remarks', $columns[5]['search']['value'], true);
+        $criteria->compare('return_mdse_id', $columns[0]['search']['value']);
+        $criteria->compare('return_mdse_no', $columns[1]['search']['value'], true);
+        $criteria->compare('reference_dr_no', $columns[2]['search']['value'], true);
+        $criteria->compare('return_to', $columns[3]['search']['value'], true);
+        $criteria->compare('return_to_id', $columns[4]['search']['value'], true);
+        $criteria->compare('transaction_date', $columns[5]['search']['value'], true);
+        $criteria->compare('date_returned', $columns[6]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
@@ -317,67 +312,6 @@ class ReturnMdse extends CActiveRecord {
         }
 
         return $data;
-    }
-
-    public function getReturnToID($key, $return_label, $post_data) {
-
-        $destination_arr = ReturnMdse::model()->getListReturnTo();
-        $data = array();
-
-        if ($key == $destination_arr[0]['value']) {
-
-            if ($post_data[$return_label . $destination_arr[0]['id']] != "") {
-                $data['id'] = $post_data[$return_label . $destination_arr[0]['id']];
-            }
-        } else if ($key == $destination_arr[1]['value']) {
-
-            if ($post_data[$return_label . $destination_arr[1]['id']] != "") {
-                $data['id'] = $post_data[$return_label . $destination_arr[1]['id']];
-            }
-        } else {
-
-            if ($post_data[$return_label . $destination_arr[2]['id']] != "") {
-                $data['id'] = $post_data[$return_label . $destination_arr[2]['id']];
-            }
-        }
-
-        return $data;
-    }
-    
-    public function checkIfReturnMdseDetailIsExists($company_id, $dr_no, $detail_id) {
-        
-        $c1 = new CDbCriteria;
-        $c1->condition = "t.company_id = '" . $company_id . "' AND incomingInventory.dr_no = '" . $dr_no . "' AND t.incoming_inventory_detail_id = '" . $detail_id . "'";
-        $c1->with = array('incomingInventory', 'sku');
-        $incoming_detail = IncomingInventoryDetail::model()->find($c1);
-              
-        $data = array();
-        $data['success'] = true;
-        
-        if ($incoming_detail) {
-            $data['destination'] = IncomingInventory::INCOMING_LABEL;
-            $data['destination_id'] = isset($incoming_detail->source_zone_id) ? $incoming_detail->source_zone_id : "";
-        } else {
-            $data['success'] = false;
-        }
-        
-        return $data;        
-    }
-    
-    public function getReturnMdseSource($company_id, $dr_no, $destination, $model) {
-        
-        $c1 = new CDbCriteria;
-        $c1->condition = "t.company_id = '" . $company_id . "' AND t.zone_id = '" . $destination['destination_id'] . "'";
-        $c1->with = array('salesOffice');
-        $zone = Zone::model()->find($c1);
-        
-        $destination_arr = ReturnMdse::model()->getListReturnTo();
-        
-        if ($zone) {
-            
-            $model->return_to = $destination_arr[1]['value'];
-            $model->return_to_id = isset($zone->salesOffice->sales_office_id) ? $zone->salesOffice->sales_office_id: "";
-        }        
     }
 
 }

@@ -35,7 +35,7 @@ $this->breadcrumbs=array(
                             ),
                             'widgetOptions' => array(
                                 'data' =>$bws,
-                                'htmlOptions' => array('multiple' => false, 'id' => 'bws_survey' , 'prompt' => 'Select bws')
+                                'htmlOptions' => array('multiple' => false, 'id' => 'bws_survey' , 'prompt' => 'Select bws'),
                            )
 
                                 )
@@ -48,8 +48,13 @@ $this->breadcrumbs=array(
                         ),
                         'widgetOptions' => array(
                             'data' =>$ph,
-                            'htmlOptions' => array('multiple' => false, 'id' => 'ph_survey', 'prompt' => 'Select ph'
-                                ),
+                            'htmlOptions' => array('multiple' => false, 'id' => 'ph_survey',
+                                'ajax' => array(
+                                    'type' => 'GET',
+                                    'url' => CController::createUrl('getHospitalByPh'),
+                                    'update' => '#hospital_survey',
+                                    'data' => array('id' => 'js:this.value',),
+                                )),
                        )
                         
                             )
@@ -88,7 +93,7 @@ $this->breadcrumbs=array(
                                             $model, 'hospital', array(
                                         
                                         'widgetOptions' => array(
-                                           
+                                            'data' =>$hospital,
                                             'htmlOptions' => array('multiple' => false, 'id' => 'hospital_survey', 'prompt' => 'Select hospital'),
                                        ),'labelOptions'=> array(
                                            'label'=>false,
@@ -155,31 +160,19 @@ $this->breadcrumbs=array(
                   </div>
               </div>
            
-             <?php echo CHtml::submitButton('Save', array('class' => 'btn btn-primary btn-flat','id'=>'test_sub')); ?></div>                              
+             <?php echo CHtml::submitButton('Save', array('class' => 'btn btn-primary btn-flat')); ?></div>                              
         </div>
-<!--      this.style.visibility=hidden-->
+      
         
       </div>
  
 <?php $this->endWidget(); ?>
 
       <script>
-               function disable()
-{
-     $('#test_sub').attr("disabled", true);
-}
       $(document).ready(function(){
       $('#bws_survey').val('');
-      
-
-        $("form").submit(function() {
-            $(this).submit(function() {
-                return false;
-            });
-            return true;
-        });
-      
-      $('#bws_survey').change(function() {
+      });
+$('#bws_survey').change(function() {
     
         $.ajax({
             type: 'GET',
@@ -193,68 +186,20 @@ $this->breadcrumbs=array(
                 alert("Error occured: Please try again.");
             }
         });
-        
-        var ph = document.getElementById('ph_survey');
-        $.ajax({
-            type: 'GET',
-            url: '<?php echo Yii::app()->createUrl('/pome/survey/getHospitalByPh'); ?>' + '&bws=' + this.value+'&ph='+ph.value,
-            dataType: "json",
-            success: function(data) {
-//                var options = '';
-//                options  = '<option value="">--</option>';
-//                for(var i =0;i<data.lenght; i++)
-//                {
-//                     options += '<option value="' + data[i].outlet_id + '">' + data[i].outlet_code + '</option>';   
-//                }
-                        $("#hospital_survey").html(data);
-            },
-            error: function(data) {
-                alert("Error occured: Please try again.");
-            }
-        });
     
 });
 
 $('#ph_survey').change(function() {
     
-   var bws = document.getElementById('bws_survey');
-        $.ajax({
-            type: 'GET',
-            url: '<?php echo Yii::app()->createUrl('/pome/survey/getHospitalByPh'); ?>' + '&ph=' + this.value+'&bws='+bws.value,
-            dataType: "json",
-            success: function(data) {
-//                var options = '';
-//                options  = '<option value="">--</option>';
-//                for(var i =0;i<data.lenght; i++)
-//                {
-//                     options += '<option value="' + data[i].outlet_id + '">' + data[i].outlet_code + '</option>';   
-//                }
-                        $("#hospital_survey").html(data);
-            },
-            error: function(data) {
-                alert("Error occured: Please try again.");
-            }
-        });
+      if(this.value =='PH1'){
+           $("#ph2_table" ).hide();
+           $("#ph1_table" ).show();
+      }else{
+          $("#ph2_table" ).show();
+          $("#ph1_table" ).hide();
+      }
     
 });
-      });
-//$('#bws_survey').change(function() {
-//    
-//        $.ajax({
-//            type: 'GET',
-//            url: '<?php echo Yii::app()->createUrl('/pome/survey/getBwsDetail'); ?>' + '&bws_id=' + this.value,
-//            dataType: "json",
-//            success: function(data) {
-//                document.getElementById('name_bws').innerHTML = data.firstname+' '+data.lastname;
-////                document.getElementById('S').innerHTML = data.firstname+' '+data.lastname;
-//            },
-//            error: function(data) {
-//                alert("Error occured: Please try again.");
-//            }
-//        });
-//    
-//});
-
 
 function acceptValidNumbersOnly(obj,e) {
 			var key='';

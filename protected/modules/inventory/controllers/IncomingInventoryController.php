@@ -165,10 +165,8 @@ class IncomingInventoryController extends Controller {
         $destination = array();
         $destination['zone_name'] = $incoming_inv->zone->zone_name;
         $destination['destination_sales_office_name'] = isset($destination_sales_office->sales_office_name) ? $destination_sales_office->sales_office_name : "";
-//        $destination['contact_person'] = isset($employee) ? $employee->fullname : "";
-//        $destination['contact_no'] = isset($employee) ? $employee->work_phone_number : "";
-        $destination['contact_person'] = $incoming_inv->contact_person != "" ? $incoming_inv->contact_person : "";
-        $destination['contact_no'] = $incoming_inv->contact_no != "" ? $incoming_inv->contact_no : "";
+        $destination['contact_person'] = isset($employee) ? $employee->fullname : "";
+        $destination['contact_no'] = isset($employee) ? $employee->work_phone_number : "";
         $destination['address'] = isset($destination_sales_office->address1) ? $destination_sales_office->address1 : "";
 
         $incoming_detail = IncomingInventoryDetail::model()->findAllByAttributes(array("company_id" => Yii::app()->user->company_id, "incoming_inventory_id" => $model->incoming_inventory_id));
@@ -1181,7 +1179,7 @@ class IncomingInventoryController extends Controller {
         $zone = Zone::model()->find($c);
 
         $source['source_zone_name_so_name'] = rtrim($source_zones, "<br/>");
-        $source['contact_person'] = $incoming_inv['contact_person'];
+        $source['contact_person'] = rtrim($source_contact_person, "<br/>");
         $source['address'] = rtrim($source_address, "<br/>");
 
         $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
@@ -1500,7 +1498,7 @@ class IncomingInventoryController extends Controller {
         $zone = Zone::model()->find($c);
 
         $source['source_zone_name_so_name'] = rtrim($source_zones, "<br/>");
-        $source['contact_person'] = $incoming_inv->contact_person;
+        $source['contact_person'] = rtrim($source_contact_person, "<br/>");
         $source['address'] = rtrim($source_address, "<br/>");
 
         $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
@@ -1552,6 +1550,7 @@ class IncomingInventoryController extends Controller {
 
         $header['ra_no'] = $header_data->rra_no != "" ? "RA " . strtoupper($header_data->rra_no) : "<i>(RA No not set)</i>";
         $header['dr_no'] = "DR " . strtoupper($header_data->dr_no);
+
         $header['plan_delivery_date'] = $header_data->plan_delivery_date != "" ? strtoupper(date('M d Y', strtotime($header_data->plan_delivery_date))) : "";
         $header['delivery_date'] = $header_data->transaction_date != "" ? strtoupper(date('M d Y', strtotime($header_data->transaction_date))) : "";
         $header['dr_date'] = $header_data->dr_date != "" ? strtoupper(date('M d Y', strtotime($header_data->dr_date))) : "";
@@ -1653,5 +1652,4 @@ class IncomingInventoryController extends Controller {
 
         echo json_encode($output);
     }
-
 }

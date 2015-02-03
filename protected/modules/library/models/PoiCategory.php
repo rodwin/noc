@@ -19,6 +19,7 @@
 class PoiCategory extends CActiveRecord {
 
     public $search_string;
+    public $poi_category_name;
 
     /**
      * @return string the associated database table name

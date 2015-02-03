@@ -75,8 +75,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     }
 
     .process_position { text-align: center; position: absolute; }
-
     #progress_bar_col { display: none; } 
+
 </style>
 
 <style type="text/css">
@@ -257,7 +257,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     ),
                     'labelOptions' => array('label' => false)));
                 ?>
-
                 <?php echo $form->textFieldGroup($receiving, 'sales_office_id', array('widgetOptions' => array('htmlOptions' => array('class' => 'ignore span5', 'style' => 'display: none;')), 'labelOptions' => array('label' => false))); ?>
 
             </div>
@@ -439,7 +438,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
 
         <?php $receivingDetailFields = ReceivingInventoryDetail::model()->attributeLabels(); ?>
         <h4 class="control-label text-primary"><b>Transaction Table</b></h4>
-
         <div class="table-responsive">            
             <table id="transaction_table" class="table table-bordered table-hover table-striped">
                 <thead>
@@ -477,7 +475,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             </div>
             <div class="clearfix" style="margin-top: 3px;">
                 <button id="addEmailRecipient" class="btn btn-info btn-flat btn-sm add_field_button pull-right submit_butt" type="button">Add Field</button>
-
             </div>
         </div>
 
@@ -649,7 +646,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         }
 
         var data = $("#receiving-inventory-form").serialize() + "&form=" + form + '&' + $.param({"transaction_details": serializeTransactionTable()}) + '&' + $.param({"emails": emails}) + '&' + $.param({"recipients": recipient});
-
         if ($(".submit_butt").is("[disabled=disabled]")) {
             return false;
         } else {
@@ -752,7 +748,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             if (data.form == headers) {
                 growlAlert(data.type, data.message);
             }
-
             $(".submit_butt").attr('disabled', false);
             $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
             $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
@@ -781,12 +776,10 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 $element2.data("title", v)
                 .addClass("error_border")
                 .tooltip();
-
                 //                element.classList.add("error");
                 error_count++;
             });
         }
-
         $(".submit_butt").attr('disabled', false);
         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
         $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
