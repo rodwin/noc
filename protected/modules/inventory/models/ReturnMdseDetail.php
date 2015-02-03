@@ -1,11 +1,11 @@
 <?php
 
 /**
- * This is the model class for table "returns_detail".
+ * This is the model class for table "return_mdse_detail".
  *
- * The followings are the available columns in table 'returns_detail':
- * @property integer $returns_detail_id
- * @property integer $returns_id
+ * The followings are the available columns in table 'return_mdse_detail':
+ * @property integer $return_mdse_detail_id
+ * @property integer $return_mdse_id
  * @property string $company_id
  * @property string $batch_no
  * @property string $sku_id
@@ -14,10 +14,8 @@
  * @property string $source_zone_id
  * @property string $unit_price
  * @property string $expiration_date
- * @property integer $quantity_issued
  * @property integer $returned_quantity
  * @property string $amount
- * @property string $status
  * @property string $remarks
  * @property string $pr_no
  * @property string $pr_date
@@ -29,17 +27,18 @@
  * @property string $po_no
  *
  * The followings are the available model relations:
- * @property Returns $returns
+ * @property ReturnMdse $returnMdse
  */
-class ReturnsDetail extends CActiveRecord {
+class ReturnMdseDetail extends CActiveRecord {
 
     public $search_string;
+    public $inventory_on_hand;
 
     /**
      * @return string the associated database table name
      */
     public function tableName() {
-        return 'returns_detail';
+        return 'return_mdse_detail';
     }
 
     /**
@@ -49,16 +48,15 @@ class ReturnsDetail extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, sku_id, uom_id, returned_quantity', 'required'),
-            array('returns_id, quantity_issued, returned_quantity', 'numerical', 'integerOnly' => true),
-            array('company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, status, pr_no, created_by, updated_by, po_no', 'length', 'max' => 50),
+            array('company_id, sku_id, uom_id, returned_quantity, amount', 'required'),
+            array('return_mdse_id, returned_quantity, inventory_id', 'numerical', 'integerOnly' => true),
+            array('company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, pr_no, created_by, updated_by, po_no', 'length', 'max' => 50),
             array('unit_price, amount', 'length', 'max' => 18),
             array('remarks', 'length', 'max' => 150),
-            array('expiration_date, plan_arrival_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
-            array('expiration_date, pr_date, plan_arrival_date, created_date, updated_date', 'safe'),
+            array('expiration_date, pr_date, plan_arrival_date, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
-            array('returns_detail_id, returns_id, company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, unit_price, expiration_date, quantity_issued, returned_quantity, amount, status, remarks, pr_no, pr_date, plan_arrival_date, created_date, created_by, updated_date, updated_by, po_no', 'safe', 'on' => 'search'),
+            array('return_mdse_detail_id, return_mdse_id, company_id, batch_no, sku_id, uom_id, sku_status_id, source_zone_id, unit_price, expiration_date, returned_quantity, amount, remarks, pr_no, pr_date, plan_arrival_date, created_date, created_by, updated_date, updated_by, po_no, inventory_id', 'safe', 'on' => 'search'),
         );
     }
 
@@ -73,7 +71,7 @@ class ReturnsDetail extends CActiveRecord {
         // NOTE: you may need to adjust the relation name and the related
         // class name for the relations automatically generated below.
         return array(
-            'returns' => array(self::BELONGS_TO, 'Returns', 'returns_id'),
+            'returnMdse' => array(self::BELONGS_TO, 'ReturnMdse', 'return_mdse_id'),
             'sku' => array(self::BELONGS_TO, 'Sku', 'sku_id'),
             'uom' => array(self::BELONGS_TO, 'Uom', 'uom_id'),
             'skuStatus' => array(self::BELONGS_TO, 'SkuStatus', 'sku_status_id'),
@@ -85,8 +83,8 @@ class ReturnsDetail extends CActiveRecord {
      */
     public function attributeLabels() {
         return array(
-            'returns_detail_id' => 'Returns Detail',
-            'returns_id' => 'Returns',
+            'return_mdse_detail_id' => 'Return Mdse Detail',
+            'return_mdse_id' => 'Return Mdse',
             'company_id' => 'Company',
             'batch_no' => 'Batch No',
             'sku_id' => 'Sku',
@@ -95,10 +93,8 @@ class ReturnsDetail extends CActiveRecord {
             'source_zone_id' => 'Source Zone',
             'unit_price' => 'Unit Price',
             'expiration_date' => 'Expiration Date',
-            'quantity_issued' => 'Quantity Issued',
             'returned_quantity' => 'Returned Quantity',
             'amount' => 'Amount',
-            'status' => 'Status',
             'remarks' => 'Remarks',
             'pr_no' => 'Pr No',
             'pr_date' => 'Pr Date',
@@ -108,6 +104,7 @@ class ReturnsDetail extends CActiveRecord {
             'updated_date' => 'Updated Date',
             'updated_by' => 'Updated By',
             'po_no' => 'Po No',
+            'inventory_id' => 'Inventory ID'
         );
     }
 
@@ -128,8 +125,8 @@ class ReturnsDetail extends CActiveRecord {
 
         $criteria = new CDbCriteria;
 
-        $criteria->compare('returns_detail_id', $this->returns_detail_id);
-        $criteria->compare('returns_id', $this->returns_id);
+        $criteria->compare('return_mdse_detail_id', $this->return_mdse_detail_id);
+        $criteria->compare('return_mdse_id', $this->return_mdse_id);
         $criteria->compare('company_id', Yii::app()->user->company_id);
         $criteria->compare('batch_no', $this->batch_no, true);
         $criteria->compare('sku_id', $this->sku_id, true);
@@ -138,10 +135,8 @@ class ReturnsDetail extends CActiveRecord {
         $criteria->compare('source_zone_id', $this->source_zone_id, true);
         $criteria->compare('unit_price', $this->unit_price, true);
         $criteria->compare('expiration_date', $this->expiration_date, true);
-        $criteria->compare('quantity_issued', $this->quantity_issued);
         $criteria->compare('returned_quantity', $this->returned_quantity);
         $criteria->compare('amount', $this->amount, true);
-        $criteria->compare('status', $this->status, true);
         $criteria->compare('remarks', $this->remarks, true);
         $criteria->compare('pr_no', $this->pr_no, true);
         $criteria->compare('pr_date', $this->pr_date, true);
@@ -151,6 +146,7 @@ class ReturnsDetail extends CActiveRecord {
         $criteria->compare('updated_date', $this->updated_date, true);
         $criteria->compare('updated_by', $this->updated_by, true);
         $criteria->compare('po_no', $this->po_no, true);
+        $criteria->compare('inventory_id', $this->inventory_id, true);
 
         return new CActiveDataProvider($this, array(
             'criteria' => $criteria,
@@ -161,11 +157,11 @@ class ReturnsDetail extends CActiveRecord {
         switch ($col) {
 
             case 0:
-                $sort_column = 'returns_detail_id';
+                $sort_column = 'return_mdse_detail_id';
                 break;
 
             case 1:
-                $sort_column = 'returns_id';
+                $sort_column = 'return_mdse_id';
                 break;
 
             case 2:
@@ -192,8 +188,8 @@ class ReturnsDetail extends CActiveRecord {
 
         $criteria = new CDbCriteria;
         $criteria->compare('company_id', Yii::app()->user->company_id);
-        $criteria->compare('returns_detail_id', $columns[0]['search']['value']);
-        $criteria->compare('returns_id', $columns[1]['search']['value']);
+        $criteria->compare('return_mdse_detail_id', $columns[0]['search']['value']);
+        $criteria->compare('return_mdse_id', $columns[1]['search']['value']);
         $criteria->compare('batch_no', $columns[2]['search']['value'], true);
         $criteria->compare('sku_id', $columns[3]['search']['value'], true);
         $criteria->compare('uom_id', $columns[4]['search']['value'], true);
@@ -213,44 +209,42 @@ class ReturnsDetail extends CActiveRecord {
      * Returns the static model of the specified AR class.
      * Please note that you should have this exact method in all your CActiveRecord descendants!
      * @param string $className active record class name.
-     * @return ReturnsDetail the static model class
+     * @return ReturnMdseDetail the static model class
      */
     public static function model($className = __CLASS__) {
         return parent::model($className);
     }
 
-    public function createReturnsTransactionDetails($returns_id, $company_id, $transaction_details, $zone_id, $transaction_date, $created_by) {
+    public function createReturnMdseTransactionDetails($return_mdse_id, $company_id, $transaction_details, $transaction_date, $created_by) {
 
-        $exp_date = ($transaction_details['expiration_date'] != "" ? $transaction_details['expiration_date'] : null);
-        $sku_status_id = ($transaction_details['sku_status_id'] != "" ? $transaction_details['sku_status_id'] : null);
-        $plan_arrival_date = ($transaction_details['plan_arrival_date'] != "" ? $transaction_details['plan_arrival_date'] : null);
-        $pr_date = ($transaction_details['pr_date'] != "" ? $transaction_details['pr_date'] : null);
+        $inventory = Inventory::model()->findByAttributes(array("inventory_id" => $transaction_details['inventory_id'], "company_id" => $company_id));
         
-        $returns_detail = new ReturnsDetail;
-        $returns_detail->returns_id = $returns_id;
-        $returns_detail->company_id = $company_id;
-        $returns_detail->batch_no = $transaction_details['batch_no'];
-        $returns_detail->sku_id = $transaction_details['sku_id'];
-        $returns_detail->uom_id = $transaction_details['uom_id'];
-        $returns_detail->sku_status_id = $transaction_details['sku_status_id'];
-        $returns_detail->unit_price = $transaction_details['unit_price'] != "" ? $transaction_details['unit_price'] : "";
-        $returns_detail->expiration_date = $exp_date;
-        $returns_detail->quantity_issued = $transaction_details['quantity_issued'];
-        $returns_detail->returned_quantity = $transaction_details['returned_quantity'] != "" ? $transaction_details['returned_quantity'] : 0;
-        $returns_detail->amount = $transaction_details['amount'];
-        $returns_detail->status = $transaction_details['status'];
-        $returns_detail->remarks = $transaction_details['remarks'];
-        $returns_detail->created_by = $created_by;
-        $returns_detail->po_no = $transaction_details['po_no'];
-        $returns_detail->pr_no = $transaction_details['pr_no'];
-        $returns_detail->pr_date = $pr_date;
-        $returns_detail->plan_arrival_date = $plan_arrival_date;
+        $retur_mdse_detail = new ReturnMdseDetail;
+        $retur_mdse_detail->return_mdse_id = $return_mdse_id;
+        $retur_mdse_detail->company_id = $company_id;
+        $retur_mdse_detail->inventory_id = $transaction_details['inventory_id'];
+        $retur_mdse_detail->batch_no = $transaction_details['batch_no'];
+        $retur_mdse_detail->sku_id = $transaction_details['sku_id'];
+        $retur_mdse_detail->uom_id = $transaction_details['uom_id'];
+        $retur_mdse_detail->sku_status_id = (trim($transaction_details['sku_status_id']) != "" ? $transaction_details['sku_status_id'] : null);
+        $retur_mdse_detail->source_zone_id = $transaction_details['source_zone_id'];
+        $retur_mdse_detail->unit_price = (trim($transaction_details['unit_price']) != "" ? $transaction_details['unit_price'] : 0);
+        $retur_mdse_detail->expiration_date = (trim($transaction_details['expiration_date']) != "" ? $transaction_details['expiration_date'] : null);
+        $retur_mdse_detail->returned_quantity = $transaction_details['returned_quantity'];
+        $retur_mdse_detail->amount = $transaction_details['amount'];
+        $retur_mdse_detail->remarks = $transaction_details['remarks'];
+        $retur_mdse_detail->created_by = $created_by;
+        $retur_mdse_detail->po_no = $inventory->po_no;
+        $retur_mdse_detail->pr_no = $inventory->pr_no;
+        $retur_mdse_detail->pr_date = $inventory->pr_date;
+        $retur_mdse_detail->plan_arrival_date = $inventory->plan_arrival_date;
 
-        if ($returns_detail->save(false)) {
-
-            ReceivingInventoryDetail::model()->createInventory($returns_detail->company_id, $returns_detail->sku_id, $returns_detail->uom_id, $returns_detail->unit_price, $returns_detail->returned_quantity, $zone_id, $transaction_date, $returns_detail->created_by, $returns_detail->expiration_date, $returns_detail->batch_no, $sku_status_id, $returns_detail->pr_no, $returns_detail->pr_date, $returns_detail->plan_arrival_date, $returns_detail->po_no);
+        if ($retur_mdse_detail->save(false)) {
+            OutgoingInventoryDetail::model()->decreaseInventory($inventory->inventory_id, $retur_mdse_detail->returned_quantity, $transaction_date, $retur_mdse_detail->unit_price, $retur_mdse_detail->created_by, $retur_mdse_detail->remarks);
+            
+            return $retur_mdse_detail;
         } else {
-            return $returns_detail->getErrors();
+            return $retur_mdse_detail->getErrors();
         }
     }
 

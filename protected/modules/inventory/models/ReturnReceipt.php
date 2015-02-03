@@ -47,11 +47,21 @@ class ReturnReceipt extends CActiveRecord {
             array('company_id, return_receipt_no, receive_return_from, receive_return_from_id, reference_dr_no, destination_zone_id, created_by, updated_by', 'length', 'max' => 50),
             array('remarks', 'length', 'max' => 150),
             array('total_amount', 'length', 'max' => 18),
+            array('return_receipt_no', 'uniqueRRNo'),
             array('transaction_date, date_returned, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('return_receipt_id, company_id, return_receipt_no, receive_return_from, receive_return_from_id, reference_dr_no, transaction_date, date_returned, destination_zone_id, remarks, total_amount, created_date, created_by, updated_date, updated_by', 'safe', 'on' => 'search'),
         );
+    }
+
+    public function uniqueRRNo($attribute, $params) {
+
+        $model = ReturnReceipt::model()->findByAttributes(array('company_id' => $this->company_id, 'return_receipt_no' => $this->$attribute));
+        if ($model && $model->return_receipt_id != $this->return_receipt_id) {
+            $this->addError($attribute, 'Return Rceipt Number selected already taken');
+        }
+        return;
     }
 
     public function beforeValidate() {
@@ -134,44 +144,44 @@ class ReturnReceipt extends CActiveRecord {
         switch ($col) {
 
             case 0:
-                $sort_column = 'return_receipt_id';
+                $sort_column = 'return_receipt_no';
                 break;
 
             case 1:
-                $sort_column = 'return_receipt_no';
+                $sort_column = 'transaction_date';
                 break;
 
             case 2:
                 $sort_column = 'receive_return_from';
                 break;
 
-            case 3:
-                $sort_column = 'receive_return_from_id';
-                break;
-
-            case 4:
-                $sort_column = 'reference_dr_no';
-                break;
+//            case 3:
+//                $sort_column = 'receive_return_from_id';
+//                break;
+//
+//            case 4:
+//                $sort_column = 'reference_dr_no';
+//                break;
 
             case 5:
-                $sort_column = 'transaction_date';
+                $sort_column = 'total_amount';
                 break;
 
             case 6:
-                $sort_column = 'date_returned';
+                $sort_column = 'remarks';
                 break;
         }
 
 
         $criteria = new CDbCriteria;
         $criteria->compare('company_id', Yii::app()->user->company_id);
-        $criteria->compare('return_receipt_id', $columns[0]['search']['value']);
-        $criteria->compare('return_receipt_no', $columns[1]['search']['value'], true);
+        $criteria->compare('return_receipt_no', $columns[0]['search']['value']);
+        $criteria->compare('transaction_date', $columns[1]['search']['value'], true);
         $criteria->compare('receive_return_from', $columns[2]['search']['value'], true);
-        $criteria->compare('receive_return_from_id', $columns[3]['search']['value'], true);
-        $criteria->compare('reference_dr_no', $columns[4]['search']['value'], true);
-        $criteria->compare('transaction_date', $columns[5]['search']['value'], true);
-        $criteria->compare('date_returned', $columns[6]['search']['value'], true);
+        $criteria->compare('receive_return_from_id', $columns[3]['search']['value']);
+        $criteria->compare('reference_dr_no', $columns[4]['search']['value']);
+        $criteria->compare('total_amount', $columns[5]['search']['value'], true);
+        $criteria->compare('remarks', $columns[6]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;

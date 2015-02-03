@@ -31,26 +31,32 @@ class ProofOfDeliveryController extends Controller {
             array('allow',
                 'actions' => array('admin'),
                 'expression' => "Yii::app()->user->checkAccess('Manage Proof Of Delivery', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('allow',
                 'actions' => array('create'),
                 'expression' => "Yii::app()->user->checkAccess('Add Proof Of Delivery', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('allow',
                 'actions' => array('view', 'viewPODAttachment'),
                 'expression' => "Yii::app()->user->checkAccess('View Proof Of Delivery', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('allow',
                 'actions' => array('edit'),
                 'expression' => "Yii::app()->user->checkAccess('Edit Proof Of Delivery', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('allow',
                 'actions' => array('delete', 'deletePODDetail', 'deletePODAttachment'),
                 'expression' => "Yii::app()->user->checkAccess('Delete Proof Of Delivery', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('allow',
                 'actions' => array('uploadPODAttachment'),
                 'expression' => "Yii::app()->user->checkAccess('Upload Proof Of Delivery', array('company_id' => Yii::app()->user->company_id))",
+                'users' => array('@'),
             ),
             array('deny', // deny all users
                 'users' => array('*'),
@@ -227,8 +233,9 @@ class ProofOfDeliveryController extends Controller {
         if (Yii::app()->request->isPostRequest) {
             try {
 
-                // delete proof of delivery details by pod_id
-                ProofOfDeliveryDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND pod_id = " . $id);
+                // delete proof of delivery details and attachments by pod_id
+                ProofOfDeliveryAttachment::model()->deleteDetailAndAttachmentByPODID(Yii::app()->user->company_id, $id);
+
                 // we only allow deletion via POST request
                 $this->loadModel($id)->delete();
 
@@ -271,7 +278,13 @@ class ProofOfDeliveryController extends Controller {
         if (Yii::app()->request->isPostRequest) {
             try {
 
-                ProofOfDeliveryDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND pod_detail_id = " . $pod_detail_id);
+                $pod_detail = ProofOfDeliveryDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "pod_detail_id" => $pod_detail_id));
+                if ($pod_detail) {
+                    // delete proof of delivery attachment by pod_id, pod_detail_id
+                    ProofOfDeliveryAttachment::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND pod_id = '" . $pod_detail->pod_id . "' AND pod_detail_id = '" . $pod_detail_id . "'");
+                    // delete proof of delivery details by pod_id, pod_detail_id           
+                    ProofOfDeliveryDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND pod_id = '" . $pod_detail->pod_id . "' AND pod_detail_id = '" . $pod_detail_id . "'");
+                }
 
                 // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
                 if (!isset($_GET['ajax'])) {
@@ -282,7 +295,7 @@ class ProofOfDeliveryController extends Controller {
                     echo "Successfully deleted";
                     exit;
                 }
-            } catch (CDbException $e) {
+            } catch (CDbException $e) {pre($e);
                 if ($e->errorInfo[1] == 1451) {
                     echo "1451";
                     exit;
@@ -392,6 +405,7 @@ class ProofOfDeliveryController extends Controller {
             $pod_status = "";
 
             $output['success'] = false;
+            $output['message'] = "Unable to save";
 
             foreach ($pod_details_arr as $k => $v) {
 
@@ -411,11 +425,16 @@ class ProofOfDeliveryController extends Controller {
 
                         $customer_item_detail = CustomerItemDetail::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "customer_item_detail_id" => $pod_detail->customer_item_detail_id));
 
-                        $customer_item_detail->status = $pod_detail->status;
-                        $customer_item_detail->remarks = $pod_detail->remarks;
-                        $customer_item_detail->updated_by = Yii::app()->user->name;
-                        $customer_item_detail->updated_date = date('Y-m-d H:i:s');
-                        $customer_item_detail->save(false);
+                        if ($customer_item_detail) {
+                            $customer_item_detail->status = $pod_detail->status;
+                            $customer_item_detail->remarks = $pod_detail->remarks;
+                            $customer_item_detail->updated_by = Yii::app()->user->name;
+                            $customer_item_detail->updated_date = date('Y-m-d H:i:s');
+                            if ($customer_item_detail->save()) {
+                                $output['success'] = true;
+                                $output['message'] = "Successfully updated";
+                            }
+                        }
                     }
                 }
             }
@@ -441,12 +460,16 @@ class ProofOfDeliveryController extends Controller {
                 if ($pod->save()) {
 
                     $customer_item = CustomerItem::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "customer_item_id" => $pod->customer_item_id));
-                    $customer_item->status = $pod_status;
-                    $customer_item->updated_by = Yii::app()->user->name;
-                    $customer_item->updated_date = date('Y-m-d H:i:s');
-                    $customer_item->save(false);
 
-                    $output['success'] = true;
+                    if ($customer_item) {
+                        $customer_item->status = $pod_status;
+                        $customer_item->updated_by = Yii::app()->user->name;
+                        $customer_item->updated_date = date('Y-m-d H:i:s');
+                        if ($customer_item->save()) {
+                            $output['success'] = true;
+                            $output['message'] = "Successfully updated";
+                        }
+                    }
                 }
             }
         }

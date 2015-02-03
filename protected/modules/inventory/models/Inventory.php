@@ -374,8 +374,18 @@ class Inventory extends CActiveRecord {
         $criteria->limit = $limit;
         $criteria->offset = $offset;
 
-        $arr = array();
-        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
+        $arr = array();      
+        if (Yii::app()->user->userObj->userType->updated_date == "") {
+
+            $data_first_rem = strstr(Yii::app()->user->userObj->userType->data, '{');
+            $data_last_rem = strstr(strrev($data_first_rem), '}');
+            $final_data = strrev($data_last_rem);
+        } else {
+
+            $final_data = Yii::app()->user->userObj->userType->data;
+        }
+        
+        $unserialize = CJSON::decode($final_data);
         $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
 
         if (!empty($zones)) {
@@ -854,12 +864,12 @@ class Inventory extends CActiveRecord {
     public function checkIfReturnableDRNoIsExists($company_id, $dr_no, $sku_id) {
         
         $c1 = new CDbCriteria;
-        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND sku.sku_id = '" . $sku_id . "' AND incomingInventory.dr_no = '" . $dr_no . "'";
+        $c1->condition = "t.company_id = '" . $company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND sku.sku_id = '" . $sku_id . "' AND incomingInventory.dr_no = '" . $dr_no . "'";
         $c1->with = array('incomingInventory', 'sku');
         $incoming_detail = IncomingInventoryDetail::model()->find($c1);
         
         $c2 = new CDbCriteria;
-        $c2->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND sku.sku_id = '" . $sku_id . "' AND customerItem.dr_no = '" . $dr_no . "'";
+        $c2->condition = "t.company_id = '" . $company_id . "' AND sku.type LIKE '%" . Sku::INFRA . "%' AND sku.sku_id = '" . $sku_id . "' AND customerItem.dr_no = '" . $dr_no . "'";
         $c2->with = array('customerItem', 'sku');
         $outgoing_detail = CustomerItemDetail::model()->find($c2);
        
@@ -902,21 +912,18 @@ class Inventory extends CActiveRecord {
         
     }
     
-    public function getAllRemainingIncomingReturns($company_id) {
+    public function getAllRemainingInboundReturns($company_id) {
         
-        $sql = "SELECT b.*, a.*, c.*, (b.quantity_received - SUM(IFNULL(e.returned_quantity,0))) AS remaining_qty
+        $sql = "SELECT (b.quantity_received - SUM(IFNULL(e.returned_quantity,0))) AS remaining_qty, b.*, a.*, c.*
 	
                 FROM incoming_inventory a
                 INNER JOIN incoming_inventory_detail b ON b.incoming_inventory_id = a.incoming_inventory_id
                 INNER JOIN sku c ON c.sku_id = b.sku_id
                 LEFT JOIN returnable d ON d.reference_dr_no = a.dr_no
                 LEFT JOIN returnable_detail e ON e.returnable_id = d.returnable_id
-                WHERE c.type LIKE '%" . Sku::INFRA . "%' AND (a.dr_no, c.sku_id, b.quantity_received) NOT IN (SELECT a.reference_dr_no, b.sku_id, IFNULL(b.returned_quantity,0) AS remaining_qty
-                                FROM returnable a
-                                INNER JOIN returnable_detail b ON b.returnable_id = a.returnable_id
-                                GROUP BY a.reference_dr_no, b.sku_id)
-                AND b.return_date <= CURDATE() AND a.company_id = :company_id
-                GROUP BY a.dr_no
+                WHERE c.type LIKE '%" . Sku::INFRA . "%'
+                AND b.return_date IS NOT NULL AND a.company_id = :company_id AND b.source_zone_id IN (" . Yii::app()->user->zones . ")
+                GROUP BY a.dr_no, c.sku_id
                 HAVING remaining_qty != 0";
         
         $command = Yii::app()->db->createCommand($sql);
@@ -929,19 +936,38 @@ class Inventory extends CActiveRecord {
     
     public function getAllRemainingOutgoingReturns($company_id) {
         
-        $sql = "SELECT b.*, a.*, c.*, (b.quantity_issued - SUM(IFNULL(e.returned_quantity,0))) AS remaining_qty
+        $sql = "SELECT (b.quantity_issued - SUM(IFNULL(e.returned_quantity,0))) AS remaining_qty, b.*, a.*, c.*
 	
                 FROM customer_item a
                 INNER JOIN customer_item_detail b ON b.customer_item_id = a.customer_item_id
                 INNER JOIN sku c ON c.sku_id = b.sku_id
                 LEFT JOIN returnable d ON d.reference_dr_no = a.dr_no
                 LEFT JOIN returnable_detail e ON e.returnable_id = d.returnable_id
-                WHERE c.type LIKE '%" . Sku::INFRA . "%' AND (a.dr_no, c.sku_id, b.quantity_issued) NOT IN (SELECT a.reference_dr_no, b.sku_id, IFNULL(b.returned_quantity,0) AS remaining_qty
-                                FROM returnable a
-                                INNER JOIN returnable_detail b ON b.returnable_id = a.returnable_id
-                                GROUP BY a.reference_dr_no, b.sku_id)
-                AND b.return_date <= CURDATE() AND a.company_id = :company_id
-                GROUP BY a.dr_no
+                WHERE c.type LIKE '%" . Sku::INFRA . "%'
+                AND b.return_date IS NOT NULL AND a.company_id = :company_id AND b.source_zone_id IN (" . Yii::app()->user->zones . ")
+                GROUP BY a.dr_no, c.sku_id
+                HAVING remaining_qty != 0";
+        
+        $command = Yii::app()->db->createCommand($sql);
+        $command->bindParam(':company_id', $company_id, PDO::PARAM_STR);
+        $data = $command->queryAll();
+            
+        return $data;
+        
+    }
+    
+    public function getAllIncomingReturnsDeliveryByInboundInv($company_id) {
+        
+        $sql = "SELECT (b.quantity_received - SUM(IFNULL(e.returned_quantity, 0))) AS remaining_qty, a.*, b.*, c.*
+
+                FROM incoming_inventory a
+                INNER JOIN incoming_inventory_detail b ON b.incoming_inventory_id = a.incoming_inventory_id
+                INNER JOIN sku c ON c.sku_id = b.sku_id
+                LEFT JOIN return_mdse d ON d.reference_dr_no = a.dr_no
+                LEFT JOIN return_mdse_detail e ON e.return_mdse_id = d.return_mdse_id AND e.sku_id = c.sku_id
+
+                WHERE c.type LIKE '%" . Sku::INFRA . "%' AND a.company_id = :company_id AND b.return_date IS NOT NULL AND a.destination_zone_id IN (" . Yii::app()->user->zones . ")
+                GROUP BY a.dr_no, c.sku_id
                 HAVING remaining_qty != 0";
         
         $command = Yii::app()->db->createCommand($sql);

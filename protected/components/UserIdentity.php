@@ -46,6 +46,8 @@ class UserIdentity extends CUserIdentity {
                 $this->setState('userObj', $user);
                 $this->setState('company_id', $companyObj->company_id);
 
+                Yii::app()->request->cookies['company_name'] = new CHttpCookie('company_name', $companyObj->code);
+               
                 $role = Authitem::model()->findByAttributes(array("name" => $user->user_type_id, 'bizrule' => 'return "' . $user->company_id . '" == $params["company_id"];'));
 
                 if (count($role) > 0) {
@@ -59,7 +61,7 @@ class UserIdentity extends CUserIdentity {
                         $final_data = $role->data;
                     }
                 }
-                
+
                 $unserialize = CJSON::decode(isset($final_data) ? $final_data : "");
                 $so = CJSON::decode(isset($unserialize['so']) ? $unserialize['so'] : "");
                 $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
@@ -78,7 +80,7 @@ class UserIdentity extends CUserIdentity {
                     foreach ($zones as $k1 => $v1) {
                         $zone_id .= "'" . $k1 . "',";
                     }
-                }                
+                }
                 $this->setState('zones', substr($zone_id, 0, -1));
 
                 $brand_ids = "'',";
@@ -88,7 +90,7 @@ class UserIdentity extends CUserIdentity {
                     }
                 }
                 $this->setState('brands', substr($brand_ids, 0, -1));
-                
+
                 $this->_id = $user->user_id;
                 $this->errorCode = self::ERROR_NONE;
 

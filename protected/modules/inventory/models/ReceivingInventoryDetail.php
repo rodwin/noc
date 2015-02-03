@@ -240,7 +240,7 @@ class ReceivingInventoryDetail extends CActiveRecord {
     }
 
     public function createInventory($company_id, $sku_id, $uom_id, $unit_price, $quantity_received, $zone_id, $transaction_date, $created_by, $expiration_date, $reference_no, $sku_status_id, $pr_no, $pr_date, $plan_arrival_date, $po_no, $remarks) {
-
+       
         $sku = Sku::model()->findByAttributes(array("company_id" => $company_id, "sku_id" => $sku_id));
 
         $new_plan_arrival_date = ($plan_arrival_date != "" ? $plan_arrival_date : null);
@@ -266,7 +266,7 @@ class ReceivingInventoryDetail extends CActiveRecord {
         $create_inventory->pr_date = $new_pr_date;
         $create_inventory->plan_arrival_date = $new_plan_arrival_date;
         $create_inventory->remarks = $remarks;
-
+        
         if ($create_inventory->create(false)) {
             return true;
         } else {

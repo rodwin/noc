@@ -26,11 +26,8 @@
 class Returnable extends CActiveRecord {
 
     public $search_string;
-    public $receive_return_from_div_id;
 
     const RETURNABLE_LABEL = "RETURNABLE";
-//    const RETURN_RECEIPT = "RETURN RECEIPT";
-    const RETURN_MDSE = "RETURN MDSE";
 
     /**
      * @return string the associated database table name
@@ -50,11 +47,21 @@ class Returnable extends CActiveRecord {
             array('company_id, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, destination_zone_id, created_by, updated_by, status', 'length', 'max' => 50),
             array('remarks', 'length', 'max' => 150),
             array('total_amount', 'length', 'max' => 18),
+            array('return_receipt_no', 'uniqueRRNo'),
             array('transaction_date, date_returned, updated_date', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
             array('returnable_id, company_id, return_receipt_no, reference_dr_no, receive_return_from, receive_return_from_id, transaction_date, date_returned, destination_zone_id, remarks, total_amount, created_date, created_by, updated_date, updated_by, status', 'safe', 'on' => 'search'),
         );
+    }
+
+    public function uniqueRRNo($attribute, $params) {
+
+        $model = Returnable::model()->findByAttributes(array('company_id' => $this->company_id, 'return_receipt_no' => $this->$attribute));
+        if ($model && $model->returnable_id != $this->returnable_id) {
+            $this->addError($attribute, 'Return Receipt Number selected already taken');
+        }
+        return;
     }
 
     public function beforeValidate() {
@@ -140,44 +147,45 @@ class Returnable extends CActiveRecord {
         switch ($col) {
 
             case 0:
-                $sort_column = 'returnable_id';
-                break;
-
-            case 1:
-                $sort_column = 'return_type';
-                break;
-
-            case 2:
                 $sort_column = 'return_receipt_no';
                 break;
 
-            case 3:
-                $sort_column = 'reference_dr_no';
+            case 1:
+                $sort_column = 'transaction_date';
                 break;
 
-            case 4:
+            case 2:
                 $sort_column = 'receive_return_from';
                 break;
 
             case 5:
-                $sort_column = 'receive_return_from_id';
+                $sort_column = 'status';
                 break;
 
+//            case 4:
+//                $sort_column = 'receive_return_from';
+//                break;
+
             case 6:
-                $sort_column = 'transaction_date';
+                $sort_column = 'total_amount';
+                break;
+
+            case 7:
+                $sort_column = 'remarks';
                 break;
         }
 
 
         $criteria = new CDbCriteria;
         $criteria->compare('company_id', Yii::app()->user->company_id);
-        $criteria->compare('returnable_id', $columns[0]['search']['value']);
-        $criteria->compare('return_type', $columns[1]['search']['value'], true);
-        $criteria->compare('return_receipt_no', $columns[2]['search']['value'], true);
-        $criteria->compare('reference_dr_no', $columns[3]['search']['value'], true);
-        $criteria->compare('receive_return_from', $columns[4]['search']['value'], true);
-        $criteria->compare('receive_return_from_id', $columns[5]['search']['value'], true);
-        $criteria->compare('transaction_date', $columns[6]['search']['value'], true);
+        $criteria->compare('return_receipt_no', $columns[0]['search']['value']);
+        $criteria->compare('transaction_date', $columns[1]['search']['value'], true);
+        $criteria->compare('receive_return_from', $columns[2]['search']['value'], true);
+        $criteria->compare('reference_dr_no', $columns[3]['search']['value']);
+        $criteria->compare('receive_return_from', $columns[4]['search']['value']);
+        $criteria->compare('status', $columns[5]['search']['value'], true);
+        $criteria->compare('total_amount', $columns[6]['search']['value'], true);
+        $criteria->compare('remarks', $columns[7]['search']['value'], true);
         $criteria->order = "$sort_column $order_dir";
         $criteria->limit = $limit;
         $criteria->offset = $offset;
@@ -369,9 +377,11 @@ class Returnable extends CActiveRecord {
 
         $status = "";
         if (date("Y-m-d", strtotime($date)) < date("Y-m-d")) {
-            $status = "OVER DUE";
+            $status = '<span class="label label-danger">OVER DUE</span>';
         } else if (date("Y-m-d", strtotime($date)) == date("Y-m-d")) {
-            $status = "DUE DATE";
+            $status = '<span class="label label-success">DUE DATE</span>';
+        } else {
+            $status = '<span class="label label-warning">ON LOAN</span>';
         }
 
         return $status;
@@ -520,19 +530,41 @@ class Returnable extends CActiveRecord {
             
             $model->receive_return_from = $source_arr[1]['value'];
             $model->receive_return_from_id = $employee->employee_id;
-            $model->receive_return_from_div_id = $source_arr[1]['id'];
         } else if ($zone) {
             
             $model->receive_return_from = $source_arr[0]['value'];
             $model->receive_return_from_id = $zone->salesOffice->sales_office_id;
-            $model->receive_return_from_div_id = $source_arr[0]['id'];
         } else if ($poi) {
             
             $model->receive_return_from = $source_arr[2]['value'];
             $model->receive_return_from_id = $poi->poi_id;
-            $model->receive_return_from_div_id = $source_arr[2]['id'];
         }
         
+        return $data;
+    }
+
+    public function getReturnFromID($model, $key, $return_label, $post_data) {
+
+        $source_arr = Returnable::model()->getListReturnFrom();
+        $data = array();
+
+        if ($key == $source_arr[0]['value']) {
+
+            if ($post_data[$return_label . $source_arr[0]['id']] != "") {
+                $data['id'] = $post_data[$return_label . $source_arr[0]['id']];
+            }
+        } else if ($key == $source_arr[1]['value']) {
+
+            if ($post_data[$return_label . $source_arr[1]['id']] != "") {
+                $data['id'] = $post_data[$return_label . $source_arr[1]['id']];
+            }
+        } else {
+
+            if ($post_data[$return_label . $source_arr[2]['id']] != "") {
+                $data['id'] = $post_data[$return_label . $source_arr[2]['id']];
+            }
+        }
+
         return $data;
     }
 

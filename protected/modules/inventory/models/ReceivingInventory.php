@@ -49,7 +49,7 @@ class ReceivingInventory extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('company_id, requestor, dr_no, transaction_date', 'required'),
+            array('company_id, dr_no, transaction_date', 'required'),
             array('company_id, campaign_no, pr_no, dr_no, requestor, supplier_id, sales_office_id, zone_id, delivery_remarks, created_by, updated_by, po_no, rra_no', 'length', 'max' => 50),
             array('total_amount', 'length', 'max' => 18),
             array('pr_date, plan_delivery_date, revised_delivery_date, plan_arrival_date, transaction_date, dr_date, po_date, rra_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
@@ -288,8 +288,18 @@ class ReceivingInventory extends CActiveRecord {
         $criteria->offset = $offset;
         $criteria->with = array("supplier", "employee", "zone");
 
-        $arr = array();
-        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
+        $arr = array();       
+        if (Yii::app()->user->userObj->userType->updated_date == "") {
+
+            $data_first_rem = strstr(Yii::app()->user->userObj->userType->data, '{');
+            $data_last_rem = strstr(strrev($data_first_rem), '}');
+            $final_data = strrev($data_last_rem);
+        } else {
+
+            $final_data = Yii::app()->user->userObj->userType->data;
+        }
+        
+        $unserialize = CJSON::decode($final_data);
         $zones = CJSON::decode(isset($unserialize['zone']) ? $unserialize['zone'] : "");
 
         if (!empty($zones)) {
@@ -357,12 +367,24 @@ class ReceivingInventory extends CActiveRecord {
         $criteria->offset = $offset;
         $criteria->with = array('brand', 'company', 'defaultUom', 'defaultZone');
 
-        $arr = array();
-        $unserialize = CJSON::decode(Yii::app()->user->userObj->userType->data);
-        $brands = CJSON::decode(isset($unserialize['brand']) ? $unserialize['brand'] : "");
+        $arr = array();        
+        if (Yii::app()->user->userObj->userType->updated_date == "") {
 
-        foreach ($brands as $key => $val) {
-            $arr[] = $key;
+            $data_first_rem = strstr(Yii::app()->user->userObj->userType->data, '{');
+            $data_last_rem = strstr(strrev($data_first_rem), '}');
+            $final_data = strrev($data_last_rem);
+        } else {
+
+            $final_data = Yii::app()->user->userObj->userType->data;
+        }
+        
+        $unserialize = CJSON::decode($final_data);
+        $brands = CJSON::decode(isset($unserialize['brand']) ? $unserialize['brand'] : "");
+        
+        if (count($brands) > 0) {
+            foreach ($brands as $key => $val) {
+                $arr[] = $key;
+            }
         }
 
         $criteria->addInCondition('t.brand_id', $arr);

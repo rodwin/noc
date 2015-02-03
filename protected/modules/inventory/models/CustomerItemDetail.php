@@ -270,8 +270,10 @@ class CustomerItemDetail extends CActiveRecord {
         $customer_item_transaction_detail->revised_delivery_date = $inventory->revised_delivery_date;
 
         if ($customer_item_transaction_detail->save(false)) {
-            Yii::app()->session['customer_item_detail_ids'] = $customer_item_transaction_detail->customer_item_detail_id;
-            $this->decreaseInventory($customer_item_transaction_detail->inventory_id, $customer_item_transaction_detail->quantity_issued, $transaction_date, $customer_item_transaction_detail->unit_price, $customer_item_transaction_detail->created_by);
+
+            $this->decreaseInventory($customer_item_transaction_detail->inventory_id, $customer_item_transaction_detail->quantity_issued, $transaction_date, $customer_item_transaction_detail->unit_price, $customer_item_transaction_detail->created_by, $customer_item_transaction_detail->remarks);
+
+            return $customer_item_transaction_detail;
         } else {
             return $customer_item_transaction_detail->getErrors();
         }

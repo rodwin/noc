@@ -405,6 +405,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th><?php echo $incomingDetailFields['batch_no']; ?></th>
                         <th><?php echo $incomingDetailFields['expiration_date']; ?></th>
                         <th><?php echo $incomingDetailFields['planned_quantity']; ?></th>
+                        <th><?php echo "Remaining Quantity"; ?></th>
                         <th><?php echo $incomingDetailFields['quantity_received']; ?> <span title="Click green cell to edit" data-toggle="tooltip" data-original-title=""><i class="fa fa-fw fa-info-circle"></i></span></th>
                         <th class="hide_row"><?php echo $incomingDetailFields['uom_id']; ?></th>
                         <th class="hide_row"><?php echo $incomingDetailFields['uom_id']; ?></th>
@@ -418,6 +419,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         <th class="hide_row"><?php echo $incomingDetailFields['source_zone_id']; ?></th>
                         <th class="hide_row">Outgoing Inventory</th>
                         <th><?php echo $incomingDetailFields['status']; ?></th>
+                        <th class="hide_row"><?php echo $incomingDetailFields['incoming_inventory_detail_id']; ?></th>
                     </tr>  
                 </thead>
             </table>
@@ -498,6 +500,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     var details = "details";
     var print = "print";
     var total_amount = 0;
+    var updated_inbound_transaction = false;
+    var incoming_inventory_id_for_update = "";
     $(function() {
 
         $("[data-mask]").inputmask();
@@ -555,14 +559,14 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             "serverSide": false,
             "bAutoWidth": false,
             "columnDefs": [{
-                    "targets": [1, 10, 11, 12, 13, 16, 17, 18, 19, 20],
+                    "targets": [1, 11, 12, 13, 14, 17, 18, 19, 20, 21, 23],
                     "visible": false
                 }],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 //                $('td:eq(8), td:eq(10)', nRow).addClass("success");
 
-                var added_status_row_value = aData[21];
-                var status_pos_col = 21;
+                var added_status_row_value = aData[22];
+                var status_pos_col = 22;
 
                 var pos = transaction_table.fnGetPosition(nRow);
 
@@ -630,9 +634,16 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         if ($(".submit_butt").is("[disabled=disabled]")) {
             return false;
         } else {
+            
+            if (updated_inbound_transaction === true) {
+                var url = "<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/update'); ?>" + "&id=" + incoming_inventory_id_for_update;
+            } else {
+                var url = "<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/create'); ?>";
+            }
+            
             $.ajax({
                 type: 'POST',
-                url: '<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/create'); ?>',
+                url: url,
                 data: data,
                 dataType: "json",
                 beforeSend: function(data) {
@@ -700,6 +711,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     data.details.batch_no,
                     data.details.expiration_date,
                     data.details.planned_quantity,
+                    "",
                     data.details.quantity_received,
                     data.details.uom_id,
                     "",
@@ -713,6 +725,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                     "",
                     "",
                     data.details.status,
+                    "",
                 ]);
 
                 //                $.editable.addInputType('numberOnly', {
@@ -838,16 +851,17 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 "batch_no": row_data[6],
                 "expiration_date": row_data[7],
                 "planned_quantity": row_data[8],
-                "quantity_received": row_data[9],
-                "uom_id": row_data[10],
-                "sku_status_id": row_data[12],
-                "amount": row_data[14],
-                "remarks": row_data[15],
-                "return_date": row_data[16],
-                "inventory_id": row_data[17],
-                "source_zone_id": row_data[18],
-                "outgoing_inventory_detail_id": row_data[20],
+                "quantity_received": row_data[10],
+                "uom_id": row_data[11],
+                "sku_status_id": row_data[13],
+                "amount": row_data[15],
+                "remarks": row_data[16],
+                "return_date": row_data[17],
+                "inventory_id": row_data[18],
+                "source_zone_id": row_data[19],
+                "outgoing_inventory_detail_id": row_data[21],
                 "status": status,
+                "incoming_inventory_detail_id": row_data[23],
             });
         }
 
@@ -931,7 +945,15 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             url: '<?php echo Yii::app()->createUrl('/inventory/IncomingInventory/loadAllOutgoingTransactionDetailsByDRNo'); ?>' + '&dr_no=' + this.value,
             dataType: "json",
             success: function(data) {
-
+                
+                if (data.for_update === true) {
+                    updated_inbound_transaction = true;
+                } else {
+                    updated_inbound_transaction = false;
+                }
+                
+                incoming_inventory_id_for_update = data.headers.incoming_inventory_id;
+                
                 var oSettings = transaction_table.fnSettings();
                 var iTotalRecords = oSettings.fnRecordsTotal();
                 for (var i = 0; i <= iTotalRecords; i++) {
@@ -970,6 +992,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             v.batch_no,
                             v.expiration_date,
                             v.planned_quantity,
+                            v.remaining_qty,
                             v.quantity_received,
                             v.uom_id,
                             "",
@@ -983,10 +1006,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             "",
                             v.outgoing_inventory_detail_id,
                             v.status,
+                            v.incoming_inventory_detail_id,
                         ]);
 
                         var nTr = transaction_table.fnSettings().aoData[addedRow[0]].nTr;
-                        $('td:eq(8), td:eq(10)', nTr).addClass("success");
+                        $('td:eq(9), td:eq(11)', nTr).addClass("success");
 
                         $.editable.addInputType('numberOnly', {
                             element: $.editable.types.text.element,
@@ -998,11 +1022,11 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                         });
 
                         var oSettings = transaction_table.fnSettings();
-                        $('td:eq(8)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
+                        $('td:eq(9)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
                             var pos = transaction_table.fnGetPosition(this);
                             var rowData = transaction_table.fnGetData(pos);
-                            var planned_qty = parseInt(rowData[8]);
-                            var status_pos_col = 21;
+                            var planned_qty = parseInt(rowData[9]);
+                            var status_pos_col = 22;
 
                             if (parseInt(value) == planned_qty) {
                                 transaction_table.fnUpdate(<?php echo "'" . OutgoingInventory::OUTGOING_COMPLETE_STATUS . "'"; ?>, pos[0], status_pos_col);
@@ -1025,7 +1049,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                             height: "30px"
                         });
 
-                        $('td:eq(10)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
+                        $('td:eq(11)', oSettings.aoData[addedRow[0]].nTr).editable(function(value, settings) {
                             var pos = transaction_table.fnGetPosition(this);
                             transaction_table.fnUpdate(value, pos[0], pos[2]);
                         }, {
@@ -1079,7 +1103,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         for (var i = 0; i < aTrs.length; i++) {
             $(aTrs[i]).find('input:checkbox:checked').each(function() {
                 var row_data = transaction_table.fnGetData(aTrs[i]);
-                total_amount = (parseFloat(total_amount) - parseFloat(row_data[14]));
+                total_amount = (parseFloat(total_amount) - parseFloat(row_data[15]));
                 $("#IncomingInventory_total_amount").val(parseFloat(total_amount).toFixed(2));
 
                 transaction_table.fnDeleteRow(aTrs[i]);

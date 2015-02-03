@@ -762,7 +762,7 @@ $this->breadcrumbs = array(
                 success: function(data) {
 
                     if (data.success === true) {
-                        $.growl("Successfully updated", {
+                        $.growl(data.message, {
                             icon: 'glyphicon glyphicon-warning-sign',
                             type: 'success'
                         });
@@ -770,7 +770,7 @@ $this->breadcrumbs = array(
                         loadPODAttachment(selected_pod_id);
                         proof_of_delivery_table.fnMultiFilter();
                     } else {
-                        $.growl("Unable to save", {
+                        $.growl(data.message, {
                             icon: 'glyphicon glyphicon-info-sign',
                             type: 'danger'
                         });

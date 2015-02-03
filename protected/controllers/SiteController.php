@@ -201,6 +201,9 @@ class SiteController extends Controller {
 //                $this->redirect(array(Yii::app()->params['company_modules'][Yii::app()->user->company_id]['dashboard']));
             }
         }
+        
+        $model->company = isset(Yii::app()->request->cookies["company_name"]->value) ? Yii::app()->request->cookies["company_name"]->value : "";
+                
         // display the login form
         $this->render('login', array('model' => $model));
     }

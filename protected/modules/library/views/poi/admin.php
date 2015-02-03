@@ -53,15 +53,17 @@ return false;
          <tr>
              <!--<th><?php echo $fields['poi_id']; ?></th>-->
             <th><?php echo $fields['short_name']; ?></th>
-            <th><?php echo $fields['long_name']; ?></th>
             <th><?php echo $fields['primary_code']; ?></th>
             <th><?php echo $fields['secondary_code']; ?></th>
-            <th><?php echo $fields['poi_category_id']; ?></th>
-            <th><?php echo $fields['poi_sub_category_id']; ?></th>
-            <th><?php echo $fields['barangay_id']; ?></th>
-            <th><?php echo $fields['municipal_id']; ?></th>
-            <th><?php echo $fields['province_id']; ?></th>
-            <th><?php echo $fields['region_id']; ?></th>
+            <th><?php echo $fields['address1']; ?></th>
+            <th><?php echo $fields['address2']; ?></th>
+            <!--<th><?php echo $fields['secondary_code']; ?></th>-->
+            <!--<th><?php echo $fields['poi_category_id']; ?></th>-->
+            <!--<th><?php echo $fields['poi_sub_category_id']; ?></th>-->
+            <!--<th><?php echo $fields['barangay_id']; ?></th>-->
+            <!--<th><?php echo $fields['municipal_id']; ?></th>-->
+            <!--<th><?php echo $fields['province_id']; ?></th>-->
+            <!--<th><?php echo $fields['region_id']; ?></th>-->
             <th>Actions</th>
 
          </tr>
@@ -81,15 +83,17 @@ return false;
          "columns": [
             //                { "name": "poi_id","data": "poi_id"},
             {"name": "short_name", "data": "short_name"},
-            {"name": "long_name", "data": "long_name"},
             {"name": "primary_code", "data": "primary_code"},
             {"name": "secondary_code", "data": "secondary_code"},
-            {"name": "poi_category_name", "data": "poi_category_name"},
-            {"name": "poi_sub_category_name", "data": "poi_sub_category_name"},
-            {"name": "barangay_name", "data": "barangay_name"},
-            {"name": "municipal_name", "data": "municipal_name"},
-            {"name": "province_name", "data": "province_name"},
-            {"name": "region_name", "data": "region_name"},
+            {"name": "address1", "data": "address1"},
+            {"name": "address2", "data": "address2"},
+//            {"name": "secondary_code", "data": "secondary_code"},
+//            {"name": "poi_category_name", "data": "poi_category_name"},
+//            {"name": "poi_sub_category_name", "data": "poi_sub_category_name"},
+//            {"name": "barangay_name", "data": "barangay_name"},
+//            {"name": "municipal_name", "data": "municipal_name"},
+//            {"name": "province_name", "data": "province_name"},
+//            {"name": "region_name", "data": "region_name"},
             {"name": "links", "data": "links", 'sortable': false}
          ]
       });

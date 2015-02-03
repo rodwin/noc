@@ -24,6 +24,7 @@ class ConvertInventoryForm extends CFormModel {
             array('new_uom_id', 'required', 'message' => 'Unit of Measure is required.'),
             array('remarks', 'length', 'max' => 200),
             array('inventory_id', 'isValidInventoryId'),
+            array('qty', 'isValidQty'),
             array('transaction_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('qty, equivalent_qty', 'numerical', 'integerOnly' => true, 'max' => 9999999, 'min' => 0),
         );
@@ -36,6 +37,17 @@ class ConvertInventoryForm extends CFormModel {
             $this->addError($attribute, 'Inventory id is invalid');
         } else {
             $this->inventoryObj = $model;
+        }
+
+        return;
+    }
+
+    public function isValidQty($attribute) {
+
+        if (ctype_digit($this->$attribute)) {            
+            if ($this->$attribute > $this->inventoryObj->qty) {
+                $this->addError($attribute, 'Quantity is greater than inventory on hand');
+            }
         }
 
         return;

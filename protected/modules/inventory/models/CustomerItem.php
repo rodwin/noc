@@ -351,7 +351,7 @@ class CustomerItem extends CActiveRecord {
 
             $customer_item->attributes = $customer_item_data;
 
-         if (count($transaction_details) > 0) {
+         if (count($transaction_details) > 0) { 
             if ($customer_item->save(false)) {
                Yii::app()->session['customer_item_id_create_session'] = $customer_item->customer_item_id;
 
@@ -360,16 +360,17 @@ class CustomerItem extends CActiveRecord {
                $customer_item_detail_id_arr = array();
                for ($i = 0; $i < count($transaction_details); $i++) {
                   unset(Yii::app()->session['customer_item_detail_ids']);
-                  CustomerItemDetail::model()->createCustomerItemTransactionDetails($customer_item->customer_item_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $customer_item->transaction_date);
+                 $customer_item_detail = CustomerItemDetail::model()->createCustomerItemTransactionDetails($customer_item->customer_item_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $customer_item->transaction_date);
 
                         $customer_item_details[] = $customer_item_detail;
                     }
 
-                    ProofOfDelivery::model()->customerData($customer_item, $customer_item_details);
-
+                   $pod = ProofOfDelivery::model()->customerData($customer_item, $customer_item_details);
+                    
                     $data['success'] = true;
                     $data['header_data'] = $customer_item;
                     $data['detail_data'] = $customer_item_details;
+                    $data['pod_data'] = $pod;
                 }
             }
         } catch (Exception $exc) {

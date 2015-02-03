@@ -232,7 +232,7 @@ class CreateInventoryForm extends CFormModel {
                     'pr_no' => $this->pr_no,
                     'pr_date' => $this->pr_date,
                     'plan_arrival_date' => $this->plan_arrival_date,
-//                    'revised_delivery_date' => $this->revised_delivery_date,
+                    'reference_no' => $this->unique_tag,
                 )
         );
 

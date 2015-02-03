@@ -23,6 +23,7 @@ class UpdateStatusInventoryForm extends CFormModel {
             array('remarks', 'length', 'max' => 200),
             array('inventory_id', 'isValidInventoryId'),
             array('status_id', 'isValidStatus'),
+            array('qty', 'isValidQty'),
             array('transaction_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('qty', 'numerical', 'integerOnly' => true, 'max' => 9999999, 'min' => 0),
         );
@@ -49,6 +50,17 @@ class UpdateStatusInventoryForm extends CFormModel {
 
         if (!Validator::isResultSetWithRows($model)) {
             $this->addError($attribute, 'Status is invalid');
+        }
+
+        return;
+    }
+
+    public function isValidQty($attribute) {
+
+        if (ctype_digit($this->$attribute)) {            
+            if ($this->$attribute > $this->inventoryObj->qty) {
+                $this->addError($attribute, 'Quantity is greater than inventory on hand');
+            }
         }
 
         return;

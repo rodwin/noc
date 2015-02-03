@@ -28,6 +28,12 @@
 class OutgoingInventoryDetail extends CActiveRecord {
 
     /**
+     * @var string outgoing_inventory_detail_id
+     * @soap
+     */
+    public $outgoing_inventory_detail_id;
+
+    /**
      * @var string batch_no
      * @soap
      */
@@ -87,6 +93,24 @@ class OutgoingInventoryDetail extends CActiveRecord {
      * @soap
      */
     public $uom_id;
+    
+    /**
+     * @var string pr_no
+     * @soap
+     */
+    public $pr_no;
+    
+    /**
+     * @var string pr_date
+     * @soap
+     */
+    public $pr_date;
+    
+    /**
+     * @var string plan_arrival_date
+     * @soap
+     */
+    public $plan_arrival_date;
 
     /**
      * @var Sku[] sku_obj

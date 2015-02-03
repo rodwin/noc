@@ -101,8 +101,6 @@ class SkuController extends Controller {
             "data" => array()
         );
 
-
-
         foreach ($dataProvider->getData() as $key => $value) {
             $row = array();
             $row['sku_id'] = $value->sku_id;
@@ -126,6 +124,10 @@ class SkuController extends Controller {
             $row['updated_by'] = $value->updated_by;
             $row['low_qty_threshold'] = $value->low_qty_threshold;
             $row['high_qty_threshold'] = $value->high_qty_threshold;
+
+            $sku_image = SkuImage::model()->loadSKULatestTaggedPictureBySKUID(Yii::app()->user->company_id, $value->sku_id);
+
+            $row['image'] = isset($sku_image->url) ? CHtml::image($sku_image->url, "Image", array("width" => 100)) : CHtml::image('images' . DIRECTORY_SEPARATOR . "no-image-thumb.jpg", "Image", array("width" => 100));
 
 
             $row['links'] = '<a class="view" title="View" data-toggle="tooltip" href="' . $this->createUrl('/library/sku/view', array('id' => $value->sku_id)) . '" data-original-title="View"><i class="fa fa-eye"></i></a>'
@@ -463,6 +465,9 @@ class SkuController extends Controller {
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
         $sku_imgs_dp = new CActiveDataProvider('SkuImage', array(
             'criteria' => $criteria,
+            'sort' => array(
+                'defaultOrder' => 't.created_date',
+            ),
             'pagination' => array('pageSize' => 3),
         ));
 
@@ -559,6 +564,9 @@ class SkuController extends Controller {
         $criteria->compare('t.company_id', Yii::app()->user->company_id);
         $sku_imgs_dp = new CActiveDataProvider('SkuImage', array(
             'criteria' => $criteria,
+            'sort' => array(
+                'defaultOrder' => 't.created_date',
+            ),
             'pagination' => array('pageSize' => 3),
         ));
 

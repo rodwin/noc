@@ -171,11 +171,11 @@ class EmployeeController extends Controller {
 
         $employee_status = CHtml::listData(EmployeeStatus::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'employee_status_code ASC')), 'employee_status_id', 'employee_status_code');
         $employee_type = CHtml::listData(EmployeeType::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'employee_type_code ASC')), 'employee_type_id', 'employee_type_code');
-        $sales_office = CHtml::listData(SalesOffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
+        $sales_office = CHtml::listData(SalesOffice::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '" AND sales_office_id in (' . Yii::app()->user->salesoffices . ')', 'order' => 'sales_office_name ASC')), 'sales_office_id', 'sales_office_name');
 
         $criteria = new CDbCriteria;
         $criteria->select = new CDbExpression('t.*, CONCAT(t.first_name, " ", t.last_name) AS fullname');
-        $criteria->condition = 'company_id = "' . Yii::app()->user->company_id . '"';
+        $criteria->condition = 'company_id = "' . Yii::app()->user->company_id . '" AND sales_office_id IN (' . Yii::app()->user->salesoffices . ')';
         $criteria->order = 'employee_code ASC';
         $supervisor = CHtml::listData(Employee::model()->findAll($criteria), 'employee_id', 'fullname');
 

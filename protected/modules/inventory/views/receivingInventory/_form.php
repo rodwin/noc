@@ -41,7 +41,7 @@
 
    <div class="span5 fileupload-progress fade">
       <!-- The global progress bar -->
-      <div class="progress progress-success progress-striped active" role="progressbar">
+      <div class="progress progress-success progress-striped active" role="progressbar" style="display: none;">
          <div class="bar" style="width:0;"></div>
       </div>
       <!-- The extended global progress information -->
