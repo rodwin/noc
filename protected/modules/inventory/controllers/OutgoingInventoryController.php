@@ -1817,7 +1817,7 @@ class OutgoingInventoryController extends Controller {
 
     ////start of sending of dr report
     public function actionSendDR($id, $dr_no, $zone_id, $date_created, $date_pushed, $process) {
-        $sql = "SELECT gcm_regid FROM noc.gcm_users a INNER JOIN noc.employee b ON a.employee_id = b.employee_id
+        $sql = "SELECT gcm_regid FROM gcm_users a INNER JOIN employee b ON a.employee_id = b.employee_id
               WHERE b.company_id = '" . Yii::app()->user->company_id . "' AND b.default_zone_id = '" . $zone_id . "'";
         $command = Yii::app()->db->createCommand($sql);
         $gcm_reg_id = $command->queryAll();
