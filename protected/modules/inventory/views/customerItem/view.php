@@ -18,7 +18,7 @@ $this->breadcrumbs = array(
     .first_col_right_table { width: 150px; } 
 
     .text_bold { font-weight: bold; }
-    
+
     sup { font-weight: bold; }
 
     #progress_bar_col { display: none; }  

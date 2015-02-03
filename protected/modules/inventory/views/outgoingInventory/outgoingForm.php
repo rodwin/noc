@@ -505,6 +505,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             </div>
             <div class="clearfix" style="margin-top: 3px;">
                 <button id="addEmailRecipient" class="btn btn-info btn-flat btn-sm add_field_button pull-right submit_butt" type="button">Add Field</button>
+
             </div>
         </div>
 
@@ -724,6 +725,7 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 "value": $(this).val()
             });
         });
+
         if (emails.length == 0) {
             emails_empty = true;
         }

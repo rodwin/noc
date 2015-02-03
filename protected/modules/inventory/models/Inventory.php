@@ -720,6 +720,7 @@ class Inventory extends CActiveRecord {
                                 'zone_id' => isset($zone->zone_id) ? $zone->zone_id : null,
                                 'sku_status_id' => isset($sku_status->sku_status_id) ? $sku_status->sku_status_id : null,
                                 'expiration_date' => trim($val[$required_headers['expiration_date']]) != "" ? trim($val[$required_headers['expiration_date']]) : null,
+                                'reference_no' => trim($val[$required_headers['reference_no']]),
                                 'po_no' => trim($val[$required_headers['po_no']]),
                                 'pr_no' => trim($val[$required_headers['pr_no']]),
                                 'pr_date' => trim($val[$required_headers['pr_date']]) != "" ? trim($val[$required_headers['pr_date']]) : null,
@@ -765,7 +766,7 @@ class Inventory extends CActiveRecord {
                                     } else if ($decrease === true) {
                                         InventoryHistory::model()->createHistory($model->company_id, $model->inventory_id, $model->transaction_date, "-" . $new_qty, $qty, Inventory::INVENTORY_ACTION_TYPE_DECREASE, $model->cost_per_unit, $model->created_by, $model->zone_id, "");
                                     } else {
-                                        InventoryHistory::model()->createHistory($model->company_id, $model->inventory_id, $model->transaction_date, $new_qty, 0, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $model->cost_per_unit, $model->created_by, $model->zone_id, "");
+                                        InventoryHistory::model()->createHistory($model->company_id, $model->inventory_id, $model->transaction_date, $new_qty, $qty, Inventory::INVENTORY_ACTION_TYPE_INCREASE, $model->cost_per_unit, $model->created_by, $model->zone_id, "");
                                     }
                                 }
 

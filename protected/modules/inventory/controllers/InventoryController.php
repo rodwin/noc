@@ -26,7 +26,7 @@ class InventoryController extends Controller {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
                 'actions' => array('index', 'view', 'trans', 'test', 'increase', 'history', 'decrease', 'convert', 'move', 'updateStatus', 'apply', 'loadTotalInventoryPerMonth',
-                    'loadTotalInventoryPerMonthByBrandCategoryID', 'loadNotifications', 'loadAllTransactionInv', 'generateTemplate', 'uploadDetails'),
+                    'loadTotalInventoryPerMonthByBrandCategoryID', 'loadNotifications', 'loadAllTransactionInv', 'generateTemplate', 'uploadDetails', 'loadAllReturns'),
                 'users' => array('@'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -846,13 +846,6 @@ class InventoryController extends Controller {
                 $incoming_source_zones .= "<sup>" . $i++ . ".</sup> " . $inc_source_zone->zone_name . "<br/>";
             }
 
-            if (!in_array($incoming_details->source_zone_id, $incoming_source_zones_arr)) {
-                array_push($incoming_source_zones_arr, $incoming_details->source_zone_id);
-
-                $inc_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $incoming_details->source_zone_id));
-                $incoming_source_zones .= "<sup>" . $i++ . ".</sup> " . $inc_source_zone->zone_name . "<br/>";
-            }
-
             $row['transaction_date'] = date("d-M", strtotime($v2->transaction_date));
             $row['transaction_type'] = strtoupper(IncomingInventory::INCOMING_LABEL);
             $row['pr_no'] = $incoming_pr_nos != "" ? substr(trim($incoming_pr_nos), 0, -1) : "";
@@ -904,14 +897,7 @@ class InventoryController extends Controller {
                 if (!in_array($outbound_details->pr_no, $outbound_pr_nos_arr)) {
                     array_push($outbound_pr_nos_arr, $outbound_details->pr_no);
                     $outbound_pr_nos .= $outbound_details->pr_no . ", ";
-                } 
-            }
-
-            if (!in_array($outbound_details->source_zone_id, $outbound_source_zones_arr)) {
-                array_push($outbound_source_zones_arr, $outbound_details->source_zone_id);
-
-                $out_source_zone = Zone::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "zone_id" => $outbound_details->source_zone_id));
-                $outbound_source_zones .= "<sup>" . $i++ . ".</sup> " . $out_source_zone->zone_name . "<br/>";
+                }
             }
 
             if (!in_array($outbound_details->source_zone_id, $outbound_source_zones_arr)) {
@@ -1094,7 +1080,6 @@ class InventoryController extends Controller {
 
         $this->render('upload_details', array('model' => $model, 'uploads' => $uploads));
     }
-
 
     public function actionLoadAllReturns() {
 

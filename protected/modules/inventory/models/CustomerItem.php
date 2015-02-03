@@ -209,8 +209,8 @@ class CustomerItem extends CActiveRecord {
         $criteria->compare('updated_by', $this->updated_by, true);
 
         return new CActiveDataProvider($this, array(
-            'criteria' => $criteria,
-        ));
+                    'criteria' => $criteria,
+                ));
     }
 
     public function data($col, $order_dir, $limit, $offset, $columns) {
@@ -299,9 +299,9 @@ class CustomerItem extends CActiveRecord {
         $criteria->addInCondition('t.customer_item_id', $customer_item_id_arr);
 
         return new CActiveDataProvider($this, array(
-            'criteria' => $criteria,
-            'pagination' => false,
-        ));
+                    'criteria' => $criteria,
+                    'pagination' => false,
+                ));
     }
 
     /**
@@ -351,22 +351,18 @@ class CustomerItem extends CActiveRecord {
 
             $customer_item->attributes = $customer_item_data;
 
-         if (count($transaction_details) > 0) { 
-            if ($customer_item->save(false)) {
-               Yii::app()->session['customer_item_id_create_session'] = $customer_item->customer_item_id;
+            if (count($transaction_details) > 0) {
+                if ($customer_item->save(false)) {
 
-               unset(Yii::app()->session['customer_item_id_attachment_session']);
-               Yii::app()->session['customer_item_id_attachment_session'] = $customer_item->customer_item_id;
-               $customer_item_detail_id_arr = array();
-               for ($i = 0; $i < count($transaction_details); $i++) {
-                  unset(Yii::app()->session['customer_item_detail_ids']);
-                 $customer_item_detail = CustomerItemDetail::model()->createCustomerItemTransactionDetails($customer_item->customer_item_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $customer_item->transaction_date);
+                    $customer_item_details = array();
+                    for ($i = 0; $i < count($transaction_details); $i++) {
+                        $customer_item_detail = CustomerItemDetail::model()->createCustomerItemTransactionDetails($customer_item->customer_item_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->created_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], $customer_item->transaction_date);
 
                         $customer_item_details[] = $customer_item_detail;
                     }
 
-                   $pod = ProofOfDelivery::model()->customerData($customer_item, $customer_item_details);
-                    
+                    $pod = ProofOfDelivery::model()->customerData($customer_item, $customer_item_details);
+
                     $data['success'] = true;
                     $data['header_data'] = $customer_item;
                     $data['detail_data'] = $customer_item_details;
@@ -375,9 +371,8 @@ class CustomerItem extends CActiveRecord {
             }
         } catch (Exception $exc) {
             Yii::log($exc->getTraceAsString(), 'error');
-            return false;
         }
-
+        
         return $data;
     }
 
@@ -420,6 +415,7 @@ class CustomerItem extends CActiveRecord {
 
                     $customer_item_details = array();
                     $update = true;
+                    $pod_arr = array();
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         if (trim($transaction_details[$i]['customer_item_detail_id']) != "") {
 
@@ -438,7 +434,6 @@ class CustomerItem extends CActiveRecord {
                             
                             $pod_arr['pod_header_data'] = $pod;
                             $pod_arr['pod_detail_data'] = $pod_details;
-
                         }
                         
                         $invObj = Inventory::model()->checkIfAllInventoryCriteriaExist($customer_item_detail->company_id, $customer_item_detail->sku_id, $customer_item_detail->uom_id, $customer_item_detail->source_zone_id, $customer_item_detail->sku_status_id, $customer_item_detail->expiration_date, $customer_item_detail->po_no, $customer_item_detail->pr_no, $customer_item_detail->pr_date, $customer_item_detail->plan_arrival_date);
@@ -450,7 +445,8 @@ class CustomerItem extends CActiveRecord {
                         $customer_item_details[] = $customer_item_detail;
                     }
 
-                    if ($update === true) {                        
+                    if ($update === true) {
+                        
                         $pod_exists = ProofOfDelivery::model()->updateCustomerData($customer_item, $customer_item_detail_ids_to_be_delete, $customer_item_details);
 
                         $pod_arr = $pod_exists;
@@ -483,12 +479,13 @@ class CustomerItem extends CActiveRecord {
                     $data['success'] = true;
                     $data['header_data'] = $customer_item;
                     $data['detail_data'] = $customer_item_details;
+                    $data['pod_data'] = $pod_arr;
                 }
             }
         } catch (Exception $exc) {
             Yii::log($exc->getTraceAsString(), 'error');
         }
-
+        
         return $data;
     }
 

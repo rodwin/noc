@@ -76,6 +76,7 @@ class ReturnReceipt extends CActiveRecord {
         // class name for the relations automatically generated below.
         return array(
             'returnReceiptDetails' => array(self::HAS_MANY, 'ReturnReceiptDetail', 'return_receipt_id'),
+            'zone' => array(self::BELONGS_TO, 'Zone', 'destination_zone_id'),
         );
     }
 
@@ -209,6 +210,9 @@ class ReturnReceipt extends CActiveRecord {
                 return false;
             }
         }
+        
+        $data = array();
+        $data['success'] = false;
 
         $return_receipt = new ReturnReceipt;
 
@@ -233,22 +237,24 @@ class ReturnReceipt extends CActiveRecord {
             if (count($transaction_details) > 0) {
                 if ($return_receipt->save(false)) {
 
+                    $return_receipt_details = array();
                     for ($i = 0; $i < count($transaction_details); $i++) {
-                        ReturnReceiptDetail::model()->createReturnReceiptTransactionDetails($return_receipt->return_receipt_id, $return_receipt->company_id, $transaction_details[$i], $return_receipt->destination_zone_id, $return_receipt->transaction_date, $return_receipt->created_by);
+                        $return_receipt_detail = ReturnReceiptDetail::model()->createReturnReceiptTransactionDetails($return_receipt->return_receipt_id, $return_receipt->company_id, $transaction_details[$i], $return_receipt->destination_zone_id, $return_receipt->transaction_date, $return_receipt->created_by);
+                    
+                        $return_receipt_details[] = $return_receipt_detail;
                     }
 
-                    return true;
-                } else {
-                    return false;
+                    $data['success'] = true;
+                    $data['header_data'] = $return_receipt;
+                    $data['detail_data'] = $return_receipt_details;
                 }
-            } else {
-                return false;
             }
         } catch (Exception $exc) {
             pr($exc);
             Yii::log($exc->getTraceAsString(), 'error');
-            return false;
         }
+        
+        return $data;
     }
 
 }
