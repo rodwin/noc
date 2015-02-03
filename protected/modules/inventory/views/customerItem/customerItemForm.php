@@ -1360,7 +1360,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
         var data = $("#customer-item-form").serialize() + "&form=" + form + '&' + $.param({"customer_item_detail_ids": customer_item_detail_ids}) + '&' + $.param({"transaction_details": serializeUpdatedTransactionTable()}) + '&' + $.param({"deletedTransactionRowData": deletedTransactionRowData});
 
         if ($(".submit_butt").is("[disabled=disabled]")) {
-
             return false;
         } else {
             $.ajax({
@@ -1370,7 +1369,6 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 dataType: "json",
                 beforeSend: function(data) {
                     $(".submit_butt").attr("disabled", "disabled");
-
                     if (form == headers) {
                         $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Submitting Form...');
                     } else if (form == print) {
@@ -1382,16 +1380,15 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
                 },
                 error: function(data) {
                     alert("Error occured: Please try again.");
-
                     $(".submit_butt").attr('disabled', false);
-
                     $('#btn_save').html('<i class="glyphicon glyphicon-ok"></i>&nbsp; Save');
                     $('#btn_print').html('<i class="fa fa-print"></i>&nbsp; Print');
                 }
             });
         }
 
-    }    
+    }
+    
     $(function() {
         
         $('#CustomerItem_poi_id').select2({
@@ -1432,6 +1429,5 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
     function FormatPOISelection(item) {
         return item.short_name;
     }
-
 
 </script>

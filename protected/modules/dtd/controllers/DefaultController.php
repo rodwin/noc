@@ -57,6 +57,7 @@ class DefaultController extends Controller
             $brand= CHtml::listData($data2,'id', 'name');
             $teamlead= CHtml::listData($data3,'parent_leader', 'code');
             $year= CHtml::listData($year,'id', 'id');
+           
 //            $team= CHtml::listData($data4,'id', 'name');
 
    
@@ -71,6 +72,7 @@ class DefaultController extends Controller
                 'qtr' => $qtr,
                 'teamlead' => $teamlead,
                 'year' => $year,
+
             
 
             ));
@@ -145,8 +147,8 @@ class DefaultController extends Controller
 
             $from = date($_GET['year'].'-'.$month.'-01');
          
-            $data_route = $model->getRoute($from,$to,$_GET['brand'],$_GET['agency'],$_GET['region']); 
-            $data_par = $model->getRoute($from,$par,$_GET['brand'],$_GET['agency'],$_GET['region']); 
+            $data_route = $model->getRoute($from,$to,$_GET['brand'],$_GET['agency'],$_GET['region'],$_GET['year']); 
+            $data_par = $model->getRoute($from,$par,$_GET['brand'],$_GET['agency'],$_GET['region'],$_GET['year']); 
             $str = '';
 //            pr($data_route);
 //            pr($data_par);
@@ -239,11 +241,6 @@ class DefaultController extends Controller
                 $region = 0;
             }
             
-            if(isset($_GET['province'])){
-                $province = $_GET['province'];
-            }else{
-                $province = 0;
-            }
             $month = $_GET['month'];
             
             $current_month = date('m');
@@ -259,9 +256,10 @@ class DefaultController extends Controller
 
              $from = date($_GET['year'].'-'.$month.'-01');
             
-            $data_a = $model->getTargetHit($from,$to,$_GET['brand'],$_GET['agency']);
-            $data_b = $model->getActualHit($from,$to,$_GET['brand'],$_GET['agency']);
-            $data_c = $model->getParPerArea($from,$par,$_GET['brand'],$_GET['agency']);
+            $data_a = $model->getTargetHit($from,$to,$_GET['brand'],$_GET['agency'],$region,$_GET['year']);
+            $data_b = $model->getActualHit($from,$to,$_GET['brand'],$_GET['agency'],'1',$region);
+            $data_d = $model->getActualHit($from,$to,$_GET['brand'],$_GET['agency'],'2',$region);
+            $data_c = $model->getParPerArea($from,$par,$_GET['brand'],$_GET['agency'],$region,$_GET['year']);
             
             
             $actual_hit_array = array();
@@ -269,14 +267,17 @@ class DefaultController extends Controller
                 $actual_hit_array[$valb['name']] = $valb['hit'];
             }
             
+            $actual_reach_array = array();
+            foreach($data_d as $keyd => $vald){
+                $actual_reach_array[$vald['name']] = $vald['hit'];
+            }
+            
             $par_array = array();
             foreach($data_c as $keyc => $valc){
                 $par_array[$valc['name']] = $valc['par'];
             }
+         
             
-//            pr($actual_hit_array);
-//            pr($par_array);
-//            exit;
             $detail_hit = array();
             
             foreach($data_a as $keya => $vala){
@@ -286,32 +287,43 @@ class DefaultController extends Controller
                            
                             $detail_hit[$key_count]['name'] = $vala['name'];
                             $detail_hit[$key_count]['target_hit'] = $vala['target_hit'];
+                            $detail_hit[$key_count]['target_hit'] = $vala['target_reach'];
                             $detail_hit[$key_count]['target_attendance'] = $vala['target_attendance'];
                         }else{
                             $key_count++;
-                             $detail_hit[$key_count]['actual_hit'] = 0;
+                            $detail_hit[$key_count]['actual_hit'] = 0;
+                            $detail_hit[$key_count]['actual_reach'] = 0;
                             if(isset($par_array[$vala['name']])){
                                  $detail_hit[$key_count]['par'] =$par_array[$vala['name']];  
                             }
                             if(isset($actual_hit_array[$vala['name']])){
                                  $detail_hit[$key_count]['actual_hit'] =$actual_hit_array[$vala['name']];  
                             }
+                            if(isset($actual_reach_array[$vala['name']])){
+                                 $detail_hit[$key_count]['actual_reach'] =$actual_reach_array[$vala['name']];  
+                            }
                             $detail_hit[$key_count]['name'] = $vala['name'];
                             $detail_hit[$key_count]['target_hit'] = $vala['target_hit'];
+                            $detail_hit[$key_count]['target_reach'] = $vala['target_reach'];
                             $detail_hit[$key_count]['target_attendance'] = $vala['target_attendance'];
                         }
 
                     }else{
                         $key_count = 0;
                         $detail_hit[$key_count]['actual_hit'] = 0;
+                        $detail_hit[$key_count]['actual_reach'] = 0;
                         if(isset($par_array[$vala['name']])){
                                  $detail_hit[$key_count]['par'] =$par_array[$vala['name']];  
                         }
                         if(isset($actual_hit_array[$vala['name']])){
                                  $detail_hit[$key_count]['actual_hit'] =$actual_hit_array[$vala['name']];  
                         }
+                        if(isset($actual_reach_array[$vala['name']])){
+                                 $detail_hit[$key_count]['actual_reach'] =$actual_reach_array[$vala['name']];  
+                        }
                         $detail_hit[$key_count]['name'] = $vala['name'];
                         $detail_hit[$key_count]['target_hit'] = $vala['target_hit'];
+                        $detail_hit[$key_count]['target_reach'] = $vala['target_reach'];
                         $detail_hit[$key_count]['target_attendance'] = $vala['target_attendance'];
                     }
                 
@@ -331,7 +343,7 @@ class DefaultController extends Controller
             $from = date($_GET['year'].'-07-01');
             $to = date($_GET['year'].'-09-30'); 
             
-            $route_target = $model->getRoutePerQuarter($from,$to,$_GET['brand'],$_GET['agency']);
+            $route_target = $model->getRoutePerQuarter($from,$to,$_GET['brand'],$_GET['agency'],$_GET['year']);
             $route_actual = $model->getActualHitperQuarter($from,$to,$_GET['brand'],$_GET['agency'],'3');
             $route_actual_reach = $model->getActualHitperQuarter($from,$to,$_GET['brand'],$_GET['agency'],'2');
             $route_par = $model->getParTotalNational($_GET['agency'],$from,$to,$_GET['brand'],$_GET['year']);
@@ -407,9 +419,11 @@ class DefaultController extends Controller
                     if($month_name_neg == $month_name_pos ){  
                         $target_attendance += $val['seller'];
                         $target_hit += $val['seller']*$val['hit'];
+                        $target_reach += $val['seller']*$val['reach'];
                         $ond_array[$key_count]['target_attendance'] =$target_attendance;
                         $ond_array[$key_count]['name'] =$month_name_pos;
                         $ond_array[$key_count]['target_hit'] =$target_hit;
+                        $ond_array[$key_count]['target_reach'] =$target_reach;
                         
                         
                     }else{
@@ -417,6 +431,7 @@ class DefaultController extends Controller
                         $key_count++;
                         $month_name = date('F',strtotime($val['date']));
                         $target_hit = $val['seller']*$val['hit'];
+                        $target_reach = $val['seller']*$val['reach'];
                         $target_attendance = $val['seller'];
                         $ond_array[$key_count]['actual_hit'] =0;
                         $ond_array[$key_count]['actual_reach'] =0;
@@ -424,6 +439,7 @@ class DefaultController extends Controller
                         $ond_array[$key_count]['target_attendance'] =0;
                         $ond_array[$key_count]['name'] =$month_name;
                         $ond_array[$key_count]['target_hit'] =$target_hit;
+                        $ond_array[$key_count]['target_reach'] =$target_reach;
                         
                         if(isset($actual_hit[$month_name])){
                             $ond_array[$key_count]['actual_hit'] =$actual_hit[$month_name];
@@ -441,6 +457,7 @@ class DefaultController extends Controller
                     $key_count = 0;
                     $month_name = date('F',strtotime($val['date']));
                     $target_hit = $val['seller']*$val['hit'];
+                    $target_reach = $val['seller']*$val['reach'];
                     $target_attendance = $val['seller'];
                     $ond_array[$key_count]['actual_hit'] =0;
                     $ond_array[$key_count]['actual_reach'] =0;
@@ -449,6 +466,7 @@ class DefaultController extends Controller
                   
                     $ond_array[$key_count]['name'] =$month_name;
                     $ond_array[$key_count]['target_hit'] =$target_hit;
+                    $ond_array[$key_count]['target_reach'] =$target_reach;
                     if(isset($actual_hit[$month_name])){
                          $ond_array[$key_count]['actual_hit'] =$actual_hit[$month_name];
                     }
@@ -475,7 +493,7 @@ class DefaultController extends Controller
             $from = date($_GET['year'].'-10-01');
             $to = date($_GET['year'].'-12-31'); 
             
-            $route_target = $model->getRoutePerQuarter($from,$to,$_GET['brand'],$_GET['agency']);
+            $route_target = $model->getRoutePerQuarter($from,$to,$_GET['brand'],$_GET['agency'],$_GET['year']);
             $route_actual = $model->getActualHitperQuarter($from,$to,$_GET['brand'],$_GET['agency'],'3');
             $route_actual_reach = $model->getActualHitperQuarter($from,$to,$_GET['brand'],$_GET['agency'],'2');
             $route_par = $model->getParTotalNational($_GET['agency'],$from,$to,$_GET['brand'],$_GET['year']);
@@ -551,9 +569,11 @@ class DefaultController extends Controller
                     if($month_name_neg == $month_name_pos ){  
                         $target_attendance += $val['seller'];
                         $target_hit += $val['seller']*$val['hit'];
+                        $target_reach += $val['seller']*$val['reach'];
                         $ond_array[$key_count]['target_attendance'] =$target_attendance;
                         $ond_array[$key_count]['name'] =$month_name_pos;
                         $ond_array[$key_count]['target_hit'] =$target_hit;
+                        $ond_array[$key_count]['target_reach'] =$target_reach;
                         
                         
                     }else{
@@ -561,6 +581,7 @@ class DefaultController extends Controller
                         $key_count++;
                         $month_name = date('F',strtotime($val['date']));
                         $target_hit = $val['seller']*$val['hit'];
+                        $target_reach = $val['seller']*$val['reach'];
                         $target_attendance = $val['seller'];
                         $ond_array[$key_count]['actual_hit'] =0;
                         $ond_array[$key_count]['actual_reach'] =0;
@@ -568,6 +589,7 @@ class DefaultController extends Controller
                         $ond_array[$key_count]['target_attendance'] =0;
                         $ond_array[$key_count]['name'] =$month_name;
                         $ond_array[$key_count]['target_hit'] =$target_hit;
+                        $ond_array[$key_count]['target_reach'] =$target_reach;
                         
                         if(isset($actual_hit[$month_name])){
                             $ond_array[$key_count]['actual_hit'] =$actual_hit[$month_name];
@@ -585,6 +607,7 @@ class DefaultController extends Controller
                     $key_count = 0;
                     $month_name = date('F',strtotime($val['date']));
                     $target_hit = $val['seller']*$val['hit'];
+                    $target_reach = $val['seller']*$val['reach'];
                     $target_attendance = $val['seller'];
                     $ond_array[$key_count]['actual_hit'] =0;
                     $ond_array[$key_count]['actual_reach'] =0;
@@ -593,6 +616,7 @@ class DefaultController extends Controller
                   
                     $ond_array[$key_count]['name'] =$month_name;
                     $ond_array[$key_count]['target_hit'] =$target_hit;
+                    $ond_array[$key_count]['target_reach'] =$target_reach;
                     if(isset($actual_hit[$month_name])){
                          $ond_array[$key_count]['actual_hit'] =$actual_hit[$month_name];
                     }
@@ -620,10 +644,11 @@ class DefaultController extends Controller
             $from = date($year.'-01-01');
             $to = date($year.'-03-31'); 
             
-            $route_target = $model->getRoutePerQuarter($from,$to,$_GET['brand'],$_GET['agency']);
+            $route_target = $model->getRoutePerQuarter($from,$to,$_GET['brand'],$_GET['agency'],$year);
             $route_actual = $model->getActualHitperQuarter($from,$to,$_GET['brand'],$_GET['agency'],'3');
             $route_actual_reach = $model->getActualHitperQuarter($from,$to,$_GET['brand'],$_GET['agency'],'2');
-            $route_par = $model->getParTotalNational($_GET['agency'],$from,$to,$_GET['brand'],$_GET['year']);
+            
+            $route_par = $model->getParTotalNational($_GET['agency'],$from,$to,$_GET['brand'],$year);
             
             $ond_array = array();
 
@@ -647,7 +672,6 @@ class DefaultController extends Controller
                    
                    $previous = $month_name;
             }
-            
             $previous = '';
             foreach($route_actual_reach as $keyz => $valz)
             {
@@ -659,14 +683,14 @@ class DefaultController extends Controller
                         $actual_reach[$month_name]= $actual;
                        
                    }else{
-                        $actual = $vala['hit'];
+                        $actual = $valz['hit'];
                         $actual_reach[$month_name] =$actual;
                        
                    }
                    
                    $previous = $month_name;
             }
-            
+//            pr($actual_reach);
             $par = array();
             $previous_par = '';
             foreach($route_par as $keyb => $valb)
@@ -697,9 +721,11 @@ class DefaultController extends Controller
                     if($month_name_neg == $month_name_pos ){  
                         $target_attendance += $val['seller'];
                         $target_hit += $val['seller']*$val['hit'];
+                        $target_reach += $val['seller']*$val['reach'];
                         $ond_array[$key_count]['target_attendance'] =$target_attendance;
                         $ond_array[$key_count]['name'] =$month_name_pos;
                         $ond_array[$key_count]['target_hit'] =$target_hit;
+                        $ond_array[$key_count]['target_reach'] =$target_reach;
                         
                         
                     }else{
@@ -707,6 +733,7 @@ class DefaultController extends Controller
                         $key_count++;
                         $month_name = date('F',strtotime($val['date']));
                         $target_hit = $val['seller']*$val['hit'];
+                        $target_reach = $val['seller']*$val['reach'];
                         $target_attendance = $val['seller'];
                         $ond_array[$key_count]['actual_hit'] =0;
                         $ond_array[$key_count]['actual_reach'] =0;
@@ -714,6 +741,7 @@ class DefaultController extends Controller
                         $ond_array[$key_count]['target_attendance'] =0;
                         $ond_array[$key_count]['name'] =$month_name;
                         $ond_array[$key_count]['target_hit'] =$target_hit;
+                        $ond_array[$key_count]['target_reach'] =$target_reach;
                         
                         if(isset($actual_hit[$month_name])){
                             $ond_array[$key_count]['actual_hit'] =$actual_hit[$month_name];
@@ -731,6 +759,7 @@ class DefaultController extends Controller
                     $key_count = 0;
                     $month_name = date('F',strtotime($val['date']));
                     $target_hit = $val['seller']*$val['hit'];
+                    $target_reach = $val['seller']*$val['reach'];
                     $target_attendance = $val['seller'];
                     $ond_array[$key_count]['actual_hit'] =0;
                     $ond_array[$key_count]['actual_reach'] =0;
@@ -739,6 +768,7 @@ class DefaultController extends Controller
                   
                     $ond_array[$key_count]['name'] =$month_name;
                     $ond_array[$key_count]['target_hit'] =$target_hit;
+                    $ond_array[$key_count]['target_reach'] =$target_reach;
                     if(isset($actual_hit[$month_name])){
                          $ond_array[$key_count]['actual_hit'] =$actual_hit[$month_name];
                     }
@@ -766,10 +796,10 @@ class DefaultController extends Controller
             $from = date($year.'-04-01');
             $to = date($year.'-06-30'); 
             
-            $route_target = $model->getRoutePerQuarter($from,$to,$_GET['brand'],$_GET['agency']);
+            $route_target = $model->getRoutePerQuarter($from,$to,$_GET['brand'],$_GET['agency'],$year);
             $route_actual = $model->getActualHitperQuarter($from,$to,$_GET['brand'],$_GET['agency'],'3');
             $route_actual_reach = $model->getActualHitperQuarter($from,$to,$_GET['brand'],$_GET['agency'],'2');
-            $route_par = $model->getParTotalNational($_GET['agency'],$from,$to,$_GET['brand'],$_GET['year']);
+            $route_par = $model->getParTotalNational($_GET['agency'],$from,$to,$_GET['brand'],$year);
             $ond_array = array();
 
             $actual_hit = array();
@@ -842,9 +872,11 @@ class DefaultController extends Controller
                     if($month_name_neg == $month_name_pos ){  
                         $target_attendance += $val['seller'];
                         $target_hit += $val['seller']*$val['hit'];
+                        $target_reach += $val['seller']*$val['reach'];
                         $ond_array[$key_count]['target_attendance'] =$target_attendance;
                         $ond_array[$key_count]['name'] =$month_name_pos;
                         $ond_array[$key_count]['target_hit'] =$target_hit;
+                        $ond_array[$key_count]['target_reach'] =$target_reach;
                         
                         
                     }else{
@@ -852,6 +884,7 @@ class DefaultController extends Controller
                         $key_count++;
                         $month_name = date('F',strtotime($val['date']));
                         $target_hit = $val['seller']*$val['hit'];
+                        $target_reach = $val['seller']*$val['reach'];
                         $target_attendance = $val['seller'];
                         $ond_array[$key_count]['actual_hit'] =0;
                         $ond_array[$key_count]['actual_reach'] =0;
@@ -859,6 +892,7 @@ class DefaultController extends Controller
                         $ond_array[$key_count]['target_attendance'] =0;
                         $ond_array[$key_count]['name'] =$month_name;
                         $ond_array[$key_count]['target_hit'] =$target_hit;
+                        $ond_array[$key_count]['target_reach'] =$target_reach;
                         
                         if(isset($actual_hit[$month_name])){
                             $ond_array[$key_count]['actual_hit'] =$actual_hit[$month_name];
@@ -876,6 +910,7 @@ class DefaultController extends Controller
                     $key_count = 0;
                     $month_name = date('F',strtotime($val['date']));
                     $target_hit = $val['seller']*$val['hit'];
+                    $target_reach = $val['seller']*$val['reach'];
                     $target_attendance = $val['seller'];
                     $ond_array[$key_count]['actual_hit'] =0;
                     $ond_array[$key_count]['actual_reach'] =0;
@@ -884,6 +919,7 @@ class DefaultController extends Controller
                   
                     $ond_array[$key_count]['name'] =$month_name;
                     $ond_array[$key_count]['target_hit'] =$target_hit;
+                    $ond_array[$key_count]['target_reach'] =$target_reach;
                     if(isset($actual_hit[$month_name])){
                          $ond_array[$key_count]['actual_hit'] =$actual_hit[$month_name];
                     }
@@ -1045,5 +1081,164 @@ class DefaultController extends Controller
             }
             
             echo json_encode($tl_att_array);
+        }
+        
+        public function actionDetailAverage()
+        {
+            $model = new Dtd;
+            
+            if(isset($_GET['region'])){
+                $region = $_GET['region'];
+            }else{
+                $region = 0;
+            }
+            
+            $month = $_GET['month'];
+            
+            $current_month = date('m');
+            if($month == $current_month ){
+              $date1 = date($_GET['year'].'-'.$month.'-d');
+              $to = date($_GET['year'].'-m-t',strtotime($date1)); 
+              $par = date($_GET['year'].'-m-d',strtotime($date1)); 
+            }else{
+              $date1 = date($_GET['year'].'-'.$month.'-01');
+              $to = date($_GET['year'].'-m-t',strtotime($date1));
+              $par = date($_GET['year'].'-m-t',strtotime($date1)); 
+            }
+
+            $from = date($_GET['year'].'-'.$month.'-01');
+            $data_route = $model->getRoute($from,$to,$_GET['brand'],$_GET['agency'],$_GET['region'],$_GET['year']);
+         
+            
+//            $data_a = $model->getTargetHit($from,$to,$_GET['brand'],$_GET['agency']);
+            $data_b = $model->getActualHit($from,$to,$_GET['brand'],$_GET['agency'],'1',$region);
+            $data_d = $model->getActualHit($from,$to,$_GET['brand'],$_GET['agency'],'2',$region);
+//            $data_c = $model->getParPerArea($from,$par,$_GET['brand'],$_GET['agency']);
+            
+            
+            $actual_hit_array = array();
+            foreach($data_b as $keyb => $valb){
+                $actual_hit_array[$valb['name']] = $valb['hit'];
+            }
+            
+            $actual_reach_array = array();
+            foreach($data_d as $keyd => $vald){
+                $actual_reach_array[$vald['name']] = $vald['hit'];
+            }
+            
+            
+            $detail_ave = array();
+            
+            foreach($data_route as $key => $val){
+                
+                if(isset($data_route[$key-1])){
+                        if($data_route[$key-1]['name'] == $val['name']){ 
+                           
+                            $actual_attendance += $val['salesman'];
+                            $detail_ave[$key_count]['actual_attendance'] =$actual_attendance;  
+                            $detail_ave[$key_count]['name'] =$val['name']; 
+                         
+                          
+                           
+                        }else{
+                            $actual_attendance =0;
+                            $key_count++;
+                            $actual_attendance += $val['salesman'];
+                            $detail_ave[$key_count]['actual_attendance'] =$actual_attendance; 
+                            $detail_ave[$key_count]['name'] =$val['name']; 
+                            $detail_ave[$key_count]['actual_hit'] =0; 
+                            $detail_ave[$key_count]['actual_reach'] =0; 
+                            if(isset($actual_hit_array[$val['name']])){
+                                 $detail_ave[$key_count]['actual_hit'] =$actual_hit_array[$val['name']];  
+                            }
+                            if(isset($actual_reach_array[$val['name']])){
+                                 $detail_ave[$key_count]['actual_reach'] =$actual_reach_array[$val['name']];  
+                            }
+                        }
+
+                    }else{
+                            $actual_attendance =0;
+                            $key_count = 0;
+                            $actual_attendance += $val['salesman'];
+                            $detail_ave[$key_count]['actual_attendance'] =$actual_attendance; 
+                            $detail_ave[$key_count]['name'] =$val['name'];
+                            $detail_ave[$key_count]['actual_hit'] =0; 
+                            $detail_ave[$key_count]['actual_reach'] =0; 
+                            
+                            if(isset($actual_hit_array[$val['name']])){
+                                 $detail_ave[$key_count]['actual_hit'] =$actual_hit_array[$val['name']];  
+                            }
+                            if(isset($actual_reach_array[$val['name']])){
+                                 $detail_ave[$key_count]['actual_reach'] =$actual_reach_array[$val['name']];  
+                            }
+                 
+                          
+                    }
+                
+            }
+//            pr($detail_hit);
+//            exit;
+            
+            echo json_encode($detail_ave);
+            
+        }
+        
+        public function actionCompute()
+        {
+
+            $model = new Dtd;
+            
+            $year = $_GET['year'];
+            $from_a = date($year.'-07-01');
+            $to_a = date($year.'-12-31');
+            $year_plus = $year + 1;
+            $from_b = date($year_plus.'-01-01');
+            $to_b = date($year_plus.'-06-30'); 
+            $from_c = date($year.'-07-01');
+            $to_c = date($year_plus.'-06-30'); 
+            
+            $route_target_a = $model->getRoutePerQuarter($from_a,$to_a,$_GET['brand'],$_GET['agency'],$year);
+            $route_target_b = $model->getRoutePerQuarter($from_b,$to_b,$_GET['brand'],$_GET['agency'],$year_plus);
+            $route_actual = $model->getActualHitperQuarter($from_c,$to_c,$_GET['brand'],$_GET['agency'],'3');
+            $route_actual_reach = $model->getActualHitperQuarter($from_c,$to_c,$_GET['brand'],$_GET['agency'],'2');
+            
+//            pr($route_actual);
+//            exit;
+            $total = array();
+            $total[0]['covered'] =0;
+            $total[0]['reach'] =0;
+            $total[0]['hit'] =0;
+            foreach($route_target_a as $key => $val){
+
+                $target_reach = $val['seller']*$val['reach'];
+                $total[0]['covered'] +=$target_reach; 
+                
+            }
+            foreach($route_target_b as $keyz => $valz){
+
+                $target_reach = $valz['seller']*$valz['reach'];
+                $total[0]['covered'] +=$target_reach; 
+                
+            }
+            foreach($route_actual as $keya => $vala){
+
+               
+                $total[0]['hit'] +=$vala['hit']; 
+                
+            }
+            foreach($route_actual_reach as $keyb => $valb){
+
+                $total[0]['reach'] +=$valb['hit']; 
+                
+            }
+            if($total[0]['hit']!= 0 && $total[0]['reach']!= 0){
+                $test = $total[0]['hit'] /$total[0]['reach'] *100;
+            }else{
+                $test = 0;
+            }
+            $total[0]['productivity']= number_format($test,2);
+            
+            echo json_encode($total);
+            
         }
 }

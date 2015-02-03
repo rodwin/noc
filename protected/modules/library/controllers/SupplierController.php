@@ -359,6 +359,7 @@ class SupplierController extends Controller {
         echo json_encode($return);
         Yii::app()->end();
     }
+
     public function actionSelect2FilterSupplier($value, $pageSize) {
 
         $c = new CDbCriteria();
@@ -414,4 +415,3 @@ class SupplierController extends Controller {
     }
 
 }
-

@@ -18,7 +18,7 @@ $this->breadcrumbs = array(
     .first_col_right_table { width: 150px; } 
 
     .text_bold { font-weight: bold; }
-    
+
     sup { font-weight: bold; }
 
     #progress_bar_col { display: none; }  
@@ -263,7 +263,7 @@ $this->breadcrumbs = array(
             ],
             "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(10)', nRow).addClass("text-right");
-                
+
                 if ((aData.sku_type).trim() === <?php echo trim("'" . Sku::INFRA . "'"); ?> && <?php echo "'" . $model->status . "'" ?> === <?php echo "'" . OutgoingInventory::OUTGOING_PENDING_STATUS . "'" ?>) {
                     $('td:eq(7)', nRow).addClass("success");
 

@@ -10,7 +10,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
 <style type="text/css">
 
     #notification_table tbody tr { cursor: pointer }
-    
+
     sup { font-weight: bold; }
 
 </style>
@@ -181,6 +181,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                         <th>Remaining Quantity</th>
                         <th>Amount</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
             </table>
@@ -196,7 +197,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
         var chartLineLabel = [];
         var incoming_inbound_table;
         var outgoing_outbound_table;
-        var returnables_table;
+        var returns_table;
         $(function() {
 
             $.ajax({
@@ -232,7 +233,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                 //            preUnits: 'PhP',
                 //            xLabelAngle: 70
                 resize: true
-                //            lineColors: ['#7BB661'],
+                        //            lineColors: ['#7BB661'],
             });
 
             notification_table = $('#notification_table').dataTable({
@@ -303,7 +304,7 @@ $cs->registerScriptFile(Yii::app()->baseUrl . '/js/raphael-min-2.1.0.js', CClien
                 }
             });
 
-            returnables_table = $('#returnables_table').dataTable({
+            returns_table = $('#returnables_table').dataTable({
                 "filter": false,
                 "dom": 't<"pull-left"i><"pull-right small"p>',
 //            "dom": 'l<"text-center"r>t<"pull-left"i><"pull-right"p>',

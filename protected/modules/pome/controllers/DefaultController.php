@@ -965,7 +965,7 @@ class DefaultController extends Controller
 
             $actual = $total->GetActualReachQTR($from,$to,$_GET['brand'],$_GET['agency']);   
             
-            $data_actual_par = $total->getParTotalNational($_GET['agency'],$from,$to,$_GET['brand'],$_GET['year']);
+            $data_actual_par = $total->getParTotalNational($_GET['agency'],$from,$to,$_GET['brand'],$year);
 
             $par =0;
             $bws_par = array();
@@ -1121,7 +1121,7 @@ class DefaultController extends Controller
 
             $actual = $total->GetActualReachQTR($from,$to,$_GET['brand'],$_GET['agency']);   
             
-            $data_actual_par = $total->getParTotalNational($_GET['agency'],$from,$to,$_GET['brand'],$_GET['year']);
+            $data_actual_par = $total->getParTotalNational($_GET['agency'],$from,$to,$_GET['brand'],$year);
 
             $par =0;
             $bws_par = array();

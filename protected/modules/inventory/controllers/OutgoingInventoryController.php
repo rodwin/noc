@@ -31,7 +31,7 @@ class OutgoingInventoryController extends Controller {
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
                 'actions' => array('data', 'loadInventoryDetails', 'outgoingInvDetailData', 'afterDeleteTransactionRow', 'invData', 'uploadAttachment', 'preview', 'download', 'searchCampaignNo', 'loadPRNos', 'loadInvByPRNo',
-                    'print', 'loadPDF', 'getDetailsByOutgoingInvID', 'loadItemDetails', 'viewPrint', 'checkInvIfUpdatedActualQtyValid', 'sendDR', 'loadAttachmentDownload'),
+                    'print', 'loadPDF', 'getDetailsByOutgoingInvID', 'loadItemDetails', 'viewPrint', 'checkInvIfUpdatedActualQtyValid', 'sendDR', 'loadAttachmentDownload', 'updateOutgoingInvDetailReturnDate'),
                 'users' => array('@'),
             ),
             array('allow',
@@ -234,12 +234,12 @@ class OutgoingInventoryController extends Controller {
         $outgoing_inv_destination_zone_id = isset($outgoing_inv->zone->zone_id) ? $outgoing_inv->zone->zone_id : "";
 
         $c1 = new CDbCriteria;
-        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND zones.zone_id = '" . $outgoing_inv->zone->zone_id . "'";
+        $c1->condition = "t.company_id = '" . Yii::app()->user->company_id . "' AND zones.zone_id = '" . $outgoing_inv_destination_zone_id . "'";
         $c1->with = array("zones");
         $destination_sales_office = SalesOffice::model()->find($c1);
 
         $destination = array();
-        $destination['zone_name'] = $outgoing_inv->zone->zone_name;
+        $destination['zone_name'] = isset($outgoing_inv->zone->zone_name) ? $outgoing_inv->zone->zone_name : "";
         $destination['destination_sales_office_name'] = isset($destination_sales_office->sales_office_name) ? $destination_sales_office->sales_office_name : "";
         $destination['contact_person'] = $outgoing_inv->contact_person != "" ? $outgoing_inv->contact_person : "";
         $destination['contact_no'] = $outgoing_inv->contact_no != "" ? $outgoing_inv->contact_no : "";
@@ -627,8 +627,8 @@ class OutgoingInventoryController extends Controller {
                     $validatedModel_arr = (array) json_decode($validatedOutgoing);
                     $model_errors = json_encode(array_merge($validatedModel_arr, $validatedEmails, $validatedRecipients));
 
-                    if ($model_errors != '[]') {
 
+                    if ($model_errors != '[]') {
 
                         $data['error'] = $model_errors;
                         $data['message'] = 'Unable to process';
@@ -1287,7 +1287,7 @@ class OutgoingInventoryController extends Controller {
         $zone = Zone::model()->find($c);
 
         $source['source_zone_name_so_name'] = rtrim($source_zones, "<br/>");
-        $source['contact_person'] = rtrim($source_contact_person, "<br/>");
+        $source['contact_person'] = $outgoing_inv['contact_person'];
         $source['address'] = rtrim($source_address, "<br/>");
 
         $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
@@ -1575,6 +1575,7 @@ class OutgoingInventoryController extends Controller {
             $row['campaign_no'] = $value->campaign_no;
             $row['pr_no'] = $value->pr_no;
             $row['uom_name'] = $uom->uom_name;
+            $row['sku_type'] = $value->sku->type;
 
             $output['data'][] = $row;
         }
@@ -1689,11 +1690,11 @@ class OutgoingInventoryController extends Controller {
         $zone = Zone::model()->find($c);
 
         $source['source_zone_name_so_name'] = rtrim($source_zones, "<br/>");
-        $source['contact_person'] = rtrim($source_contact_person, "<br/>");
+        $source['contact_person'] = $outgoing_inv->contact_person;
         $source['address'] = rtrim($source_address, "<br/>");
 
-        $destination['sales_office_name'] = $zone->salesOffice->sales_office_name;
-        $destination['address'] = $zone->salesOffice->address1;
+        $destination['sales_office_name'] = isset($zone->salesOffice->sales_office_name) ? $zone->salesOffice->sales_office_name : "";
+        $destination['address'] = isset($zone->salesOffice->address1) ? $zone->salesOffice->address1 : "";
 
         $headers['transaction_date'] = $outgoing_inv->transaction_date;
         $headers['plan_delivery_date'] = $outgoing_inv->plan_delivery_date;
@@ -1891,7 +1892,6 @@ class OutgoingInventoryController extends Controller {
         $source_zones_arr = array();
         $source_sales_office_arr = array();
         $source_sales_offices = "";
-        
         foreach ($detail_data as $k1 => $v1) {
             $row = array();
             $row['mm_code'] = $v1->sku->sku_code;
@@ -1927,7 +1927,6 @@ class OutgoingInventoryController extends Controller {
         $header['source_sales_office_name'] = $source_sales_offices != "" ? substr(trim($source_sales_offices), 0, -1) : "";
         $header['pr_nos'] = $pr_nos != "" ? "PR " . substr(trim($pr_nos), 0, -1) : "<i>(PR No not set)</i>";
 
-
         $this->sendTransactionMail($sendTo, $header, $details);
     }
 
@@ -1961,6 +1960,7 @@ class OutgoingInventoryController extends Controller {
 
         Globals::sendMail('Outbound Transaction Alert', $content, 'text/html', Yii::app()->params['swiftMailer']['username'], Yii::app()->params['swiftMailer']['accountName'], $sendTo);
     }
+
     public function actionUpdateOutgoingInvDetailReturnDate($return_date, $outgoing_inv_id, $outgoing_inv_detail_id) {
 
         $data = array();
@@ -2006,4 +2006,5 @@ class OutgoingInventoryController extends Controller {
         $d = DateTime::createFromFormat('Y-m-d', $date);
         return $d && $d->format('Y-m-d') == $date;
     }
+
 }
