@@ -115,7 +115,7 @@ class ApiController extends Controller {
    public function retrieveEmployeeByCriteria(EmployeeCriteria $employee_criteria) {
       Yii::log('API call retrieveEmployeeByCriteria entered', 'info', 'webservice');
       $data = Employee::model()->retriveEmployeeByCriteria($employee_criteria);
-pre($data);
+
       if ($data) {
          $employee = new Employee;
          $employee->attributes = $data->attributes;
