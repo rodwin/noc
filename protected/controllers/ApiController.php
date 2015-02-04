@@ -265,14 +265,25 @@ class ApiController extends Controller {
       $arr['batch_no'] = $arr['reference_no'];
       unset($arr['reference_no']);
 
-
-      $sql = "SELECT a.poi_id FROM poi a
-               INNER JOIN poi_custom_data_value b ON a.poi_id = b.poi_id 
-               WHERE primary_code = '" . $outlet_code . "' AND b.custom_data_id = '620c7353-fa2f-4e7d-8eb3-4765114f6786'
-               AND b.value = '" . $sales_office_code . "'";
+//
+//      $sql = "SELECT a.poi_id FROM poi a
+//               INNER JOIN poi_custom_data_value b ON a.poi_id = b.poi_id 
+//               WHERE primary_code = '" . $outlet_code . "' AND b.custom_data_id = '620c7353-fa2f-4e7d-8eb3-4765114f6786'
+//               AND b.value = '" . $sales_office_code . "'";
+      
+      $sql = "SELECT a.poi_id  FROM poi a
+               LEFT JOIN poi_custom_data_value b ON a.poi_id = b.poi_id 
+               LEFT JOIN poi_custom_data c ON c.custom_data_id = a.poi_category_id
+               WHERE a.primary_code = '" . $outlet_code . "'
+               OR b.value = '" . $sales_office_code . "'";
       $command = Yii::app()->db->createCommand($sql);
       $data = $command->queryAll();
 
+      if (!$data)
+      {
+         return 'Error finding outlet';
+         
+      }
       $count = count($arr['company_id']);
 
       for ($ctr = 0; $ctr <= $count - 1; $ctr++) {
@@ -325,9 +336,9 @@ class ApiController extends Controller {
       }
 
       $model = new CustomerItem;
-      $model->dr_no = "AS" . date("YmdHis");
+      $model->dr_no = "AS" . date("YmdHis"); 
       $model->poi_id = $data[0]['poi_id'];
-      $model->dr_date = date("Y-m-d");
+      $model->dr_date = date("Y-m-d"); 
       $model->transaction_date = date("Y-m-d");
       if ($flag == 'web') {
          $model->company_id = $arr['company_id'][0];
