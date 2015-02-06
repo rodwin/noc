@@ -1306,8 +1306,8 @@ $cs->registerScriptFile($baseUrl . '/js/plugins/input-mask/jquery.inputmask.exte
             url: '<?php echo Yii::app()->createUrl('/library/zone/getZoneDetails'); ?>' + '&zone_id=' + this.value,
             dataType: "json",
             success: function(data) {
-//                $("#OutgoingInventory_contact_person").val(data.contact_person);
-//                $("#OutgoingInventory_contact_no").val(data.employee_work_contact_no);
+                $("#OutgoingInventory_contact_person").val(data.contact_person);
+                $("#OutgoingInventory_contact_no").val(data.employee_work_contact_no);
                 $("#OutgoingInventory_address").val(data.so_address1);
             },
             error: function(data) {
