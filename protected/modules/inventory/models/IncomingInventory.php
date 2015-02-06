@@ -294,17 +294,17 @@ class IncomingInventory extends CActiveRecord {
             $item_status[$v['status']][] = $v['status'];
         }
 
-        $closed = 0;
+        $closed = 1;
         if (array_key_exists(OutgoingInventory::OUTGOING_PENDING_STATUS, $item_status)) {
             $incoming_status = OutgoingInventory::OUTGOING_PENDING_STATUS;
         } else if (array_key_exists(OutgoingInventory::OUTGOING_INCOMPLETE_STATUS, $item_status)) {
             $incoming_status = OutgoingInventory::OUTGOING_INCOMPLETE_STATUS;
         } else if (array_key_exists(OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS, $item_status)) {
             $incoming_status = OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS;
-            $closed = 1;
+            $closed = 2;
         } else {
             $incoming_status = OutgoingInventory::OUTGOING_COMPLETE_STATUS;
-            $closed = 1;
+            $closed = 2;
         }
 
         $incoming_inventory = new IncomingInventory;
@@ -367,7 +367,7 @@ class IncomingInventory extends CActiveRecord {
     
     public function loadAllOutgoingTransactionDetailsByDRNo($company_id, $dr_no) {
         
-        $sql = "SELECT a.status AS header_status, c.incoming_inventory_id, d.incoming_inventory_detail_id, a.updated_date as updated_already, (d.planned_quantity - d.quantity_received) AS remaining_qty, a.*, b.*, e.*, h.*, f.brand_name,
+        $sql = "SELECT a.status AS header_status, c.incoming_inventory_id, d.incoming_inventory_detail_id, a.closed as closed_status, (d.planned_quantity - d.quantity_received) AS remaining_qty, a.*, b.*, e.*, h.*, f.brand_name,
                 g.zone_id AS source_zone_id, g.zone_name AS source_zone_name, i.zone_id AS destination_zone_id, i.zone_name AS destination_zone_name
 
                 FROM outgoing_inventory a
@@ -407,17 +407,17 @@ class IncomingInventory extends CActiveRecord {
             $item_status[$v['status']][] = $v['status'];
         }
 
-        $closed = 0;
+        $closed = 1;
         if (array_key_exists(OutgoingInventory::OUTGOING_PENDING_STATUS, $item_status)) {
             $incoming_status = OutgoingInventory::OUTGOING_PENDING_STATUS;
         } else if (array_key_exists(OutgoingInventory::OUTGOING_INCOMPLETE_STATUS, $item_status)) {
             $incoming_status = OutgoingInventory::OUTGOING_INCOMPLETE_STATUS;
         } else if (array_key_exists(OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS, $item_status)) {
             $incoming_status = OutgoingInventory::OUTGOING_OVER_DELIVERY_STATUS;
-            $closed = 1;
+            $closed = 2;
         } else {
             $incoming_status = OutgoingInventory::OUTGOING_COMPLETE_STATUS;
-            $closed = 1;
+            $closed = 2;
         }
 
         $incoming_inventory = $this;

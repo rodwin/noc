@@ -524,7 +524,7 @@ class OutgoingInventory extends CActiveRecord {
                 'remarks' => $this->remarks,
                 'total_amount' => $this->total_amount,
                 'updated_by' => $this->updated_by,
-//                'updated_date' => $this->updated_date,
+                'updated_date' => $this->updated_date,
                 'recipients' => $this->recipients,
             );
 
