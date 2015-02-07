@@ -261,7 +261,7 @@ class IncomingInventoryController extends Controller {
 
         $c = new CDbCriteria;
         $c->compare("company_id", Yii::app()->user->company_id);
-        $c->condition = "closed = 0 AND destination_zone_id IN (" . Yii::app()->user->zones . ")";
+        $c->condition = "closed != 2 AND destination_zone_id IN (" . Yii::app()->user->zones . ")";
         $c->order = "dr_no ASC";
         $outgoing_inv_dr_nos = CHtml::listData(OutgoingInventory::model()->findAll($c), "dr_no", "dr_no");
         $uom = CHtml::listData(UOM::model()->findAll(array('condition' => 'company_id = "' . Yii::app()->user->company_id . '"', 'order' => 'uom_name ASC')), 'uom_id', 'uom_name');
@@ -484,10 +484,10 @@ class IncomingInventoryController extends Controller {
         
         $output['headers'] = $header;
         
-        $updated_already = isset($value['updated_already']) ? $value['updated_already'] : "";
+        $closed_status = isset($value['closed_status']) ? $value['closed_status'] : "";
         
         $for_update = false;
-        if ($updated_already != "") {
+        if ($closed_status != 0) {
             $for_update = true;
         }
         
