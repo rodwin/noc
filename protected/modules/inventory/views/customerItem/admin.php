@@ -250,6 +250,9 @@ $this->breadcrumbs = array(
 
                         customer_item_table.fnMultiFilter();
                     }
+                    
+                    loadCustomItemDetails(customerItem_id);
+                    loadAttachmentPreview(customerItem_id);
                 },
                 error: function(status, exception) {
                     alert(status.responseText);

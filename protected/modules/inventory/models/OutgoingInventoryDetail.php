@@ -481,5 +481,36 @@ class OutgoingInventoryDetail extends CActiveRecord {
             return $outgoing_inv_detail->getErrors();
         }
     }
-
+    
+    public function returnInvIfOutgoingInvDetailDeleted($company_id, $outgoing_inv_detail_id, $created_date, $created_by) {
+        
+        $c = new CDbCriteria;
+        $c->condition = "outgoingInventory.company_id = '" . $company_id . "' AND t.outgoing_inventory_detail_id = '" . $outgoing_inv_detail_id . "'";
+        $c->with = array('outgoingInventory');
+        $outgoing_inv_detail = OutgoingInventoryDetail::model()->findAll($c);
+        
+        $data = array();
+        $data['success'] = false;
+        
+        if (count($outgoing_inv_detail) > 0) {
+            if (trim($outgoing_inv_detail[0]->outgoingInventory->status) != OutgoingInventory::OUTGOING_COMPLETE_STATUS) {
+               for ($x = 0; $x < count($outgoing_inv_detail); $x++) {
+                
+                    if ($outgoing_inv_detail[$x]->status == OutgoingInventory::OUTGOING_PENDING_STATUS) {
+                        
+                        ReceivingInventoryDetail::model()->createInventory($outgoing_inv_detail[$x]->company_id, $outgoing_inv_detail[$x]->sku_id, $outgoing_inv_detail[$x]->uom_id, $outgoing_inv_detail[$x]->unit_price, $outgoing_inv_detail[$x]->quantity_issued, $outgoing_inv_detail[$x]->source_zone_id, $created_date, $created_by, $outgoing_inv_detail[$x]->expiration_date, $outgoing_inv_detail[$x]->batch_no, $outgoing_inv_detail[$x]->sku_status_id, $outgoing_inv_detail[$x]->pr_no, $outgoing_inv_detail[$x]->pr_date, $outgoing_inv_detail[$x]->plan_arrival_date, $outgoing_inv_detail[$x]->po_no, $outgoing_inv_detail[$x]->remarks);  
+                    } else if ($outgoing_inv_detail[$x]->status == OutgoingInventory::OUTGOING_INCOMPLETE_STATUS) {
+                       
+                        $data = OutgoingInventory::model()->getRemainingQtyByOutgoingInvDetailIDAndDRNo($outgoing_inv_detail[$x]->outgoing_inventory_detail_id, $outgoing_inv_detail[$x]->outgoingInventory->dr_no);
+                       
+                        ReceivingInventoryDetail::model()->createInventory($outgoing_inv_detail[$x]->company_id, $outgoing_inv_detail[$x]->sku_id, $outgoing_inv_detail[$x]->uom_id, $outgoing_inv_detail[$x]->unit_price, $data[0]['remaining_qty'], $outgoing_inv_detail[$x]->source_zone_id, $created_date, $created_by, $outgoing_inv_detail[$x]->expiration_date, $outgoing_inv_detail[$x]->batch_no, $outgoing_inv_detail[$x]->sku_status_id, $outgoing_inv_detail[$x]->pr_no, $outgoing_inv_detail[$x]->pr_date, $outgoing_inv_detail[$x]->plan_arrival_date, $outgoing_inv_detail[$x]->po_no, $outgoing_inv_detail[$x]->remarks);  
+                    }
+                }
+                
+                $data['success'] = true;
+            }          
+        }
+        
+        return $data;
+    }
 }

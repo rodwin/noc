@@ -414,27 +414,33 @@ class CustomerItem extends CActiveRecord {
                 if ($customer_item->save(false)) {
 
                     $customer_item_details = array();
-                    $update = true;
                     $pod_arr = array();
+                    $pod_details = array();
+                    
+                    $pod = ProofOfDelivery::model()->findByAttributes(array("company_id" => $customer_item->company_id, "customer_item_id" => $customer_item->customer_item_id));
+                    
+                    if ($pod) {
+                        $pod_exist = true;
+                    } else {
+                        $pod_exist = false;
+                    }
+                    
                     for ($i = 0; $i < count($transaction_details); $i++) {
                         if (trim($transaction_details[$i]['customer_item_detail_id']) != "") {
-
-                            $customer_item_detail = CustomerItemDetail::model()->updateCustomerItemTransactionDetails($customer_item->customer_item_id, $transaction_details[$i]['customer_item_detail_id'], $customer_item->company_id, $transaction_details[$i]['qty_for_new_inventory'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['amount'], $customer_item->updated_by, $customer_item->updated_date);
+                            
+                            $data = CustomerItemDetail::model()->updateCustomerItemTransactionDetails($customer_item->customer_item_id, $transaction_details[$i]['customer_item_detail_id'], $customer_item->company_id, $transaction_details[$i]['qty_for_new_inventory'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['amount'], $customer_item->updated_by, $customer_item->updated_date);
+                        
+                            $pod_detail = $data['pod_detail'];
+                            $customer_item_detail = $data['customer_item_detail'];
+                            
                         } else {
 
-                            $update = false;
-
                             $customer_item_detail = CustomerItemDetail::model()->createCustomerItemTransactionDetails($customer_item->customer_item_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->updated_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], date("Y-m-d", strtotime($customer_item->updated_date)));
-                            $pod = ProofOfDelivery::model()->findByAttributes(array("company_id" => $customer_item->company_id, "customer_item_id" => $customer_item->customer_item_id));
-
-                            $pod_details = array();
                             $pod_detail = ProofOfDeliveryDetail::model()->createPODTransactionDetails($pod->pod_id, $customer_item->company_id, $transaction_details[$i]['inventory_id'], $transaction_details[$i]['batch_no'], $transaction_details[$i]['sku_id'], $transaction_details[$i]['source_zone_id'], $transaction_details[$i]['unit_price'], $transaction_details[$i]['expiration_date'], $transaction_details[$i]['planned_quantity'], $transaction_details[$i]['quantity_issued'], $transaction_details[$i]['amount'], $transaction_details[$i]['return_date'], $transaction_details[$i]['remarks'], $customer_item->updated_by, $transaction_details[$i]['uom_id'], $transaction_details[$i]['sku_status_id'], date("Y-m-d", strtotime($customer_item->updated_date)), $customer_item_detail->customer_item_detail_id, $customer_item_detail->po_no, $customer_item_detail->pr_no, $customer_item_detail->pr_date, $customer_item_detail->plan_arrival_date);
                         
-                            $pod_details[] = $pod_detail;
-                            
-                            $pod_arr['pod_header_data'] = $pod;
-                            $pod_arr['pod_detail_data'] = $pod_details;
                         }
+                        
+                        $pod_details[] = $pod_detail;                        
                         
                         $invObj = Inventory::model()->checkIfAllInventoryCriteriaExist($customer_item_detail->company_id, $customer_item_detail->sku_id, $customer_item_detail->uom_id, $customer_item_detail->source_zone_id, $customer_item_detail->sku_status_id, $customer_item_detail->expiration_date, $customer_item_detail->po_no, $customer_item_detail->pr_no, $customer_item_detail->pr_date, $customer_item_detail->plan_arrival_date);
                         
@@ -444,19 +450,18 @@ class CustomerItem extends CActiveRecord {
                         
                         $customer_item_details[] = $customer_item_detail;
                     }
-
-                    if ($update === true) {
+                    
+                    $pod_arr['pod_header_data'] = $pod;
+                    $pod_arr['pod_detail_data'] = $pod_details;
+                    
+                    if ($pod_exist === true) {
                         
-                        $pod_exists = ProofOfDelivery::model()->updateCustomerData($customer_item, $customer_item_detail_ids_to_be_delete, $customer_item_details);
-
-                        $pod_arr = $pod_exists;
+                        $pod_updated = ProofOfDelivery::model()->updateCustomerData($customer_item, $customer_item_detail_ids_to_be_delete, $customer_item_details);
                         
-                        if (!$pod_exists) {
-
-                            $pod_arr = ProofOfDelivery::model()->customerData($customer_item, $customer_item_details);
-                        }
+                        $pod_arr = $pod_updated;
                     } else {
                         
+                        $pod_arr = ProofOfDelivery::model()->customerData($customer_item, $customer_item_details);
                     }
 
                     if (count($deletedTransactionRowData) > 0) {
@@ -486,6 +491,57 @@ class CustomerItem extends CActiveRecord {
             Yii::log($exc->getTraceAsString(), 'error');
         }
         
+        return $data;
+    }
+    
+    public function returnInvIfCustomerItemDeleted($company_id, $id, $created_date, $created_by) {
+        
+        $c = new CDbCriteria;
+        $c->condition = "customerItem.company_id = '" . $company_id . "' AND customerItem.customer_item_id = '" . $id . "'";
+        $c->with = array('customerItem');
+        $customer_item_detail = CustomerItemDetail::model()->findAll($c);
+        
+        $data = array();
+        $data['success'] = false;
+        
+        if (count($customer_item_detail) > 0) {
+            if (trim($customer_item_detail[0]->customerItem->status) != OutgoingInventory::OUTGOING_COMPLETE_STATUS) {
+               for ($x = 0; $x < count($customer_item_detail); $x++) {
+                
+                    if ($customer_item_detail[$x]->status == OutgoingInventory::OUTGOING_PENDING_STATUS) {
+                        
+                        ReceivingInventoryDetail::model()->createInventory($customer_item_detail[$x]->company_id, $customer_item_detail[$x]->sku_id, $customer_item_detail[$x]->uom_id, $customer_item_detail[$x]->unit_price, $customer_item_detail[$x]->quantity_issued, $customer_item_detail[$x]->source_zone_id, $created_date, $created_by, $customer_item_detail[$x]->expiration_date, $customer_item_detail[$x]->batch_no, $customer_item_detail[$x]->sku_status_id, $customer_item_detail[$x]->pr_no, $customer_item_detail[$x]->pr_date, $customer_item_detail[$x]->plan_arrival_date, $customer_item_detail[$x]->po_no, $customer_item_detail[$x]->remarks);  
+                    } else if ($customer_item_detail[$x]->status == OutgoingInventory::OUTGOING_INCOMPLETE_STATUS) {
+                       
+                        $data = CustomerItem::model()->getRemainingQtyByCustomerItemDetailIDAndDRNo($customer_item_detail[$x]->customer_item_detail_id, $customer_item_detail[$x]->customerItem->dr_no);
+                      
+                        ReceivingInventoryDetail::model()->createInventory($customer_item_detail[$x]->company_id, $customer_item_detail[$x]->sku_id, $customer_item_detail[$x]->uom_id, $customer_item_detail[$x]->unit_price, $data[0]['remaining_qty'], $customer_item_detail[$x]->source_zone_id, $created_date, $created_by, $customer_item_detail[$x]->expiration_date, $customer_item_detail[$x]->batch_no, $customer_item_detail[$x]->sku_status_id, $customer_item_detail[$x]->pr_no, $customer_item_detail[$x]->pr_date, $customer_item_detail[$x]->plan_arrival_date, $customer_item_detail[$x]->po_no, $customer_item_detail[$x]->remarks);  
+                    }
+                }
+                
+                $data['success'] = true;
+            }          
+        }
+        
+        return $data;        
+    }
+    
+    public function getRemainingQtyByCustomerItemDetailIDAndDRNo($customer_item_detail_id, $dr_no) {
+        
+        $sql = "SELECT (d.planned_quantity - d.quantity_received) AS remaining_qty
+
+                FROM customer_item a
+                INNER JOIN customer_item_detail b ON b.customer_item_id = a.customer_item_id
+                LEFT JOIN proof_of_delivery c ON c.dr_no = a.dr_no AND c.poi_id = a.poi_id
+                LEFT JOIN proof_of_delivery_detail d ON d.pod_id = c.pod_id AND d.source_zone_id = b.source_zone_id
+                
+                WHERE b.customer_item_detail_id = :customer_item_detail_id AND a.dr_no = :dr_no";
+        
+        $command = Yii::app()->db->createCommand($sql);
+        $command->bindParam(':customer_item_detail_id', $customer_item_detail_id, PDO::PARAM_STR);
+        $command->bindParam(':dr_no', $dr_no, PDO::PARAM_STR);
+        $data = $command->queryAll();
+          
         return $data;
     }
 

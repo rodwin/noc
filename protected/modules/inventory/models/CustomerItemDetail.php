@@ -382,14 +382,64 @@ class CustomerItemDetail extends CActiveRecord {
         $customer_item_detail->quantity_issued = $quantity_issued;
         $customer_item_detail->updated_date = $updated_date;
         $customer_item_detail->updated_by = $updated_by;
-
+        
         if ($customer_item_detail->save(false)) {
             
-            return $customer_item_detail;
+            $pod = ProofOfDelivery::model()->findByAttributes(array("company_id" => $customer_item_detail->company_id, "customer_item_id" => $customer_item_detail->customer_item_id));
+
+            $pod_detail = array();
+            if ($pod) {
+                $pod_detail = ProofOfDeliveryDetail::model()->findByAttributes(array("company_id" => $company_id, "pod_id" => $pod->pod_id, "customer_item_detail_id" => $customer_item_detail->customer_item_detail_id));
+                
+                if (!$pod_detail) {
+                    $pod_detail = ProofOfDeliveryDetail::model()->createPODTransactionDetails($pod->pod_id, $customer_item_detail->company_id, $customer_item_detail->inventory_id, $customer_item_detail->batch_no, $customer_item_detail->sku_id, $customer_item_detail->source_zone_id, $customer_item_detail->unit_price, $customer_item_detail->expiration_date, $customer_item_detail->planned_quantity, $customer_item_detail->quantity_issued, $customer_item_detail->amount, $customer_item_detail->return_date, $customer_item_detail->remarks, $customer_item_detail->updated_by, $customer_item_detail->uom_id, $customer_item_detail->sku_status_id, date("Y-m-d", strtotime($customer_item_detail->updated_date)), $customer_item_detail->customer_item_detail_id, $customer_item_detail->po_no, $customer_item_detail->pr_no, $customer_item_detail->pr_date, $customer_item_detail->plan_arrival_date);
+                } else {
+                    
+                }
+            }
+            
+            $data = array(
+                'pod_detail' => $pod_detail,
+                'customer_item_detail' => $customer_item_detail
+            );
+            
+            return $data;
         } else {
             
             return $customer_item_detail->getErrors();
         }
+    }
+    
+    public function returnInvIfCustomerItemDetailDeleted($company_id, $customer_item_detail_id, $created_date, $created_by) {
+        
+        $c = new CDbCriteria;
+        $c->condition = "customerItem.company_id = '" . $company_id . "' AND t.customer_item_detail_id = '" . $customer_item_detail_id . "'";
+        $c->with = array('customerItem');
+        $customer_item_detail = CustomerItemDetail::model()->findAll($c);
+        
+        $data = array();
+        $data['success'] = false;
+        
+        if (count($customer_item_detail) > 0) {
+            if (trim($customer_item_detail[0]->customerItem->status) != OutgoingInventory::OUTGOING_COMPLETE_STATUS) {
+               for ($x = 0; $x < count($customer_item_detail); $x++) {
+                
+                    if ($customer_item_detail[$x]->status == OutgoingInventory::OUTGOING_PENDING_STATUS) {
+                        
+                        ReceivingInventoryDetail::model()->createInventory($customer_item_detail[$x]->company_id, $customer_item_detail[$x]->sku_id, $customer_item_detail[$x]->uom_id, $customer_item_detail[$x]->unit_price, $customer_item_detail[$x]->quantity_issued, $customer_item_detail[$x]->source_zone_id, $created_date, $created_by, $customer_item_detail[$x]->expiration_date, $customer_item_detail[$x]->batch_no, $customer_item_detail[$x]->sku_status_id, $customer_item_detail[$x]->pr_no, $customer_item_detail[$x]->pr_date, $customer_item_detail[$x]->plan_arrival_date, $customer_item_detail[$x]->po_no, $customer_item_detail[$x]->remarks);  
+                    } else if ($customer_item_detail[$x]->status == OutgoingInventory::OUTGOING_INCOMPLETE_STATUS) {
+                       
+                        $data = CustomerItem::model()->getRemainingQtyByCustomerItemDetailIDAndDRNo($customer_item_detail[$x]->customer_item_detail_id, $customer_item_detail[$x]->customerItem->dr_no);
+                       
+                        ReceivingInventoryDetail::model()->createInventory($customer_item_detail[$x]->company_id, $customer_item_detail[$x]->sku_id, $customer_item_detail[$x]->uom_id, $customer_item_detail[$x]->unit_price, $data[0]['remaining_qty'], $customer_item_detail[$x]->source_zone_id, $created_date, $created_by, $customer_item_detail[$x]->expiration_date, $customer_item_detail[$x]->batch_no, $customer_item_detail[$x]->sku_status_id, $customer_item_detail[$x]->pr_no, $customer_item_detail[$x]->pr_date, $customer_item_detail[$x]->plan_arrival_date, $customer_item_detail[$x]->po_no, $customer_item_detail[$x]->remarks);  
+                    }      
+                }
+                
+                $data['success'] = true;
+            }
+        }
+        
+        return $data;
     }
 
 }

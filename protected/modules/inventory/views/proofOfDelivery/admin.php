@@ -381,6 +381,7 @@ $this->breadcrumbs = array(
                     }
 
                     loadPODDetails(selected_pod_id);
+                    loadPODAttachment(selected_pod_id);
                 },
                 error: function(status, exception) {
                     alert(status.responseText);
