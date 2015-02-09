@@ -679,6 +679,8 @@ class CustomerItemController extends Controller {
         if (Yii::app()->request->isPostRequest) {
             try {
 
+                $returned = CustomerItem::model()->returnInvIfCustomerItemDeleted(Yii::app()->user->company_id, $id, date("Y-m-d"), Yii::app()->user->name);
+                            
                 // delete proof of delivery and its details and attachments by customer_item_id
                 $pod = ProofOfDelivery::model()->findByAttributes(array("company_id" => Yii::app()->user->company_id, "customer_item_id" => $id));
                 if ($pod) {
@@ -720,6 +722,8 @@ class CustomerItemController extends Controller {
         if (Yii::app()->request->isPostRequest) {
             try {
 
+                $returned = CustomerItemDetail::model()->returnInvIfCustomerItemDetailDeleted(Yii::app()->user->company_id, $customer_item_detail_id, date("Y-m-d"), Yii::app()->user->name);
+                               
                 ProofOfDeliveryAttachment::model()->deleteDetailAndAttachmentByCustomerItemDetailID(Yii::app()->user->company_id, $customer_item_detail_id);
 
                 CustomerItemDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND customer_item_detail_id = " . $customer_item_detail_id);

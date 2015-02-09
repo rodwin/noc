@@ -25,7 +25,7 @@ class ZoneController extends Controller {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index', 'data', 'search', 'searchByWarehouse', 'getZoneDetails', 'select2FilterZone'),
+                'actions' => array('index', 'data', 'search', 'searchByWarehouse', 'getZoneDetails', 'select2FilterZone', 'select2FilterZoneInReceivingInv'),
                 'users' => array('@'),
             ),
             array('allow',
@@ -399,6 +399,44 @@ class ZoneController extends Controller {
         $c->limit = $pageSize;
         $c->order = "zone_name";
         $c->compare('t.company_id', Yii::app()->user->company_id);
+        $zone = Zone::model()->findAll($c);
+
+        $return = array();
+        if (count($zone) > 0) {
+            foreach ($zone as $key => $val) {
+                $row = array();
+
+                $row['zone_id'] = $val->zone_id;
+                $row['zone_name'] = $val->zone_name;
+
+                $return["dataItems"][] = $row;
+            }
+        } else {
+            $row = array();
+            $row['zone_id'] = "";
+            $row['zone_name'] = "--";
+
+            $return["dataItems"][] = $row;
+        }
+
+
+        echo json_encode($return);
+        Yii::app()->end();
+    }
+
+    public function actionSelect2FilterZoneInReceivingInv($value, $pageSize) {
+
+        $c = new CDbCriteria();
+        if ($value != "") {
+            $c->addSearchCondition('t.zone_name', $value, true, 'OR');
+        }
+        $c->limit = $pageSize;
+        $c->order = "t.zone_name";
+        $c->compare('t.company_id', Yii::app()->user->company_id);
+        $c->join = "INNER JOIN employee b ON b.default_zone_id = t.zone_id";
+        $c->join .= " INNER JOIN employee_type c ON c.employee_type_id = b.employee_type";
+//        $c->condition = "c.employee_type_code NOT LIKE '%salesman%'";
+        $c->group = "t.zone_id";
         $zone = Zone::model()->findAll($c);
 
         $return = array();

@@ -297,6 +297,8 @@ class ProofOfDeliveryDetail extends CActiveRecord {
         } else {
 
             $pod_transaction_detail = new ProofOfDeliveryDetail;
+            $pod_transaction_detail->pod_id = $pod_id;
+            $pod_transaction_detail->customer_item_detail_id = $customer_item_detail_id;
             $pod_transaction_detail->created_by = $updated_by;
         }
 

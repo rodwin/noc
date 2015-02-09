@@ -692,9 +692,11 @@ class OutgoingInventoryController extends Controller {
      * @param integer $id the ID of the model to be deleted
      */
     public function actionDelete($id) {
-        if (Yii::app()->request->isPostRequest) {
+        if (Yii::app()->request->isPostRequest) {            
             try {
-
+                
+                $returned = OutgoingInventory::model()->returnInvIfOutgoingInvDeleted(Yii::app()->user->company_id, $id, date("Y-m-d"), Yii::app()->user->name);
+                
                 // delete outgoing details by receiving_inventory_id
                 OutgoingInventoryDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND outgoing_inventory_id = " . $id);
                 // delete attachment by outgoing_inventory_id as transaction_id
@@ -730,7 +732,9 @@ class OutgoingInventoryController extends Controller {
     public function actionDeleteOutgoingDetail($outgoing_inv_detail_id) {
         if (Yii::app()->request->isPostRequest) {
             try {
-
+                
+                $returned = OutgoingInventoryDetail::model()->returnInvIfOutgoingInvDetailDeleted(Yii::app()->user->company_id, $outgoing_inv_detail_id, date("Y-m-d"), Yii::app()->user->name);
+                
                 OutgoingInventoryDetail::model()->deleteAll("company_id = '" . Yii::app()->user->company_id . "' AND outgoing_inventory_detail_id = " . $outgoing_inv_detail_id);
 
                 // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser

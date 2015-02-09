@@ -591,4 +591,55 @@ class OutgoingInventory extends CActiveRecord {
     }
 
     ///// end of retriving of data for outgoing in webservice
+    
+    public function returnInvIfOutgoingInvDeleted($company_id, $id, $created_date, $created_by) {
+        
+        $c = new CDbCriteria;
+        $c->condition = "outgoingInventory.company_id = '" . $company_id . "' AND outgoingInventory.outgoing_inventory_id = '" . $id . "'";
+        $c->with = array('outgoingInventory');
+        $outgoing_inv_detail = OutgoingInventoryDetail::model()->findAll($c);
+        
+        $data = array();
+        $data['success'] = false;
+        
+        if (count($outgoing_inv_detail) > 0) {
+            if (trim($outgoing_inv_detail[0]->outgoingInventory->status) != OutgoingInventory::OUTGOING_COMPLETE_STATUS) {
+               for ($x = 0; $x < count($outgoing_inv_detail); $x++) {
+                
+                    if ($outgoing_inv_detail[$x]->status == OutgoingInventory::OUTGOING_PENDING_STATUS) {
+                        
+                        ReceivingInventoryDetail::model()->createInventory($outgoing_inv_detail[$x]->company_id, $outgoing_inv_detail[$x]->sku_id, $outgoing_inv_detail[$x]->uom_id, $outgoing_inv_detail[$x]->unit_price, $outgoing_inv_detail[$x]->quantity_issued, $outgoing_inv_detail[$x]->source_zone_id, $created_date, $created_by, $outgoing_inv_detail[$x]->expiration_date, $outgoing_inv_detail[$x]->batch_no, $outgoing_inv_detail[$x]->sku_status_id, $outgoing_inv_detail[$x]->pr_no, $outgoing_inv_detail[$x]->pr_date, $outgoing_inv_detail[$x]->plan_arrival_date, $outgoing_inv_detail[$x]->po_no, $outgoing_inv_detail[$x]->remarks);  
+                    } else if ($outgoing_inv_detail[$x]->status == OutgoingInventory::OUTGOING_INCOMPLETE_STATUS) {
+                       
+                        $data = OutgoingInventory::model()->getRemainingQtyByOutgoingInvDetailIDAndDRNo($outgoing_inv_detail[$x]->outgoing_inventory_detail_id, $outgoing_inv_detail[$x]->outgoingInventory->dr_no);
+                       
+                        ReceivingInventoryDetail::model()->createInventory($outgoing_inv_detail[$x]->company_id, $outgoing_inv_detail[$x]->sku_id, $outgoing_inv_detail[$x]->uom_id, $outgoing_inv_detail[$x]->unit_price, $data[0]['remaining_qty'], $outgoing_inv_detail[$x]->source_zone_id, $created_date, $created_by, $outgoing_inv_detail[$x]->expiration_date, $outgoing_inv_detail[$x]->batch_no, $outgoing_inv_detail[$x]->sku_status_id, $outgoing_inv_detail[$x]->pr_no, $outgoing_inv_detail[$x]->pr_date, $outgoing_inv_detail[$x]->plan_arrival_date, $outgoing_inv_detail[$x]->po_no, $outgoing_inv_detail[$x]->remarks);  
+                    }
+                }
+                
+                $data['success'] = true;
+            }          
+        }
+        
+        return $data;
+    }
+    
+    public function getRemainingQtyByOutgoingInvDetailIDAndDRNo($outgoing_inv_detail_id, $dr_no) {
+        
+        $sql = "SELECT (d.planned_quantity - d.quantity_received) AS remaining_qty
+
+                FROM outgoing_inventory a
+                INNER JOIN outgoing_inventory_detail b ON b.outgoing_inventory_id = a.outgoing_inventory_id
+                LEFT JOIN incoming_inventory c ON c.dr_no = a.dr_no AND c.destination_zone_id = a.destination_zone_id
+                LEFT JOIN incoming_inventory_detail d ON d.incoming_inventory_id = c.incoming_inventory_id AND d.source_zone_id = b.source_zone_id
+                
+                WHERE b.outgoing_inventory_detail_id = :outgoing_inventory_detail_id AND a.dr_no = :dr_no";
+        
+        $command = Yii::app()->db->createCommand($sql);
+        $command->bindParam(':outgoing_inventory_detail_id', $outgoing_inv_detail_id, PDO::PARAM_STR);
+        $command->bindParam(':dr_no', $dr_no, PDO::PARAM_STR);
+        $data = $command->queryAll();
+          
+        return $data;
+    }
 }
