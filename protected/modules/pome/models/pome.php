@@ -808,6 +808,362 @@ class Pome extends CFormModel {
             
     }
     
+    public function getTargetByRegionSchool($str,$region)
+    {
+        
+        if($region != ""){
+            $select = "e.id as region";
+            $condition = "and f.id = ".$region;
+        }else{
+            $select = "f.id as region";
+            $condition ="";
+        }
+
+         
+        $sql ="SELECT a.id,$select,b.target_reach
+                FROM [pg_mapping].[dbo].[route] a
+                inner join [pg_mapping].[dbo].[route_details] b on b.route_id = a.id
+                inner join [pg_mapping].[dbo].[municipal] d on d.id = a.municipal_id
+                inner join [pg_mapping].[dbo].[province] e on e.id = d.province_id
+                inner join [pg_mapping].[dbo].[region] f on f.id = e.region_id
+                where a.id in ($str) $condition";
+//        pr($sql);
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
+    
+    public function getAllRegion()
+    {
+        $sql ="SELECT [id]
+                  ,[name]
+              FROM [pg_mapping].[dbo].[region]
+              order by name";
+        
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
+    public function getAllProvince($region)
+    {
+        $sql ="SELECT [id]
+                  ,[name]
+              FROM [pg_mapping].[dbo].[province]
+              where region_id = $region
+              order by name";
+        
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
+    
+    public function getActualReachSchool($str,$region)
+    {
+        if($region != ""){
+            $select = "e.name";
+            $condition = "and f.id = ".$region;
+        }else{
+            $select = "f.name";
+            $condition ="";
+        }
+        
+        $sql ="SELECT $select,sum(x.actual_reach) as actual_reach
+                FROM [pg_mapping].[dbo].[route] a
+                inner join [pg_mapping].[dbo].[municipal] d on d.id = a.municipal_id
+                inner join [pg_mapping].[dbo].[province] e on e.id = d.province_id
+                inner join [pg_mapping].[dbo].[region] f on f.id = e.region_id
+                inner join [pg_mapping].[dbo].[route_transaction] z on z.route_id = a.id
+                inner join [pg_mapping].[dbo].[route_transaction_detail] x on x.route_transaction_id = z.id
+                where a.id in($str) $condition
+                group by $select ";
+        
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
+    public function getAttendanceSchool($str,$par,$month="",$year="",$region)
+    {
+        
+        if($region != ""){
+            $select = "e.name as region";
+            $group = "e.name";
+            $condition_a = "and f.id = ".$region;
+        }else{
+            $select = "f.name as region";
+            $group = "f.name";
+            $condition_a ="";
+        }
+        
+        if($par ==1){
+            $current_month = date('m');
+            if($month == $current_month ){
+              $date1 = date($year.'-'.$month.'-d');
+              $to = date($year.'-m-d',strtotime($date1)); 
+            }else{
+              $date1 = date($year.'-'.$month.'-01');
+              $to = date($year.'-m-t',strtotime($date1));
+            }
+
+            $from = date($year.'-'.$month.'-01');
+            $condition = "a.date between '$from'and '$to' and a.id in ($str) ";
+        }else{
+            $date1 = date($year.'-'.$month.'-01');
+            $to = date($year.'-m-t',strtotime($date1));
+            $from = date($year.'-'.$month.'-01');
+            $condition ="a.date between '$from'and '$to' and a.id in ($str) ";
+        }
+        
+        $sql ="SELECT $select,count(a.id) as attendance
+                FROM [pg_mapping].[dbo].[route] a
+                inner join [pg_mapping].[dbo].[municipal] d on d.id = a.municipal_id
+                inner join [pg_mapping].[dbo].[province] e on e.id = d.province_id
+                inner join [pg_mapping].[dbo].[region] f on f.id = e.region_id
+                where $condition $condition_a
+                group by $group ";
+        
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
+    
+    public function getTargetschool($str)
+    {
+        
+        $sql ="SELECT a.date,a.id,b.target_reach
+                FROM [pg_mapping].[dbo].[route] a
+                inner join [pg_mapping].[dbo].[route_details] b on b.route_id = a.id
+                inner join [pg_mapping].[dbo].[outlets] c on c.outlet_code = b.barangay_id
+                where a.id in ($str) and c.storetype_id = 16";
+//        pr($sql);
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
+    
+    public function getParSchool($from,$to,$year,$str,$par)
+    {
+        $current_date = date('Y-m-d');
+        $given_date = date('Y-m-d',strtotime($to));
+
+        if($given_date > $current_date && $par == 1){
+             $to = date($year.'-m-d');
+        }else{
+             $to = $to;          
+        }
+        
+        $sql ="SELECT a.date,a.id
+                FROM [pg_mapping].[dbo].[route] a
+                where a.date between '$from' and '$to' and id in ($str)";
+//        pr($sql);
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
+    
+    public function getQTRreachchool($str)
+    {
+        $sql ="SELECT a.date,sum(x.actual_reach) as actual_reach
+                FROM [pg_mapping].[dbo].[route] a
+                inner join [pg_mapping].[dbo].[route_transaction] z on z.route_id = a.id
+                inner join [pg_mapping].[dbo].[route_transaction_detail] x on x.route_transaction_id = z.id
+                where a.id in($str)
+                group by a.date ";
+//        pr($sql);
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
+    
+    public function getActualAttendanceSchool($str,$par,$month="",$year="",$region)
+    {
+        if($region != ""){
+            $select = "e.name as region";
+            $group = "e.name";
+            $condition_a = "and f.id = ".$region;
+        }else{
+            $select = "f.name as region";
+            $group = "f.name";
+            $condition_a ="";
+        }
+        if($par ==1){
+            $current_month = date('m');
+            if($month == $current_month ){
+              $date1 = date($year.'-'.$month.'-d');
+              $to = date($year.'-m-d',strtotime($date1)); 
+            }else{
+              $date1 = date($year.'-'.$month.'-01');
+              $to = date($year.'-m-t',strtotime($date1));
+            }
+
+            $from = date($year.'-'.$month.'-01');
+            $condition = "a.date between '$from'and '$to' and a.id in ($str) ";
+        }else{
+            $date1 = date($year.'-'.$month.'-01');
+            $to = date($year.'-m-t',strtotime($date1));
+            $from = date($year.'-'.$month.'-01');
+            $condition ="a.date between '$from'and '$to' and a.id in ($str) ";
+        }
+        
+        $sql ="SELECT $select,count(a.id) as attendance
+                FROM [pg_mapping].[dbo].[route] a
+                inner join [pg_mapping].[dbo].[municipal] d on d.id = a.municipal_id
+                inner join [pg_mapping].[dbo].[province] e on e.id = d.province_id
+                inner join [pg_mapping].[dbo].[region] f on f.id = e.region_id
+                inner join [pg_mapping].[dbo].[route_transaction] g on g.route_id = a.id 
+                where $condition $condition_a
+                group by $group ";
+//        pr($sql);
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
+    
+    public function getTargetAttendanceByTlSchool($agency,$month,$brand,$year,$team)
+    {
+        
+        $date1 = date($year.'-'.$month.'-01');
+        $to = date($year.'-m-t',strtotime($date1));
+        $from = date($year.'-'.$month.'-01');
+
+         
+        $sql ="SELECT a.id,d.teamCode
+                FROM [pg_mapping].[dbo].[route] a
+                inner join [pg_mapping].[dbo].[team] d on d.id = a.team_id
+                inner join [pg_mapping].[dbo].[agency_team] c on c.team_id = d.id  
+                where a.date between '$from' and '$to' and a.brand_id = $brand and a.team_id = $team and c.agency_id =$agency
+                group by a.id,d.teamCode";
+//        pr($sql);
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
+    
+    
+    public function getAttendancePerTeamSchool($str,$month,$year,$par)
+    {
+        if($par == 1){
+            $current_month = date('m');
+            if($month == $current_month ){
+              $date1 = date($year.'-'.$month.'-d');
+              $to = date($year.'-m-d',strtotime($date1)); 
+            }else{
+              $date1 = date($year.'-'.$month.'-01');
+              $to = date($year.'-m-t',strtotime($date1));
+            }
+            $from = date($year.'-'.$month.'-01');
+        }else{
+            $date1 = date($year.'-'.$month.'-01');
+            $to = date($year.'-m-t',strtotime($date1));
+            $from = date($year.'-'.$month.'-01');
+        }
+        $sql = "SELECT count(*) as actual_attendance,c.teamCode
+                FROM [pg_mapping].[dbo].[route] a
+                inner join [pg_mapping].[dbo].[route_transaction] b on b.route_id = a.id 
+                inner join [pg_mapping].[dbo].[team] c on c.id =a.team_id
+                where a.id in ($str) and a.date between '$from'and '$to'
+                group by c.teamCode";
+//        pr($sql);
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
+    
+    public function getAllRouteSchoolPerAgency($year,$from,$to,$agency,$brand)
+    {
+//        $date1 = date($year.'-'.$month.'-01');
+//        $to = date($year.'-m-t',strtotime($date1));
+//        $from = date($year.'-'.$month.'-01');
+        
+        $sql ="SELECT a.id
+                FROM [pg_mapping].[dbo].[route] a
+                inner join [pg_mapping].[dbo].[agency_team] d on d.team_id = a.team_id
+                where a.date between '$from' and '$to' and a.brand_id = $brand
+                and d.agency_id = $agency";
+//        pr($sql);
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
+    
+    public function getAllRouteSchoolPerAgencyDetailed($year,$month,$agency,$brand)
+    {
+        $date1 = date($year.'-'.$month.'-01');
+        $to = date($year.'-m-t',strtotime($date1));
+        $from = date($year.'-'.$month.'-01');
+        
+        $sql ="SELECT a.id
+                FROM [pg_mapping].[dbo].[route] a
+                inner join [pg_mapping].[dbo].[agency_team]  c on c.team_id = a.team_id
+                where a.date between '$from' and '$to' and a.brand_id = $brand and c.agency_id = $agency
+                ";
+//        pr($sql);
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
+    
+    public function getTargetByTeamSchool($str)
+    {
+        
+  
+        $sql ="SELECT a.id,b.target_reach
+                FROM [pg_mapping].[dbo].[route] a
+                inner join [pg_mapping].[dbo].[route_details] b on b.route_id = a.id
+                where a.id in ($str)";
+
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
+      
+    public function getTargetByTeamnameSchool($str)
+    {
+        
+         
+        $sql ="SELECT a.id,c.teamCode,b.target_reach
+                FROM [pg_mapping].[dbo].[route] a
+                inner join [pg_mapping].[dbo].[route_details] b on b.route_id = a.id
+                inner join [pg_mapping].[dbo].[team] c on c.id = a.team_id
+                where a.id in ($str) ";
+
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
+    
+    public function getActualReachSchoolTeam($str)
+    {
+
+        $sql ="SELECT b.teamCode,sum(x.actual_reach) as actual_reach
+                FROM [pg_mapping].[dbo].[route] a
+                inner join [pg_mapping].[dbo].[route_transaction] z on z.route_id = a.id
+                inner join [pg_mapping].[dbo].[route_transaction_detail] x on x.route_transaction_id = z.id
+                inner join [pg_mapping].[dbo].[team] b on b.id = a.team_id
+                where a.id in($str) 
+                group by b.teamCode ";
+        
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
+    
+    public function getAllRouteSchoolPerAgencyDetailedTeam($year,$month,$agency,$brand,$team)
+    {
+        $date1 = date($year.'-'.$month.'-01');
+        $to = date($year.'-m-t',strtotime($date1));
+        $from = date($year.'-'.$month.'-01');
+        
+        $sql ="SELECT a.id,b.target_reach,c.teamCode
+                FROM [pg_mapping].[dbo].[route] a
+                inner join [pg_mapping].[dbo].[route_details] b on b.route_id = a.id
+                inner join [pg_mapping].[dbo].[team]  c on c.id = a.team_id
+                where a.date between '$from' and '$to' and a.brand_id = $brand
+                and a.team_id = $team";
+//        pr($sql);
+        $command = Yii::app()->db3->createCommand($sql);
+        $data = $command->queryAll();
+        return $data;
+    }
  
 
 }

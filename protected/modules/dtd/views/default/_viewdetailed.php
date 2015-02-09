@@ -142,7 +142,7 @@
                             }
                         }
                     },series: {
-                        pointWidth: 15
+                        pointWidth: 30
                     }
                 },
                 series: [{
@@ -269,11 +269,11 @@
 
                    }
     //               console.log(target_reach);
-                   charts.xAxis[0].setCategories(labels_detail)
-                   charts.series[0].setData(target_reach)
-                   charts.series[1].setData(actual_reach)
-                   charts.series[2].setData(target_hit)
-                   charts.series[3].setData(actual_hit)
+                   charts.xAxis[0].setCategories(labels_detail)                 
+                   charts.series[0].setData(target_hit)
+                   charts.series[1].setData(actual_hit)
+                   charts.series[2].setData(target_reach)
+                   charts.series[3].setData(actual_reach)
                    charts.series[4].setData(prod_bar_detail_reach)
                   
                    charts.hideLoading();

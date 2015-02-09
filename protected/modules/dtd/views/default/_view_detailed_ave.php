@@ -126,7 +126,7 @@
                             }
                         }
                     },series: {
-                        pointWidth: 15
+                        pointWidth: 30
                     }
                 },
                 series: [{
@@ -230,9 +230,9 @@
                    }
     //               console.log(target_reach);
                    chartix.xAxis[0].setCategories(labels_detail)
-                   chartix.series[0].setData(target_reach)
+                   chartix.series[0].setData(target_hit)
 //                   chartix.series[1].setData(actual_reach)
-                   chartix.series[1].setData(target_hit)
+                   chartix.series[1].setData(target_reach)
 //                   chartix.series[3].setData(actual_hit)
                    chartix.hideLoading();
     //               $("#detail_table_loader_dtl").hide();  

@@ -8,7 +8,20 @@ $this->breadcrumbs=array(
 <style>
  #test {display: none; }    
 </style>
+<div class="panel panel-default">
+          <div class="panel-heading">Project</div>
+          <div class="panel-body">
+          <div class="row">
+              <div class="col-md-6"> 
+                                    <select name ="project[]" id="project">
+                                      <option value="1">Pome Hospital</option>
+                                      <option value="2">Pome School</option>
+                                    </select>
+              </div>
+          </div>
+          </div>
 
+</div>
       <div class="panel panel-default">
           <div class="panel-heading">Total National Reach</div>
           
@@ -209,6 +222,142 @@ $this->breadcrumbs=array(
 <script>
 $(function () {
     
+    $('#project').change(function() {
+//        alert('pasok');
+        var project = document.getElementById('project');
+        redrawdetail(); 
+        redraw();        
+        redrawtotal();
+        if(project.value == 1){
+            var agency_tl =  document.getElementById('tl_agency');
+            $.ajax({
+                'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/GethBwsTeam'); ?>",
+                'type':'GET',
+                'dataType': 'json',
+                'data':'agency='+agency_tl.value,
+                 beforeSend: function(){
+
+                 },
+                'success':function(data) {
+//                    alert('success1');
+                    var options = '';
+                    options = '<option value="0">--</option>';
+                    for (var i = 0; i < data.length; i++) {
+
+                      options += '<option value="' + data[i].parent_leader + '">' + data[i].code + '</option>';
+                    }
+                    $("#tl_leader").html(options);
+                    
+                    redrawattendancetl(); 
+                    redrawtlreach(); 
+                    redrawSurvey();
+
+                },
+                error: function(jqXHR, exception) {
+
+                }
+             }); 
+         }else{
+
+            var agency_tl =  document.getElementById('tl_agency');
+            $.ajax({
+                'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/GetTeamSchool'); ?>",
+                'type':'GET',
+                'dataType': 'json',
+                'data':'agency='+agency_tl.value,
+                 beforeSend: function(){
+
+                 },
+                'success':function(data) {
+//                    alert('success2');
+                    var options = '';
+                    options = '<option value="0">--</option>';
+                    for (var i = 0; i < data.length; i++) {
+
+                      options += '<option value="' + data[i].id + '">' + data[i].teamCode + '</option>';
+                    }
+                    $("#tl_leader").html(options);
+                    
+                    redrawattendancetl(); 
+                    redrawtlreach(); 
+                    redrawSurvey();
+
+                },
+                error: function(jqXHR, exception) {
+//                    alert('error2');
+                }
+             }); 
+         }
+ 
+        $("#covered").html('');
+        $("#reach").html('');
+        $("#trial").html('');
+
+    });
+//    alert(project.value);
+    if(project.value == 1){
+            var agency_tl =  document.getElementById('tl_agency');
+            $.ajax({
+                'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/GethBwsTeam'); ?>",
+                'type':'GET',
+                'dataType': 'json',
+                'data':'agency='+agency_tl.value,
+                 beforeSend: function(){
+
+                 },
+                'success':function(data) {
+//                    alert('success1');
+                    var options = '';
+                    options = '<option value="0">--</option>';
+                    for (var i = 0; i < data.length; i++) {
+
+                      options += '<option value="' + data[i].parent_leader + '">' + data[i].code + '</option>';
+                    }
+                    $("#tl_leader").html(options);
+                    
+//                    redrawattendancetl(); 
+//                    redrawtlreach(); 
+//                    redrawSurvey();
+
+                },
+                error: function(jqXHR, exception) {
+
+                }
+             }); 
+         }else{
+
+            var agency_tl =  document.getElementById('tl_agency');
+            $.ajax({
+                'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/GetTeamSchool'); ?>",
+                'type':'GET',
+                'dataType': 'json',
+                'data':'agency='+agency_tl.value,
+                 beforeSend: function(){
+
+                 },
+                'success':function(data) {
+//                    alert('success2');
+                    var options = '';
+                    options = '<option value="0">--</option>';
+                    for (var i = 0; i < data.length; i++) {
+
+                      options += '<option value="' + data[i].id + '">' + data[i].teamCode + '</option>';
+                    }
+                    $("#tl_leader").html(options);
+                    
+//                    redrawattendancetl(); 
+//                    redrawtlreach(); 
+//                    redrawSurvey();
+
+                },
+                error: function(jqXHR, exception) {
+//                    alert('error2');
+                }
+             }); 
+         }
+    
+    var chasi =  document.getElementById('project');
+//    console.log(chasi.value);
     var covered_global =0;
     var reach_global =0;
     var trials_global = 0;
@@ -255,6 +404,9 @@ $(function () {
                             }
                         }
                     }
+                    ,series: {
+                                pointWidth: 35
+                    }
                 },
                 series: [{
                     name: 'Target',
@@ -275,14 +427,14 @@ $(function () {
       var agency =  document.getElementById('Attendance_agency');
       var region =  document.getElementById('region');
       var month =  document.getElementById('Attendance_month');
-      var province =  document.getElementById('Attendance_province');
+//      var province =  document.getElementById('Attendance_province');
       var brand =  document.getElementById('Attendance_brand');
       var attd_year =  document.getElementById('att_year');
         $.ajax({
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/attendance'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'agency='+agency.value+'&region='+region.value+'&month='+month.value+'&province='+province.value+'&brand='+brand.value+'&year='+attd_year.value,
+            'data':'agency='+agency.value+'&region='+region.value+'&month='+month.value+'&brand='+brand.value+'&year='+attd_year.value+'&chasi='+chasi.value,
              beforeSend: function(){
 //               $("#detail_table_loader_attendance").show();  
 //               $("#container").hide();     
@@ -373,6 +525,8 @@ $(function () {
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
+                    },series: {
+                                pointWidth: 35
                     }
                 },
                 series: [{
@@ -393,7 +547,7 @@ $(function () {
       var agency_detail =  document.getElementById('agency_detail');
       var region_detail =  document.getElementById('region_detail');
       var month_detail =  document.getElementById('month_detail');
-      var province_detail =  document.getElementById('province_detail');
+//      var province_detail =  document.getElementById('province_detail');
       var ph_detail =  document.getElementById('ph_detail');
       var brand_detail =  document.getElementById('brand_detail');
       var year_details =  document.getElementById('year_detail');
@@ -401,7 +555,7 @@ $(function () {
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/DetailedReach'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'agency='+agency_detail.value+'&region='+region_detail.value+'&month='+month_detail.value+'&province='+province_detail.value+'&ph='+ph_detail.value+'&brand='+brand_detail.value+'&year='+year_details.value,
+            'data':'agency='+agency_detail.value+'&region='+region_detail.value+'&month='+month_detail.value+'&ph='+ph_detail.value+'&brand='+brand_detail.value+'&year='+year_details.value+'&chasi='+chasi.value,
              beforeSend: function(){
 //               $("#detail_table_loader_dtl").show();  
 //               $("#detailed_reach").hide();  
@@ -489,6 +643,8 @@ $(function () {
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
+                    },series: {
+                                pointWidth: 35
                     }
                 },
                 series: [{
@@ -518,7 +674,7 @@ $(function () {
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TotalNationalReach'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=JAS'+'&year='+year_ttl.value,
+            'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=JAS'+'&year='+year_ttl.value+'&chasi='+chasi.value,
              beforeSend: function(){
 //                $("#detail_table_loader_ttl_national").show();  
 //                $("#TotalNational").hide();     
@@ -623,6 +779,8 @@ $(function () {
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
+                    },series: {
+                                pointWidth: 35
                     }
                 },
                 series: [{
@@ -649,7 +807,7 @@ $(function () {
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TlAttendance'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'agency='+agency_tl_att.value+'&month='+month_tl_att.value+'&brand='+brand_tl_att.value+'&teamlead='+team_leader_att.value+'&year='+tls_year.value,
+            'data':'agency='+agency_tl_att.value+'&month='+month_tl_att.value+'&brand='+brand_tl_att.value+'&teamlead='+team_leader_att.value+'&year='+tls_year.value+'&chasi='+chasi.value,
              beforeSend: function(){
 //                $("#detail_table_loader_dtl_tl_attn").show();  
 //                $("#tlattendance").hide();  
@@ -744,6 +902,8 @@ $(function () {
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
+                    },series: {
+                                pointWidth: 35
                     }
                 },
                 series: [{
@@ -770,7 +930,7 @@ $(function () {
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TlReach'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'agency='+agency_tl_rc.value+'&month='+month_tl_rc.value+'&brand='+brand_tl_rc.value+'&teamlead='+team_leader_rc.value+'&ph='+tl_ph.value+'&year='+tls_year.value,
+            'data':'agency='+agency_tl_rc.value+'&month='+month_tl_rc.value+'&brand='+brand_tl_rc.value+'&teamlead='+team_leader_rc.value+'&ph='+tl_ph.value+'&year='+tls_year.value+'&chasi='+chasi.value,
                  beforeSend: function(){
 //                $("#detail_table_loader_tl_reach").show();  
 //                $("#tlreach").hide();
@@ -860,6 +1020,8 @@ $(function () {
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
+                    },series: {
+                                pointWidth: 35
                     }
                 },
                 series: [{
@@ -885,7 +1047,7 @@ $(function () {
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TotalNationalReachOND'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=OND'+'&year='+year_ttl.value,
+            'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=OND'+'&year='+year_ttl.value+'&chasi='+chasi.value,
              beforeSend: function(){
 //                $("#detail_table_loader_ttl_national").show();  
 //                $("#TotalNational").hide(); 
@@ -989,6 +1151,8 @@ $(function () {
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
+                    },series: {
+                                pointWidth: 35
                     }
                 },
                 series: [{
@@ -1014,7 +1178,7 @@ $(function () {
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TotalNationalReachAMJ'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=AMJ'+'&year='+year_ttl.value,
+            'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=AMJ'+'&year='+year_ttl.value+'&chasi='+chasi.value,
              beforeSend: function(){
 //                $("#detail_table_loader_ttl_national").show();  
 //                $("#TotalNational").hide();  
@@ -1118,6 +1282,8 @@ $(function () {
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
+                    },series: {
+                                pointWidth: 35
                     }
                 },
                 series: [{
@@ -1143,7 +1309,7 @@ $(function () {
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TotalNationalReachJFM'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=JFM'+'&year='+year_ttl.value,
+            'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=JFM'+'&year='+year_ttl.value+'&chasi='+chasi.value,
              beforeSend: function(){
 //                $("#detail_table_loader_ttl_national").show();  
 //                $("#TotalNational").hide(); 
@@ -1248,7 +1414,9 @@ $(function () {
                                     textShadow: '0 0 3px black, 0 0 3px black'
                                 }
                             }
-                        }
+                        },series: {
+                                pointWidth: 35
+                    }
                     },
                     series: [{
                         name: 'Total Score',
@@ -1273,7 +1441,7 @@ $(function () {
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TlQa'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'teamlead='+team_leader_qa.value+'&ph='+team_ph.value+'&month='+team_month.value+'&year='+team_year.value,
+            'data':'teamlead='+team_leader_qa.value+'&ph='+team_ph.value+'&month='+team_month.value+'&year='+team_year.value+'&chasi='+chasi.value,
             beforeSend: function(){
 //                $("#detail_table_loader_ttl_national").show();  
 //                $("#TotalNational").hide(); 

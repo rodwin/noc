@@ -297,7 +297,7 @@ $(function () {
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         },series: {
-                                pointWidth: 15
+                                pointWidth: 30
                         }
                     }
                 },
@@ -420,7 +420,9 @@ $(function () {
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
-                    }
+                    },series: {
+                                pointWidth: 30
+                        }
                 },
                 series: [{
                             name: 'Target Hit',
@@ -577,7 +579,7 @@ $(function () {
                             }
                         }
                     },series: {
-                        pointWidth: 20
+                        pointWidth: 30
                     }
                 },
                 series: [{
@@ -763,7 +765,7 @@ $(function () {
                             }
                         }
                     },series: {
-                        pointWidth: 20
+                        pointWidth: 30
                     }
                 },
                 series: [{
@@ -887,7 +889,7 @@ $(function () {
                             }
                         }
                     },series: {
-                        pointWidth: 20
+                        pointWidth: 30
                     }
                 },
                 series: [{
@@ -1005,7 +1007,7 @@ $(function () {
                             }
                         }
                     },series: {
-                        pointWidth: 20
+                        pointWidth: 30
                     }
                 },
                 series: [{
@@ -1169,7 +1171,7 @@ $(function () {
                             }
                         }
                     },series: {
-                        pointWidth: 20
+                        pointWidth: 30
                     }
                 },
                 series: [{
@@ -1337,7 +1339,7 @@ $(function () {
                             }
                         }
                     },series: {
-                        pointWidth: 20
+                        pointWidth: 30
                     }
                 },
                 series: [{

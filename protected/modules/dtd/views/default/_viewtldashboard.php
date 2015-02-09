@@ -159,7 +159,7 @@
                             }
                         }
                     },series: {
-                        pointWidth: 20
+                        pointWidth: 30
                     }
                 },
                 series: [{

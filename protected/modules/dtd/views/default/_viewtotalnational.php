@@ -121,7 +121,7 @@
                                 }
                             }
                         },series: {
-                            pointWidth: 15
+                            pointWidth: 30
                         }
                     },
                         series: [{
@@ -160,13 +160,6 @@
           var target_hit_total_jas = new Array();
           var actual_total_reach_jas = new Array();
           var actual_total_hit_jas = new Array();
-          var counter_target_reach_jas = 0;
-          var counter_target_hit_jas = 0;
-          var counter_actual_hit_jas = 0;
-          var counter_actual_reach_jas = 0;
-          var total_target_jas =0;
-          var total_actual_jas=0;
-          var total_actual_reach_jas=0;
           var prod_bar_jas_reach = new Array();
           var agency_ttl =  document.getElementById('total_agency');
     //      var qtr_ttl =  document.getElementById('total_quarter');
@@ -305,7 +298,7 @@
                                     }
                                 }
                             },series: {
-                                pointWidth: 15
+                                pointWidth: 30
                             }
                         },
                         series: [{
@@ -495,7 +488,7 @@
                                 }
                             }
                         },series: {
-                                pointWidth: 15
+                                pointWidth: 30
                         }
                     },
                     series: [{
@@ -671,7 +664,7 @@
                                 }
                             }
                         },series: {
-                                pointWidth: 15
+                                pointWidth: 30
                         }
                     },
                     series: [{

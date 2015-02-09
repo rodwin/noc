@@ -55,29 +55,12 @@
                         ),
                         'widgetOptions' => array(
                             'data' => $region,
-                            'htmlOptions' => array('multiple' => false,'prompt' => 'Select Region', 'id' => 'region_detail',
-                                'ajax' => array(
-                                    'type' => 'POST',
-                                    'url' => CController::createUrl('one'),
-                                    'update' => '#province_detail',
-                                    'data' => array('region_id' => 'js:this.value',),
-                                )),
+                            'htmlOptions' => array('multiple' => false,'prompt' => 'Select Region', 'id' => 'region_detail'),
                         )
                             )
                     );
                     ?>
-                    <?php
-                    echo $form->dropDownListGroup(
-                            $model, 'province', array(
-                        'wrapperHtmlOptions' => array(
-                            'class' => 'col-sm-5',
-                        ),
-                        'widgetOptions' => array(                          
-                            'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Province', 'id' => 'province_detail'),
-                            )
-                                )
-                    );
-                    ?>
+                    
                     <?php
                     echo $form->dropDownListGroup(
                             $model, 'ph', array(
@@ -164,6 +147,8 @@
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
+                    },series: {
+                                pointWidth: 35
                     }
                 },
                 series: [{
@@ -185,15 +170,16 @@
       var agency =  document.getElementById('agency_detail');
       var region =  document.getElementById('region_detail');
       var month =  document.getElementById('month_detail');
-      var province =  document.getElementById('province_detail');
+//      var province =  document.getElementById('province_detail');
       var ph =  document.getElementById('ph_detail');
       var brand =  document.getElementById('brand_detail');
       var year_detail =  document.getElementById('year_detail');
+      var chasi =  document.getElementById('project');
          $.ajax({
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/DetailedReach'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'agency='+agency.value+'&region='+region.value+'&month='+month.value+'&province='+province.value+'&ph='+ph.value+'&brand='+brand.value+'&year='+year_detail.value,
+            'data':'agency='+agency.value+'&region='+region.value+'&month='+month.value+'&ph='+ph.value+'&brand='+brand.value+'&year='+year_detail.value+'&chasi='+chasi.value,
             beforeSend: function(){
 //               $("#detail_table_loader_dtl").show();  
 //               $("#detailed_reach").hide();  
@@ -218,7 +204,7 @@
                         color = 'red';
                     }
                     target_reach.push({y: target, color: 'gray',mydata:target});
-                    target_actual.push({y: data[i].actual_reach, color: color,mydata:target});
+                    target_actual.push({y: parseFloat(data[i].actual_reach), color: color,mydata:target});
    
                }
 //               console.log(target_reach);
