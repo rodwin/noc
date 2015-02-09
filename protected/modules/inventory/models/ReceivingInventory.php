@@ -55,7 +55,7 @@ class ReceivingInventory extends CActiveRecord {
             array('pr_date, plan_delivery_date, revised_delivery_date, plan_arrival_date, transaction_date, dr_date, po_date, rra_date', 'type', 'type' => 'date', 'message' => '{attribute} is not a date!', 'dateFormat' => 'yyyy-MM-dd'),
             array('zone_id', 'isValidZone'),
             array('supplier_id', 'isValidSupplier'),
-            array('dr_no', 'uniqueDRNo'),
+//            array('dr_no', 'uniqueDRNo'),
             array('plan_delivery_date, revised_delivery_date, plan_arrival_date, created_date, updated_date, dr_date, recipients', 'safe'),
             // The following rule is used by search().
             // @todo Please remove those attributes that should not be searched.
@@ -83,14 +83,14 @@ class ReceivingInventory extends CActiveRecord {
         return;
     }
 
-    public function uniqueDRNo($attribute, $params) {
-
-        $model = ReceivingInventory::model()->findByAttributes(array('company_id' => $this->company_id, 'dr_no' => $this->$attribute));
-        if ($model && $model->receiving_inventory_id != $this->receiving_inventory_id) {
-            $this->addError($attribute, 'DR Number selected already taken');
-        }
-        return;
-    }
+//    public function uniqueDRNo($attribute, $params) {
+//
+//        $model = ReceivingInventory::model()->findByAttributes(array('company_id' => $this->company_id, 'dr_no' => $this->$attribute));
+//        if ($model && $model->receiving_inventory_id != $this->receiving_inventory_id) {
+//            $this->addError($attribute, 'DR Number selected already taken');
+//        }
+//        return;
+//    }
 
     public function beforeValidate() {
 
