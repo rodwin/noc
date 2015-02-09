@@ -943,8 +943,7 @@ class Inventory extends CActiveRecord {
                 INNER JOIN sku c ON c.sku_id = b.sku_id
                 LEFT JOIN returnable d ON d.reference_dr_no = a.dr_no
                 LEFT JOIN returnable_detail e ON e.returnable_id = d.returnable_id
-                WHERE c.type LIKE '%" . Sku::INFRA . "%'
-                AND b.return_date IS NOT NULL AND a.company_id = :company_id AND b.source_zone_id IN (" . Yii::app()->user->zones . ")
+                WHERE b.return_date IS NOT NULL AND a.company_id = :company_id AND b.source_zone_id IN (" . Yii::app()->user->zones . ")
                 GROUP BY a.dr_no, c.sku_id
                 HAVING remaining_qty != 0";
         
@@ -966,7 +965,7 @@ class Inventory extends CActiveRecord {
                 LEFT JOIN return_mdse d ON d.reference_dr_no = a.dr_no
                 LEFT JOIN return_mdse_detail e ON e.return_mdse_id = d.return_mdse_id AND e.sku_id = c.sku_id
 
-                WHERE c.type LIKE '%" . Sku::INFRA . "%' AND a.company_id = :company_id AND b.return_date IS NOT NULL AND a.destination_zone_id IN (" . Yii::app()->user->zones . ")
+                WHERE a.company_id = :company_id AND b.return_date IS NOT NULL AND a.destination_zone_id IN (" . Yii::app()->user->zones . ")
                 GROUP BY a.dr_no, c.sku_id
                 HAVING remaining_qty != 0";
         
