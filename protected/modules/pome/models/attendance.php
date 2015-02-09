@@ -61,6 +61,12 @@ class Attendance extends CFormModel {
     */
     public $year;
     
+    /**
+    * @var string year
+    * @soap
+    */
+    public $project;
+    
     
     
     
@@ -76,16 +82,22 @@ class Attendance extends CFormModel {
                     'brand'=>'Brand',
                     'teamlead'=>'Teamlead',
                     'year'=>'Year',
+                    'project'=>'Project',
 
             );
     }
     
    
-    public function getAllAgency() {
-
-
+    public function getAllAgency($agency) 
+    {
+        if($agency == 0){
+            $agency = 'id in (6,9)';
+        }else{
+            $agency = 'id='.$agency;
+        }
+        
       $sql ="SELECT *
-                FROM [pg_mapping].[dbo].[agency] where id = 6 ";
+                FROM [pg_mapping].[dbo].[agency] where $agency ";
       $command = Yii::app()->db3->createCommand($sql);
       $data = $command->queryAll();
 
@@ -129,12 +141,27 @@ class Attendance extends CFormModel {
       return $data; 
     }
     
-    public function getAllBwsTeam()
+    public function getAllBwsTeam($agency)
     {
         $sql =" SELECT *
                 FROM [pg_mapping].[dbo].[pome_pps]                
-                where team_leader = 1
+                where team_leader = 1 and agency_id = $agency
                 order by code";
+      $command = Yii::app()->db3->createCommand($sql);
+      $data = $command->queryAll();
+
+
+      return $data; 
+    }
+    
+    public function getAllTeamSchool($agency)
+    {
+        $sql =" SELECT b.name as teamCode,b.id
+                FROM [pg_mapping].[dbo].[agency_team] a
+                inner join [pg_mapping].[dbo].[team] b on b.id = a.team_id
+                where a.agency_id = $agency
+                order by b.teamCode";
+//        pr($sql);
       $command = Yii::app()->db3->createCommand($sql);
       $data = $command->queryAll();
 

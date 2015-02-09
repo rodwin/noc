@@ -55,29 +55,12 @@
                         ),
                         'widgetOptions' => array(
                             'data' => $region,
-                            'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Region', 'id' => 'region',
-                                'ajax' => array(
-                                    'type' => 'POST',
-                                    'url' => CController::createUrl('one'),
-                                    'update' => '#Attendance_province',
-                                    'data' => array('region_id' => 'js:this.value',),
-                                )),
+                            'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Region', 'id' => 'region')
                         )
                             )
                     );
                     ?>
-                    <?php
-                    echo $form->dropDownListGroup(
-                            $model, 'province', array(
-                        'wrapperHtmlOptions' => array(
-                            'class' => 'col-sm-5',
-                        ),
-                        'widgetOptions' => array(                          
-                            'htmlOptions' => array('multiple' => false, 'prompt' => 'Select Province'),
-                            )
-                                )
-                    );
-                    ?>
+                   
                     <?php
                     echo $form->dropDownListGroup(
                             $model, 'year', array(
@@ -150,6 +133,8 @@
                                 textShadow: '0 0 3px black, 0 0 3px black'
                             }
                         }
+                    },series: {
+                                pointWidth: 35
                     }
                 },
                 series: [{
@@ -171,14 +156,15 @@
       var agency =  document.getElementById('Attendance_agency');
       var region =  document.getElementById('region');
       var month =  document.getElementById('Attendance_month');
-      var province =  document.getElementById('Attendance_province');
+//      var province =  document.getElementById('Attendance_province');
       var brand =  document.getElementById('Attendance_brand');
       var att_year =  document.getElementById('att_year');
+      var chasi =  document.getElementById('project');
         $.ajax({
             'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/attendance'); ?>",
             'type':'GET',
             'dataType': 'json',
-            'data':'agency='+agency.value+'&region='+region.value+'&month='+month.value+'&province='+province.value+'&brand='+brand.value+'&year='+att_year.value,
+            'data':'agency='+agency.value+'&region='+region.value+'&month='+month.value+'&brand='+brand.value+'&year='+att_year.value+'&chasi='+chasi.value,
              beforeSend: function(){
 //               $("#detail_table_loader_attendance").show();  
 //               $("#container").hide();  
@@ -205,7 +191,7 @@
                     }
                     
                     attendance_target.push({y: target, color: 'gray',mydata:targettl});
-                    attendance_reach.push({y: data[i].actual_attendance, color: color,mydata:targettl});
+                    attendance_reach.push({y: parseFloat(data[i].actual_attendance), color: color,mydata:targettl});
    
                }
                chart.xAxis[0].setCategories(labels)

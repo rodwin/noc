@@ -257,7 +257,7 @@ class DefaultController extends Controller
              $from = date($_GET['year'].'-'.$month.'-01');
             
             $data_a = $model->getTargetHit($from,$to,$_GET['brand'],$_GET['agency'],$region,$_GET['year']);
-            $data_b = $model->getActualHit($from,$to,$_GET['brand'],$_GET['agency'],'1',$region);
+            $data_b = $model->getActualHit($from,$to,$_GET['brand'],$_GET['agency'],'3',$region);
             $data_d = $model->getActualHit($from,$to,$_GET['brand'],$_GET['agency'],'2',$region);
             $data_c = $model->getParPerArea($from,$par,$_GET['brand'],$_GET['agency'],$region,$_GET['year']);
             
@@ -271,12 +271,17 @@ class DefaultController extends Controller
             foreach($data_d as $keyd => $vald){
                 $actual_reach_array[$vald['name']] = $vald['hit'];
             }
-            
+//            pr($actual_hit_array);
+//            pr($actual_reach_array);
+//            exit;
             $par_array = array();
             foreach($data_c as $keyc => $valc){
                 $par_array[$valc['name']] = $valc['par'];
             }
-         
+            
+            foreach($actual_reach_array as $key=> $val){
+                     $actual_reach_array[$key] += isset($actual_hit_array[$key]) ? $actual_hit_array[$key]:0;
+            }
             
             $detail_hit = array();
             
@@ -297,10 +302,10 @@ class DefaultController extends Controller
                                  $detail_hit[$key_count]['par'] =$par_array[$vala['name']];  
                             }
                             if(isset($actual_hit_array[$vala['name']])){
-                                 $detail_hit[$key_count]['actual_hit'] =$actual_hit_array[$vala['name']];  
+                                     $detail_hit[$key_count]['actual_hit'] =$actual_hit_array[$vala['name']];  
                             }
                             if(isset($actual_reach_array[$vala['name']])){
-                                 $detail_hit[$key_count]['actual_reach'] =$actual_reach_array[$vala['name']];  
+                                     $detail_hit[$key_count]['actual_reach'] =$actual_reach_array[$vala['name']];  
                             }
                             $detail_hit[$key_count]['name'] = $vala['name'];
                             $detail_hit[$key_count]['target_hit'] = $vala['target_hit'];
@@ -353,6 +358,12 @@ class DefaultController extends Controller
             $actual_hit = array();
             $actual_reach = array();
             $previous = '';
+            $actual_hit['October']=0;
+            $actual_hit['November']=0;
+            $actual_hit['December']=0;
+            $actual_reach['October']=0;
+            $actual_reach['November']=0;
+            $actual_reach['December']=0;
             foreach($route_actual as $keya => $vala)
             {
                    $month_name = date('F',strtotime($vala['date']));
@@ -387,6 +398,9 @@ class DefaultController extends Controller
                    }
                    
                    $previous = $month_name;
+            }
+            foreach($actual_reach as $key=> $val){
+                     $actual_reach[$key] += isset($actual_hit[$key]) ? $actual_hit[$key]:0;
             }
             
             $par = array();
@@ -503,6 +517,12 @@ class DefaultController extends Controller
             $actual_hit = array();
             $actual_reach = array();
             $previous = '';
+            $actual_hit['October']=0;
+            $actual_hit['November']=0;
+            $actual_hit['December']=0;
+            $actual_reach['October']=0;
+            $actual_reach['November']=0;
+            $actual_reach['December']=0;
             foreach($route_actual as $keya => $vala)
             {
                    $month_name = date('F',strtotime($vala['date']));
@@ -537,6 +557,9 @@ class DefaultController extends Controller
                    }
                    
                    $previous = $month_name;
+            }
+            foreach($actual_reach as $key=> $val){
+                     $actual_reach[$key] += isset($actual_hit[$key]) ? $actual_hit[$key]:0;
             }
             
             $par = array();
@@ -654,7 +677,12 @@ class DefaultController extends Controller
 
             $actual_hit = array();
             $actual_reach = array();
+//            $actual_reach = array();
             $previous = '';
+            $actual_hit['January']=0;
+            $actual_hit['February']=0;
+            $actual_hit['March']=0;
+            
             foreach($route_actual as $keya => $vala)
             {
                    $month_name = date('F',strtotime($vala['date']));
@@ -672,6 +700,7 @@ class DefaultController extends Controller
                    
                    $previous = $month_name;
             }
+             
             $previous = '';
             foreach($route_actual_reach as $keyz => $valz)
             {
@@ -690,7 +719,10 @@ class DefaultController extends Controller
                    
                    $previous = $month_name;
             }
-//            pr($actual_reach);
+            foreach($actual_reach as $key=> $val){
+                     $actual_reach[$key] += isset($actual_hit[$key]) ? $actual_hit[$key]:0;
+            }
+
             $par = array();
             $previous_par = '';
             foreach($route_par as $keyb => $valb)
@@ -805,6 +837,12 @@ class DefaultController extends Controller
             $actual_hit = array();
             $actual_reach = array();
             $previous = '';
+            $actual_hit['October']=0;
+            $actual_hit['November']=0;
+            $actual_hit['December']=0;
+            $actual_reach['October']=0;
+            $actual_reach['November']=0;
+            $actual_reach['December']=0;
             foreach($route_actual as $keya => $vala)
             {
                    $month_name = date('F',strtotime($vala['date']));
@@ -840,6 +878,9 @@ class DefaultController extends Controller
                    }
                    
                    $previous = $month_name;
+            }
+            foreach($actual_reach as $key=> $val){
+                     $actual_reach[$key] += isset($actual_hit[$key]) ? $actual_hit[$key]:0;
             }
             
             $par = array();
@@ -1111,7 +1152,7 @@ class DefaultController extends Controller
          
             
 //            $data_a = $model->getTargetHit($from,$to,$_GET['brand'],$_GET['agency']);
-            $data_b = $model->getActualHit($from,$to,$_GET['brand'],$_GET['agency'],'1',$region);
+            $data_b = $model->getActualHit($from,$to,$_GET['brand'],$_GET['agency'],'3',$region);
             $data_d = $model->getActualHit($from,$to,$_GET['brand'],$_GET['agency'],'2',$region);
 //            $data_c = $model->getParPerArea($from,$par,$_GET['brand'],$_GET['agency']);
             
@@ -1126,7 +1167,9 @@ class DefaultController extends Controller
                 $actual_reach_array[$vald['name']] = $vald['hit'];
             }
             
-            
+            foreach($actual_reach_array as $key=> $val){
+                     $actual_reach_array[$key] += isset($actual_hit_array[$key]) ? $actual_hit_array[$key]:0;
+            }
             $detail_ave = array();
             
             foreach($data_route as $key => $val){

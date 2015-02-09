@@ -66,11 +66,11 @@
        
        
     function redrawtotal(){
-  var covered_global =0;
+    var covered_global =0;
     var reach_global =0;
     var trials_global = 0;
     
-      
+     
      var chartz = new Highcharts.Chart({
              chart: {
                         type: 'column',
@@ -113,7 +113,9 @@
                                     textShadow: '0 0 3px black, 0 0 3px black'
                                 }
                             }
-                        }
+                        },series: {
+                                pointWidth: 35
+                    }
                     },
                     series: [{
                         name: 'Target',
@@ -138,11 +140,13 @@
     //      var qtr_ttl =  document.getElementById('total_quarter');
           var brand_ttl =  document.getElementById('total_brand');
           var year_ttl =  document.getElementById('total_year');
+          var chasi =  document.getElementById('project');
+          console.log(chasi.value);
             $.ajax({
                 'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TotalNationalReach'); ?>",
                 'type':'GET',
                 'dataType': 'json',
-                'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=JAS'+'&year='+year_ttl.value,
+                'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=JAS'+'&year='+year_ttl.value+'&chasi='+chasi.value,
                  beforeSend: function(){
     //                $("#detail_table_loader_ttl_national").show();  
     //                $("#TotalNational").hide();     
@@ -247,7 +251,9 @@
                                         textShadow: '0 0 3px black, 0 0 3px black'
                                     }
                                 }
-                            }
+                            },series: {
+                                pointWidth: 35
+                    }
                         },
                         series: [{
                             name: 'Target',
@@ -261,7 +267,7 @@
                         }]
             });
 
-                      var labels_total_ond = new Array();
+          var labels_total_ond = new Array();
           var target_reach_total_ond = new Array();
           var target_actual_total_ond = new Array();
           var counter_target_ond = 0;
@@ -272,7 +278,7 @@
                 'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TotalNationalReachOND'); ?>",
                 'type':'GET',
                 'dataType': 'json',
-                'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=OND'+'&year='+year_ttl.value,
+                'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=OND'+'&year='+year_ttl.value+'&chasi='+chasi.value,
                  beforeSend: function(){
     //                $("#detail_table_loader_ttl_national").show();  
     //                $("#TotalNational").hide(); 
@@ -376,7 +382,9 @@
                                     textShadow: '0 0 3px black, 0 0 3px black'
                                 }
                             }
-                        }
+                        },series: {
+                                pointWidth: 35
+                    }
                     },
                     series: [{
                         name: 'Target',
@@ -401,7 +409,7 @@
                 'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TotalNationalReachAMJ'); ?>",
                 'type':'GET',
                 'dataType': 'json',
-                'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=AMJ'+'&year='+year_ttl.value,
+                'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=AMJ'+'&year='+year_ttl.value+'&chasi='+chasi.value,
                  beforeSend: function(){
     //                $("#detail_table_loader_ttl_national").show();  
     //                $("#TotalNational").hide();  
@@ -505,6 +513,8 @@
                                     textShadow: '0 0 3px black, 0 0 3px black'
                                 }
                             }
+                        },series: {
+                                pointWidth: 35
                         }
                     },
                     series: [{
@@ -530,7 +540,7 @@
                 'url':"<?php echo Yii::app()->createUrl($this->module->id . '/Default/TotalNationalReachJFM'); ?>",
                 'type':'GET',
                 'dataType': 'json',
-                'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=JFM'+'&year='+year_ttl.value,
+                'data':'agency='+agency_ttl.value+'&brand='+brand_ttl.value+'&qtr=JFM'+'&year='+year_ttl.value+'&chasi='+chasi.value,
                  beforeSend: function(){
     //                $("#detail_table_loader_ttl_national").show();  
     //                $("#TotalNational").hide(); 
@@ -539,6 +549,7 @@
                 'success':function(data) {
 
                    for(var i = 0; i < data.length; i++){
+                      
                         labels_total_jfm.push(data[i].name);
 
                         var target = data[i].target_reach - data[i].actual_reach;

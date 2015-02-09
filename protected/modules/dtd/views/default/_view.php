@@ -133,7 +133,7 @@
                             }
                         }
                     },series: {
-                                pointWidth: 15
+                                pointWidth: 30
                         }
                 },
                 series: [{
